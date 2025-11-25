@@ -14,6 +14,15 @@ export const categoryApiSlice = apiSlice.injectEndpoints({
       invalidatesTags: ['Category'],
     }),
 
+
+      getAllCategories: builder.query({
+      query: (params = {}) => ({
+        url: `${Category_URL}/getallcategories`,
+        method: 'GET',
+        params: params, 
+      }),
+      providesTags: ['Category'], 
+    }),
   })
 });
-export const {useCreateCategoryMutation} = categoryApiSlice;
+export const {useCreateCategoryMutation,useGetAllCategoriesQuery} = categoryApiSlice;

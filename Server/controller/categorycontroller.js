@@ -370,3 +370,54 @@ export const getCategoryStats = async (req, res) => {
     });
   }
 };
+
+// Get all categories 
+export const getViewAllCategories = async (req, res) => {
+  try {
+    const { 
+      isActive, 
+      sortBy = "order", 
+      sortOrder = "asc",
+      page,
+      limit 
+    } = req.query;
+
+
+    const filter = {};
+    if (isActive !== undefined) {
+      filter.isActive = isActive === "true";
+    }
+
+    const sort = {};
+    sort[sortBy] = sortOrder === "desc" ? -1 : 1;
+
+
+    const pageNumber = parseInt(page) || 1;
+    const pageSize = parseInt(limit) || 0; 
+    const skip = (pageNumber - 1) * pageSize;
+
+    const categories = await Category.find(filter)
+      .sort(sort)
+      .skip(skip)
+      .limit(pageSize)
+      .select("-__v");
+
+    const totalCategories = await Category.countDocuments(filter);
+    const totalPages = pageSize > 0 ? Math.ceil(totalCategories / pageSize) : 1;
+
+    res.status(200).json({
+      success: true,
+      count: categories.length,
+      total: totalCategories,
+      page: pageNumber,
+      pages: totalPages,
+      categories,
+    });
+  } catch (error) {
+    console.error("Get categories error:", error);
+    res.status(500).json({
+      message: "Error fetching categories",
+      error: error.message,
+    });
+  }
+};

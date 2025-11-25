@@ -8,6 +8,7 @@ import MainDashboard from './Pages/Dashboard/MainDashboard.jsx';
 import Layout from './Pages/Dashboard/Layout.jsx';
 import Categories from './Pages/Categories/AddCategories.jsx'
 import ViewCategories from './Pages/Categories/ViewCategories.jsx';
+import ViewArticle from './Pages/Article/ViewArticle.jsx';
 
 const App = () => {
   return (
@@ -23,6 +24,7 @@ const App = () => {
      <Route path ='/dashboard'element={<MainDashboard/>}/>
      <Route path ='/categories' element={<Categories/>}/>
      <Route path ='/viewcat' element={<ViewCategories/>}/>
+     <Route path ='/viewarticle' element={<ViewArticle/>}/>
     </Route>
     </Routes>
   )

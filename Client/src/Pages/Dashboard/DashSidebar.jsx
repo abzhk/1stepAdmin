@@ -17,7 +17,7 @@ const navigate = useNavigate();
       setActive("Dashboard");
     } else if (location.pathname === "/viewcat") {
       setActive("Categories");
-    } else if (location.pathname === "/blogs") {
+    } else if (location.pathname === "viewarticle") {
       setActive("Blogs");
     } else if (location.pathname === "/reviews") {
       setActive("Reviews");
@@ -76,11 +76,11 @@ const navigate = useNavigate();
 
     <label
       onClick={() => {
-        setActive("Blogs");
-        navigate("/blogs");
+        setActive("Reports");
+        navigate("/report");
       }}
       className={` flex items-center gap-2 font-semibold cursor-pointer transition p-3 rounded 
-        ${active === "Blogs" 
+        ${active === "Reports" 
           ? "bg-[#fbbf24] text-black" 
           : "text-white hover:bg-[#fbbf24] hover:text-black"
         }`}
@@ -105,7 +105,7 @@ const navigate = useNavigate();
     <label
       onClick={() => {
         setActive("Blogs");
-        navigate("/blogs");
+        navigate("/viewarticle");
       }}
       className={`flex items-center gap-2 font-semibold cursor-pointer transition p-3 rounded 
         ${active === "Blogs" 
