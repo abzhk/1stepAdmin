@@ -1,13 +1,15 @@
 import React, { useState, useMemo } from "react";
 import AddCategory from "./AddCategories";
-import { useGetAllCategoriesQuery } from "../../redux/slice/api/categoryApiSlice";
+import { useEffect } from "react";
+// import { useGetAllCategoriesQuery } from "../../redux/slice/api/categoryApiSlice";
 
 const ViewCategories = () => {
+  const [categories, setCategories] = useState([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const {data:response,isLoading,isError,error}= useGetAllCategoriesQuery();
-
-  const categories = response?.categories || [];
- const totalCount = response?.total || 0;
+  // const {data:response,isLoading,isError,error}= useGetAllCategoriesQuery();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -16,6 +18,40 @@ const ViewCategories = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
   const totalPages = Math.max(1, Math.ceil(categories.length / PAGE_SIZE));
+
+
+useEffect(() => {
+  const fetchCategories = async () => {
+    try {
+      setLoading(true);
+      setError("");
+
+      const res = await fetch("http://localhost:3001/api/category/getallcategories", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to fetch");
+      }
+
+      const data = await res.json();
+
+      setCategories(data.categories || []);
+      setTotalCount(data.total || 0);
+
+    } catch (err) {
+      console.error(err);
+      setError("Failed to load categories");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchCategories();
+}, []);
 
 
   const visibleCategories = useMemo(() => {
@@ -67,7 +103,7 @@ const ViewCategories = () => {
 
           <tbody className="divide-y divide-gray-100">
             {visibleCategories.map((item, index) => (
-              <tr key={item.id} className="hover:bg-gray-50 transition">
+              <tr key={item._id} className="hover:bg-gray-50 transition">
                 <td className="p-3 font-bold">{(currentPage - 1) * PAGE_SIZE + index + 1}</td>
                 <td className="p-3">{item.name}</td>
                 <td className="p-3">{item.icon}</td>
