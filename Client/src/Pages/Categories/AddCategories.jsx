@@ -1,38 +1,40 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useCreateCategoryMutation } from "../../redux/slice/api/categoryApiSlice";
 
 const AddCategory = ({ isOpen, onClose, onSave }) => {
-  const [createCategory, { isLoading, isError, error, isSuccess }] = useCreateCategoryMutation();
-  
-  const {register,handleSubmit,reset,formState: { errors },} = useForm({
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
       name: "",
       description: "",
       icon: "📝",
       color: "#65467C",
-      order: 0
+      order: 0,
+    },
   });
 
   useEffect(() => {
     if (isOpen) {
       reset();
+      setErrorMsg("");
       document.body.style.overflow = "hidden";
     }
-    return () => { 
-      document.body.style.overflow = ""; 
+    return () => {
+      document.body.style.overflow = "";
     };
   }, [isOpen, reset]);
 
-  useEffect(() => {
-    if (isSuccess) {
-      onClose(); 
-      if (onSave) onSave(); 
-    }
-  }, [isSuccess, onClose, onSave]);
 
   useEffect(() => {
-    const handleEsc = (e) => { 
-      if (e.key === "Escape") onClose(); 
+    const handleEsc = (e) => {
+      if (e.key === "Escape") onClose();
     };
     if (isOpen) window.addEventListener("keydown", handleEsc);
     return () => window.removeEventListener("keydown", handleEsc);
@@ -40,17 +42,44 @@ const AddCategory = ({ isOpen, onClose, onSave }) => {
 
   const onSubmit = async (formData) => {
     try {
-      const result = await createCategory({
-        name: formData.name.trim(),
-        description: formData.description.trim(),
-        icon: formData.icon,
-        color: formData.color,
-        order: parseInt(formData.order) || 0
-      }).unwrap();
-      console.log("Category created successfully:", result);
+      setIsLoading(true);
+      setErrorMsg("");
 
-    } catch (error) {
-      console.error("Failed to create category:", error);
+      const token = localStorage.getItem("adminToken"); 
+
+      const res = await fetch("http://localhost:3001/api/category/addcategory", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
+        body: JSON.stringify({
+          name: formData.name.trim(),
+          description: formData.description.trim(),
+          icon: formData.icon,
+          color: formData.color,
+          order: parseInt(formData.order) || 0,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || data.success === false) {
+        throw new Error(data.message || "Failed to create category");
+      }
+
+      console.log("Category created successfully:", data);
+
+
+      if (onSave) onSave();
+
+
+      onClose();
+    } catch (err) {
+      console.error("Failed to create category:", err);
+      setErrorMsg(err.message || "Error creating category");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -70,9 +99,9 @@ const AddCategory = ({ isOpen, onClose, onSave }) => {
       <div className="relative z-10 w-full max-w-3xl bg-white rounded-2xl shadow-xl p-6">
         <h3 className="text-xl font-semibold mb-4">Add Category</h3>
 
-        {isError && (
+        {errorMsg && (
           <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-            {error?.data?.message || "Error creating category"}
+            {errorMsg}
           </div>
         )}
 
@@ -81,14 +110,16 @@ const AddCategory = ({ isOpen, onClose, onSave }) => {
             <div>
               <label className="text-sm font-medium">Category Name *</label>
               <input
-                {...register("name", { 
+                {...register("name", {
                   required: "Category name is required",
                 })}
                 className="block w-full mt-2 rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-100"
                 placeholder="Enter category name"
               />
               {errors.name && (
-                <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.name.message}
+                </p>
               )}
             </div>
 
@@ -125,29 +156,33 @@ const AddCategory = ({ isOpen, onClose, onSave }) => {
                 placeholder="Display order"
               />
               {errors.order && (
-                <p className="text-red-500 text-sm mt-1">{errors.order.message}</p>
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.order.message}
+                </p>
               )}
             </div>
 
             <div className="md:col-span-2">
               <label className="text-sm font-medium">Description *</label>
               <textarea
-                {...register("description", { 
+                {...register("description", {
                   required: "Description is required",
                   minLength: {
                     value: 10,
-                    message: "Description must be at least 10 characters"
+                    message: "Description must be at least 10 characters",
                   },
                   maxLength: {
                     value: 200,
-                    message: "Description must be less than 200 characters"
-                  }
+                    message: "Description must be less than 200 characters",
+                  },
                 })}
                 placeholder="Enter category description"
                 className="block w-full mt-2 rounded-lg border border-gray-200 px-4 py-2 h-28 resize-none focus:outline-none focus:ring-2 focus:ring-green-100"
               />
               {errors.description && (
-                <p className="text-red-500 text-sm mt-1">{errors.description.message}</p>
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.description.message}
+                </p>
               )}
             </div>
           </div>
