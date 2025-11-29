@@ -9,6 +9,8 @@ import Layout from './Pages/Dashboard/Layout.jsx';
 import Categories from './Pages/Categories/AddCategories.jsx'
 import ViewCategories from './Pages/Categories/ViewCategories.jsx';
 import ViewArticle from './Pages/Article/ViewArticle.jsx';
+import AddAssessmentCategory from './Pages/Assessment/AddAssessmentCategory.jsx';
+import ProviderAssessment from './Pages/Assessment/ProviderAssessment.jsx';
 
 const App = () => {
   return (
@@ -25,6 +27,8 @@ const App = () => {
      <Route path ='/categories' element={<Categories/>}/>
      <Route path ='/viewcat' element={<ViewCategories/>}/>
      <Route path ='/viewarticle' element={<ViewArticle/>}/>
+    <Route path ='/addassessment' element={<AddAssessmentCategory/>}/>
+    <Route path ='/providerassessment' element={<ProviderAssessment/>}/>
     </Route>
     </Routes>
   )

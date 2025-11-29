@@ -4,7 +4,7 @@ import Admin from "../model/adminmodel.js";
 export const verifyAdminToken = async (req, res, next) => {
   try {
     let authHeader = req.headers.authorization;
-    console.log("Authorization header:", authHeader);
+    // console.log("Authorization header:", authHeader);
 
     if (!authHeader) {
       return res.status(401).json({ message: "No token provided" });
