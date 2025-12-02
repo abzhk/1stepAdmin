@@ -10,6 +10,7 @@ const DashSidebar = () => {
   const navigate = useNavigate();
   const [active, setActive] = useState("");
   const [isArticleOpen, setIsArticleOpen] = useState(false);
+  const [isAssessmentOpen,setIsAssessmentOpen]=useState(false);
 
   useEffect(() => {
     if (location.pathname === "/dashboard") {
@@ -36,12 +37,31 @@ const DashSidebar = () => {
     } 
   };
 
+  const handleAssessmentClick =(section )=>{
+    setActive(section);
+     if (section === "Add Assessment") {
+      navigate("/addassessment");
+    } else if (section === "Provider Assessments") {
+      navigate("/providerassessment");
+    }
+  }
+
+   const toggleAssessmentSection = () => {
+    setIsAssessmentOpen((prev) => !prev);
+  };
+
   const toggleArticleSection = () => {
     setIsArticleOpen(!isArticleOpen);
   };
 
+  const handleLogout = () => {
+  localStorage.removeItem("adminToken");
+  localStorage.removeItem("adminInfo");
+  navigate("/log"); 
+};
+
   return (
-    <div className="w-56 bg-[#39a8a8] text-white flex-shrink-0 h-full flex flex-col rounded-br-2xl">
+    <div className="w-56 bg-[#f5d6c4] text-white flex-shrink-0 h-full flex flex-col rounded-br-2xl">
       <nav className="flex flex-col gap-2 p-2 flex-1 overflow-y-auto">
         <label
           onClick={() => {
@@ -50,7 +70,7 @@ const DashSidebar = () => {
           }}
           className={`flex items-center gap-2 font-semibold cursor-pointer transition p-3 rounded 
             ${active === "Dashboard" 
-              ? "bg-[#fbbf24] text-black" 
+              ? "bg-[#ffd333] text-black" 
               : "text-white hover:bg-[#fbbf24] hover:text-black"
             }`}
         >
@@ -157,7 +177,7 @@ const DashSidebar = () => {
                   }`}
               >
                 <TbLogs className="text-lg" />
-                Approve Articles
+                View Articles
               </label>
 
               {/* <label
@@ -175,25 +195,63 @@ const DashSidebar = () => {
           )}
         </div>
 
-        <label
-          onClick={() => {
-            setActive("Reviews");
-            navigate("/reviews");
-          }}
-          className={`flex items-center gap-2 font-semibold cursor-pointer transition p-3 rounded
-            ${active === "Reviews" 
-              ? "bg-[#fbbf24] text-black" 
-              : "text-white hover:bg-[#fbbf24] hover:text-black"
-            }`}
-        >
-          <MdRateReview className="text-2xl" />
-          Reviews
-        </label>
+          <div className="transition-all duration-300">
+          <div
+            onClick={toggleAssessmentSection}
+            className={`flex items-center justify-between font-semibold cursor-pointer transition p-3 rounded 
+              ${
+                active === "Add Assessment" || active === "Provider Assessments"
+                  ? "bg-[#fbbf24] text-black"
+                  : "text-white hover:bg-[#fbbf24] hover:text-black"
+              }`}
+          >
+            <div className="flex items-center gap-2">
+              <MdRateReview className="text-2xl" />
+              <span>Assessment</span>
+            </div>
+            {isAssessmentOpen ? (
+              <MdArrowDropDown className="text-xl transition-transform" />
+            ) : (
+              <MdArrowRight className="text-xl transition-transform" />
+            )}
+          </div>
+
+          {isAssessmentOpen && (
+            <div className="ml-4 mt-1 space-y-1 border-l-2 border-[#fbbf24] pl-2">
+              <label
+                onClick={() => handleAssessmentClick("Add Assessment")}
+                className={`flex items-center gap-2 cursor-pointer transition p-2 rounded text-sm
+                  ${
+                    active === "Add Assessment"
+                      ? "bg-[#fbbf24] text-black font-medium"
+                      : "text-white hover:bg-[#fbbf24] hover:text-black"
+                  }`}
+              >
+                <MdRateReview className="text-lg" />
+                Add Assessment
+              </label>
+
+              <label
+                onClick={() => handleAssessmentClick("Provider Assessments")}
+                className={`flex items-center gap-2 cursor-pointer transition p-2 rounded text-sm
+                  ${
+                    active === "Provider Assessments"
+                      ? "bg-[#fbbf24] text-black font-medium"
+                      : "text-white hover:bg-[#fbbf24] hover:text-black"
+                  }`}
+              >
+                <TbReportSearch className="text-lg" />
+                Provider Assessments
+              </label>
+            </div>
+)}
+        </div>
       </nav>
 
 
       <div className="p-2">
-        <button className="flex items-center justify-center gap-2 bg-[#fbbf24] text-black w-full py-2 rounded-lg shadow hover:bg-[#f0ab19] transition">
+        <button className="flex items-center justify-center gap-2 bg-[#fbbf24] text-black w-full py-2 rounded-lg shadow hover:bg-[#f0ab19] transition"
+        onClick={handleLogout}>
           <CgLogOut className="text-xl" />
           <span>Logout</span>
         </button>

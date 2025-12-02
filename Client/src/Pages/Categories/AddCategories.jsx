@@ -45,14 +45,13 @@ const AddCategory = ({ isOpen, onClose, onSave }) => {
       setIsLoading(true);
       setErrorMsg("");
 
-      const token = localStorage.getItem("adminToken"); 
 
       const res = await fetch("http://localhost:3001/api/category/addcategory", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(token && { Authorization: `Bearer ${token}` }),
-        },
+       credentials: "include",
+         headers: {
+    "Content-Type": "application/json",   
+  },
         body: JSON.stringify({
           name: formData.name.trim(),
           description: formData.description.trim(),
@@ -84,6 +83,7 @@ const AddCategory = ({ isOpen, onClose, onSave }) => {
   };
 
   if (!isOpen) return null;
+
 
   return (
     <div

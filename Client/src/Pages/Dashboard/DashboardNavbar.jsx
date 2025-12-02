@@ -8,7 +8,7 @@ const DashboardNavbar = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="w-full bg-[#519e9e] text-white p-4 ">
+    <div className="w-full bg-[#faf3e8] text-white p-4 ">
       <div className="flex justify-between">
        <img src={logo} alt="Logo" className="h-10 w-auto" />
         <div className="flex gap-6 ">
