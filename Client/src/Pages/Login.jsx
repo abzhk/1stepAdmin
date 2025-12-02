@@ -53,6 +53,7 @@ const Login = () => {
         headers: {
           "Content-Type": "application/json",
         },
+         credentials: "include", 
         body: JSON.stringify({ username, password }),
       });
 
@@ -65,8 +66,8 @@ const Login = () => {
       }
 
 
-      localStorage.setItem("adminToken", data.token);
-      localStorage.setItem("adminInfo", JSON.stringify(data.admin));
+      // localStorage.setItem("adminToken", data.token);
+      // localStorage.setItem("adminInfo", JSON.stringify(data.admin));
 
 
       navigate("/dashboard");

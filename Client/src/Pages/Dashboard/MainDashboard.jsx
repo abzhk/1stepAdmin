@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useGetStatsQuery } from "../../redux/slice/api/statsApiSlice";
+import React, { useState,useEffect } from "react";
+
 import {
   FaUserInjured,
   FaUserMd,
@@ -26,6 +26,8 @@ const MainDashboard = () => {
     {id: 5,time: "1d ago",text: "New clinic added — Vibin Clinic",type: "clinic",},
   ];
 
+  const [stats, setStats] = useState(null);
+
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
@@ -35,7 +37,33 @@ const MainDashboard = () => {
 
   const totalPages = Math.ceil(tableData.length / itemsPerPage);
 
-const {data:stats}= useGetStatsQuery();
+
+
+useEffect(() => {
+  const fetchStats = async () => {
+    try {
+      const res = await fetch("http://localhost:3001/api/track/stats", {
+        method: "GET",
+        credentials: "include",  
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.message || "Failed to load stats");
+        return;
+      }
+
+      setStats(data);
+    } catch (err) {
+      console.error("Stats fetch error:", err);
+      setError("Something went wrong");
+    } finally {
+    }
+  };
+
+  fetchStats();
+}, []);
 
   return (
     <div className="min-h-screen p-6 bg-white">

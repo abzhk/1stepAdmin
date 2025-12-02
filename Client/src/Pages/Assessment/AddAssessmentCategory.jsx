@@ -31,9 +31,10 @@ const AddAssessmentCategory = () => {
     try {
       const res = await fetch("http://localhost:3001/api/assessment/category", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        credentials: "include",
+         headers: {
+           "Content-Type": "application/json",   
+           },
         body: JSON.stringify(formData),
       });
 
@@ -43,7 +44,7 @@ const AddAssessmentCategory = () => {
         throw new Error(data.message || "Failed to create category");
       }
 
-      setSuccess("Category created successfully ✅");
+      setSuccess("Category created successfully");
 
       setFormData({
         name: "",

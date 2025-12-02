@@ -61,7 +61,7 @@ const DashSidebar = () => {
 };
 
   return (
-    <div className="w-56 bg-[#39a8a8] text-white flex-shrink-0 h-full flex flex-col rounded-br-2xl">
+    <div className="w-56 bg-[#f5d6c4] text-white flex-shrink-0 h-full flex flex-col rounded-br-2xl">
       <nav className="flex flex-col gap-2 p-2 flex-1 overflow-y-auto">
         <label
           onClick={() => {
@@ -70,7 +70,7 @@ const DashSidebar = () => {
           }}
           className={`flex items-center gap-2 font-semibold cursor-pointer transition p-3 rounded 
             ${active === "Dashboard" 
-              ? "bg-[#fbbf24] text-black" 
+              ? "bg-[#ffd333] text-black" 
               : "text-white hover:bg-[#fbbf24] hover:text-black"
             }`}
         >

@@ -28,6 +28,7 @@ useEffect(() => {
 
       const res = await fetch("http://localhost:3001/api/category/getallcategories", {
         method: "GET",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
@@ -72,6 +73,7 @@ useEffect(() => {
     const p = Math.min(Math.max(1, page), totalPages);
     setCurrentPage(p);
   };
+  
 
   return (
     <div className="p-6 bg-green-50 min-h-screen">

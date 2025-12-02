@@ -10,16 +10,12 @@ function ProviderAssessment() {
       setLoading(true);
       setError("");
 
-      const token = localStorage.getItem("adminToken");
 
       const res = await fetch(
         "http://localhost:3001/api/assessment/admin/allassessments",
         {
           method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
+          credentials: "include",
         }
       );
 
