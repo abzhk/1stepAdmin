@@ -30,12 +30,12 @@ const Login = () => {
     return () => clearInterval(id);
   }, []);
 
-  useEffect(() => {
-    const token = localStorage.getItem("adminToken");
-    if (token) {
-      navigate("/dashboard");
-    }
-  }, [navigate]);
+  // useEffect(() => {
+  //   const token = localStorage.getItem("adminToken");
+  //   if (token) {
+  //     navigate("/dashboard");
+  //   }
+  // }, [navigate]);
 
   const handleLogout = () => {
     googleLogout();
@@ -64,11 +64,6 @@ const Login = () => {
         setLoading(false);
         return;
       }
-
-
-      // localStorage.setItem("adminToken", data.token);
-      // localStorage.setItem("adminInfo", JSON.stringify(data.admin));
-
 
       navigate("/dashboard");
     } catch (err) {
