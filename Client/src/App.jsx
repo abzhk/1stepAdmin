@@ -11,6 +11,8 @@ import ViewCategories from './Pages/Categories/ViewCategories.jsx';
 import ViewArticle from './Pages/Article/ViewArticle.jsx';
 import AddAssessmentCategory from './Pages/Assessment/AddAssessmentCategory.jsx';
 import ProviderAssessment from './Pages/Assessment/ProviderAssessment.jsx';
+import ViewProvider from './Pages/Provider/ViewProvider.jsx';
+import ProviderStats from './Pages/Provider/ProviderStats.jsx';
 
 const App = () => {
   return (
@@ -29,6 +31,8 @@ const App = () => {
      <Route path ='/viewarticle' element={<ViewArticle/>}/>
     <Route path ='/addassessment' element={<AddAssessmentCategory/>}/>
     <Route path ='/providerassessment' element={<ProviderAssessment/>}/>
+     <Route path ='/allproviders' element={<ViewProvider/>}/>
+     <Route path ='/provider-stats/:id' element={<ProviderStats/>}/>
     </Route>
     </Routes>
   )

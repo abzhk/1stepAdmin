@@ -81,11 +81,11 @@ const DashSidebar = () => {
         <label
           onClick={() => {
             setActive("Provider");
-            navigate("/categories");
+            navigate("/allproviders");
           }}
           className={`font-semibold cursor-pointer transition p-3 rounded 
             ${active === "Provider" 
-              ? "bg-[#fbbf24] text-black" 
+              ? "bg-[#ffd333] text-black" 
               : "text-white hover:bg-[#fbbf24] hover:text-black"
             }`}
         >
@@ -99,7 +99,7 @@ const DashSidebar = () => {
           }}
           className={`flex items-center gap-2 font-semibold cursor-pointer transition p-3 rounded
             ${active === "Parent" 
-              ? "bg-[#fbbf24] text-black" 
+              ? "bg-[#ffd333] text-black" 
               : "text-white hover:bg-[#fbbf24] hover:text-black"
             }`}
         >
@@ -114,7 +114,7 @@ const DashSidebar = () => {
           }}
           className={`flex items-center gap-2 font-semibold cursor-pointer transition p-3 rounded 
             ${active === "Reports" 
-              ? "bg-[#fbbf24] text-black" 
+              ? "bg-[#ffd333] text-black" 
               : "text-white hover:bg-[#fbbf24] hover:text-black"
             }`}
         >
@@ -127,13 +127,13 @@ const DashSidebar = () => {
             onClick={toggleArticleSection}
             className={`flex items-center justify-between font-semibold cursor-pointer transition p-3 rounded 
               ${active.includes("Articles") || active.includes("Category") 
-                ? "bg-[#fbbf24] text-black" 
+                ? "bg-[#ffd333] text-black" 
                 : "text-white hover:bg-[#fbbf24] hover:text-black"
               }`}
           >
             <div className="flex items-center gap-2">
               <TbArticle className="text-2xl" />
-              <span>Articles</span>
+              <span className=''>Content Management</span>
             </div>
             {isArticleOpen ? (
               <MdArrowDropDown className="text-xl transition-transform" />
@@ -148,7 +148,7 @@ const DashSidebar = () => {
                 onClick={() => handleArticleClick("Add Category")}
                 className={`flex items-center gap-2 cursor-pointer transition p-2 rounded text-sm
                   ${active === "Add Category" 
-                    ? "bg-[#fbbf24] text-black font-medium" 
+                    ? "bg-[#ffd333] text-black font-medium" 
                     : "text-white hover:bg-[#fbbf24] hover:text-black"
                   }`}
               >
@@ -172,7 +172,7 @@ const DashSidebar = () => {
                 onClick={() => handleArticleClick("Approve Articles")}
                 className={`flex items-center gap-2 cursor-pointer transition p-2 rounded text-sm
                   ${active === "Approve Articles" 
-                    ? "bg-[#fbbf24] text-black font-medium" 
+                    ? "bg-[#ffd333] text-black font-medium" 
                     : "text-white hover:bg-[#fbbf24] hover:text-black"
                   }`}
               >
@@ -201,7 +201,7 @@ const DashSidebar = () => {
             className={`flex items-center justify-between font-semibold cursor-pointer transition p-3 rounded 
               ${
                 active === "Add Assessment" || active === "Provider Assessments"
-                  ? "bg-[#fbbf24] text-black"
+                  ? "bg-[#ffd333] text-black"
                   : "text-white hover:bg-[#fbbf24] hover:text-black"
               }`}
           >
@@ -223,7 +223,7 @@ const DashSidebar = () => {
                 className={`flex items-center gap-2 cursor-pointer transition p-2 rounded text-sm
                   ${
                     active === "Add Assessment"
-                      ? "bg-[#fbbf24] text-black font-medium"
+                      ? "bg-[#ffd333] text-black font-medium"
                       : "text-white hover:bg-[#fbbf24] hover:text-black"
                   }`}
               >
@@ -236,7 +236,7 @@ const DashSidebar = () => {
                 className={`flex items-center gap-2 cursor-pointer transition p-2 rounded text-sm
                   ${
                     active === "Provider Assessments"
-                      ? "bg-[#fbbf24] text-black font-medium"
+                      ? "bg-[#ffd333] text-black font-medium"
                       : "text-white hover:bg-[#fbbf24] hover:text-black"
                   }`}
               >
@@ -250,7 +250,7 @@ const DashSidebar = () => {
 
 
       <div className="p-2">
-        <button className="flex items-center justify-center gap-2 bg-[#fbbf24] text-black w-full py-2 rounded-lg shadow hover:bg-[#f0ab19] transition"
+        <button className="flex items-center justify-center gap-2 bg-[#ffd333] text-black w-full py-2 rounded-lg shadow hover:bg-[#f0ab19] transition"
         onClick={handleLogout}>
           <CgLogOut className="text-xl" />
           <span>Logout</span>

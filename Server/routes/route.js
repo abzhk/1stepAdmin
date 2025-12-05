@@ -4,6 +4,8 @@ import categoryRouter from './categoryroute.js'
 import articleRouter from './articleroute.js'
 import adminRoute from './adminroute.js'
 import assessmentRoute from './assessmentroute.js';
+import providerRoute from './providerroute.js'
+import bookingRoute from './bookingroute.js'
 
 const router = express.Router(); 
 
@@ -17,6 +19,10 @@ router.use('/article',articleRouter)
 router.use('/admin',adminRoute)
 //assessment route
 router.use('/assessment',assessmentRoute)
+//provider route
+router.use('/provider',providerRoute)
+//booking route
+router.use('/booking',bookingRoute)
 
 
 export default router;
