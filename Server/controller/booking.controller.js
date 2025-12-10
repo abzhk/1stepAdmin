@@ -1,6 +1,6 @@
-import { Booking } from "../model/bookingmodel.js";
-import { BookedSlots } from "../model/bookingmodel.js";
-// import { errorHandler } from "../utils/error.js";
+import { Booking } from "../model/booking.model.js";
+import { BookedSlots } from "../model/booking.model.js";
+import { errorHandler } from "../utils/error.js";
 // import User from "../models/user.model.js";
 import Provider from "../model/providermodel.js";
 import mongoose from "mongoose";
@@ -550,7 +550,6 @@ export const getStats = async (req, res, next) => {
     res.status(500).json({ error: "Internal server error", status: false });
   }
 };
-
 export const getProviderStats = async (req, res, next) => {
   try {
     const { id } = req.params;

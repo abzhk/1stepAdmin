@@ -61,7 +61,7 @@ const AddAssessmentCategory = () => {
   };
 
   return (
-    <div className="min-h-screen bg-green-50 w-full px-6 py-8">
+    <div className="min-h-screen bg-primary w-full px-6 py-8">
       <div className="w-full bg-white shadow-lg rounded-2xl border border-emerald-100 p-6 md:p-8">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold text-gray-800">Add Category</h2>

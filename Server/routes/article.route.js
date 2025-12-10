@@ -1,5 +1,5 @@
 import express from 'express';
-import { getPendingArticles,approveArticle,rejectArticle } from '../controller/articlecontroller.js';
+import { getPendingArticles,approveArticle,rejectArticle } from '../controller/article.controller.js';
 import {verifyAdminToken} from '../middlewares/authMiddleware.js';
 
 const router = express.Router();

@@ -66,7 +66,7 @@ useEffect(() => {
 }, []);
 
   return (
-    <div className="min-h-screen p-6 bg-white">
+    <div className="min-h-screen p-6 bg-primary">
       <div className="flex gap-4 mb-8 h-44">
         <div className="flex flex-col bg-[#70bea4] p-6 rounded-2xl shadow-xl border border-gray-200 min-w-[300px] ">
           <div className="flex items-center gap-3 mb-2">

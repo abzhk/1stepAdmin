@@ -1,4 +1,4 @@
-import Article from "../model/articlemodel.js";
+import Article from "../model/Article/article.model.js";
 import Provider from "../model/providermodel.js";
 import Category from "../model/categorymodel.js";
 
