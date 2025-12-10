@@ -139,8 +139,7 @@ function ProviderStats() {
 
 
   return (
-    <div className="p-6 bg-white min-h-screen">
-      {/* --- Header and Filters --- */}
+    <div className="p-6 bg-primary min-h-screen">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
         <div>
           <h1 className="text-xl font-semibold mb-1">WELCOME BACK</h1>
@@ -207,7 +206,6 @@ function ProviderStats() {
         <p className="mb-4 text-gray-600 font-medium">Loading stats...</p>
       )}
 
-      {/* --- Stats Grid --- */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-[#285864] h-64 p-8 rounded-2xl text-white flex flex-col justify-between">
           <div className="flex justify-between items-center">

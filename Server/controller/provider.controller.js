@@ -1,6 +1,6 @@
 import Provider from "../model/providermodel.js";
-import { Booking } from "../model/bookingmodel.js";
-// import { errorHandler } from "../utils/error.js";
+import { Booking } from "../model/booking.model.js";
+import { errorHandler } from "../utils/error.js";
 import nodemailer from "nodemailer";
 // import { BookedSlots } from "../models/booking.model.js";
 // import Proof from "../models/proof.model.js";
@@ -559,7 +559,7 @@ export const fetchSkilledResult = async (req, res, next) => {
   }
 };
 
-//resourceUpload
+//resourceUpload--
 export const createResource = async (req, res, next) => {
   const { id } = req.params;
   try {

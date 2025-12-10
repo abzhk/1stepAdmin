@@ -74,7 +74,7 @@ const ViewAssessment = () => {
   };
 
   return (
-    <div className="w-full bg-gray-50 mt-8">
+    <div className="w-full bg-primary mt-8">
       <div className="bg-white rounded-2xl shadow p-6 border border-gray-200">
         <h2 className="text-2xl font-bold text-gray-800 mb-6">
           Assessment Categories

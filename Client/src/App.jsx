@@ -13,6 +13,8 @@ import AddAssessmentCategory from './Pages/Assessment/AddAssessmentCategory.jsx'
 import ProviderAssessment from './Pages/Assessment/ProviderAssessment.jsx';
 import ViewProvider from './Pages/Provider/ViewProvider.jsx';
 import ProviderStats from './Pages/Provider/ProviderStats.jsx';
+import ViewParent from './Pages/Parent/ViewParent.jsx';
+import ParentStats from './Pages/parent/ParentStatsCard.jsx'
 
 const App = () => {
   return (
@@ -33,6 +35,8 @@ const App = () => {
     <Route path ='/providerassessment' element={<ProviderAssessment/>}/>
      <Route path ='/allproviders' element={<ViewProvider/>}/>
      <Route path ='/provider-stats/:id' element={<ProviderStats/>}/>
+     <Route path ='/view-parent' element={<ViewParent/>}/>
+      <Route path="/parent-stats-card/:userId" element={<ParentStats />} />
     </Route>
     </Routes>
   )

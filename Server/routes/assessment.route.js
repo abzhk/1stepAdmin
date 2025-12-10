@@ -4,7 +4,7 @@ import { createCategory,
      deleteCategory,
      toggleCategory ,
      adminGetAllAssessments}
-      from "../controller/assessmentController.js";
+      from "../controller/assessment.controller.js";
 import {verifyAdminToken} from '../middlewares/authMiddleware.js';
 const router = express.Router();
 

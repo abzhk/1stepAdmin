@@ -1,5 +1,6 @@
 import Stats from "../model/stats.js";
 
+
 export const getStats = async (req, res) => {
   try {
     const stats = await Stats.findOne({});
@@ -12,3 +13,4 @@ export const getStats = async (req, res) => {
     res.status(500).json({ message: "Error fetching stats" });
   }
 };
+

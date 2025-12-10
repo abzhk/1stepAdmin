@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { AiFillEye } from "react-icons/ai";
-import { FiSearch } from "react-icons/fi";
+import { FiSearch, FiMapPin, FiUsers } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 
 function ViewProvider() {
@@ -9,62 +9,64 @@ function ViewProvider() {
   const [providers, setProviders] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [totalCount, setTotalCount] = useState(0);
-  const [page, setPage] = useState(1);         
-  const limit = 9;                             
+  const [page, setPage] = useState(1);
+  const limit = 9;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
- useEffect(() => {
-  const fetchProviders = async () => {
-    try {
-      setLoading(true);
-      setError("");
+  useEffect(() => {
+    const fetchProviders = async () => {
+      try {
+        setLoading(true);
+        setError("");
 
-      const params = new URLSearchParams({
-        limit: String(limit),
-        startIndex: String((page - 1) * limit),
-      });
+        const params = new URLSearchParams({
+          limit: String(limit),
+          startIndex: String((page - 1) * limit),
+        });
 
-      if (searchTerm.trim()) {
-        params.append("searchTerm", searchTerm.trim());
+        if (searchTerm.trim()) {
+          params.append("searchTerm", searchTerm.trim());
+        }
+
+        const res = await fetch(
+          `http://localhost:3001/api/provider/getProviders?${params.toString()}`
+        );
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.message || "Failed to fetch providers");
+        }
+
+        setProviders(data.providers || []);
+        setTotalCount(data.totalCount || 0);
+      } catch (err) {
+        setError(err.message || "Something went wrong");
+      } finally {
+        setLoading(false);
       }
+    };
 
-      const res = await fetch(
-        `http://localhost:3001/api/provider/getProviders?${params.toString()}`
-      );
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.message || "Failed to fetch providers");
-      }
-
-      setProviders(data.providers || []);
-      setTotalCount(data.totalCount || 0);
-    } catch (err) {
-      setError(err.message || "Something went wrong");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  fetchProviders();
-}, [page, searchTerm]);
-
+    fetchProviders();
+  }, [page, searchTerm]);
 
   const totalPages = Math.max(1, Math.ceil(totalCount / limit));
 
   return (
-    <div className="p-10 bg-green-50 min-h-screen">
-      <div className="mb-6 flex justify-between items-center">
-        <h1 className="text-xl font-semibold text-black">Provider List</h1>
+    <div className="p-4 md:p-10 bg-primary min-h-screen">
+      {/* Top Header + Search */}
+      <div className="mb-8 flex flex-col md:flex-row justify-between items-center">
+        <h3 className="text-3xl font-bold text-gray-800 mb-4 md:mb-0">
+          Provider  ({totalCount})
+        </h3>
 
-        <div className="relative w-72">
-          <FiSearch className="absolute left-3 top-3 text-gray-500 text-lg" />
+        <div className="relative w-full md:w-80">
+          <FiSearch className="absolute left-3 top-3 text-gray-400 text-lg" />
           <input
             type="text"
-            placeholder="Search provider..."
-            className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 bg-white"
+            placeholder="Search by name or city..."
+            className="w-full pl-10 pr-4 py-2 rounded-xl border border-gray-200 bg-white shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
             value={searchTerm}
             onChange={(e) => {
               setSearchTerm(e.target.value);
@@ -74,123 +76,129 @@ function ViewProvider() {
         </div>
       </div>
 
+      {/* Error Message */}
       {error && (
-        <div className="mb-4 text-red-600 bg-red-100 px-4 py-2 rounded-lg">
-          {error}
+        <div className="mb-6 text-red-700 bg-red-100 border border-red-300 px-4 py-3 rounded-xl">
+          <strong>Error:</strong> {error}
         </div>
       )}
 
-      <div className="bg-white rounded-xl shadow-md overflow-hidden">
-        <table className="min-w-full">
-          <thead>
-            <tr className="bg-gray-400 text-white text-left">
-              <th className="px-6 py-4">SL.NO</th>
-              <th className="px-6 py-4">Name</th>
-              <th className="px-6 py-4">City</th>
-              <th className="px-6 py-4">Therapy Type</th>
-              <th className="px-6 py-4 text-center">View</th>
-            </tr>
-          </thead>
+      {/* Provider CARD GRID */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
+        {loading ? (
+          <div className="col-span-full text-center py-10 text-xl text-gray-500 font-medium">
+            Loading providers...
+          </div>
+        ) : providers.length > 0 ? (
+          providers.map((provider, index) => {
+            const therapies = Array.isArray(provider.therapytype)
+              ? provider.therapytype
+              : provider.therapytype
+              ? [provider.therapytype]
+              : [];
 
-          <tbody>
-            {loading ? (
-              <tr>
-                <td
-                  colSpan="5"
-                  className="text-center py-6 text-gray-500 font-medium"
-                >
-                  Loading providers...
-                </td>
-              </tr>
-            ) : providers.length > 0 ? (
-              providers.map((provider, index) => (
-                <tr
-                  key={provider._id}
-                  className="border-b hover:bg-gray-50 transition"
-                >
+            return (
+              <div
+                key={provider._id}
+                className="bg-secondary rounded-xl shadow-lg hover:shadow-xl transition duration-300 p-6 flex flex-col justify-between border border-gray-100"
+              >
+                {/* Card Header */}
+                <div className="flex items-start mb-4">
+                  <div className="w-12 h-12  rounded-full bg-icon text-white flex items-center justify-center text-xl font-bold mr-4">
+                    {(provider.fullName).charAt(0).toUpperCase()}
+                  </div>
 
-                  <td className="px-6 py-4 font-medium text-gray-700">
-                    {(page - 1) * limit + index + 1}
-                  </td>
+                  <div>
+                    <h2 className="text-xl font-semibold text-gray-800">
+                      {provider.fullName}
+                    </h2>
+                    {/* <p className="text-sm text-gray-500">
+                      #{String((page - 1) * limit + index + 1).padStart(3, "0")}
+                    </p> */}
+                  </div>
+                </div>
 
- 
-                  <td className="px-6 py-4 flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center text-lg font-semibold">
-                      {(provider.fullName || "U").charAt(0).toUpperCase()}
+                {/* Provider Details */}
+                <div className="space-y-3 mb-4">
+                  <div className="flex items-center text-gray-600 text-sm">
+                    <FiMapPin className="text-blue-500 mr-2 " />
+                    <strong>City:</strong>
+                    <span className="ml-1">{provider.address?.city }</span>
+                  </div>
+
+                  <div className="flex items-start text-gray-600 text-sm">
+                    <FiUsers className="text-green-500 mt-0.5 mr-2 " />
+                    <strong>Therapy:</strong>
+                    <div className="flex flex-wrap gap-1 ml-1">
+                      {therapies.length > 0 ? (
+                        therapies.map((type, i) => (
+                          <span
+                            key={i}
+                            className="px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800"
+                          >
+                            {type}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500">
+                          N/A
+                        </span>
+                      )}
                     </div>
-                    <span>{provider.fullName}</span>
-                  </td>
+                  </div>
+                </div>
 
-
-                  <td className="px-6 py-4 text-gray-600">
-                    {provider.address?.city || "-"}
-                  </td>
-
-                  <td className="px-6 py-4">
-                    <span className="px-3 py-1 rounded-2xl text-black text-sm bg-gray-100">
-                      {Array.isArray(provider.therapytype)
-                        ? provider.therapytype.join(", ")
-                        : provider.therapytype || "-"}
-                    </span>
-                  </td>
-
-                  <td className="px-6 py-4 text-center">
-                    <button
-                      onClick={() =>
-                        navigate(`/provider-stats/${provider._id}`)
-                      }
-                      className="text-black hover:text-green-900 transition text-2xl"
-                    >
-                      <AiFillEye />
-                    </button>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td
-                  colSpan="5"
-                  className="text-center py-6 text-gray-500 font-medium"
+                {/* View Details Button */}
+                <button
+                  onClick={() => navigate(`/provider-stats/${provider._id}`)}
+                  className="mt-4 flex items-center justify-center space-x-2 bg-greenbtn text-white py-2 rounded-2xl font-medium hover:bg-[#2d4a36] transition duration-150 shadow-md"
                 >
-                  No results found
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+                  <AiFillEye className="text-xl" />
+                  <span>View Details</span>
+                </button>
+              </div>
+            );
+          })
+        ) : (
+          <div className="col-span-full text-center py-10 text-xl text-gray-500 font-medium">
+            No providers found matching your criteria.
+          </div>
+        )}
       </div>
 
-
-      <div className="flex items-center justify-between mt-4">
-        <p className="text-sm text-gray-600">
+      {/* Pagination */}
+      <div className="flex flex-col md:flex-row items-center justify-between mt-8 pt-4 border-t border-gray-200">
+        <p className="text-sm text-gray-600 mb-4 md:mb-0">
           Showing{" "}
-          <span className="font-semibold">
+          <span className="font-semibold text-gray-800">
             {providers.length ? (page - 1) * limit + 1 : 0}
           </span>{" "}
           to{" "}
-          <span className="font-semibold">
+          <span className="font-semibold text-gray-800">
             {(page - 1) * limit + providers.length}
           </span>{" "}
-          of <span className="font-semibold">{totalCount}</span> providers
+          of <span className="font-semibold text-gray-800">{totalCount}</span> providers
         </p>
 
-        <div className="flex gap-2">
+        <div className="flex gap-3 items-center">
           <button
-            className="px-3 py-1 rounded-lg border text-sm disabled:opacity-50"
-            onClick={() => setPage((p) => p - 1)}
+            className="px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium bg-white hover:bg-gray-100 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={() => setPage((page) => page - 1)}
             disabled={page === 1}
           >
-            Prev
+            ← Previous
           </button>
-          <span className="text-sm font-medium">
+
+          <span className="text-sm font-semibold text-gray-700">
             Page {page} of {totalPages}
           </span>
+
           <button
-            className="px-3 py-1 rounded-lg border text-sm disabled:opacity-50"
-            onClick={() => setPage((p) => p + 1)}
+            className="px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium bg-white hover:bg-gray-100 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={() => setPage((page) => page + 1)}
             disabled={page === totalPages}
           >
-            Next
+            Next →
           </button>
         </div>
       </div>

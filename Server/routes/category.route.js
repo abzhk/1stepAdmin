@@ -1,5 +1,5 @@
 import express from 'express';
-import { createCategory, getAllCategories,toggleCategoryStatus } from '../controller/categorycontroller.js';
+import { createCategory, getAllCategories,toggleCategoryStatus } from '../controller/category.controller.js';
 import { verifyAdminToken } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();

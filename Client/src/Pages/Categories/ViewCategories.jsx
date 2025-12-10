@@ -9,7 +9,6 @@ const ViewCategories = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // const {data:response,isLoading,isError,error}= useGetAllCategoriesQuery();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -76,7 +75,7 @@ useEffect(() => {
   
 
   return (
-    <div className="p-6 bg-green-50 min-h-screen">
+    <div className="p-6 bg-primary min-h-screen">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-gray-800">
           No of Categories: {totalCount}

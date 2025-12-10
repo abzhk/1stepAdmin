@@ -1,5 +1,5 @@
 import express from 'express';
-import  {getStats} from '../controller/statscontroller.js';
+import  {getStats} from '../controller/stats.controller.js';
 import {verifyAdminToken} from '../middlewares/authMiddleware.js';
 
 const router = express.Router()
