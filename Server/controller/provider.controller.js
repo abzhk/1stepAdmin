@@ -591,3 +591,20 @@ export const createResource = async (req, res, next) => {
     next(error);
   }
 };
+
+export const getProviderById = async (req, res) => {
+  const provider = await Provider.findById(req.params.id);
+
+  if (!provider) {
+    return res.status(404).json({
+      success: false,
+      message: "Provider not found",
+    });
+  }
+
+  res.status(200).json({
+    success: true,
+    provider,
+  });
+};
+

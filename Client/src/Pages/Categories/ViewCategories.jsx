@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from "react";
 import AddCategory from "./AddCategories";
 import { useEffect } from "react";
-// import { useGetAllCategoriesQuery } from "../../redux/slice/api/categoryApiSlice";
 
 const ViewCategories = () => {
   const [categories, setCategories] = useState([]);
@@ -65,30 +64,57 @@ useEffect(() => {
   const handleSaveCategory = () => {
   };
 
-  const handleDelete = (id) => {
-  };
-
   const goToPage = (page) => {
     const p = Math.min(Math.max(1, page), totalPages);
     setCurrentPage(p);
   };
   
+  const handleToggleStatus = async (id) => {
+  try {
+    const res = await fetch(
+      `http://localhost:3001/api/article/admin/categories/${id}/status`,
+      {
+        method: "PUT",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!res.ok) {
+      throw new Error("Failed to toggle status");
+    }
+
+    const data = await res.json();
+
+    setCategories((prev) =>
+      prev.map((cat) =>
+        cat._id === id ? { ...cat, isActive: data.isActive } : cat
+      )
+    );
+  } catch (error) {
+    console.error(error);
+    alert("Failed to update category status");
+  }
+};
+
 
   return (
-    <div className="p-6 bg-primary min-h-screen">
+    <div className="p-6 bg-secondary min-h-screen">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-gray-800">
           No of Categories: {totalCount}
         </h2>
         <button
           onClick={handleOpen}
-          className="bg-[#fbbf24] hover:bg-yellow-600 text-white px-6 py-2 rounded-xl shadow-md"
+          className="bg-greenbtn hover:bg-lighthov text-white px-6 py-2 rounded-xl shadow-md"
         >
           + Add Category
         </button>
       </div>
 
-      <div className="flex-1 bg-white p-6 rounded-2xl shadow-sm border border-gray-200 overflow-x-auto">
+      <div className="flex-1 bg-white p-6 rounded-2xl shadow-sm border border-secondary overflow-x-auto">
         <table className="w-full table-auto">
           <thead>
             <tr className="bg-gray-100 text-left">
@@ -113,15 +139,17 @@ useEffect(() => {
                 {/* <td className="p-3">{item.articleCount}</td> */}
 
                 <td className="p-3 flex gap-2">
-                  <button className="bg-gradient-to-r from-[#fbbf24] to-yellow-300 text-black px-4 py-2 rounded-lg shadow hover:opacity-90 transition">
+                  <button className="bg-primary text-white px-4 py-2 rounded-lg shadow hover:opacity-90 transition">
                     Edit
                   </button>
                   <button
-                    onClick={() => handleDelete(item.id)}
-                    className="bg-gradient-to-r from-green-500 to-green-300 px-4 py-2 rounded-lg shadow hover:opacity-90 transition "
-                  >
-                    Delete
-                  </button>
+    onClick={() => handleToggleStatus(item._id)}
+    className={`px-4 py-1 rounded-lg text-white text-sm shadow
+      ${item.isActive ? "bg-primary hover:bg-primary" : "bg-red-500 hover:bg-red-600"}
+    `}
+  >
+    {item.isActive ? "Active" : "Inactive"}
+  </button>
                 </td>
               </tr>
             ))}
@@ -159,7 +187,7 @@ useEffect(() => {
               <button
                 key={pageNum}
                 onClick={() => goToPage(pageNum)}
-                className={`px-3 py-1 rounded-md border ${isActive ? "bg-yellow-500 text-white" : "hover:bg-gray-100"}`}
+                className={`px-3 py-1 rounded-md border ${isActive ? "bg-primary text-white" : "hover:bg-gray-100"}`}
                 aria-current={isActive ? "page" : undefined}
               >
                 {pageNum}

@@ -14,10 +14,10 @@ const DashSidebar = () => {
   const [isAssessmentOpen, setIsAssessmentOpen] = useState(false);
 
   // Define the base color for active/hover effects
-  const activeBg = "bg-[#ffd333]"; // Your yellow color for active
-  const hoverBg = "hover:bg-gray-100"; // Light gray hover for subtlety
-  const activeText = "text-black";
-  const defaultText = "text-gray-700"; // Darker text for white background
+  const activeBg = "bg-greenbtn"; // Your yellow color for active
+  const hoverBg = "hover:bg-lighthov"; // Light gray hover for subtlety
+  const activeText = "text-white";
+  const defaultText = "text-white"; // Darker text for white background
 
   useEffect(() => {
     // Logic to set the active state based on the current path
@@ -105,7 +105,7 @@ const DashSidebar = () => {
   `;
 
   return (
-    <div className="w-56 bg-white text-gray-700  h-full flex flex-col border-r border-gray-200 shadow-xl border "> 
+    <div className="w-56 bg-primary text-gray-700  h-full flex flex-col border-r border-gray-200 shadow-xl border "> 
       <nav className="flex flex-col gap-1 p-2 flex-1 overflow-y-auto">
         
         {/* Dashboard */}
@@ -246,7 +246,7 @@ const DashSidebar = () => {
       {/* Logout Button */}
       <div className="p-2 border-t border-gray-200">
         <button
-          className="flex items-center justify-center gap-2 bg-[#2d4a36] text-white w-full py-2 rounded-lg shadow hover:bg-[#ffd333] hover:text-black transition font-semibold"
+          className="flex items-center justify-center gap-2 bg-greenbtn text-white w-full py-2 rounded-lg shadow hover:bg-lighthov hover:text-black transition font-semibold"
           onClick={handleLogout}
         >
           <CgLogOut className="text-xl" />

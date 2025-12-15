@@ -15,6 +15,7 @@ import ViewProvider from './Pages/Provider/ViewProvider.jsx';
 import ProviderStats from './Pages/Provider/ProviderStats.jsx';
 import ViewParent from './Pages/Parent/ViewParent.jsx';
 import ParentStats from './Pages/parent/ParentStatsCard.jsx'
+import EditProvider from './Pages/Provider/EditProvider.jsx'
 
 const App = () => {
   return (
@@ -37,6 +38,7 @@ const App = () => {
      <Route path ='/provider-stats/:id' element={<ProviderStats/>}/>
      <Route path ='/view-parent' element={<ViewParent/>}/>
       <Route path="/parent-stats-card/:userId" element={<ParentStats />} />
+      <Route path="/providers/edit/:id" element={<EditProvider />} />
     </Route>
     </Routes>
   )

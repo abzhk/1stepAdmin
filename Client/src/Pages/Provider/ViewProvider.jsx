@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { AiFillEye } from "react-icons/ai";
 import { FiSearch, FiMapPin, FiUsers } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
+import { FiEdit2, FiTrash2 } from "react-icons/fi";
 
 function ViewProvider() {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ function ViewProvider() {
   const limit = 9;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [deleteId, setDeleteId] = useState(null);
 
   useEffect(() => {
     const fetchProviders = async () => {
@@ -53,12 +55,40 @@ function ViewProvider() {
 
   const totalPages = Math.max(1, Math.ceil(totalCount / limit));
 
+  const handleDelete = async (providerId) => {
+    try {
+      const res = await fetch(
+        `http://localhost:3001/api/admin/providers/${providerId}`,
+        {
+          method: "DELETE",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to delete provider");
+      }
+
+      setProviders((prev) =>
+        prev.filter((provider) => provider._id !== providerId)
+      );
+
+      setTotalCount((prev) => prev - 1);
+    } catch (error) {
+      alert(error.message || "Something went wrong while deleting provider");
+    }
+  };
+
   return (
-    <div className="p-4 md:p-10 bg-primary min-h-screen">
-      {/* Top Header + Search */}
+    <div className="p-4 md:p-10 bg-secondary min-h-screen">
       <div className="mb-8 flex flex-col md:flex-row justify-between items-center">
-        <h3 className="text-3xl font-bold text-gray-800 mb-4 md:mb-0">
-          Provider  ({totalCount})
+        <h3 className="text-3xl font-bold text-primary mb-4 md:mb-0">
+          Provider
         </h3>
 
         <div className="relative w-full md:w-80">
@@ -76,14 +106,12 @@ function ViewProvider() {
         </div>
       </div>
 
-      {/* Error Message */}
       {error && (
         <div className="mb-6 text-red-700 bg-red-100 border border-red-300 px-4 py-3 rounded-xl">
           <strong>Error:</strong> {error}
         </div>
       )}
 
-      {/* Provider CARD GRID */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
         {loading ? (
           <div className="col-span-full text-center py-10 text-xl text-gray-500 font-medium">
@@ -100,22 +128,24 @@ function ViewProvider() {
             return (
               <div
                 key={provider._id}
-                className="bg-secondary rounded-xl shadow-lg hover:shadow-xl transition duration-300 p-6 flex flex-col justify-between border border-gray-100"
+                className="bg-white rounded-xl shadow-lg hover:shadow-xl transition duration-300 p-2 flex flex-col justify-between border border-gray-100"
               >
                 {/* Card Header */}
-                <div className="flex items-start mb-4">
-                  <div className="w-12 h-12  rounded-full bg-icon text-white flex items-center justify-center text-xl font-bold mr-4">
-                    {(provider.fullName).charAt(0).toUpperCase()}
+                <div className="flex items-start mb-2">
+                  <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+                    {provider.profilePicture && (
+                      <img
+                        src={provider.profilePicture}
+                        alt={provider.fullName}
+                        className="w-[400px] h-44 object-cover"
+                      />
+                    )}
                   </div>
-
-                  <div>
-                    <h2 className="text-xl font-semibold text-gray-800">
-                      {provider.fullName}
-                    </h2>
-                    {/* <p className="text-sm text-gray-500">
-                      #{String((page - 1) * limit + index + 1).padStart(3, "0")}
-                    </p> */}
-                  </div>
+                </div>
+                <div className="p-1">
+                  <h2 className="text-xl font-semibold text-gray-800 mb-2">
+                    {provider.fullName}
+                  </h2>
                 </div>
 
                 {/* Provider Details */}
@@ -123,7 +153,7 @@ function ViewProvider() {
                   <div className="flex items-center text-gray-600 text-sm">
                     <FiMapPin className="text-blue-500 mr-2 " />
                     <strong>City:</strong>
-                    <span className="ml-1">{provider.address?.city }</span>
+                    <span className="ml-1">{provider.address?.city}</span>
                   </div>
 
                   <div className="flex items-start text-gray-600 text-sm">
@@ -134,7 +164,7 @@ function ViewProvider() {
                         therapies.map((type, i) => (
                           <span
                             key={i}
-                            className="px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800"
+                            className="px-2 py-0.5 rounded-full text-xs font-medium bg-lighthov text-gray-800"
                           >
                             {type}
                           </span>
@@ -147,15 +177,67 @@ function ViewProvider() {
                     </div>
                   </div>
                 </div>
+                <div className="flex items-center gap-3  ">
+                  <button
+                    onClick={() => navigate(`/provider-stats/${provider._id}`)}
+                    className="flex items-center  justify-center gap-2 px-4 py-2 rounded-2xl bg-greenbtn text-white font-medium shadow-md
+               hover:bg-lighthov transition duration-150 w-60"
+                  >
+                    <AiFillEye className="text-lg" />
+                    <span className="text-sm">View Details</span>
+                  </button>
 
-                {/* View Details Button */}
-                <button
-                  onClick={() => navigate(`/provider-stats/${provider._id}`)}
-                  className="mt-4 flex items-center justify-center space-x-2 bg-greenbtn text-white py-2 rounded-2xl font-medium hover:bg-[#2d4a36] transition duration-150 shadow-md"
-                >
-                  <AiFillEye className="text-xl" />
-                  <span>View Details</span>
-                </button>
+                  <button
+                    onClick={() => navigate(`/providers/edit/${provider._id}`)}
+                    className="w-10 h-10 flex items-center justify-center rounded-xl
+               bg-blue-50 text-blue-600 hover:bg-blue-100
+               transition shadow-sm"
+                    title="Edit"
+                  >
+                    <FiEdit2 className="text-lg" />
+                  </button>
+                  <button
+                    onClick={() => setDeleteId(provider._id)}
+                    className="w-10 h-10 flex items-center justify-center rounded-xl
+             bg-red-50 text-red-600 hover:bg-red-100
+             transition shadow-sm"
+                    title="Delete"
+                  >
+                    <FiTrash2 className="text-lg" />
+                  </button>
+
+                  {deleteId && (
+                    <div className="fixed inset-0  flex items-center justify-center z-50">
+                      <div className="bg-white rounded-xl p-6 w-96 shadow-xl">
+                        <h3 className="text-lg font-semibold text-gray-800 mb-3">
+                          Confirm Delete
+                        </h3>
+                        <p className="text-sm text-gray-600 mb-6">
+                          Are you sure you want to delete this provider?
+                        </p>
+
+                        <div className="flex justify-end gap-3">
+                          <button
+                            onClick={() => setDeleteId(null)}
+                            className="px-4 py-2 rounded-lg border border-gray-300 text-sm"
+                          >
+                            Cancel
+                          </button>
+
+                          <button
+                            onClick={() => {
+                              handleDelete(deleteId);
+                              setDeleteId(null);
+                            }}
+                            className="px-4 py-2 rounded-lg bg-red-600 text-white text-sm hover:bg-red-700"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             );
           })
@@ -177,7 +259,8 @@ function ViewProvider() {
           <span className="font-semibold text-gray-800">
             {(page - 1) * limit + providers.length}
           </span>{" "}
-          of <span className="font-semibold text-gray-800">{totalCount}</span> providers
+          of <span className="font-semibold text-gray-800">{totalCount}</span>{" "}
+          providers
         </p>
 
         <div className="flex gap-3 items-center">

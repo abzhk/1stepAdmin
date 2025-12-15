@@ -820,3 +820,69 @@ export const getPendingArticles = async (req, res) => {
     res.status(500).json({ message: "Error fetching pending articles" });
   }
 };
+
+//article by provider
+
+export const getArticleByProvider = async (req,res)=>{
+try{
+  const {providerId}=  req.params
+  const {limit=10,startIndex=0} = req.query
+
+  const query={providerId};
+  const[articles,total]= await Promise.all([
+Article.find(query)
+.populate("providerId","providerName profilePicture")
+ .populate("categoryId", "name slug icon color")
+        .sort({ createdAt: -1 })
+        .skip(Number(startIndex))
+        .limit(Number(limit)),
+      Article.countDocuments(query),
+  ])
+  res.status(200).json({
+      success: true,
+      total,
+      articles,
+    });
+  } catch (error) {
+    console.error("Get provider articles error:", error);
+    res.status(500).json({ message: "Error fetching provider articles" });
+  }
+};
+
+// article category Activate and deactive 
+export const toggleArticleCategoryStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const category = await Category.findById(id);
+
+    if (!category) {
+      return res.status(404).json({
+        message: "Category not found",
+      });
+    }
+
+    let newStatus;
+
+    if (category.isActive === true) {
+      newStatus = false;
+    } else {
+      newStatus = true;
+    }
+
+    await Category.findByIdAndUpdate(id, { isActive: newStatus });
+
+    res.status(200).json({
+      success: true,
+      message: newStatus
+        ? "Category Activated"
+        : "Category Deactivated",
+      isActive: newStatus,
+    });
+  } catch (error) {
+    console.error("Toggle category status error:", error);
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};

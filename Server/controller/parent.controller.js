@@ -1,4 +1,4 @@
-import User from "../model/usermodel.js";
+import User from "../model/user.model.js";
 import Parent from "../model/parent.model.js";
 // import Question from "../models/questionnaire.model.js";
 import Like from "../model/like.model.js";

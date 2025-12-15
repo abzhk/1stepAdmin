@@ -162,7 +162,7 @@ const handleReject = async (reason) => {
 
 
   return (
-    <div className="min-h-screen bg-primary py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-secondary py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
 
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
@@ -244,11 +244,6 @@ const handleReject = async (reason) => {
                   <div className="mt-auto pt-4 border-t border-gray-100">
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center space-x-2">
-                        <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-                          <span className="text-white text-sm font-medium">
-                            {providerName.charAt(0)}
-                          </span>
-                        </div>
                         <span className="text-sm text-gray-600">
                           {providerName}
                         </span>
@@ -264,11 +259,11 @@ const handleReject = async (reason) => {
                     </div>
 
                     <div className="flex gap-2">
-                      <button className="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 px-3 rounded-lg text-sm font-medium transition-colors duration-200"
+                      <button className="flex-1 bg-greenbtn text-white py-2 px-3 rounded-lg text-sm font-medium transition-colors duration-200"
                         onClick={() => handleApprove(article._id)}>
                         Approve
                       </button>
-                      <button className="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 px-3 rounded-lg text-sm font-medium transition-colors duration-200"
+                      <button className="flex-1 bg-primary text-white py-2 px-3 rounded-lg text-sm font-medium transition-colors duration-200"
                         onClick={() => {
                   setSelectedArticleId(article._id);
               setShowRejectModal(true);

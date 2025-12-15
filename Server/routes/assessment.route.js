@@ -3,7 +3,8 @@ import { createCategory,
      getAllCategories,
      deleteCategory,
      toggleCategory ,
-     adminGetAllAssessments}
+     adminGetAllAssessments,
+getProviderAssessmentbyId}
       from "../controller/assessment.controller.js";
 import {verifyAdminToken} from '../middlewares/authMiddleware.js';
 const router = express.Router();
@@ -14,6 +15,8 @@ router.delete("/category/:id", deleteCategory);
 router.put("/category/toggle/:id", toggleCategory);
 
 router.get("/admin/allassessments",verifyAdminToken,adminGetAllAssessments);
+
+router.get("/getassessment/:providerId",getProviderAssessmentbyId)
 
 
 export default router;

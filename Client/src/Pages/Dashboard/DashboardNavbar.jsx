@@ -8,14 +8,14 @@ const DashboardNavbar = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="w-full bg-[#ffffff] text-white p-4 ">
+    <div className="w-full bg-primary text-white p-4 ">
       <div className="flex justify-between">
-       <img src={logo} alt="Logo" className="h-10 w-auto" />
+       <img src={logo} alt="Logo" className="h-10 w-auto invert brightness-0" />
         <div className="flex gap-6 ">
            <input
               type="text"
               placeholder="Search..."
-              className="w-96 px-4 py-2 pl-10 rounded-4xl bg-gray-200 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#fbbf24]"
+              className="w-96 px-4 py-2 pl-10 rounded-4xl bg-gray-100 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#fbbf24]"
             />
           {/* <label className="hover:text-gray-300">Home</label>
 
@@ -27,7 +27,7 @@ const DashboardNavbar = () => {
 >
   Logout
 </button> */}
-<div className="w-10 h-10 rounded-full bg-[#2d4a36] flex items-center justify-center text-lg font-semibold text-white">
+<div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-lg font-semibold text-primary">
   A
 </div>
 

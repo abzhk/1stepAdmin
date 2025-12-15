@@ -1,7 +1,7 @@
 import { Booking } from "../model/booking.model.js";
 import { BookedSlots } from "../model/booking.model.js";
 import { errorHandler } from "../utils/error.js";
-// import User from "../models/user.model.js";
+import User from "../model/user.model.js";
 import Provider from "../model/providermodel.js";
 import mongoose from "mongoose";
 import moment from "moment";

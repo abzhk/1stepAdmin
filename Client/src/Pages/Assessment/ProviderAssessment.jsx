@@ -38,7 +38,7 @@ function ProviderAssessment() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-primary p-6">
+    <div className="min-h-screen bg-secondary p-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-gray-800">

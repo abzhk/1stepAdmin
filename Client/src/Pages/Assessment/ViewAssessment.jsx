@@ -74,7 +74,7 @@ const ViewAssessment = () => {
   };
 
   return (
-    <div className="w-full bg-primary mt-8">
+    <div className="w-full bg-secondary mt-8">
       <div className="bg-white rounded-2xl shadow p-6 border border-gray-200">
         <h2 className="text-2xl font-bold text-gray-800 mb-6">
           Assessment Categories
@@ -158,7 +158,7 @@ const ViewAssessment = () => {
                       </td> */}
 
                       <td className="px-4 py-3 flex items-center gap-3 justify-center">
-                        <button className="px-5 py-2 text-xs rounded-md bg-[#fbbf24] text-white hover:bg-yellow-700">
+                        <button className="px-5 py-2 text-xs rounded-md bg-primary text-white hover:bg-primary">
                           Edit
                         </button>
 
@@ -166,7 +166,7 @@ const ViewAssessment = () => {
                           onClick={() => handleToggle(assessment._id)}
                           className={`px-5 py-2 text-xs rounded-md text-white 
                     ${ assessment.status
-                            ? "bg-emerald-600 hover:bg-emerald-700"
+                            ? "bg-primary hover:bg-primary"
                       : "bg-red-500 hover:bg-red-600"}`}
                         >
                           {assessment.status ? "Active" : "Inactive"}

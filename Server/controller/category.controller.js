@@ -9,11 +9,11 @@ import Category from "../model/categorymodel.js";
 // Get all categories (Public)
 export const getAllCategories = async (req, res) => {
   try {
-    const { includeInactive } = req.query;
+    // const { includeInactive } = req.query;
 
-    const query = includeInactive === "true" ? {} : { isActive: true };
+    // const query = includeInactive === "true" ? {} : { isActive: true };
 
-    const categories = await Category.find(query).sort({ order: 1, name: 1 });
+    const categories = await Category.find().sort({ order: 1, name: 1 });
 
     res.status(200).json({
       success: true,
