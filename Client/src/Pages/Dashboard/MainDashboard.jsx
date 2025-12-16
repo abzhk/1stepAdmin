@@ -66,36 +66,36 @@ useEffect(() => {
 }, []);
 
   return (
-    <div className="min-h-screen p-6 bg-primary">
+    <div className="min-h-screen p-6 bg-secondary">
       <div className="flex gap-4 mb-8 h-44">
-        <div className="flex flex-col bg-[#70bea4] p-6 rounded-2xl shadow-xl border border-gray-200 min-w-[300px] ">
+        <div className="flex flex-col bg-white p-6 rounded-2xl shadow-xl border border-gray-200 min-w-[300px] ">
           <div className="flex items-center gap-3 mb-2">
             <FaUserInjured className="text-black text-3xl" />
-            <h2 className="text-xl font-semibold text-white">Patients</h2>
+            <h2 className="text-xl font-semibold text-maintext">Patients</h2>
           </div>
           <p className="text-gray-600 text-2xl font-semibold mt-12"> {stats?.totalParents}</p>
         </div>
 
-        <div className="flex-col bg-[#70bea4] p-6 rounded-2xl shadow-xl border border-gray-200 min-w-[300px]">
+        <div className="flex-col bg-white p-6 rounded-2xl shadow-xl border border-gray-200 min-w-[300px]">
           <div className="flex items-center gap-3 mb-2">
             <FaUserMd className="text-black text-3xl" />
-            <h2 className="text-xl font-semibold text-white">Providers</h2>
+            <h2 className="text-xl font-semibold text-maintext">Providers</h2>
           </div>
           <p className="text-gray-600 text-2xl font-semibold mt-12">{stats?.totalProviders}</p>
         </div>
 
-        <div className="flex-col  bg-[#70bea4] p-6 rounded-2xl shadow-xl border border-gray-200 min-w-[300px]">
+        <div className="flex-col  bg-white p-6 rounded-2xl shadow-xl border border-gray-200 min-w-[300px]">
           <div className="flex items-center gap-3 mb-2">
             <FaHospital className="text-black text-3xl" />
-            <h2 className="text-xl font-semibold text-white">Bookings</h2>
+            <h2 className="text-xl font-semibold text-maintext">Bookings</h2>
           </div>
           <p className="text-gray-600 text-2xl font-semibold mt-12">{stats?.totalBookings}</p>
         </div>
         
-<div className="flex-col  bg-[#70bea4] p-6 rounded-2xl shadow-xl border border-gray-200 min-w-[300px]">
+<div className="flex-col  bg-white p-6 rounded-2xl shadow-xl border border-gray-200 min-w-[300px]">
           <div className="flex items-center gap-3 mb-2">
             <FaHospital className="text-black text-3xl" />
-            <h2 className="text-xl font-semibold text-white">Cources</h2>
+            <h2 className="text-xl font-semibold text-maintext">Cources</h2>
           </div>
           <p className="text-gray-600 text-2xl font-semibold mt-12">{stats?.lessonsCount}</p>
         </div>
@@ -105,7 +105,7 @@ useEffect(() => {
       </div>
 
       <div className="flex gap-6">
-        <div className="flex-1 bg-white p-6 rounded-2xl shadow-sm border border-gray-200 overflow-x-auto">
+        <div className="flex-1 bg-surface p-6 rounded-2xl shadow-sm border border-gray-200 overflow-x-auto">
           <table className="min-w-full text-sm text-left border-collapse">
             <thead>
               <tr className=" bg-[#9dc7b9] text-white">
@@ -130,11 +130,11 @@ useEffect(() => {
 
                   <td className="px-6 py-4 text-center">
                     <div className="flex justify-center gap-4">
-                      <button className="bg-gradient-to-r from-[#fbbf24] to-[#fbbf24] text-black px-4 py-2 rounded-lg shadow hover:opacity-90 transition">
+                      <button className="bg-primary text-white px-4 py-2 rounded-lg shadow hover:opacity-90 transition">
                         View
                       </button>
 
-                      <button className="bg-gradient-to-r from-green-500 to-green-300 px-4 py-2 rounded-lg shadow hover:opacity-90 transition">
+                      <button className="bg-primary text-white px-4 py-2 rounded-lg shadow hover:opacity-90 transition">
                         Edit
                       </button>
                     </div>
@@ -189,7 +189,7 @@ useEffect(() => {
                 ))}
               </ul>
 
-              <button className="mt-4 w-full text-sm px-3 py-2 rounded-lg bg-gradient-to-r from-[#9dc7b9] to-[#8fb9a9] text-white shadow">
+              <button className="mt-4 w-full text-sm px-3 py-2 rounded-lg bg-greenbtn text-white shadow">
                 View all
               </button>
             </div>

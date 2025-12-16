@@ -125,17 +125,12 @@ const AddCategory = ({ isOpen, onClose, onSave }) => {
 
             <div>
               <label className="text-sm font-medium">Icon</label>
-              <select
+            <input
                 {...register("icon")}
                 className="block w-full mt-2 rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-100"
               >
-                <option value="📝">📝 Default</option>
-                <option value="💭">💭 Technique</option>
-                <option value="🌟">🌟 Wellness</option>
-                <option value="💆">💆 Self-care</option>
-                <option value="❤️">❤️ Relationship</option>
-                <option value="🧘">🧘 Finance</option>
-              </select>
+              </input>
+             
             </div>
 
             <div>
@@ -192,14 +187,14 @@ const AddCategory = ({ isOpen, onClose, onSave }) => {
               type="button"
               onClick={onClose}
               disabled={isLoading}
-              className="bg-[#3a8585] px-4 py-2 rounded-lg border hover:bg-green-800 text-white disabled:opacity-50"
+              className="bg-primary px-4 py-2 rounded-lg border hover:bg-primary text-white disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isLoading}
-              className="px-5 py-2 rounded-lg bg-[#fbbf24] text-black font-medium shadow hover:opacity-95 disabled:opacity-50"
+              className="px-5 py-2 rounded-lg bg-primary text-white font-medium shadow hover:opacity-95 disabled:opacity-50"
             >
               {isLoading ? "Creating..." : "Save Category"}
             </button>

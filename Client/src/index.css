@@ -2,8 +2,15 @@
 
 
 @theme{
-  --color-primary:  #faf3e8;
-  --color-secondary: #f5d6c4;
-  --color-greenbtn: #2d4a36;
-  --color-icon :#f2a794
+  --color-primary:  #244F52;
+  --color-secondary: #E6EFE9;  /* card backgeound */
+  --color-greenbtn: #E8A58A;    /*BUTTON*/
+  --color-lighthov:#F2B9A1;    /* hover btn */
+  --color-icon :#f2a794;
+  --color-maintext :#1F2F30;         /* primary text black */
+  --color-secondarytext :#4A5A5B;     /* card secondary  text color*/
+  --color-surface :#FFFFFF;
+
+    --color-muted: '#4A5A5B';     /* secondary text*/
+       --color-subtle: '#778687',   
 }

@@ -1,6 +1,7 @@
 import assessmentCategory from "../model/Assessment/assessmentCategory.js";
 import providerAssessment from "../model/Assessment/providerAssessment.js";
-// import assessmentResponse from "../../models/Assessment/assessmentReponse.js";
+import assessmentResponse from "../model/Assessment/assessmentResponse.js";
+import mongoose from "mongoose";
 
 //Assessment Category Controllers
 export const createCategory = async (req, res) => {
@@ -401,3 +402,39 @@ export const adminGetAllAssessments = async (req, res) => {
     res.status(500).json({ message: error.message });
     }
 }
+//ASSESSMENT FOR A PROVIDER
+export const getProviderAssessmentbyId = async (req, res) => {
+  try {
+    const { providerId } = req.params;
+    const { limit = 10, startIndex = 0 } = req.query;
+
+    if (!mongoose.Types.ObjectId.isValid(providerId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid providerId",
+      });
+    }
+
+    const query = { provider: providerId };
+
+    const assessments = await providerAssessment
+      .find(query)
+      .populate("category", "name icon order")
+      .populate("provider", "fullName profilePicture email")
+      .sort({ createdAt: -1 })
+      .skip(Number(startIndex))
+      .limit(Number(limit));
+
+    return res.status(200).json({
+      success: true,
+      count: assessments.length,
+      data: assessments,
+    });
+  } catch (error) {
+    console.error("ERROR:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};

@@ -79,7 +79,7 @@ const ParentStatsCards = () => {
   }, [userId]);
 
   return (
-    <div className="min-h-screen bg-primary p-6 md:p-10 font-sans text-gray-800">
+    <div className="min-h-screen bg-secondary p-6 md:p-10 font-sans text-gray-800">
       <div className="max-w-6xl mx-auto space-y-8">
         {parentLoading && (
           <p className="text-gray-500 text-sm">Loading parent data...</p>
@@ -98,7 +98,7 @@ const ParentStatsCards = () => {
         )}
 
         {parent && (
-          <div className="bg-secondary rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden">
+          <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden">
             <div className="absolute top-0 right-0 -mt-10 -mr-10 w-64 h-64 rounded-full blur-3xl opacity-50"></div>
 
             <div className="flex items-center gap-5 z-10">

@@ -14,7 +14,7 @@ const Navbar = () => {
             <label className='text-white font-semibold text-lg'>PROFESSIONAL MEMBERS</label>
             <label className='text-white afont-semibold text-lg'>BLOG</label>
             <label className='text-white font-semibold text-lg mr-4'>CONTACT</label>
-              <button className='mr-4 bg-blue-600 text-black rounded-lg shadow-lg hover:bg-blue-700 transition duration-300' 
+              <button className='mr-4 px-4 py-1 bg-blue-600 text-black rounded-lg shadow-lg hover:bg-blue-700 transition duration-300' 
             onClick={()=>navigate('/log')}>Login</button>
         </div>
         <div>

@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { AiFillEye } from "react-icons/ai";
-import { FiSearch } from "react-icons/fi";
+import { FiSearch} from "react-icons/fi";
+import { FaChild } from "react-icons/fa";
+import { CiPhone } from "react-icons/ci";
 import { useNavigate } from "react-router-dom";
 
 function ViewParent() {
@@ -53,11 +55,11 @@ function ViewParent() {
   const toIndex = (page - 1) * limit + parents.length;
 
   return (
-    <div className="p-4 md:p-10 bg-primary min-h-screen">
-      {/* Header + Search */}
+    <div className="p-4 md:p-10 bg-secondary  min-h-screen">
+
       <div className="mb-8 flex flex-col md:flex-row justify-between items-center">
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-4 md:mb-0">
-          Parent ({totalParents})
+        <h1 className="text-2xl md:text-3xl font-bold text-primary mb-4 md:mb-0">
+          Parent 
         </h1>
 
         <div className="relative w-full md:w-80">
@@ -100,7 +102,7 @@ function ViewParent() {
             return (
               <div
                 key={parent._id}
-                className="bg-secondary rounded-xl shadow-lg hover:shadow-xl transition duration-300 p-6 flex flex-col justify-between border border-[#f5d6c4]"
+                className="bg-white rounded-xl shadow-lg hover:shadow-xl transition duration-300 p-6 flex flex-col justify-between"
               >
                 {/* Card Header */}
                 <div className="flex items-start mb-4">
@@ -112,19 +114,18 @@ function ViewParent() {
                     <h2 className="text-lg md:text-xl font-semibold text-gray-900">
                       {fullName}
                     </h2>
-                    {/* <p className="text-sm text-gray-500">
-                      #{String((page - 1) * limit + index + 1).padStart(3, "0")}
-                    </p> */}
                   </div>
                 </div>
 
                 {/* Details */}
                 <div className="space-y-2 mb-4 text-sm text-gray-700">
-                  <div>
-                    <span className="font-semibold">Child: </span>
-                    <span>{childName}</span>
+                 <div className="flex items-center text-gray-600 text-sm">
+                                     <FaChild className="text-secondarytext mr-2 " />
+                    <span className="font-semibold">Child Name : </span>
+                     <span>{childName}</span>
                   </div>
-                  <div>
+                  <div className="flex items-center text-gray-600 text-sm">
+                                     <CiPhone className="text-blue-500 mr-2 " />
                     <span className="font-semibold">Phone: </span>
                     <span>{phone}</span>
                   </div>
@@ -133,7 +134,7 @@ function ViewParent() {
                 {/* View Button */}
                 <button
                    onClick={() => navigate(`/parent-stats-card/${parent.userRef._id}`)}
-                  className="mt-2 flex items-center justify-center gap-2 bg-greenbtn text-white py-2 rounded-2xl font-medium hover:bg-green-800 transition duration-150 shadow-md"
+                  className="mt-2 flex items-center justify-center gap-2 bg-greenbtn text-white py-2 rounded-2xl font-medium hover:bg-lighthov transition duration-150 shadow-md"
                 >
                   <AiFillEye className="text-xl" />
                   <span>View Details</span>

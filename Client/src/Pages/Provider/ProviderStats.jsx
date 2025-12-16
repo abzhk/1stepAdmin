@@ -32,12 +32,31 @@ function ProviderStats() {
   const now = new Date();
   const [month, setMonth] = useState(now.getMonth() + 1);
   const [year, setYear] = useState(now.getFullYear());
-
   const [useMonthlyStats, setUseMonthlyStats] = useState(false);
 
+  // bookings pagination constants
   const limit = 8;
   const startIndex = 0;
 
+  // Articles pagination state
+  const [articlePage, setArticlePage] = useState(1);
+  const articleLimit = 10;
+  const articleStartIndex = (articlePage - 1) * articleLimit;
+
+  const [articles, setArticles] = useState([]);
+  const [articlesTotal, setArticlesTotal] = useState(0);
+  const [articlesLoading, setArticlesLoading] = useState(false);
+  const [articlesError, setArticlesError] = useState("");
+
+  // Assessments pagination state
+  const [assessmentPage, setAssessmentPage] = useState(1);
+  const assessmentLimit = 10;
+  const assessmentStartIndex = (assessmentPage - 1) * assessmentLimit;
+
+  const [assessments, setAssessments] = useState([]);
+  const [assessmentsTotal, setAssessmentsTotal] = useState(0);
+  const [assessmentsLoading, setAssessmentsLoading] = useState(false);
+  const [assessmentsError, setAssessmentsError] = useState("");
 
   useEffect(() => {
     if (!id) return;
@@ -55,7 +74,7 @@ function ProviderStats() {
         });
 
         const res = await fetch(
-          `http://localhost:3001/api/booking/getallbooking/${id}?${params.toString()}`
+          `http://localhost:3001/api/provider/getallbooking/${id}?${params.toString()}`
         );
 
         const data = await res.json();
@@ -65,7 +84,6 @@ function ProviderStats() {
         }
 
         setStats(data.stats || null);
-        // setBookings(data.bookings?.items || []);
       } catch (err) {
         setError(err.message || "Something went wrong");
       } finally {
@@ -76,7 +94,6 @@ function ProviderStats() {
     fetchStats();
   }, [id, month, year]);
 
-
   useEffect(() => {
     if (!id) return;
 
@@ -85,7 +102,6 @@ function ProviderStats() {
         setTableLoading(true);
         setTableError("");
 
-        // This fetch is typically for the 'recent' or 'all' bookings list in the table
         const params = new URLSearchParams({
           limit: String(limit),
           startIndex: String(startIndex),
@@ -108,6 +124,74 @@ function ProviderStats() {
     };
     fetchBookings();
   }, [id, limit, startIndex]);
+
+  useEffect(() => {
+    if (!id) return;
+
+    const fetchArticles = async () => {
+      try {
+        setArticlesLoading(true);
+        setArticlesError("");
+
+        const params = new URLSearchParams({
+          limit: articleLimit,
+          startIndex: articleStartIndex,
+        });
+
+        const res = await fetch(
+          `http://localhost:3001/api/article/providerarticle/${id}?${params.toString()}`
+        );
+
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data.message || "Failed to load articles");
+
+        const list = data.articles || data.data || [];
+        setArticles(list);
+        setArticlesTotal(data.total || data.count || list.length || 0);
+      } catch (err) {
+        setArticlesError(err.message || "Something went wrong");
+      } finally {
+        setArticlesLoading(false);
+      }
+    };
+
+    fetchArticles();
+  }, [id, articlePage]);
+
+  useEffect(() => {
+    if (!id) return;
+
+    const fetchAssessments = async () => {
+      try {
+        setAssessmentsLoading(true);
+        setAssessmentsError("");
+
+        const params = new URLSearchParams({
+          limit: String(assessmentLimit),
+          startIndex: String(assessmentStartIndex),
+        });
+
+        const res = await fetch(
+          `http://localhost:3001/api/assessment/getassessment/${id}?${params.toString()}`
+        );
+
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data.message || "Failed to load assessments");
+
+        const list = Array.isArray(data.data) ? data.data : data.assessments || [];
+        setAssessments(list);
+        setAssessmentsTotal(data.count || list.length || 0);
+      } catch (err) {
+        setAssessmentsError(err.message || "Something went wrong");
+      } finally {
+        setAssessmentsLoading(false);
+      }
+    };
+
+    fetchAssessments();
+  }, [id, assessmentPage]); 
 
   const allTime = stats?.allTime || {
     total: 0,
@@ -137,22 +221,20 @@ function ProviderStats() {
   const currentMonthLabel =
     MONTHS.find((m) => m.value === month)?.label || "Month";
 
+  const articleTotalPages = Math.ceil(articlesTotal / articleLimit) || 1;
+  const assessmentTotalPages = Math.ceil(assessmentsTotal / assessmentLimit) || 1;
 
   return (
-    <div className="p-6 bg-primary min-h-screen">
+    <div className="p-6 bg-secondary min-h-screen">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
         <div>
-          <h1 className="text-xl font-semibold mb-1">WELCOME BACK</h1>
+          <h1 className="text-xl font-bold mb-1 text-primary">WELCOME BACK</h1>
           <p className="text-sm text-gray-700">
             Showing stats for{" "}
             <span className="font-semibold">
               {currentMonthLabel} {year}
             </span>{" "}
-            (
-            {useMonthlyStats
-              ? "Monthly view"
-              : "All time view "}
-            )
+            ({useMonthlyStats ? "Monthly view" : "All time view "})
           </p>
         </div>
 
@@ -207,9 +289,9 @@ function ProviderStats() {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-[#285864] h-64 p-8 rounded-2xl text-white flex flex-col justify-between">
+        <div className="bg-white h-64 p-8 rounded-2xl text-white flex flex-col justify-between">
           <div className="flex justify-between items-center">
-            <p className="text-white font-bold">Appointments</p>
+            <p className="text-maintext font-bold">Appointments</p>
             <span className="text-sm text-white font-semibold">
               All time: {allTime.total}
             </span>
@@ -222,44 +304,49 @@ function ProviderStats() {
                 text={`${percentage}%`}
                 strokeWidth={10}
                 styles={buildStyles({
-                  textColor: "#efdfc8",
-                  pathColor: "#e29268",
-                  trailColor: "#fdfdfd",
+                  textColor: "#1F2F30",
+                  pathColor: "#2F5D60",
+                  trailColor: "#E6EFE9",
                 })}
               />
             </div>
           </div>
 
-          <p className="text-xs text-white text-center mt-4">
+          <p className="text-xs text-maintext text-center mt-4">
             {allTime.approved} approved out of {allTime.total} bookings
           </p>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
-          <div className="bg-[#285864] p-4 rounded-2xl text-white">
-            <p className="text-white font-bold">
-              Booking
-            </p>
-            <h2 className="text-2xl font-bold">{displayStats.total}</h2>
+          <div className="bg-white p-4 rounded-2xl text-white">
+            <p className="text-maintext font-bold">Booking</p>
+            <h2 className="text-2xl font-bold text-secondarytext">
+              {displayStats.total}
+            </h2>
           </div>
 
-          <div className="bg-[#285864] p-4 rounded-2xl text-white">
-            <p className="text-white font-bold">Queue</p>
-            <h2 className="text-2xl font-bold">{displayStats.pending}</h2>
+          <div className="bg-white p-4 rounded-2xl text-white">
+            <p className="text-maintext font-bold">Queue</p>
+            <h2 className="text-2xl font-bold text-secondarytext">
+              {displayStats.pending}
+            </h2>
           </div>
 
-          <div className="bg-[#285864] p-4 rounded-2xl text-white">
-            <p className="text-white font-bold">Rejected</p>
-            <h2 className="text-2xl font-bold">{displayStats.rejected}</h2>
+          <div className="bg-white p-4 rounded-2xl text-white">
+            <p className="text-maintext font-bold">Rejected</p>
+            <h2 className="text-2xl font-bold text-secondarytext">
+              {displayStats.rejected}
+            </h2>
           </div>
 
-          <div className="bg-[#285864] p-4 rounded-2xl text-white">
-            <p className="text-white font-bold">Approved</p>
-            <h2 className="text-2xl font-bold">{displayStats.approved}</h2>
+          <div className="bg-white p-4 rounded-2xl text-white">
+            <p className="text-maintext font-bold">Approved</p>
+            <h2 className="text-2xl font-bold text-secondarytext">
+              {displayStats.approved}
+            </h2>
           </div>
         </div>
       </div>
-
 
       <div className="mb-8 mt-8 bg-white rounded-xl shadow-lg p-6 border border-gray-100">
         <h2 className="text-xl font-bold text-gray-900 mb-4 border-b pb-2">
@@ -302,7 +389,7 @@ function ProviderStats() {
                     colSpan={4}
                     className="px-6 py-8 text-center text-md text-gray-500 font-medium"
                   >
-                No recent bookings found.
+                    No recent bookings found.
                   </td>
                 </tr>
               ) : (
@@ -314,7 +401,8 @@ function ProviderStats() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 flex items-center gap-3">
                       <img
                         src={
-                          bookingdata.patientDetails?.profilePicture || "/default-avatar.png"
+                          bookingdata.patientDetails?.profilePicture ||
+                          "/default-avatar.png"
                         }
                         alt={
                           bookingdata.patientDetails?.username ||
@@ -336,10 +424,6 @@ function ProviderStats() {
                     </td>
 
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                      {/* Placeholder for date display, add formatting if needed */}
-                      {/* <span className="font-semibold">
-                        {new Date(bookingdata.scheduledTime?.date).toLocaleDateString()}
-                      </span> */}
                       {bookingdata.scheduledTime?.slot && ` ${bookingdata.scheduledTime.slot}`}
                     </td>
 
@@ -380,53 +464,76 @@ function ProviderStats() {
               .hide-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
             `}
           </style>
-          <div className="min-w-[400px] h-80 bg-white rounded-xl shadow-md p-4 flex flex-col justify-between">
-            <h2 className="text-xl font-semibold text-gray-900">
-              Speech Therapy
-            </h2>
-
-            <p className="text-sm text-gray-600 mt-1">4 min read</p>
-
-            <p className="text-gray-700 mt-3">
-              What is speech therapy? Speech therapy helps improve communication
-              skills.
-            </p>
-
-            <div className="mt-auto">
-              <span className="inline-block bg-yellow-500 text-white px-4 py-1 rounded-full text-sm">
-                Speech
-              </span>
+          {articlesLoading ? (
+            <div className="min-w-[300px]  h-80 bg-white rounded-xl shadow-md p-4 flex items-center justify-center">
+              <span className="text-sm text-gray-600">Loading articles...</span>
             </div>
-          </div>
-
-          <div className="min-w-[400px] h-80 bg-white rounded-xl shadow-md p-4 flex flex-col justify-between">
-            <h2 className="text-xl font-semibold text-gray-900">
-              Speech Therapy
-            </h2>
-
-            <p className="text-sm text-gray-600 mt-1">4 min read</p>
-
-            <p className="text-gray-700 mt-3">
-              What is speech therapy? Speech therapy helps improve communication
-              skills.
-            </p>
-
-            <div className="mt-auto">
-              <span className="inline-block bg-yellow-500 text-white px-4 py-1 rounded-full text-sm">
-                Speech
-              </span>
+          ) : articlesError ? (
+            <div className="min-w-[300px] h-80 bg-white rounded-xl shadow-md p-4 flex items-center justify-center">
+              <span className="text-sm text-red-600">{articlesError}</span>
             </div>
-          </div>
-          <div className="min-w-[400px] h-80 bg-gray-300 rounded-md"></div>
-          <div className="min-w-[400px] h-80 bg-gray-300 rounded-md"></div>
-          <div className="min-w-[400px] h-80 bg-gray-300 rounded-md"></div>
-          <div className="min-w-[400px] h-80 bg-gray-300 rounded-md"></div>
-          <div className="min-w-[400px] h-80 bg-gray-300 rounded-md"></div>
+          ) : articles.length === 0 ? (
+            <div className="min-w-[300px] h-80 bg-white rounded-xl shadow-md p-4 flex items-center justify-center">
+              <span className="text-sm text-gray-600">No articles found.</span>
+            </div>
+          ) : (
+            articles.map((a) => {
+              const aid = a._id || a.id;
+              return (
+                <div key={aid} className="min-w-[400px] h-80 bg-white rounded-xl shadow-md p-4 flex flex-col justify-between">
+                  <h2 className="text-xl font-semibold text-gray-900">{a.title}</h2>
+
+                  <p className="text-sm text-gray-600 mt-1">
+                    {a.category || (a.category?.name ? a.category.name : "")}
+                  </p>
+
+                  <p className="text-gray-700 mt-3">{a.slug}</p>
+
+                  <div className="h-48 bg-gray-200 overflow-hidden">
+                    {a.featuredImage ? (
+                      <img
+                        src={a.featuredImage}
+                        alt={a.title}
+                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm">
+                        No image
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })
+          )}
         </div>
       </div>
 
+      <div className="flex items-center gap-3 mt-4 justify-end">
+        <button
+          onClick={() => setArticlePage((p) => Math.max(1, p - 1))}
+          disabled={articlePage === 1}
+          className="px-3 py-1 border rounded disabled:opacity-50"
+        >
+          Prev
+        </button>
+
+        <span>Page {articlePage} of {articleTotalPages}</span>
+
+        <button
+          onClick={() => setArticlePage((p) => Math.min(articleTotalPages, p + 1))}
+          disabled={articlePage === articleTotalPages}
+          className="px-3 py-1 border rounded disabled:opacity-50"
+        >
+          Next
+        </button>
+      </div>
+
       {/* --- Assessment Section --- */}
-      <p className="mt-10 mb-3 text-black">Assessment</p>
+
+
+
+      <p className="mt-10 mb-3 text-black font-bold">Assessment</p>
 
       <div className="flex gap-4 items-start">
         <div
@@ -439,32 +546,94 @@ function ProviderStats() {
               .hide-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
             `}
           </style>
-          <div className="min-w-[400px] h-80 bg-white rounded-xl shadow-md p-4 flex flex-col justify-between">
-            <h2 className="text-xl font-semibold text-gray-900">
-              Speech Therapy
-            </h2>
 
-            <p className="text-sm text-gray-600 mt-1">4 min read</p>
-
-            <p className="text-gray-700 mt-3">
-              What is speech therapy? Speech therapy helps improve communication
-              skills.
-            </p>
-
-            <div className="mt-auto">
-              <span className="inline-block bg-yellow-500 text-white px-4 py-1 rounded-full text-sm">
-                Speech
-              </span>
+          {assessmentsLoading ? (
+            <div className="min-w-[200px] h-80 bg-white rounded-xl shadow-md p-4 flex items-center justify-center">
+              <span className="text-sm text-gray-600">Loading assessments...</span>
             </div>
-          </div>
+          ) : assessmentsError ? (
+            <div className="min-w-[200px] h-80 bg-white rounded-xl shadow-md p-4 flex items-center justify-center">
+              <span className="text-sm text-red-600">{assessmentsError}</span>
+            </div>
+          ) : assessments.length === 0 ? (
+            <div className="min-w-[200px] h-80 bg-white rounded-xl shadow-md p-4 flex items-center justify-center">
+              <span className="text-sm text-gray-600">No assessments found.</span>
+            </div>
+          ) : (
+            assessments.map((ass) => {
+              const aid = ass._id || ass.id;
+              const avgScore = ass.stats?.avgScore ?? "—";
+              return (
+                <div key={aid} className="min-w-[300px] h-80 bg-white rounded-xl shadow-md p-4 flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-start justify-between">
+                      <h2 className="text-xl font-semibold text-gray-900">{ass.title}</h2>
+                    </div>
 
-          <div className="min-w-[400px] h-80 bg-gray-300 rounded-md"></div>
-          <div className="min-w-[400px] h-80 bg-gray-300 rounded-md"></div>
-          <div className="min-w-[400px] h-80 bg-gray-300 rounded-md"></div>
-          <div className="min-w-[400px] h-80 bg-gray-300 rounded-md"></div>
-          <div className="min-w-[400px] h-80 bg-gray-300 rounded-md"></div>
-          <div className="min-w-[400px] h-80 bg-gray-300 rounded-md"></div>
+                    <p className="text-sm text-gray-600 mt-1">
+                      {ass.category?.name || "Uncategorized"} • {ass.provider?.fullName || "Provider"}
+                    </p>
+
+                      <p className="text-xs mt-1 text-gray-500">
+                      Category:{" "}
+                      <span className="font-medium">
+                        {ass.category?.name || "N/A"}
+                      </span>
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      Provider:{" "}
+                      <span className="font-medium">
+                        {ass.provider?.fullName || "N/A"}
+                      </span>
+                    </p>
+<div className=" w-[380px]">
+                    <p className="text-gray-700 mt-3 line-clamp-3">
+                      {ass.description  || "No description available."}
+                    </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-3 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="text-sm text-gray-600">
+                        Questions: <span className="font-semibold">{(ass.questions || []).length}</span>
+                      </div>
+
+                      <div className="text-sm text-gray-600">
+                        Responses: <span className="font-semibold">{ass.stats?.totalResponses ?? 0}</span>
+                      </div>
+
+                      <div className="text-sm text-gray-600">
+                        Avg Score: <span className="font-semibold">{String(avgScore)}</span>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              );
+            })
+          )}
         </div>
+      </div>
+
+      <div className="flex items-center gap-3 mt-4 justify-end">
+        <button
+          onClick={() => setAssessmentPage((p) => Math.max(1, p - 1))}
+          disabled={assessmentPage === 1}
+          className="px-3 py-1 border rounded disabled:opacity-50"
+        >
+          Prev
+        </button>
+
+        <span>Page {assessmentPage} of {assessmentTotalPages}</span>
+
+        <button
+          onClick={() => setAssessmentPage((p) => Math.min(assessmentTotalPages, p + 1))}
+          disabled={assessmentPage === assessmentTotalPages}
+          className="px-3 py-1 border rounded disabled:opacity-50"
+        >
+          Next
+        </button>
       </div>
     </div>
   );
