@@ -9,14 +9,7 @@ import {
 } from "react-icons/fa";
 
 const MainDashboard = () => {
-  const tableData = [
-    { name: "Abi", email: "abi@gmail.com", role: "Patient", status: "Active" },
-    {name: "Arun",email: "aruns76@gmail.com",role: "Provider",status: "Pending",},
-    {name: "Jenish",email: "jenish07@gmail.com",role: "Patient",status: "Inactive",},
-    {name: "Kumar", email: "kumar@gmail.com",role: "Patient",status: "Inactive",},
-    {name: "vijin",email: "vijin@gmail.com",role: "Patient",status: "Inactive",},
-    {name: "Vibin",email: "vibin@gmail.com",role: "Patient",status: "Inactive",},
-  ];
+ 
 
   const recentActivities = [
     {id: 1,time: "2m ago",text: "Appointment booked — Abi",type: "appointment",},
@@ -25,18 +18,17 @@ const MainDashboard = () => {
     {id: 4,time: "3h ago",text: "Appointment cancelled — Kumar",type: "appointment",},
     {id: 5,time: "1d ago",text: "New clinic added — Vibin Clinic",type: "clinic",},
   ];
+  
 
   const [stats, setStats] = useState(null);
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+ const [parents, setParents] = useState([]);
+const [providers, setProviders] = useState([]);
+const [loading, setLoading] = useState(false);
+const [error, setError] = useState("");
 
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = tableData.slice(indexOfFirstItem, indexOfLastItem);
-
-  const totalPages = Math.ceil(tableData.length / itemsPerPage);
-
+const [currentPage, setCurrentPage] = useState(1);
+const itemsPerPage = 4;
 
 
 useEffect(() => {
@@ -65,10 +57,65 @@ useEffect(() => {
   fetchStats();
 }, []);
 
+useEffect(() => {
+  fetchParentandProvider();
+}, [currentPage]);
+
+const fetchParentandProvider = async () => {
+  try {
+    setLoading(true);
+    setError("");
+
+    const startIndex = (currentPage - 1) * itemsPerPage;
+
+    const params = new URLSearchParams({
+      limit: itemsPerPage,
+      startIndex,
+    });
+
+    const res = await fetch(
+      `http://localhost:3001/api/admin/parents-providers/list?${params.toString()}`,
+      {
+        method: "GET",
+        credentials: "include",
+      }
+    );
+
+    const data = await res.json();
+
+    if (!res.ok) throw new Error(data.message);
+
+    setParents(data.parents || []);
+    setProviders(data.providers || []);
+  } catch (err) {
+    setError(err.message || "Failed to load data");
+  } finally {
+    setLoading(false);
+  }
+};
+
+const tableData = [
+    ...parents.map((p) => ({
+      name: p.userRef?.username ,
+      email: p.userRef?.email ,
+      role: "Patient",
+      status: "Active",
+    })),
+    ...providers.map((p) => ({
+      name: p.fullName ,
+      email: p.email,
+      role: "Provider",
+      status: "Active",
+    })),
+  ];
+
+
+const totalPages = Math.max(1, Math.ceil(tableData.length / itemsPerPage));
+
   return (
     <div className="min-h-screen p-6 bg-secondary">
       <div className="flex gap-4 mb-8 h-44">
-        <div className="flex flex-col bg-white p-6 rounded-2xl shadow-xl border border-gray-200 min-w-[300px] ">
+        <div className="flex flex-col bg-gradient-to-l from-white to-gray-50 p-6 rounded-2xl shadow-md border border-gray-200 min-w-[300px] ">
           <div className="flex items-center gap-3 mb-2">
             <FaUserInjured className="text-black text-3xl" />
             <h2 className="text-xl font-semibold text-maintext">Patients</h2>
@@ -76,7 +123,7 @@ useEffect(() => {
           <p className="text-gray-600 text-2xl font-semibold mt-12"> {stats?.totalParents}</p>
         </div>
 
-        <div className="flex-col bg-white p-6 rounded-2xl shadow-xl border border-gray-200 min-w-[300px]">
+        <div className="flex-col bg-gradient-to-l from-white to-gray-50  p-6 rounded-2xl shadow-xl border border-gray-200 min-w-[300px]">
           <div className="flex items-center gap-3 mb-2">
             <FaUserMd className="text-black text-3xl" />
             <h2 className="text-xl font-semibold text-maintext">Providers</h2>
@@ -84,7 +131,7 @@ useEffect(() => {
           <p className="text-gray-600 text-2xl font-semibold mt-12">{stats?.totalProviders}</p>
         </div>
 
-        <div className="flex-col  bg-white p-6 rounded-2xl shadow-xl border border-gray-200 min-w-[300px]">
+        <div className="flex-col  bg-gradient-to-l from-white to-gray-50  p-6 rounded-2xl shadow-xl border border-gray-200 min-w-[300px]">
           <div className="flex items-center gap-3 mb-2">
             <FaHospital className="text-black text-3xl" />
             <h2 className="text-xl font-semibold text-maintext">Bookings</h2>
@@ -92,7 +139,7 @@ useEffect(() => {
           <p className="text-gray-600 text-2xl font-semibold mt-12">{stats?.totalBookings}</p>
         </div>
         
-<div className="flex-col  bg-white p-6 rounded-2xl shadow-xl border border-gray-200 min-w-[300px]">
+<div className="flex-col  bg-gradient-to-l from-white to-gray-50  p-6 rounded-2xl shadow-xl border border-gray-200 min-w-[300px]">
           <div className="flex items-center gap-3 mb-2">
             <FaHospital className="text-black text-3xl" />
             <h2 className="text-xl font-semibold text-maintext">Cources</h2>
@@ -113,62 +160,65 @@ useEffect(() => {
                 <th className="px-6 py-3 font-semibold">Name</th>
                 <th className="px-6 py-3 font-semibold">Email</th>
                 <th className="px-6 py-3 font-semibold">Role</th>
-                <th className="px-6 py-3 font-semibold">Status</th>
-                <th className="px-6 py-3 font-semibold text-center">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
-              {currentItems.map((item, index) => (
-                <tr key={index} className="hover:bg-gray-50 transition">
-                  <td className="px-6 py-4"> {indexOfFirstItem + index + 1}</td>
+              <tbody className="divide-y">
+            {loading ? (
+              <tr>
+                <td colSpan="6" className="text-center py-6">
+                  Loading...
+                </td>
+              </tr>
+            ) : error ? (
+              <tr>
+                <td colSpan="6" className="text-center py-6 text-red-500">
+                  {error}
+                </td>
+              </tr>
+            ) : tableData.length === 0 ? (
+              <tr>
+                <td colSpan="6" className="text-center py-6">
+                  No records found
+                </td>
+              </tr>
+            ) : (
+              tableData.map((item, index) => (
+                <tr key={index}>
+                  <td className="px-6 py-4">
+                    {(currentPage - 1) * itemsPerPage + index + 1}
+                  </td>
                   <td className="px-6 py-4">{item.name}</td>
                   <td className="px-6 py-4">{item.email}</td>
                   <td className="px-6 py-4">{item.role}</td>
-                  <td className="px-6 py-4">
-                    <span>{item.status}</span>
-                  </td>
-
-                  <td className="px-6 py-4 text-center">
-                    <div className="flex justify-center gap-4">
-                      <button className="bg-primary text-white px-4 py-2 rounded-lg shadow hover:opacity-90 transition">
-                        View
-                      </button>
-
-                      <button className="bg-primary text-white px-4 py-2 rounded-lg shadow hover:opacity-90 transition">
-                        Edit
-                      </button>
-                    </div>
-                  </td>
                 </tr>
-              ))}
-            </tbody>
+              ))
+            )}
+          </tbody>
           </table>
 
-          <div className="flex justify-end items-center gap-3 mt-4">
-            <button
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              className="px-4 py-2 rounded-lg bg-gradient-to-r from-gray-100 to-gray-200 text-black shadow hover:opacity-90 transition"
-            >
-              Prev
-            </button>
+         <div className="flex justify-end gap-3 mt-4">
+          <button
+            onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+            className="px-4 py-2 bg-gray-200 rounded"
+          >
+            Prev
+          </button>
 
-            <span className="px-3 py-1 bg-gray-200 rounded-lg">
-              Page {currentPage} of {totalPages}
-            </span>
+          <span className="px-3 py-2 bg-gray-100 rounded">
+            Page {currentPage} of {totalPages}
+          </span>
 
-            <button
-              onClick={() =>
-                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-              }
-              className="px-4 py-2 bg-gradient-to-r from-gray-100 to-gray-200 rounded-lg hover:bg-gray-400 transition "
-            >
-              Next
-            </button>
-          </div>
+          <button
+            onClick={() => setCurrentPage((p) => p + 1)}
+            className="px-4 py-2 bg-gray-200 rounded"
+          >
+            Next
+          </button>
+        </div>
         </div>
 
         <div className="flex gap-6">
-          <aside className="w-80 flex-shrink-0 space-y-6">
+          <aside className="w-80  space-y-6">
             <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-200">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-lg font-semibold">Recent Activity</h3>
@@ -205,7 +255,7 @@ useEffect(() => {
               <p className="text-sm text-gray-500 mt-2">
                 2 new bookings • 1 cancellation
               </p>
-              <button className="mt-4 w-full text-sm px-3 py-2 rounded-lg bg-gradient-to-r from-[#fbbf24] to-[#fbbf24] text-black shadow">
+              <button className="mt-4 w-full text-sm px-3 py-2 rounded-lg bg-greenbtn text-black shadow">
                 Manage
               </button>
             </div>

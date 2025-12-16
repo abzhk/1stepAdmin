@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken';
 import Provider from '../model/provider.model.js';
 import mongoose from 'mongoose';
+import Parent from "../model/parent.model.js";
 
 export const createAdmin = async (req,res)=> {
 try{
@@ -147,7 +148,7 @@ export const logoutAdmin = async (req, res) => {
   }
 };
 
-//updateprovider details 
+//updateprovider details byadmin
 export const updateProvider = async (req, res) => {
   try {
     const { providerId } = req.params;
@@ -215,6 +216,42 @@ export const updateProvider = async (req, res) => {
       success: false,
       message: "Failed to update provider",
       error: error.message,
+    });
+  }
+};
+
+//fetch both parent and provider
+export const getParentsAndProviders = async (req, res) => {
+  try {
+
+     const { limit = 4, startIndex = 0 } = req.query;
+    const parents = await Parent.find()
+      .populate("userRef", "username email profilePicture createdAt")
+      .sort({ createdAt: -1 })
+       .skip(Number(startIndex))
+      .limit(Number(limit))
+
+    const providers = await Provider.find()
+      .sort({ createdAt: -1 })
+       .skip(Number(startIndex))
+      .limit(Number(limit))
+
+      const parentsTotal = await Parent.countDocuments();
+      const providersTotal = await Provider.countDocuments();
+
+    res.status(200).json({
+      success: true,
+      parentsCount: parents.length,
+      providersCount: providers.length,
+      parents,
+      providers,
+      total: parentsTotal + providersTotal,
+    });
+  } catch (error) {
+    console.error("Fetch Parents & Providers Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch parents and providers",
     });
   }
 };
