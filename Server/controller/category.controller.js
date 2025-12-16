@@ -1,6 +1,6 @@
 import Article from "../model/Article/article.model.js";
-import Provider from "../model/providermodel.js";
-import Category from "../model/categorymodel.js";
+import Provider from "../model/provider.model.js";
+import Category from "../model/Article/category.model.js";
 
 // ============================================
 // PUBLIC CONTROLLERS

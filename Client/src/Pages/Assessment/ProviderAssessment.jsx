@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import dateFormatUtils from "../../utils/dateFormatUtils";
 
 function ProviderAssessment() {
   const [assessments, setAssessments] = useState([]);
@@ -140,22 +141,22 @@ function ProviderAssessment() {
                     </p>
                     <p>
                       Created:{" "}
-                      <span className="font-semibold">{item.createdAt}</span>
+                      <span className="font-semibold"> {dateFormatUtils(item.createdAt)}</span>
                     </p>
                   </div>
                 </div>
 
-                <div className="p-4 border-t border-gray-100 flex items-center justify-between gap-2">
-                  {/* <button className="text-xs text-white px-3 py-1.5 rounded-lg bg-[#fbbf24]  hover:bg-yellow-100 font-medium">
+                {/* <div className="p-4 border-t border-gray-100 flex items-center justify-between gap-2">
+                  <button className="text-xs text-white px-3 py-1.5 rounded-lg bg-[#fbbf24]  hover:bg-yellow-100 font-medium">
                     Edit
-                  </button> */}
+                  </button>
 
                   <div className="flex gap-2">
                     <button className="text-xs px-3 py-1.5 rounded-lg bg-red-600 text-white hover:bg-red-100 font-medium">
                       Delete
                     </button>
                   </div>
-                </div>
+                </div> */}
               </div>
             );
           })}

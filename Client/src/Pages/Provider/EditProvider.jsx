@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
 function EditProvider() {
-  const { id } = useParams();  
+  const { id } = useParams();
   console.log(id);
   const navigate = useNavigate();
 
@@ -101,42 +101,51 @@ function EditProvider() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="text"
-            name="fullName"
-            value={formData.fullName}
-            onChange={handleChange}
-            placeholder="Full Name"
-            className="w-full border rounded px-4 py-2"
-            required
-          />
-
-          <input
-            type="text"
-            name="phone"
-            value={formData.phone}
-            onChange={handleChange}
-            placeholder="Phone"
-            className="w-full border rounded px-4 py-2"
-          />
-
-          <input
-            type="text"
-            name="qualification"
-            value={formData.qualification}
-            onChange={handleChange}
-            placeholder="Qualification"
-            className="w-full border rounded px-4 py-2"
-          />
-
-          <input
-            type="text"
-            name="experience"
-            value={formData.experience}
-            onChange={handleChange}
-            placeholder="Experience"
-            className="w-full border rounded px-4 py-2"
-          />
+          <label className="block w-full text-sm font-medium text-gray-700">
+            Full Name
+            <input
+              type="text"
+              name="fullName"
+              value={formData.fullName}
+              onChange={handleChange}
+              placeholder="Full Name"
+              className="mt-1 w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+              required
+            />
+          </label>
+          <label className="block w-full text-sm font-medium text-gray-700">
+            phone Number
+            <input
+              type="text"
+              name="phone"
+              value={formData.phone}
+              onChange={handleChange}
+              placeholder="Phone"
+              className="w-full border rounded px-4 py-2"
+            />
+          </label>
+          <label className="block w-full text-sm font-medium text-gray-700">
+            Qualification
+            <input
+              type="text"
+              name="qualification"
+              value={formData.qualification}
+              onChange={handleChange}
+              placeholder="Qualification"
+              className="w-full border rounded px-4 py-2"
+            />
+          </label>
+          <label className="block w-full text-sm font-medium text-gray-700">
+            Experience
+            <input
+              type="text"
+              name="experience"
+              value={formData.experience}
+              onChange={handleChange}
+              placeholder="Experience"
+              className="w-full border rounded px-4 py-2"
+            />
+          </label>
 
           <textarea
             name="description"

@@ -139,9 +139,9 @@ useEffect(() => {
                 {/* <td className="p-3">{item.articleCount}</td> */}
 
                 <td className="p-3 flex gap-2">
-                  <button className="bg-primary text-white px-4 py-2 rounded-lg shadow hover:opacity-90 transition">
+                  {/* <button className="bg-primary text-white px-4 py-2 rounded-lg shadow hover:opacity-90 transition">
                     Edit
-                  </button>
+                  </button> */}
                   <button
     onClick={() => handleToggleStatus(item._id)}
     className={`px-4 py-1 rounded-lg text-white text-sm shadow

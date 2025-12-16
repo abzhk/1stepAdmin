@@ -74,7 +74,7 @@ function ProviderStats() {
         });
 
         const res = await fetch(
-          `http://localhost:3001/api/booking/getallbooking/${id}?${params.toString()}`
+          `http://localhost:3001/api/provider/getallbooking/${id}?${params.toString()}`
         );
 
         const data = await res.json();

@@ -158,9 +158,9 @@ const ViewAssessment = () => {
                       </td> */}
 
                       <td className="px-4 py-3 flex items-center gap-3 justify-center">
-                        <button className="px-5 py-2 text-xs rounded-md bg-primary text-white hover:bg-primary">
+                        {/* <button className="px-5 py-2 text-xs rounded-md bg-primary text-white hover:bg-primary">
                           Edit
-                        </button>
+                        </button> */}
 
                         <button
                           onClick={() => handleToggle(assessment._id)}

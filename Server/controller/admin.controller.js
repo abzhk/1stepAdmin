@@ -1,7 +1,7 @@
 import Admin from '../model/adminmodel.js';
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken';
-import Provider from '../model/providermodel.js';
+import Provider from '../model/provider.model.js';
 import mongoose from 'mongoose';
 
 export const createAdmin = async (req,res)=> {
@@ -127,6 +127,27 @@ export const deleteProvider = async (req, res) => {
     });
   }
 };
+export const logoutAdmin = async (req, res) => {
+  try {
+    res.clearCookie("adminToken", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Logout successful",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Logout failed",
+    });
+  }
+};
+
+//updateprovider details 
 export const updateProvider = async (req, res) => {
   try {
     const { providerId } = req.params;

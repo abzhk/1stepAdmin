@@ -1,4 +1,5 @@
-import Provider from "../model/providermodel.js";
+import mongoose from "mongoose";
+import Provider from "../model/provider.model.js";
 import { Booking } from "../model/booking.model.js";
 import { errorHandler } from "../utils/error.js";
 import nodemailer from "nodemailer";
@@ -608,3 +609,129 @@ export const getProviderById = async (req, res) => {
   });
 };
 
+//provider stats 
+export const getProviderStats = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ success: false, message: "Invalid provider id" });
+    }
+    const providerId = new mongoose.Types.ObjectId(id);
+
+
+    const now = new Date();
+    const month = req.query.month ? Number(req.query.month) : now.getMonth() + 1; 
+    const year = req.query.year ? Number(req.query.year) : now.getFullYear();
+
+    const limit = Number(req.query.limit) || 8;
+    const startIndex = Number(req.query.startIndex) || 0;
+
+
+    const startOfMonth = new Date(year, month - 1, 1, 0, 0, 0, 0);
+    const endOfMonth = new Date(year, month, 0, 23, 59, 59, 999);
+
+
+    const buildStats = (rows, total) => {
+      const stats = {
+        total,
+        pending: 0,
+        approved: 0,
+        completed: 0,
+        rejected: 0,
+        expired: 0,
+      };
+
+      rows.forEach((row) => {
+        if (stats.hasOwnProperty(row._id)) {
+          stats[row._id] = row.count;
+        }
+      });
+
+      return stats;
+    };
+
+
+    const allTimeAgg = await Booking.aggregate([
+      { $match: { provider: providerId } },
+      {
+        $group: {
+          _id: "$status",
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const allTimeTotal = allTimeAgg.reduce((sum, row) => sum + row.count, 0);
+    const allTime = buildStats(allTimeAgg, allTimeTotal);
+
+    const monthAgg = await Booking.aggregate([
+      {
+        $match: {
+          provider: providerId,
+          createdAt: { $gte: startOfMonth, $lte: endOfMonth },
+        },
+      },
+      {
+        $group: {
+          _id: "$status",
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const monthTotal = monthAgg.reduce((sum, row) => sum + row.count, 0);
+    const monthly = buildStats(monthAgg, monthTotal);
+
+    const bookingDetails = await Booking.aggregate([
+      {
+        $match: {
+          provider: providerId,
+          createdAt: { $gte: startOfMonth, $lte: endOfMonth },
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "patient",
+          foreignField: "_id",
+          as: "patientDetails",
+        },
+      },
+      { $unwind: "$patientDetails" },
+      {
+        $project: {
+          "patientDetails.profilePicture": 1,
+          "patientDetails.username": 1,
+          patientName: 1,
+          createdAt: 1,
+          note: 1,
+          scheduledTime: 1,
+          status: 1,
+          sessionType: 1,
+          service: 1,
+        },
+      },
+      { $sort: { createdAt: -1 } },
+      { $skip: startIndex },
+      { $limit: limit },
+    ]);
+
+    res.status(200).json({
+      success: true,
+      providerId: id,
+      filter: { month, year },
+      stats: {
+        allTime,
+        monthly,
+      },
+      bookings: {
+        items: bookingDetails,
+        total: monthTotal,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+};

@@ -30,17 +30,6 @@ const Login = () => {
     return () => clearInterval(id);
   }, []);
 
-  // useEffect(() => {
-  //   const token = localStorage.getItem("adminToken");
-  //   if (token) {
-  //     navigate("/dashboard");
-  //   }
-  // }, [navigate]);
-
-  const handleLogout = () => {
-    googleLogout();
-    console.log("logout successful");
-  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -77,7 +66,7 @@ const Login = () => {
   return (
     <div className="w-screen h-screen p-2 flex">
       {/* LEFT SIDE */}
-      <div className="w-1/2 bg-gray-800 flex flex-col items-center justify-start rounded-2xl p-8">
+      <div className="w-1/2 bg-primary flex flex-col items-center justify-start rounded-2xl p-8">
         <div className="w-full flex items-center justify-start mb-10">
           <img
             src={doctor}
@@ -122,7 +111,7 @@ const Login = () => {
         <div>
           <form
             onSubmit={handleLogin}
-            className="flex flex-col bg-gray-50 p-4 h-96 w-96 rounded-3xl shadow-2xl gap-1"
+            className="flex flex-col bg-gray-50 p-4 h-72 w-96 rounded-3xl shadow-2xl gap-1"
           >
             <label className="font-semibold">User Name</label>
             <div className="relative w-full">
@@ -160,19 +149,19 @@ const Login = () => {
             <button
               type="submit"
               disabled={loading}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-blue-700 transition duration-300 disabled:opacity-60 disabled:cursor-not-allowed"
+              className="bg-greenbtn text-white px-4 py-2 rounded-lg shadow-lg hover:bg-lighthov transition duration-300 disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {loading ? "Logging in..." : "Login"}
             </button>
 
-            <div className="flex mt-2 text-sm">
+            {/* <div className="flex mt-2 text-sm">
               <p>Not yet created?</p>
               <Link to="/" className="ml-2 text-blue-600 hover:underline">
                 Create Account
               </Link>
-            </div>
+            </div> */}
 
-            <div className="mt-3">
+            {/* <div className="mt-3">
               <GoogleLogin
                 onSuccess={(credentialResponce) => {
                   console.log(credentialResponce);
@@ -185,7 +174,7 @@ const Login = () => {
                 shape="pill"
                 logo_alignment="left"
               />
-            </div>
+            </div> */}
           </form>
         </div>
       </div>

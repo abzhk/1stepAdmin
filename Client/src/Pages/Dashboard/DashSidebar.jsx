@@ -80,11 +80,18 @@ const DashSidebar = () => {
     setIsArticleOpen(!isArticleOpen);
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("adminToken");
-    localStorage.removeItem("adminInfo");
+  const handleLogout = async () => {
+  try {
+    await fetch("http://localhost:3001/api/admin/logout", {
+      method: "POST",
+      credentials: "include", 
+    });
     navigate("/log");
-  };
+  } catch (error) {
+    console.error("Logout error", error);
+  }
+};
+
 
   // Helper function for main link styles
   const getNavLinkClasses = (name) => `
@@ -145,7 +152,7 @@ const DashSidebar = () => {
         </label>
 
         {/* Reports */}
-        <label
+        {/* <label
           onClick={() => {
             setActive("Reports");
             navigate("/report");
@@ -154,7 +161,7 @@ const DashSidebar = () => {
         >
           <TbReportSearch className="text-2xl" />
           Reports
-        </label>
+        </label> */}
 
         {/* Content Management  */}
         <div className="transition-all duration-300">
