@@ -66,8 +66,9 @@ export const loginAdmin = async (req, res) => {
         );
          res.cookie('adminToken', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', 
+      secure:false, 
       sameSite: 'lax',
+      path:'/',
       maxAge: 24 * 60 * 60 * 1000, 
     });
 
@@ -132,8 +133,9 @@ export const logoutAdmin = async (req, res) => {
   try {
     res.clearCookie("adminToken", {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: false,
       sameSite: "lax",
+      path:'/',
     });
 
     return res.status(200).json({
@@ -147,6 +149,21 @@ export const logoutAdmin = async (req, res) => {
     });
   }
 };
+
+export const verifyAdminSession = async (req, res) => {
+  try {
+    const token = req.cookies.adminToken;
+    if (!token) {
+      return res.status(401).json({ valid: false });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    return res.json({ valid: true });
+  } catch (error) {
+    return res.status(401).json({ valid: false });
+  }
+};
+
 
 //updateprovider details byadmin
 export const updateProvider = async (req, res) => {
@@ -255,4 +272,87 @@ export const getParentsAndProviders = async (req, res) => {
     });
   }
 };
+//delete parent
+export const deleteParent = async (req, res) => {
+  try {
+    const { userRef } = req.params;
 
+    if (!mongoose.Types.ObjectId.isValid(userRef)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid userRef ID",
+      });
+    }
+
+    const parentDoc = await Parent.findOne({ userRef });
+
+    if (!parentDoc) {
+      return res.status(404).json({
+        success: false,
+        message: "Parent not found",
+      });
+    }
+
+    await Parent.findOneAndDelete({ userRef });
+
+    return res.status(200).json({
+      success: true,
+      message: "Parent deleted successfully",
+    });
+  } catch (error) {
+    console.error("Delete parent error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to delete parent",
+      error: error.message,
+    });
+  }
+};
+
+
+//update parent
+export const updateParent = async (req, res) => {
+  try {
+    const { userRef } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(userRef)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid userRef ID",
+      });
+    }
+
+    const parentDoc = await Parent.findOne({ userRef });
+
+    if (!parentDoc) {
+      return res.status(404).json({
+        success: false,
+        message: "Parent not found",
+      });
+    }
+
+    const updatedParent = await Parent.findOneAndUpdate(
+      { userRef },
+      {
+        $set: req.body,
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    ).populate("userRef", "username email profilePicture");
+
+    return res.status(200).json({
+      success: true,
+      message: "Parent updated successfully",
+      parent: updatedParent,
+    });
+  } catch (error) {
+    console.error("Update parent error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to update parent",
+      error: error.message,
+    });
+  }
+};

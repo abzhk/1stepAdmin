@@ -85,10 +85,11 @@ function ViewProvider() {
   };
 
   return (
-    <div className="p-4 md:p-10 bg-secondary min-h-screen">
+    <div className="p-4 md:p-6 bg-secondary min-h-screen">
       <div className="mb-8 flex flex-col md:flex-row justify-between items-center">
         <h3 className="text-3xl font-bold text-primary mb-4 md:mb-0">
-          Provider
+          Provider 
+            <span className="font-medium text-md">  ({totalCount})</span>
         </h3>
 
         <div className="relative w-full md:w-80">
@@ -112,7 +113,7 @@ function ViewProvider() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {loading ? (
           <div className="col-span-full text-center py-10 text-xl text-gray-500 font-medium">
             Loading providers...
@@ -128,21 +129,24 @@ function ViewProvider() {
             return (
               <div
                 key={provider._id}
-                className="bg-white rounded-xl shadow-lg hover:shadow-xl transition duration-300 p-2 flex flex-col justify-between border border-gray-100"
+                className="bg-white rounded-xl shadow-lg hover:shadow-xl transition duration-300  flex flex-col justify-between border border-gray-100 "
               >
                 {/* Card Header */}
-                <div className="flex items-start mb-2">
-                  <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div className="flex items-start mb-2 ">
+                  <div className="bg-white rounded-xl shadow-lg overflow-hidden ">
                     {provider.profilePicture && (
                       <img
                         src={provider.profilePicture}
                         alt={provider.fullName}
-                        className="w-[400px] h-44 object-cover"
+                        className="w-74 h-44 object-cover"
                       />
                     )}
                   </div>
                 </div>
-                <div className="p-1">
+                <div className="p-1  transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] 
+    hover:-translate-y-4 
+    hover:shadow-xl">
+                <div className="p-1 mt-2">
                   <h2 className="text-xl font-semibold text-gray-800 mb-2">
                     {provider.fullName}
                   </h2>
@@ -177,11 +181,11 @@ function ViewProvider() {
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-3  ">
+                <div className="flex items-center gap-3 ml-2">
                   <button
                     onClick={() => navigate(`/provider-stats/${provider._id}`)}
                     className="flex items-center  justify-center gap-2 px-4 py-2 rounded-2xl bg-greenbtn text-white font-medium shadow-md
-               hover:bg-lighthov transition duration-150 w-60"
+               hover:bg-lighthov transition duration-150 w-40"
                   >
                     <AiFillEye className="text-lg" />
                     <span className="text-sm">View Details</span>
@@ -233,10 +237,13 @@ function ViewProvider() {
                           >
                             Delete
                           </button>
+                          
                         </div>
                       </div>
                     </div>
+                    
                   )}
+                </div>
                 </div>
               </div>
             );

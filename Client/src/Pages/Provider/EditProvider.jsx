@@ -3,7 +3,6 @@ import { useParams, useNavigate } from "react-router-dom";
 
 function EditProvider() {
   const { id } = useParams();
-  console.log(id);
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
