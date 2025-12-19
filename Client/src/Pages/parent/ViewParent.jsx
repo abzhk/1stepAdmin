@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { AiFillEye } from "react-icons/ai";
-import { FiSearch} from "react-icons/fi";
+import { FiSearch, FiEdit2, FiTrash2 } from "react-icons/fi";
 import { FaChild } from "react-icons/fa";
 import { CiPhone } from "react-icons/ci";
 import { useNavigate } from "react-router-dom";
@@ -54,12 +54,33 @@ function ViewParent() {
   const fromIndex = parents.length ? (page - 1) * limit + 1 : 0;
   const toIndex = (page - 1) * limit + parents.length;
 
-  return (
-    <div className="p-4 md:p-10 bg-secondary  min-h-screen">
+  const handleDelete = async (parentId) => {
+    try {
+      const res = await fetch(
+        `http://localhost:3001/api/admin/parent/user/${parentId}`,
+        {
+          method: "DELETE",
+          credentials: "include",
+        }
+      );
+      const data = await res.json();
 
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to delete parent");
+      }
+      setParents((prev) => prev.filter((parent) => parent._id !== parentId));
+    } catch (error) {
+      console.error("Delete parent error:", error);
+      alert(error.message || "Something went wrong");
+    }
+  };
+
+  return (
+    <div className="p-4 md:p-8 bg-secondary  min-h-screen">
       <div className="mb-8 flex flex-col md:flex-row justify-between items-center">
         <h1 className="text-2xl md:text-3xl font-bold text-primary mb-4 md:mb-0">
           Parent 
+            <span className="font-medium text-md">    ({totalParents})</span> 
         </h1>
 
         <div className="relative w-full md:w-80">
@@ -85,60 +106,87 @@ function ViewParent() {
       )}
 
       {/* Card Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {loading ? (
           <div className="col-span-full text-center py-10 text-gray-500 font-medium text-lg">
             Loading parents...
           </div>
         ) : parents.length > 0 ? (
           parents.map((parent, index) => {
-            const fullName =
-              parent.parentDetails?.fullName ||
-              parent.userRef?.username ||
-              "-";
-            const childName = parent.parentDetails?.childName || "-";
-            const phone = parent.parentDetails?.phoneNumber || "-";
-
             return (
               <div
                 key={parent._id}
-                className="bg-white rounded-xl shadow-lg hover:shadow-xl transition duration-300 p-6 flex flex-col justify-between"
+                className="bg-white rounded-xl shadow-lg hover:shadow-xl transition duration-300  flex flex-col justify-between  border-gray-100 "
               >
                 {/* Card Header */}
-                <div className="flex items-start mb-4">
-                  <div className="w-12 h-12  rounded-full bg-icon text-white flex items-center justify-center font-bold text-xl mr-4">
-                    {fullName.charAt(0).toUpperCase()}
+                <div className=" mb-2   transition-all duration-700 
+ease-[cubic-bezier(0.22,1,0.36,1)] 
+    hover:-translate-y-4 
+    hover:shadow-xl">
+                  <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-2">
+                    {parent.userRef?.profilePicture && (
+                      <img
+                        src={parent.userRef?.profilePicture}
+                        alt={parent.parentDetails?.fullName}
+                        className="w-72 h-44 object-cover"
+                      />
+                    )}
                   </div>
+                  <div className="p-1 ">
+                    <div className="p-1  mb-2">
+                      <h2 className="text-lg md:text-xl font-semibold text-gray-900">
+                        {parent.parentDetails?.fullName}
+                      </h2>
+                    </div>
+                
 
-                  <div>
-                    <h2 className="text-lg md:text-xl font-semibold text-gray-900">
-                      {fullName}
-                    </h2>
+                  {/* Details */}
+                  <div className="space-y-2 mb-4 text-sm text-gray-700">
+                    <div className="flex items-center text-gray-600 text-sm">
+                      <FaChild className="text-secondarytext mr-2 " />
+                      <span className="font-semibold">Child Name : </span>
+                      <span>{parent.parentDetails?.childName}</span>
+                    </div>
+                    <div className="flex items-center text-gray-600 text-sm">
+                      <CiPhone className="text-blue-500 mr-2 " />
+                      <span className="font-semibold">Phone: </span>
+                      <span>{parent.parentDetails?.phoneNumber}</span>
+                    </div>
                   </div>
+                  <div className=" flex items-center  gap-3 ml-2">
+                    {/* View Button */}
+                    <button
+                      onClick={() =>
+                        navigate(`/parent-stats-card/${parent.userRef?._id}`)
+                      }
+                      className="flex items-center  justify-center gap-2 px-4 py-2 rounded-2xl bg-greenbtn text-white font-medium shadow-md
+               hover:bg-lighthov transition duration-150 w-40"
+                    >
+                      <AiFillEye className="text-xl" />
+                      <span>View Details</span>
+                    </button>
+
+                    <button
+                     onClick={() => navigate(`/parent/edit/${parent.userRef?._id}`)}
+                      className="w-10 h-10 flex items-center justify-center rounded-xl
+                               bg-blue-50 text-blue-600 hover:bg-blue-100
+                               transition shadow-sm"
+                      title="Edit"
+                    >
+                      <FiEdit2 className="text-lg" />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(parent.userRef?._id)}
+                      className="w-10 h-10 flex items-center justify-center rounded-xl
+                             bg-red-50 text-red-600 hover:bg-red-100
+                             transition shadow-sm"
+                      title="Delete"
+                    >
+                      <FiTrash2 className="text-lg" />
+                    </button>
+                  </div>
+                    </div>
                 </div>
-
-                {/* Details */}
-                <div className="space-y-2 mb-4 text-sm text-gray-700">
-                 <div className="flex items-center text-gray-600 text-sm">
-                                     <FaChild className="text-secondarytext mr-2 " />
-                    <span className="font-semibold">Child Name : </span>
-                     <span>{childName}</span>
-                  </div>
-                  <div className="flex items-center text-gray-600 text-sm">
-                                     <CiPhone className="text-blue-500 mr-2 " />
-                    <span className="font-semibold">Phone: </span>
-                    <span>{phone}</span>
-                  </div>
-                </div>
-
-                {/* View Button */}
-                <button
-                   onClick={() => navigate(`/parent-stats-card/${parent.userRef._id}`)}
-                  className="mt-2 flex items-center justify-center gap-2 bg-greenbtn text-white py-2 rounded-2xl font-medium hover:bg-lighthov transition duration-150 shadow-md"
-                >
-                  <AiFillEye className="text-xl" />
-                  <span>View Details</span>
-                </button>
               </div>
             );
           })

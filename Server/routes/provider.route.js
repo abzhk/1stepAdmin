@@ -9,7 +9,7 @@ router.get("/getProviders", getProviders);
 //provider by id
 router.get("/providersbyid/:id", getProviderById);
 //provider stats 
-router.get('/getallbooking/:id',verifyAdminToken, getProviderStats);
+router.get('/getallbooking/:id', getProviderStats);
 
 
 export default router;

@@ -16,6 +16,8 @@ import ProviderStats from './Pages/Provider/ProviderStats.jsx';
 import ViewParent from './Pages/Parent/ViewParent.jsx';
 import ParentStats from './Pages/parent/ParentStatsCard.jsx'
 import EditProvider from './Pages/Provider/EditProvider.jsx'
+import EditParent from './Pages/parent/EditParent.jsx';
+import PrivateRoute from './Pages/PrivateRoute.jsx';
 
 const App = () => {
   return (
@@ -27,7 +29,7 @@ const App = () => {
     {/* <Route path ='/dashnav'element={<DashboardNavbar/>}/> */}
    
 
-    <Route element={<Layout/>}>
+    <Route element={<PrivateRoute><Layout/></PrivateRoute>}>
      <Route path ='/dashboard'element={<MainDashboard/>}/>
      <Route path ='/categories' element={<Categories/>}/>
      <Route path ='/viewcat' element={<ViewCategories/>}/>
@@ -39,6 +41,7 @@ const App = () => {
      <Route path ='/view-parent' element={<ViewParent/>}/>
       <Route path="/parent-stats-card/:userId" element={<ParentStats />} />
       <Route path="/providers/edit/:id" element={<EditProvider />} />
+      <Route path="/parent/edit/:parentId" element={<EditParent />} />
     </Route>
     </Routes>
   )
