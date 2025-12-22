@@ -17,7 +17,7 @@ const DashSidebar = () => {
   const activeBg = "bg-greenbtn"; // Your yellow color for active
   const hoverBg = "hover:bg-lighthov"; // Light gray hover for subtlety
   const activeText = "text-white";
-  const defaultText = "text-white"; // Darker text for white background
+  const defaultText = "#010101"; // Darker text for white background
 
   useEffect(() => {
     // Logic to set the active state based on the current path
@@ -52,14 +52,14 @@ const DashSidebar = () => {
     if (["Add Assessment", "Provider Assessments"].includes(active)) {
       setIsAssessmentOpen(true);
     }
-  }, [location.pathname, active]); // Added active as dependency for auto-open logic
+  }, [location.pathname, active]); 
 
   const handleArticleClick = (section) => {
     setActive(section);
     if (section === "Add Category") {
-      navigate("/viewcat"); // Navigating to view categories
+      navigate("/viewcat");
     } else if (section === "Approve Articles") {
-      navigate("/viewarticle"); // Navigating to view/approve articles
+      navigate("/viewarticle"); 
     }
   };
 
@@ -93,16 +93,16 @@ const DashSidebar = () => {
 };
 
 
-  // Helper function for main link styles
+
   const getNavLinkClasses = (name) => `
     flex items-center gap-2 font-semibold cursor-pointer transition p-3 rounded-lg 
     ${active === name 
-      ? `${activeBg} ${activeText} shadow-md` // Active state: yellow background, black text, shadow
-      : `${defaultText} ${hoverBg}` // Default state: dark gray text, light gray hover
+      ? `${activeBg} ${activeText} shadow-md`
+      : `${defaultText} ${hoverBg}` 
     }
   `;
   
-  // Helper function for sub-link styles
+
   const getSubLinkClasses = (name) => `
     flex items-center gap-2 cursor-pointer transition p-2 rounded text-sm
     ${active === name

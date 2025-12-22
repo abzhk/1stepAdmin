@@ -2,7 +2,7 @@
 
 
 @theme{
-  --color-primary:  #244F52;
+  /* --color-primary:  #244F52; */
   --color-secondary: #E6EFE9;  /* card backgeound */
   --color-greenbtn: #E8A58A;    /*BUTTON*/
   --color-lighthov:#F2B9A1;    /* hover btn */
@@ -12,5 +12,9 @@
   --color-surface :#FFFFFF;
 
     --color-muted: '#4A5A5B';     /* secondary text*/
-       --color-subtle: '#778687',   
+       --color-subtle: '#778687',;
+
+
+    --color-primary:#6bb0ad;
+    --color-text:#010101;
 }
