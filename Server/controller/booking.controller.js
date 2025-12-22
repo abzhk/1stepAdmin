@@ -550,3 +550,72 @@ export const getStats = async (req, res, next) => {
     res.status(500).json({ error: "Internal server error", status: false });
   }
 };
+
+
+export const getAllRecentBookings = async (req, res) => {
+  const { limit = 5, startIndex = 0 } = req.query;
+
+  try {
+    const aggregation = [
+      {
+        $lookup: {
+          from: "providers",
+          localField: "provider",
+          foreignField: "_id",
+          as: "providerDetails",
+        },
+      },
+      { $unwind: "$providerDetails" },
+
+      {
+        $lookup: {
+          from: "users",
+          localField: "patient",
+          foreignField: "_id",
+          as: "patientDetails",
+        },
+      },
+      { $unwind: "$patientDetails" },
+
+      { $sort: { createdAt: -1 } }, 
+      { $skip: parseInt(startIndex) },
+      { $limit: parseInt(limit) },
+
+      {
+        $project: {
+          bookingId: 1,
+          createdAt: 1,
+          scheduledTime: 1,
+          service: 1,
+          sessionType: 1,
+          status: 1,
+          note: 1,
+
+
+          "providerDetails._id": 1,
+          "providerDetails.fullName": 1,
+          "providerDetails.profilePicture": 1,
+          "providerDetails.address.city": 1,
+          "providerDetails.address.state": 1,
+
+          "patientDetails._id": 1,
+          "patientDetails.username": 1,
+          "patientDetails.profilePicture": 1
+        },
+      },
+    ];
+
+    const [bookings, count] = await Promise.all([
+      Booking.aggregate(aggregation),
+      Booking.countDocuments(),
+    ]);
+
+    res.status(200).json({
+      success: true,
+      bookings,
+      count,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+};

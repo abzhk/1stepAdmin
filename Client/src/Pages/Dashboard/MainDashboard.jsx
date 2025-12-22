@@ -21,6 +21,7 @@ const MainDashboard = () => {
   
 
   const [stats, setStats] = useState(null);
+const [recentBookings, setRecentBookings] = useState([]);
 
  const [parents, setParents] = useState([]);
 const [providers, setProviders] = useState([]);
@@ -112,8 +113,34 @@ const tableData = [
 
 const totalPages = Math.max(1, Math.ceil(tableData.length / itemsPerPage));
 
+useEffect(() => {
+  fetchRecentBookings();
+}, []);
+
+
+const fetchRecentBookings = async () => {
+  try {
+    const res = await fetch("http://localhost:3001/api/booking/recent", {
+      method: "GET",
+      credentials: "include",
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      console.error("Failed to load recent bookings");
+      return;
+    }
+
+    setRecentBookings(data.bookings || []);
+  } catch (err) {
+    console.error("Recent bookings fetch error:", err);
+  }
+};
+
+
   return (
-    <div className="min-h-screen p-6 bg-secondary">
+    <div className="min-h-screen p-6 bg-white">
       <div className="flex gap-4 mb-8 h-44">
         <div className="flex flex-col bg-gradient-to-l from-white to-gray-50 p-6 rounded-2xl shadow-md border border-gray-200 min-w-[300px] ">
           <div className="flex items-center gap-3 mb-2">
@@ -225,19 +252,27 @@ const totalPages = Math.max(1, Math.ceil(tableData.length / itemsPerPage));
                 <span className="text-sm text-gray-500">Live</span>
               </div>
 
-              <ul className="space-y-3">
-                {recentActivities.map((act) => (
-                  <li key={act.id} className="flex items-start gap-3">
-                    <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-green-50 text-green-700">
-                      <FaClock />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium">{act.text}</p>
-                      <p className="text-xs text-gray-500">{act.time}</p>
-                    </div>
-                  </li>
-                ))}
-              </ul>
+             <ul className="space-y-3">
+  {recentBookings.length === 0 ? (
+    <p className="text-gray-500 text-sm">No recent activity</p>
+  ) : (
+    recentBookings.slice(0, 5).map((book) => (
+      <li key={book._id} className="flex items-start gap-3">
+        <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-green-50 text-green-700">
+          <FaClock />
+        </div>
+
+        <div className="flex-1">
+          <p className="text-sm font-normal">
+            {book.patientDetails?.username} booked  with {book.providerDetails?.fullName}
+          </p>
+
+        </div>
+      </li>
+    ))
+  )}
+</ul>
+
 
               <button className="mt-4 w-full text-sm px-3 py-2 rounded-lg bg-greenbtn text-white shadow">
                 View all

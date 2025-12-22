@@ -20,4 +20,6 @@ router.get("/providerarticle/:providerId",getArticleByProvider);
 router.put("/admin/categories/:id/status",verifyAdminToken,toggleArticleCategoryStatus);
 
 
+
+
 export default router;  

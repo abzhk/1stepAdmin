@@ -1,6 +1,8 @@
 import React, { useState, useMemo } from "react";
 import AddCategory from "./AddCategories";
 import { useEffect } from "react";
+import EditCategory from "./EditCategories";
+
 
 const ViewCategories = () => {
   const [categories, setCategories] = useState([]);
@@ -10,6 +12,9 @@ const ViewCategories = () => {
 
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editCategoryId, setEditCategoryId] = useState(null);
+const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
 
 
   const PAGE_SIZE = 5; 
@@ -98,6 +103,11 @@ useEffect(() => {
     alert("Failed to update category status");
   }
 };
+const handleEdit = (id) => {
+  setEditCategoryId(id);
+  setIsEditModalOpen(true);
+};
+
 
 
   return (
@@ -139,9 +149,13 @@ useEffect(() => {
                 {/* <td className="p-3">{item.articleCount}</td> */}
 
                 <td className="p-3 flex gap-2">
-                  {/* <button className="bg-primary text-white px-4 py-2 rounded-lg shadow hover:opacity-90 transition">
-                    Edit
-                  </button> */}
+                  <button
+  onClick={() => handleEdit(item._id)}
+  className="bg-primary text-white px-4 py-2 rounded-lg shadow hover:opacity-90 transition"
+>
+  Edit
+</button>
+
                   <button
     onClick={() => handleToggleStatus(item._id)}
     className={`px-4 py-1 rounded-lg text-white text-sm shadow
@@ -210,6 +224,12 @@ useEffect(() => {
         onClose={handleClose}
         onSave={handleSaveCategory}
       />
+      <EditCategory
+  isOpen={isEditModalOpen}
+  onClose={() => setIsEditModalOpen(false)}
+  categoryId={editCategoryId}
+  onUpdated={() => window.location.reload()} 
+/>
     </div>
   );
 };
