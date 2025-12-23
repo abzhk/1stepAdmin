@@ -142,7 +142,7 @@ export const getProviderId = async (req, res, next) => {
 export const getProviders = async (req, res, next) => {
   try {
     const {
-      limit = 9,
+      limit = 12,
       startIndex = 0,
       searchTerm = "",
       address = "",

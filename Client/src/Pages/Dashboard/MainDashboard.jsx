@@ -1,5 +1,6 @@
 import React, { useState,useEffect } from "react";
 
+
 import {
   FaUserInjured,
   FaUserMd,
@@ -140,9 +141,11 @@ const fetchRecentBookings = async () => {
 
 
   return (
-    <div className="min-h-screen p-6 bg-white">
+    <div>
+  
+    <div className="min-h-screen p-6 bg-background">
       <div className="flex gap-4 mb-8 h-44">
-        <div className="flex flex-col bg-gradient-to-l from-white to-gray-50 p-6 rounded-2xl shadow-md border border-gray-200 min-w-[300px] ">
+        <div className="flex flex-col bg-gradient-to-l from-white to-gray-50 p-6 rounded-2xl shadow-md border border-gray-200 min-w-[280px] ">
           <div className="flex items-center gap-3 mb-2">
             <FaUserInjured className="text-black text-3xl" />
             <h2 className="text-xl font-semibold text-maintext">Patients</h2>
@@ -150,7 +153,7 @@ const fetchRecentBookings = async () => {
           <p className="text-gray-600 text-2xl font-semibold mt-12"> {stats?.totalParents}</p>
         </div>
 
-        <div className="flex-col bg-gradient-to-l from-white to-gray-50  p-6 rounded-2xl shadow-xl border border-gray-200 min-w-[300px]">
+        <div className="flex-col bg-gradient-to-l from-white to-gray-50  p-6 rounded-2xl shadow-xl border border-gray-200 min-w-[280px]">
           <div className="flex items-center gap-3 mb-2">
             <FaUserMd className="text-black text-3xl" />
             <h2 className="text-xl font-semibold text-maintext">Providers</h2>
@@ -158,7 +161,7 @@ const fetchRecentBookings = async () => {
           <p className="text-gray-600 text-2xl font-semibold mt-12">{stats?.totalProviders}</p>
         </div>
 
-        <div className="flex-col  bg-gradient-to-l from-white to-gray-50  p-6 rounded-2xl shadow-xl border border-gray-200 min-w-[300px]">
+        <div className="flex-col  bg-gradient-to-l from-white to-gray-50  p-6 rounded-2xl shadow-xl border border-gray-200 min-w-[280px]">
           <div className="flex items-center gap-3 mb-2">
             <FaHospital className="text-black text-3xl" />
             <h2 className="text-xl font-semibold text-maintext">Bookings</h2>
@@ -166,7 +169,7 @@ const fetchRecentBookings = async () => {
           <p className="text-gray-600 text-2xl font-semibold mt-12">{stats?.totalBookings}</p>
         </div>
         
-<div className="flex-col  bg-gradient-to-l from-white to-gray-50  p-6 rounded-2xl shadow-xl border border-gray-200 min-w-[300px]">
+<div className="flex-col  bg-gradient-to-l from-white to-gray-50  p-6 rounded-2xl shadow-xl border border-gray-200 min-w-[280px]">
           <div className="flex items-center gap-3 mb-2">
             <FaHospital className="text-black text-3xl" />
             <h2 className="text-xl font-semibold text-maintext">Cources</h2>
@@ -179,10 +182,10 @@ const fetchRecentBookings = async () => {
       </div>
 
       <div className="flex gap-6">
-        <div className="flex-1 bg-surface p-6 rounded-2xl shadow-sm border border-gray-200 overflow-x-auto">
+        <div className="flex-1 bg-surface p-6 rounded-2xl shadow-sm border border-gray-200 overflow-x-auto bg-white">
           <table className="min-w-full text-sm text-left border-collapse">
             <thead>
-              <tr className=" bg-[#9dc7b9] text-white">
+              <tr className=" bg-primary text-white">
                 <th className="px-6 py-3 font-semibold">Sl.No</th>
                 <th className="px-6 py-3 font-semibold">Name</th>
                 <th className="px-6 py-3 font-semibold">Email</th>
@@ -297,6 +300,7 @@ const fetchRecentBookings = async () => {
           </aside>
         </div>
       </div>
+    </div>
     </div>
   );
 };

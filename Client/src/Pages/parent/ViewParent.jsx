@@ -3,7 +3,7 @@ import { AiFillEye } from "react-icons/ai";
 import { FiSearch, FiEdit2, FiTrash2 } from "react-icons/fi";
 import { FaChild } from "react-icons/fa";
 import { CiPhone } from "react-icons/ci";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 
 function ViewParent() {
   const navigate = useNavigate();
@@ -13,11 +13,11 @@ function ViewParent() {
   const [error, setError] = useState("");
 
   const [page, setPage] = useState(1);
-  const [limit] = useState(9);
+  const [limit] = useState(12);
   const [totalPages, setTotalPages] = useState(1);
   const [totalParents, setTotalParents] = useState(0);
 
-  const [searchTerm, setSearchTerm] = useState("");
+  const { searchTerm } = useOutletContext();
 
   const getParents = async () => {
     try {
@@ -76,27 +76,7 @@ function ViewParent() {
   };
 
   return (
-    <div className="p-4 md:p-8 bg-secondary  min-h-screen">
-      <div className="mb-8 flex flex-col md:flex-row justify-between items-center">
-        <h1 className="text-2xl md:text-3xl font-bold text-primary mb-4 md:mb-0">
-          Parent 
-            <span className="font-medium text-md">    ({totalParents})</span> 
-        </h1>
-
-        <div className="relative w-full md:w-80">
-          <FiSearch className="absolute left-3 top-3 text-gray-500 text-lg" />
-          <input
-            type="text"
-            placeholder="Search parent..."
-            className="w-full pl-10 pr-4 py-2 rounded-xl bg-white shadow-sm focus:ring-2 focus:ring-icon focus:border-icon transition"
-            value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              setPage(1);
-            }}
-          />
-        </div>
-      </div>
+    <div className="p-4 md:p-8 bg-background  min-h-screen">
 
       {/* Error */}
       {error && (
@@ -106,7 +86,7 @@ function ViewParent() {
       )}
 
       {/* Card Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
         {loading ? (
           <div className="col-span-full text-center py-10 text-gray-500 font-medium text-lg">
             Loading parents...
@@ -123,17 +103,17 @@ function ViewParent() {
 ease-[cubic-bezier(0.22,1,0.36,1)] 
     hover:-translate-y-4 
     hover:shadow-xl">
-                  <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-2">
+                  <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-2  h-52">
                     {parent.userRef?.profilePicture && (
                       <img
                         src={parent.userRef?.profilePicture}
                         alt={parent.parentDetails?.fullName}
-                        className="w-72 h-44 object-cover"
+                        className="w-72 h-52 object-cover"
                       />
                     )}
                   </div>
                   <div className="p-1 ">
-                    <div className="p-1  mb-2">
+                    <div className="p-1  mb-2 ml-1">
                       <h2 className="text-lg md:text-xl font-semibold text-gray-900">
                         {parent.parentDetails?.fullName}
                       </h2>
@@ -142,13 +122,13 @@ ease-[cubic-bezier(0.22,1,0.36,1)]
 
                   {/* Details */}
                   <div className="space-y-2 mb-4 text-sm text-gray-700">
-                    <div className="flex items-center text-gray-600 text-sm">
-                      <FaChild className="text-secondarytext mr-2 " />
+                    <div className="flex items-center text-gray-600 text-sm ml-2">
+                      {/* <FaChild className="text-secondarytext mr-2 " /> */}
                       <span className="font-semibold">Child Name : </span>
                       <span>{parent.parentDetails?.childName}</span>
                     </div>
-                    <div className="flex items-center text-gray-600 text-sm">
-                      <CiPhone className="text-blue-500 mr-2 " />
+                    <div className="flex items-center text-gray-600 text-sm ml-2">
+                      {/* <CiPhone className="text-blue-500 mr-2 " /> */}
                       <span className="font-semibold">Phone: </span>
                       <span>{parent.parentDetails?.phoneNumber}</span>
                     </div>
@@ -159,7 +139,7 @@ ease-[cubic-bezier(0.22,1,0.36,1)]
                       onClick={() =>
                         navigate(`/parent-stats-card/${parent.userRef?._id}`)
                       }
-                      className="flex items-center  justify-center gap-2 px-4 py-2 rounded-2xl bg-greenbtn text-white font-medium shadow-md
+                      className="flex items-center  justify-center gap-2 px-4 py-2 rounded-2xl bg-button text-white font-medium shadow-md
                hover:bg-lighthov transition duration-150 w-40"
                     >
                       <AiFillEye className="text-xl" />

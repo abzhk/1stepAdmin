@@ -240,7 +240,7 @@ const handleReject = async (reason) => {
                     </div>
 
                     <div className="flex gap-2">
-                      <button className="flex-1 bg-greenbtn text-white py-2 px-3 rounded-lg text-sm font-medium transition-colors duration-200"
+                      <button className="flex-1 bg-button text-white py-2 px-3 rounded-lg text-sm font-medium transition-colors duration-200"
                         onClick={() => handleApprove(article._id)}>
                         Approve
                       </button>

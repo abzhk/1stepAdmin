@@ -3,18 +3,21 @@ import { AiFillEye } from "react-icons/ai";
 import { FiSearch, FiMapPin, FiUsers } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { FiEdit2, FiTrash2 } from "react-icons/fi";
+import {  useOutletContext } from "react-router-dom";
+
 
 function ViewProvider() {
   const navigate = useNavigate();
 
   const [providers, setProviders] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
   const [totalCount, setTotalCount] = useState(0);
   const [page, setPage] = useState(1);
-  const limit = 9;
+  const limit = 12;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [deleteId, setDeleteId] = useState(null);
+  const { searchTerm } = useOutletContext();
+
 
   useEffect(() => {
     const fetchProviders = async () => {
@@ -85,27 +88,8 @@ function ViewProvider() {
   };
 
   return (
-    <div className="p-4 md:p-6 bg-secondary min-h-screen">
-      <div className="mb-8 flex flex-col md:flex-row justify-between items-center">
-        <h3 className="text-3xl font-bold text-primary mb-4 md:mb-0">
-          Provider 
-            <span className="font-medium text-md">  ({totalCount})</span>
-        </h3>
-
-        <div className="relative w-full md:w-80">
-          <FiSearch className="absolute left-3 top-3 text-gray-400 text-lg" />
-          <input
-            type="text"
-            placeholder="Search by name or city..."
-            className="w-full pl-10 pr-4 py-2 rounded-xl border border-gray-200 bg-white shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-            value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              setPage(1);
-            }}
-          />
-        </div>
-      </div>
+    <div className="p-4 md:p-6 bg-background  min-h-screen ">
+       
 
       {error && (
         <div className="mb-6 text-red-700 bg-red-100 border border-red-300 px-4 py-3 rounded-xl">
@@ -113,7 +97,7 @@ function ViewProvider() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
         {loading ? (
           <div className="col-span-full text-center py-10 text-xl text-gray-500 font-medium">
             Loading providers...
@@ -129,7 +113,7 @@ function ViewProvider() {
             return (
               <div
                 key={provider._id}
-                className="bg-white rounded-xl shadow-lg hover:shadow-xl transition duration-300  flex flex-col justify-between border border-gray-100 "
+                className="bg-white rounded-xl shadow-lg hover:shadow-xl transition duration-300  flex flex-col justify-between border border-gray-100"
               >
                 {/* Card Header */}
                 <div className="flex items-start mb-2 ">
@@ -138,7 +122,7 @@ function ViewProvider() {
                       <img
                         src={provider.profilePicture}
                         alt={provider.fullName}
-                        className="w-74 h-44 object-cover"
+                        className="w-74 h-52 object-cover"
                       />
                     )}
                   </div>
@@ -147,28 +131,28 @@ function ViewProvider() {
     hover:-translate-y-4 
     hover:shadow-xl">
                 <div className="p-1 mt-2">
-                  <h2 className="text-xl font-semibold text-gray-800 mb-2">
+                  <h2 className="text-xl  font-semibold text-textcol mb-2 ml-1">
                     {provider.fullName}
                   </h2>
                 </div>
 
                 {/* Provider Details */}
                 <div className="space-y-3 mb-4">
-                  <div className="flex items-center text-gray-600 text-sm">
-                    <FiMapPin className="text-blue-500 mr-2 " />
+                  <div className="flex items-center text-gray-600 text-sm ml-2">
+                    {/* <FiMapPin className="text-blue-500 mr-2 " /> */}
                     <strong>City:</strong>
                     <span className="ml-1">{provider.address?.city}</span>
                   </div>
 
-                  <div className="flex items-start text-gray-600 text-sm">
-                    <FiUsers className="text-green-500 mt-0.5 mr-2 " />
+                  <div className="flex items-start text-gray-600 text-sm ml-2">
+                    {/* <FiUsers className="text-green-500 mt-0.5 mr-2 " /> */}
                     <strong>Therapy:</strong>
                     <div className="flex flex-wrap gap-1 ml-1">
                       {therapies.length > 0 ? (
                         therapies.map((type, i) => (
                           <span
                             key={i}
-                            className="px-2 py-0.5 rounded-full text-xs font-medium bg-lighthov text-gray-800"
+                            className="px-2 py-0.5 rounded-full text-xs font-medium bg-tag text-tagtext"
                           >
                             {type}
                           </span>
@@ -184,7 +168,7 @@ function ViewProvider() {
                 <div className="flex items-center gap-3 ml-2">
                   <button
                     onClick={() => navigate(`/provider-stats/${provider._id}`)}
-                    className="flex items-center  justify-center gap-2 px-4 py-2 rounded-2xl bg-greenbtn text-white font-medium shadow-md
+                    className="flex items-center  justify-center gap-2 px-4 py-2 rounded-2xl bg-button text-white font-medium shadow-md
                hover:bg-lighthov transition duration-150 w-40"
                   >
                     <AiFillEye className="text-lg" />

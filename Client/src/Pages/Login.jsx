@@ -119,7 +119,7 @@ const Login = () => {
               <input
                 type="text"
                 placeholder="Enter your username"
-                className="w-full border-2 border-gray-300 rounded-lg mb-4 p-2 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="w-full border-2 border-gray-300 rounded-lg mb-4 p-2 pl-10 focus:outline-none focus:ring-2 focus:ring-lightbutton"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
               />
@@ -134,7 +134,7 @@ const Login = () => {
               <input
                 type="password"
                 placeholder="Enter your password"
-                className="w-full border-2 border-gray-300 rounded-lg mb-4 p-2 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="w-full border-2 border-gray-300 rounded-lg mb-4 p-2 pl-10 focus:outline-none focus:ring-2 focus:ring-lightbutton"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
@@ -149,7 +149,7 @@ const Login = () => {
             <button
               type="submit"
               disabled={loading}
-              className="bg-greenbtn text-white px-4 py-2 rounded-lg shadow-lg hover:bg-lighthov transition duration-300 disabled:opacity-60 disabled:cursor-not-allowed"
+              className="bg-button text-white px-4 py-2 rounded-lg shadow-lg hover:bg-lighthov transition duration-300 disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {loading ? "Logging in..." : "Login"}
             </button>

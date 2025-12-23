@@ -5,6 +5,7 @@ import { MdSpaceDashboard, MdRateReview, MdArrowDropDown, MdArrowRight } from "r
 import { TbReportSearch, TbCategoryPlus, TbLogs, TbArticle } from "react-icons/tb";
 import { RiParentFill } from "react-icons/ri";
 import { IoIosMan } from "react-icons/io";
+import logo from '../../assets/logo.svg'
 
 const DashSidebar = () => {
   const navigate = useNavigate();
@@ -14,10 +15,10 @@ const DashSidebar = () => {
   const [isAssessmentOpen, setIsAssessmentOpen] = useState(false);
 
   // Define the base color for active/hover effects
-  const activeBg = "bg-greenbtn"; // Your yellow color for active
-  const hoverBg = "hover:bg-lighthov"; // Light gray hover for subtlety
+  const activeBg = "bg-button"; // Your yellow color for active
+  const hoverBg = "hover:bg-lightbutton"; // Light gray hover for subtlety
   const activeText = "text-white";
-  const defaultText = "#010101"; // Darker text for white background
+  const defaultText = "text-[#bfd7d6]"; // Darker text for white background
 
   useEffect(() => {
     // Logic to set the active state based on the current path
@@ -112,8 +113,11 @@ const DashSidebar = () => {
   `;
 
   return (
-    <div className="w-56 bg-primary text-gray-700  h-full flex flex-col border-r border-gray-200 shadow-xl border "> 
-      <nav className="flex flex-col gap-1 p-2 flex-1 overflow-y-auto">
+    <div className="w-56 bg-primary text-gray-700  h-full flex flex-col shadow-xl border  rounded-3xl "> 
+    <div className="p-9">
+      <img src={logo} alt="Logo" className="h-10 w-auto invert brightness-0" />
+    </div>
+      <nav className="flex flex-col gap-1 p-2 flex-1 overflow-y-auto  rounded-4xl">
         
         {/* Dashboard */}
         <label
@@ -251,9 +255,9 @@ const DashSidebar = () => {
       </nav>
 
       {/* Logout Button */}
-      <div className="p-2 border-t border-gray-200">
+      <div className="p-2 border-t border-gray-200 mb-2">
         <button
-          className="flex items-center justify-center gap-2 bg-greenbtn text-white w-full py-2 rounded-lg shadow hover:bg-lighthov hover:text-black transition font-semibold"
+          className="flex items-center justify-center gap-2 bg-button text-white w-full py-2 rounded-lg shadow hover:bg-lighthov hover:text-black transition font-semibold"
           onClick={handleLogout}
         >
           <CgLogOut className="text-xl" />
