@@ -118,7 +118,7 @@ const handleEdit = (id) => {
         </h2>
         <button
           onClick={handleOpen}
-          className="bg-greenbtn hover:bg-lighthov text-white px-6 py-2 rounded-xl shadow-md"
+          className="bg-button hover:bg-lighthov text-white px-6 py-2 rounded-xl shadow-md"
         >
           + Add Category
         </button>
