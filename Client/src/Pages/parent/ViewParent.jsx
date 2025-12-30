@@ -99,10 +99,7 @@ function ViewParent() {
                 className="bg-white rounded-xl shadow-lg hover:shadow-xl transition duration-300  flex flex-col justify-between  border-gray-100 "
               >
                 {/* Card Header */}
-                <div className=" mb-2   transition-all duration-700 
-ease-[cubic-bezier(0.22,1,0.36,1)] 
-    hover:-translate-y-4 
-    hover:shadow-xl">
+                <div className=" mb-2 ">
                   <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-2  h-52">
                     {parent.userRef?.profilePicture && (
                       <img

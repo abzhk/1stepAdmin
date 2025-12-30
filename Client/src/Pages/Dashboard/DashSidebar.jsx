@@ -28,6 +28,8 @@ const DashSidebar = () => {
       setActive("Dashboard");
     } else if (path.startsWith("/reviews")) {
       setActive("Reviews");
+    }else if (path.startsWith("/create-admin")) {
+      setActive("Create User");
     } else if (path.startsWith("/view-parent")) { // Changed from /parent
       setActive("Parent");
     } else if (path.startsWith("/allproviders")) { // Changed from /provider
@@ -129,6 +131,16 @@ const DashSidebar = () => {
         >
           <MdSpaceDashboard className="text-2xl" />
           Dashboard
+        </label>
+         <label
+          onClick={() => {
+            setActive("Create User");
+            navigate("/create-admin");
+          }}
+          className={getNavLinkClasses("Create User")}
+        >
+          <MdSpaceDashboard className="text-2xl" />
+          Create User
         </label>
 
         {/* Provider */}
