@@ -18,6 +18,8 @@ import ParentStats from './Pages/parent/ParentStatsCard.jsx'
 import EditProvider from './Pages/Provider/EditProvider.jsx'
 import EditParent from './Pages/parent/EditParent.jsx';
 import PrivateRoute from './Pages/PrivateRoute.jsx';
+// import CreateAdmin from './Pages/CreateUser/CreateAdmin.jsx';
+import UserTab from './Pages/CreateUser/UserTab.jsx';
 
 const App = () => {
   return (
@@ -42,6 +44,8 @@ const App = () => {
       <Route path="/parent-stats-card/:userId" element={<ParentStats />} />
       <Route path="/providers/edit/:id" element={<EditProvider />} />
       <Route path="/parent/edit/:parentId" element={<EditParent />} />
+      {/* <Route path="/create-admin" element={<CreateAdmin/>}/> */}
+      <Route path="/create-admin" element={<UserTab/>}/>
     </Route>
     </Routes>
   )

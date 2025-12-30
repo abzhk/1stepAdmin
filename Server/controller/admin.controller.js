@@ -1,96 +1,89 @@
-import Admin from '../model/adminmodel.js';
+import User from '../model/user.model.js';
+import Role from '../model/role.model.js';
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken';
 import Provider from '../model/provider.model.js';
 import mongoose from 'mongoose';
 import Parent from "../model/parent.model.js";
 
-export const createAdmin = async (req,res)=> {
-try{
-    const{
-        username,password
-    }=req.body
-    const existingAdmin = await Admin.findOne({username});
-    if(existingAdmin){
-        return res.status(400).json({message:"Admin already exists"});
-    }
-    const saltRounds=10;
-    const hashedpassword =await bcrypt.hash(password,saltRounds);
+export const createAdmin = async (req, res) => {
+  try {
+    const { username, email, password } = req.body;
 
-    const newAdmin = new Admin({
-        username,
-        password:hashedpassword
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: "User already exists" });
+    }
+
+
+    const adminRole = await Role.findOne({ role: "Admin" });
+    if (!adminRole) {
+      return res.status(500).json({ message: "Admin role not found" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const adminUser = new User({
+      username,
+      email,
+      password: hashedPassword,
+      role: adminRole._id,
     });
-    await newAdmin.save();
+
+    await adminUser.save();
+
     res.status(201).json({
-         success: true,
-            message: 'Admin created successfully',
-    });
-             } catch (error) {
-        console.error('Error creating admin:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Internal server error',
-            error: error.message
-        });
-}
-}
-export const loginAdmin = async (req, res) => {
-    try {
-        const { username, password } = req.body;
-
-        const admin = await Admin.findOne({ username });
-        if (!admin) {
-            return res.status(401).json({
-                success: false,
-                message: 'Invalid credentials'
-            });
-        }
-
-        const isPasswordValid = await bcrypt.compare(password, admin.password);
-        if (!isPasswordValid) {
-            return res.status(401).json({
-                success: false,
-                message: 'Invalid credentials'
-            });
-        }
-
-        const token = jwt.sign(
-            { 
-                id: admin._id, 
-                username: admin.username,
-                role: admin.role 
-            },
-            process.env.JWT_SECRET,
-            { expiresIn: '24h' }
-        );
-         res.cookie('adminToken', token, {
-      httpOnly: true,
-      secure:false, 
-      sameSite: 'lax',
-      path:'/',
-      maxAge: 24 * 60 * 60 * 1000, 
+      success: true,
+      message: "Admin created successfully",
     });
 
-       res.status(200).json({
-  success: true,
-  message: 'Login successful',
-  admin: {
-    id: admin._id,
-    username: admin.username,
-    role: admin.role
-  },
-  token: token
-});
+  } catch (error) {
+    console.error("Create admin error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+export const login = async (req, res) => {
+  try {
+    const { username, password } = req.body;
 
-    } catch (error) {
-        console.error('Error logging in admin:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Internal server error',
-            error: error.message
-        });
+    const user = await User.findOne({ username }).populate("role");
+    if (!user) {
+      return res.status(401).json({ message: "Invalid credentials" });
     }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    const token = jwt.sign(
+      {
+        id: user._id,
+        role: user.role.role,
+        permissions: user.role.permissions,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      path: "/",
+    });
+
+    res.status(200).json({
+      success: true,
+      role: user.role.role,
+      permissions: user.role.permissions,
+    });
+
+  } catch (error) {
+    console.error("Login error:", error);
+    res.status(500).json({ message: "Login failed" });
+  }
 };
 
 //delete provider

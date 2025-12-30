@@ -101,13 +101,11 @@ const tableData = [
       name: p.userRef?.username ,
       email: p.userRef?.email ,
       role: "Patient",
-      status: "Active",
     })),
     ...providers.map((p) => ({
       name: p.fullName ,
       email: p.email,
       role: "Provider",
-      status: "Active",
     })),
   ];
 
@@ -260,7 +258,7 @@ const fetchRecentBookings = async () => {
     <p className="text-gray-500 text-sm">No recent activity</p>
   ) : (
     recentBookings.slice(0, 5).map((book) => (
-      <li key={book._id} className="flex items-start gap-3">
+      <li key={book._id} className="flex items-start gap-3 py-1.5">
         <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-green-50 text-green-700">
           <FaClock />
         </div>
@@ -277,9 +275,9 @@ const fetchRecentBookings = async () => {
 </ul>
 
 
-              <button className="mt-4 w-full text-sm px-3 py-2 rounded-lg bg-greenbtn text-white shadow">
+              {/* <button className="mt-4 w-full text-sm px-3 py-2 rounded-lg bg-greenbtn text-white shadow">
                 View all
-              </button>
+              </button> */}
             </div>
 
             <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-200">
@@ -288,12 +286,12 @@ const fetchRecentBookings = async () => {
                 <h3 className="text-lg font-semibold">Appointments</h3>
               </div>
               <p className="text-sm text-gray-600">
-                Next: Abi — Today, 4:30 PM
+                Next: Will — Today, 4:30 PM
               </p>
               <p className="text-sm text-gray-500 mt-2">
                 2 new bookings • 1 cancellation
               </p>
-              <button className="mt-4 w-full text-sm px-3 py-2 rounded-lg bg-greenbtn text-black shadow">
+              <button className="mt-4 w-full text-sm px-3 py-2 rounded-lg bg-button text-white shadow">
                 Manage
               </button>
             </div>

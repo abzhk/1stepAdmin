@@ -131,7 +131,7 @@ function EditParent() {
           <button
             type="submit"
             disabled={loading}
-            className="px-6 py-2 bg-greenbtn text-white rounded-xl"
+            className="px-6 py-2 bg-button text-white rounded-xl"
           >
             {loading ? "Saving..." : "Update"}
           </button>

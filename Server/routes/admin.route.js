@@ -1,5 +1,5 @@
 import express from 'express';
-import {createAdmin,loginAdmin,deleteProvider,
+import {createAdmin,login,deleteProvider,
     updateProvider,
     logoutAdmin,
     getParentsAndProviders,
@@ -11,10 +11,9 @@ import { verifyAdminToken } from '../middlewares/authMiddleware.js';
 const router = express.Router();
 
 router.post('/create-admin',createAdmin)
-router.post('/login-admin',loginAdmin)
+router.post('/login-admin',login)
 router.post("/admin/logout", logoutAdmin);
 router.get("/verify-token", verifyAdminSession);
-
 
 
 //delete provider

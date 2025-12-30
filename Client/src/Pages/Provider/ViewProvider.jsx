@@ -127,9 +127,7 @@ function ViewProvider() {
                     )}
                   </div>
                 </div>
-                <div className="p-1  transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] 
-    hover:-translate-y-4 
-    hover:shadow-xl">
+                <div className="p-1 ">
                 <div className="p-1 mt-2">
                   <h2 className="text-xl  font-semibold text-textcol mb-2 ml-1">
                     {provider.fullName}

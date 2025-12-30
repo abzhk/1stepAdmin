@@ -7,6 +7,8 @@ import assessmentRoute from './assessment.route.js';
 import providerRoute from './provider.route.js'
 import bookingRoute from './booking.route.js'
 import parentRoute from './parent.route.js'
+import SuperAdminRoute from './superadmin.route.js';
+import AuthRoute from './auth.route.js';
 
 const router = express.Router(); 
 
@@ -26,6 +28,10 @@ router.use('/provider',providerRoute)
 router.use('/booking',bookingRoute)
 //parent route
 router.use('/parent',parentRoute)
+//superadmin route
+router.use('/superadmin',SuperAdminRoute)
+//auth route
+router.use('/auth',AuthRoute)
 
 
 export default router;

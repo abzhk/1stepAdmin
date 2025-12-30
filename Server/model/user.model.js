@@ -32,7 +32,7 @@ const userSchema = new mongoose.Schema(
 );
 userSchema.post("save", async function () {
   try {
-    const Stats = (await import("./stats.model.js")).default; 
+    const Stats = (await import("./stats.js")).default; 
     await Stats.updateOne({}, { $inc: { totalUsers: 1 } }, { upsert: true });
   } catch (err) {
     console.error("Failed to increment ", err);
