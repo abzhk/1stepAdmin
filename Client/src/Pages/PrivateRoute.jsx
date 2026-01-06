@@ -1,32 +1,16 @@
-import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { Navigate } from "react-router-dom";
 
 const PrivateRoute = ({ children }) => {
-  const [authorized, setAuthorized] = useState(null);
+  const isAuthenticated = useSelector(
+    (state) => state.auth.isAuthenticated
+  );
 
-  useEffect(() => {
-    const verify = async () => {
-      try {
-        const res = await fetch("http://localhost:3001/api/admin/verify-token", {
-          method: "GET",
-          credentials: "include",
-        });
+  if (!isAuthenticated) {
+    return <Navigate to="/log" replace />;
+  }
 
-        if (res.ok) {
-          setAuthorized(true);
-        } else {
-          setAuthorized(false);
-        }
-      } catch (error) {
-        setAuthorized(false);
-      }
-    };
-
-    verify();
-  }, []);
-
-  if (authorized === null) return null; 
-  return authorized ? children : <Navigate to="/log" replace />;
+  return children;
 };
 
 export default PrivateRoute;

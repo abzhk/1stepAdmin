@@ -1,16 +1,19 @@
-import {
-  verifyToken,
-  verifyRole,
-  verifyPermission,
-} from "../utils/verifyUser.js";
+import { verifyAdminToken } from "../middlewares/authMiddleware.js";
+import { verifyRoles } from "../utils/verifyRoles.js";
+import { verifyPermissions } from "../utils/verifypermission.js";
 
-const roleAccessMiddleware = (role, permissions) => {
-  return [verifyToken, verifyRole(role), verifyPermission(permissions)];
-};
+export const verifyAdminAccess = [
+  verifyAdminToken,verifyRoles("Admin"),
+];
 
-export const verifyProviderAccess = roleAccessMiddleware("Provider", [
-  "provider_access",
-]);
-export const verifyParentAccess = roleAccessMiddleware("Parent", [
-  "parent_access",
-]);
+export const verifySuperAdminAccess = [
+  verifyAdminToken, verifyRoles("SuperAdmin"),
+];
+
+export const verifyAdminOrSuperAdmin = [
+  verifyAdminToken,verifyRoles("Admin", "SuperAdmin"),
+];
+
+export const verifyAdminWithPermissions = [
+  verifyAdminToken,verifyRoles("Admin", "SuperAdmin"),verifyPermissions(["admin_access"]),
+];

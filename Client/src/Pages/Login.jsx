@@ -5,6 +5,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import doctor from "../../Assets/Doctor image.jpg";
 import { TbPasswordFingerprint } from "react-icons/tb";
+import { useDispatch } from "react-redux";
+import { setUser } from "../redux/slice/authSlice";
 
 const messages = [
   "Welcome — please login to access your account",
@@ -15,6 +17,7 @@ const messages = [
 const Login = () => {
   const [idx, setIdx] = useState(0);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
 
   const [username, setUsername] = useState("");
@@ -53,7 +56,7 @@ const Login = () => {
         setLoading(false);
         return;
       }
-
+     dispatch(setUser(data.user));
       navigate("/dashboard");
     } catch (err) {
       console.error("Login error:", err);

@@ -6,37 +6,40 @@ import { TbReportSearch, TbCategoryPlus, TbLogs, TbArticle } from "react-icons/t
 import { RiParentFill } from "react-icons/ri";
 import { IoIosMan } from "react-icons/io";
 import logo from '../../assets/logo.svg'
+import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import { logout } from "../../redux/slice/authSlice";
 
 const DashSidebar = () => {
   const navigate = useNavigate();
-  const location = useLocation(); // Use useLocation hook to get current path
+  const location = useLocation(); 
   const [active, setActive] = useState("");
   const [isArticleOpen, setIsArticleOpen] = useState(false);
   const [isAssessmentOpen, setIsAssessmentOpen] = useState(false);
+  const role = useSelector((state) => state.auth.user?.role);
+  const dispatch = useDispatch();
 
-  // Define the base color for active/hover effects
-  const activeBg = "bg-button"; // Your yellow color for active
-  const hoverBg = "hover:bg-lightbutton"; // Light gray hover for subtlety
+
+  //base color for active/hover effects
+  const activeBg = "bg-button"; 
+  const hoverBg = "hover:bg-lightbutton"; 
   const activeText = "text-white";
-  const defaultText = "text-[#bfd7d6]"; // Darker text for white background
+  const defaultText = "text-[#bfd7d6]"; 
 
   useEffect(() => {
-    // Logic to set the active state based on the current path
     const path = location.pathname;
     
     if (path.startsWith("/dashboard")) {
       setActive("Dashboard");
-    } else if (path.startsWith("/reviews")) {
-      setActive("Reviews");
     }else if (path.startsWith("/create-admin")) {
       setActive("Create User");
-    } else if (path.startsWith("/view-parent")) { // Changed from /parent
+    } else if (path.startsWith("/view-parent")) { 
       setActive("Parent");
-    } else if (path.startsWith("/allproviders")) { // Changed from /provider
+    } else if (path.startsWith("/allproviders")) { 
       setActive("Provider");
-    } else if (path.startsWith("/viewarticle")) { // Changed from /approvearticle
+    } else if (path.startsWith("/viewarticle")) {
       setActive("Approve Articles");
-    } else if (path.startsWith("/viewcat")) { // Changed from /addcategory
+    } else if (path.startsWith("/viewcat")) { 
       setActive("Add Category");
     } else if (path.startsWith("/report")) {
       setActive("Reports");
@@ -89,6 +92,7 @@ const DashSidebar = () => {
       method: "POST",
       credentials: "include", 
     });
+    dispatch(logout());
     navigate("/log");
   } catch (error) {
     console.error("Logout error", error);
@@ -132,16 +136,19 @@ const DashSidebar = () => {
           <MdSpaceDashboard className="text-2xl" />
           Dashboard
         </label>
-         <label
-          onClick={() => {
-            setActive("Create User");
-            navigate("/create-admin");
-          }}
-          className={getNavLinkClasses("Create User")}
-        >
-          <MdSpaceDashboard className="text-2xl" />
-          Create User
-        </label>
+        {role === "SuperAdmin" && (
+  <label
+    onClick={() => {
+      setActive("Create User");
+      navigate("/create-admin");
+    }}
+    className={getNavLinkClasses("Create User")}
+  >
+    <MdSpaceDashboard className="text-2xl" />
+    Create User
+  </label>
+)}
+
 
         {/* Provider */}
         <label

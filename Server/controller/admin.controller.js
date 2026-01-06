@@ -46,14 +46,28 @@ export const login = async (req, res) => {
   try {
     const { username, password } = req.body;
 
+    if (!username || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Username and password are required",
+      });
+    }
+
     const user = await User.findOne({ username }).populate("role");
-    if (!user) {
-      return res.status(401).json({ message: "Invalid credentials" });
+
+    if (!user || !user.role) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid credentials",
+      });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(401).json({ message: "Invalid credentials" });
+      return res.status(401).json({
+        success: false,
+        message: "Invalid credentials",
+      });
     }
 
     const token = jwt.sign(
@@ -66,23 +80,28 @@ export const login = async (req, res) => {
       { expiresIn: "1d" }
     );
 
-
     res.cookie("token", token, {
       httpOnly: true,
-      secure: false,
+      secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/",
     });
 
     res.status(200).json({
       success: true,
-      role: user.role.role,
-      permissions: user.role.permissions,
+      user: {
+        id: user._id,
+        username: user.username,
+        role: user.role.role,
+        permissions: user.role.permissions,
+      },
     });
-
   } catch (error) {
     console.error("Login error:", error);
-    res.status(500).json({ message: "Login failed" });
+    res.status(500).json({
+      success: false,
+      message: "Login failed",
+    });
   }
 };
 
@@ -124,7 +143,7 @@ export const deleteProvider = async (req, res) => {
 };
 export const logoutAdmin = async (req, res) => {
   try {
-    res.clearCookie("adminToken", {
+    res.clearCookie("token", {
       httpOnly: true,
       secure: false,
       sameSite: "lax",
@@ -145,15 +164,31 @@ export const logoutAdmin = async (req, res) => {
 
 export const verifyAdminSession = async (req, res) => {
   try {
-    const token = req.cookies.adminToken;
+    const token = req.cookies.token; 
+
     if (!token) {
-      return res.status(401).json({ valid: false });
+      return res.status(401).json({ success: false });
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    return res.json({ valid: true });
+
+    const user = await User.findById(decoded.id).populate("role");
+
+    if (!user) {
+      return res.status(401).json({ success: false });
+    }
+
+    return res.status(200).json({
+      success: true,
+      user: {
+        id: user._id,
+        username: user.username,
+        role: user.role.role,
+        permissions: user.role.permissions,
+      },
+    });
   } catch (error) {
-    return res.status(401).json({ valid: false });
+    return res.status(401).json({ success: false });
   }
 };
 
