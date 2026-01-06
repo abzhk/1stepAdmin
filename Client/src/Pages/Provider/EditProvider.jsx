@@ -108,6 +108,25 @@ function EditProvider() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
+<div className="bg-gray-100 rounded-2xl p-4">
+<div className="flex justify-end gap-3 mb-2">
+            <button
+              type="button"
+              onClick={() => navigate("/allproviders")}
+              className="rounded-xl bg-gray-200 px-5 py-2 text-gray-700"
+            >
+              Cancel
+            </button>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="rounded-xl bg-button px-6 py-2 text-white"
+            >
+              {loading ? "Saving..." : "Save Changes"}
+            </button>
+          </div>
+
           <div className="rounded-2xl  bg-white p-6 shadow-sm">
             <h2 className="mb-4 text-lg font-semibold text-gray-800">
               Basic Information
@@ -153,7 +172,7 @@ function EditProvider() {
           </div>
 
 
-          <div className="rounded-2xl  bg-white p-6 shadow-sm">
+          <div className="rounded-2xl  bg-white p-6 shadow-sm mt-4">
             <h2 className="mb-4 text-lg font-semibold text-gray-800">
               Professional Details
             </h2>
@@ -218,22 +237,6 @@ function EditProvider() {
           </div>
 
 
-          <div className="flex justify-end gap-3">
-            <button
-              type="button"
-              onClick={() => navigate("/allproviders")}
-              className="rounded-xl bg-gray-200 px-5 py-2 text-gray-700"
-            >
-              Cancel
-            </button>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="rounded-xl bg-button px-6 py-2 text-white"
-            >
-              {loading ? "Saving..." : "Save Changes"}
-            </button>
           </div>
         </form>
       </div>

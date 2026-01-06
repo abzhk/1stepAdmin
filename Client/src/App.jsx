@@ -20,8 +20,43 @@ import EditParent from './Pages/parent/EditParent.jsx';
 import PrivateRoute from './Pages/PrivateRoute.jsx';
 // import CreateAdmin from './Pages/CreateUser/CreateAdmin.jsx';
 import UserTab from './Pages/CreateUser/UserTab.jsx';
+import { useDispatch,useSelector } from 'react-redux';
+import { useEffect } from 'react';
+import { setUser, logout } from '../../Client/src/redux/slice/authSlice.js';
 
 const App = () => {
+
+  const dispatch = useDispatch();
+  const loading = useSelector((state) => state.auth.loading);
+
+  useEffect(() => {
+    const restoreSession = async () => {
+      try {
+        const res = await fetch(
+          "http://localhost:3001/api/admin/verify-token",
+          {
+            method: "GET",
+            credentials: "include", 
+          }
+        );
+
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+          dispatch(setUser(data.user));
+        } else {
+          dispatch(logout());
+        }
+      } catch (error) {
+        dispatch(logout());
+      }
+    };
+
+    restoreSession();
+  }, [dispatch]);
+
+  if (loading) return null;
+  
   return (
   <Routes>
     <Route path='/' element={<Navigate to = "/log"/>}/>
