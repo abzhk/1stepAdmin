@@ -37,6 +37,8 @@ const DashSidebar = () => {
       setActive("Parent");
     } else if (path.startsWith("/allproviders")) { 
       setActive("Provider");
+     } else if (path.startsWith("/create-Role")) { 
+      setActive("Role");
     } else if (path.startsWith("/viewarticle")) {
       setActive("Approve Articles");
     } else if (path.startsWith("/viewcat")) { 
@@ -120,7 +122,7 @@ const DashSidebar = () => {
 
   return (
     <div className="w-56 bg-primary text-gray-700  h-full flex flex-col shadow-xl border  rounded-3xl "> 
-    <div className="p-9">
+    <div className="  flex justify-center p-4">
       <img src={logo} alt="Logo" className="h-10 w-auto invert brightness-0" />
     </div>
       <nav className="flex flex-col gap-1 p-2 flex-1 overflow-y-auto  rounded-4xl">
@@ -133,7 +135,7 @@ const DashSidebar = () => {
           }}
           className={getNavLinkClasses("Dashboard")}
         >
-          <MdSpaceDashboard className="text-2xl" />
+          <MdSpaceDashboard className="text-sm" />
           Dashboard
         </label>
         {role === "SuperAdmin" && (
@@ -144,7 +146,7 @@ const DashSidebar = () => {
     }}
     className={getNavLinkClasses("Create User")}
   >
-    <MdSpaceDashboard className="text-2xl" />
+    <MdSpaceDashboard className="text-sm" />
     Create User
   </label>
 )}
@@ -158,7 +160,7 @@ const DashSidebar = () => {
           }}
           className={getNavLinkClasses("Provider")}
         >
-          <IoIosMan className="text-2xl" />
+          <IoIosMan className="text-sm" />
           Provider
         </label>
 
@@ -170,21 +172,41 @@ const DashSidebar = () => {
           }}
           className={getNavLinkClasses("Parent")}
         >
-          <RiParentFill className="text-2xl" />
+          <RiParentFill className="text-sm" />
           Parent
         </label>
 
         {/* Reports */}
-        {/* <label
+        <label
           onClick={() => {
             setActive("Reports");
             navigate("/report");
           }}
           className={getNavLinkClasses("Reports")}
         >
-          <TbReportSearch className="text-2xl" />
+          <TbReportSearch className="text-sm" />
           Reports
-        </label> */}
+        </label>
+         <label
+          onClick={() => {
+            setActive("Reports");
+            navigate("/report");
+          }}
+          className={getNavLinkClasses("Reports")}
+        >
+          <TbReportSearch className="text-sm" />
+         Plans and Features
+        </label>
+         <label
+          onClick={() => {
+            setActive("Role");
+            navigate("/create-Role");
+          }}
+          className={getNavLinkClasses("Role")}
+        >
+          <TbReportSearch className="text-sm" />
+          Roles and access
+        </label>
 
         {/* Content Management  */}
         <div className="transition-all duration-300">
@@ -198,7 +220,7 @@ const DashSidebar = () => {
             `}
           >
             <div className="flex items-center gap-2">
-              <TbArticle className="text-2xl" />
+              <TbArticle className="text-sm" />
               <span className=''>Content </span>
             </div>
             {(isArticleOpen || active === "Add Category" || active === "Approve Articles") ? (
@@ -214,7 +236,7 @@ const DashSidebar = () => {
                 onClick={() => handleArticleClick("Add Category")}
                 className={getSubLinkClasses("Add Category")}
               >
-                <TbCategoryPlus className="text-lg" />
+                <TbCategoryPlus className="text-sm" />
                 View Categories
               </label>
 
@@ -241,7 +263,7 @@ const DashSidebar = () => {
             `}
           >
             <div className="flex items-center gap-2">
-              <MdRateReview className="text-2xl" />
+              <MdRateReview className="text-sm" />
               <span>Assessment</span>
             </div>
             {(isAssessmentOpen || active === "Add Assessment" || active === "Provider Assessments") ? (
@@ -268,6 +290,9 @@ const DashSidebar = () => {
                 <TbReportSearch className="text-lg" />
                 Provider Assessments
               </label>
+
+
+              
             </div>
           )}
         </div>

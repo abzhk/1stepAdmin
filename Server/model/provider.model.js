@@ -191,10 +191,25 @@ providerSchema.index(
 );
 providerSchema.post("save", async function () {
   try {
-    const Stats = (await import("./stats.model.js")).default;
-    await Stats.updateOne({}, { $inc: { totalProviders: 1 } });
+    const Stats = (await import("./stats.js")).default;
+
+    const update = {
+      $inc: {
+        totalProviders: 1,
+      },
+    };
+
+    if (this.providerType === "individual") {
+      update.$inc.totalIndividualProviders = 1;
+    }
+
+    if (this.providerType === "centre") {
+      update.$inc.totalCentreProviders = 1;
+    }
+
+    await Stats.updateOne({}, update, { upsert: true });
   } catch (err) {
-    console.error("Failed to increment Stats.totalProviders:", err);
+    console.error("Failed to increment provider stats:", err);
   }
 });
 const provider = mongoose.model("provider", providerSchema);

@@ -23,6 +23,7 @@ import UserTab from './Pages/CreateUser/UserTab.jsx';
 import { useDispatch,useSelector } from 'react-redux';
 import { useEffect } from 'react';
 import { setUser, logout } from '../../Client/src/redux/slice/authSlice.js';
+import RoleTab from './Pages/RoleAccess/RoleTab.jsx'
 
 const App = () => {
 
@@ -81,6 +82,7 @@ const App = () => {
       <Route path="/parent/edit/:parentId" element={<EditParent />} />
       {/* <Route path="/create-admin" element={<CreateAdmin/>}/> */}
       <Route path="/create-admin" element={<UserTab/>}/>
+       <Route path="/create-Role" element={<RoleTab/>}/>
     </Route>
     </Routes>
   )
