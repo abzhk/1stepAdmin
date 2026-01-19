@@ -9,6 +9,8 @@ import bookingRoute from './booking.route.js'
 import parentRoute from './parent.route.js'
 import SuperAdminRoute from './superadmin.route.js';
 import AuthRoute from './auth.route.js';
+import Permission from './permission.route.js';
+import role from './role.route.js'
 
 const router = express.Router(); 
 
@@ -32,6 +34,11 @@ router.use('/parent',parentRoute)
 router.use('/superadmin',SuperAdminRoute)
 //auth route
 router.use('/auth',AuthRoute)
+//permission
+router.use('/permission',Permission);
+//role
+router.use("/role", role);
+
 
 
 export default router;
