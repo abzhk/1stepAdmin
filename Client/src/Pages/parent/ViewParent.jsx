@@ -76,7 +76,7 @@ function ViewParent() {
   };
 
   return (
-    <div className="p-4 md:p-8 bg-background  min-h-screen">
+    <div className="p-4 md:p-8 bg-offwhite  min-h-screen">
 
       {/* Error */}
       {error && (

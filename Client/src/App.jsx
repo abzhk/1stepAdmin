@@ -14,9 +14,9 @@ import ProviderAssessment from './Pages/Assessment/ProviderAssessment.jsx';
 import ViewProvider from './Pages/Provider/ViewProvider.jsx';
 import ProviderStats from './Pages/Provider/ProviderStats.jsx';
 import ViewParent from './Pages/Parent/ViewParent.jsx';
-import ParentStats from './Pages/parent/ParentStatsCard.jsx'
+import ParentStats from './Pages/Parent/ParentStatsCard.jsx'
 import EditProvider from './Pages/Provider/EditProvider.jsx'
-import EditParent from './Pages/parent/EditParent.jsx';
+import EditParent from './Pages/Parent/EditParent.jsx';
 import PrivateRoute from './Pages/PrivateRoute.jsx';
 // import CreateAdmin from './Pages/CreateUser/CreateAdmin.jsx';
 import UserTab from './Pages/CreateUser/UserTab.jsx';
@@ -24,6 +24,8 @@ import { useDispatch,useSelector } from 'react-redux';
 import { useEffect } from 'react';
 import { setUser, logout } from '../../Client/src/redux/slice/authSlice.js';
 import RoleTab from './Pages/RoleAccess/RoleTab.jsx'
+import Plans from './Pages/Subscription/Plans.jsx';
+import Addplans from './Pages/Subscription/Addplans.jsx';
 
 const App = () => {
 
@@ -83,6 +85,9 @@ const App = () => {
       {/* <Route path="/create-admin" element={<CreateAdmin/>}/> */}
       <Route path="/create-admin" element={<UserTab/>}/>
        <Route path="/create-Role" element={<RoleTab/>}/>
+        <Route path="/view-plans" element={<Plans/>}/>
+        <Route path="/add-plans" element={<Addplans/>}/>
+        <Route path="/addplans/:id" element={<Addplans />} />
     </Route>
     </Routes>
   )

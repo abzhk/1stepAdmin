@@ -32,7 +32,7 @@ const DashboardNavbar = ({ searchTerm, setSearchTerm }) => {
   }, []);
 
   return (
-    <div className="w-full text-white p-4">
+    <div className="w-full bg-white text-white p-4 rounded-2xl">
       <div className="flex justify-end">
         <div className="flex items-center gap-6">
           
