@@ -123,7 +123,7 @@ const PermissionView = () => {
         </tbody>
       </table>
     </div>
-  );
+  ); 
 };
 
 export default PermissionView;

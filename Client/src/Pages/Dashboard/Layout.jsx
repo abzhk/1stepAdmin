@@ -11,7 +11,7 @@ const Layout = () => {
       <div className="flex flex-1 overflow-hidden w-screen p-1">
         <DashSidebar />
 
-        <div className="flex-1 overflow-auto bg-background p-6">
+        <div className="flex-1 overflow-auto bg-offwhite p-6">
           <DashboardNavbar
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}

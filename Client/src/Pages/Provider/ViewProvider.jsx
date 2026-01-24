@@ -88,7 +88,7 @@ function ViewProvider() {
   };
 
   return (
-    <div className="p-4 md:p-6 bg-background  min-h-screen ">
+    <div className="p-4 md:p-6 bg-offwhite  min-h-screen ">
        
 
       {error && (

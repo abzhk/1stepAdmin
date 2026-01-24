@@ -11,6 +11,7 @@ import SuperAdminRoute from './superadmin.route.js';
 import AuthRoute from './auth.route.js';
 import Permission from './permission.route.js';
 import role from './role.route.js'
+import PlanRoute from './plan.route.js'
 
 const router = express.Router(); 
 
@@ -38,7 +39,8 @@ router.use('/auth',AuthRoute)
 router.use('/permission',Permission);
 //role
 router.use("/role", role);
-
+//plan route
+router.use('/plan',PlanRoute)
 
 
 export default router;

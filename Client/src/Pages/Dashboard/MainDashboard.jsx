@@ -141,7 +141,7 @@ const fetchRecentBookings = async () => {
   return (
     <div>
   
-    <div className="min-h-screen p-6 bg-background">
+    <div className="min-h-screen p-6 bg-offwhite">
       <div className="flex gap-4 mb-4 h-44">
         <div className="flex flex-col bg-gradient-to-l from-white to-gray-50 p-6 rounded-2xl shadow-md border border-gray-200 min-w-[280px] ">
           <div className="flex items-center gap-3 mb-2">

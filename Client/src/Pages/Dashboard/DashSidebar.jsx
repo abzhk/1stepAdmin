@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom'; // Import useLocation
+import { useNavigate, useLocation } from 'react-router-dom'; 
 import { CgLogOut } from "react-icons/cg";
 import { MdSpaceDashboard, MdRateReview, MdArrowDropDown, MdArrowRight } from "react-icons/md";
 import { TbReportSearch, TbCategoryPlus, TbLogs, TbArticle } from "react-icons/tb";
@@ -21,10 +21,10 @@ const DashSidebar = () => {
 
 
   //base color for active/hover effects
-  const activeBg = "bg-button"; 
-  const hoverBg = "hover:bg-lightbutton"; 
+  const activeBg = "bg-darkgreen"; 
+  const hoverBg = "hover:bg-darkgreen hover:text-white"; 
   const activeText = "text-white";
-  const defaultText = "text-[#bfd7d6]"; 
+  const defaultText = "text-white"; 
 
   useEffect(() => {
     const path = location.pathname;
@@ -39,6 +39,8 @@ const DashSidebar = () => {
       setActive("Provider");
      } else if (path.startsWith("/create-Role")) { 
       setActive("Role");
+       } else if (path.startsWith("/add-plans")) {
+      setActive("Plans and Features");
     } else if (path.startsWith("/viewarticle")) {
       setActive("Approve Articles");
     } else if (path.startsWith("/viewcat")) { 
@@ -121,7 +123,7 @@ const DashSidebar = () => {
   `;
 
   return (
-    <div className="w-56 bg-primary text-gray-700  h-full flex flex-col shadow-xl border  rounded-3xl "> 
+    <div className="w-56 bg-greenmuted text-gray-700  h-full flex flex-col shadow-xl border  rounded-3xl "> 
     <div className="  flex justify-center p-4">
       <img src={logo} alt="Logo" className="h-10 w-auto invert brightness-0" />
     </div>
@@ -135,7 +137,7 @@ const DashSidebar = () => {
           }}
           className={getNavLinkClasses("Dashboard")}
         >
-          <MdSpaceDashboard className="text-sm" />
+          <MdSpaceDashboard className="text-xs  text-darkgreen" />
           Dashboard
         </label>
         {role === "SuperAdmin" && (
@@ -146,7 +148,7 @@ const DashSidebar = () => {
     }}
     className={getNavLinkClasses("Create User")}
   >
-    <MdSpaceDashboard className="text-sm" />
+    <MdSpaceDashboard className="text-xs" />
     Create User
   </label>
 )}
@@ -160,7 +162,7 @@ const DashSidebar = () => {
           }}
           className={getNavLinkClasses("Provider")}
         >
-          <IoIosMan className="text-sm" />
+          <IoIosMan className="text-xs" />
           Provider
         </label>
 
@@ -172,12 +174,12 @@ const DashSidebar = () => {
           }}
           className={getNavLinkClasses("Parent")}
         >
-          <RiParentFill className="text-sm" />
+          <RiParentFill className="text-xs" />
           Parent
         </label>
 
         {/* Reports */}
-        <label
+        {/* <label
           onClick={() => {
             setActive("Reports");
             navigate("/report");
@@ -186,13 +188,13 @@ const DashSidebar = () => {
         >
           <TbReportSearch className="text-sm" />
           Reports
-        </label>
+        </label> */}
          <label
           onClick={() => {
-            setActive("Reports");
-            navigate("/report");
+            setActive("Plans and Features");
+            navigate("/add-plans");
           }}
-          className={getNavLinkClasses("Reports")}
+          className={getNavLinkClasses("Plans and Features")}
         >
           <TbReportSearch className="text-sm" />
          Plans and Features
@@ -301,7 +303,7 @@ const DashSidebar = () => {
       {/* Logout Button */}
       <div className="p-2 border-t border-gray-200 mb-2">
         <button
-          className="flex items-center justify-center gap-2 bg-button text-white w-full py-2 rounded-lg shadow hover:bg-lighthov hover:text-black transition font-semibold"
+          className="flex items-center justify-center gap-2 bg-peach text-white w-full py-2 rounded-lg shadow hover:bg-lighthov hover:text-black transition font-semibold"
           onClick={handleLogout}
         >
           <CgLogOut className="text-xl" />

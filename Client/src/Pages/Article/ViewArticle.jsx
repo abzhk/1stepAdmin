@@ -23,7 +23,6 @@ const ViewArticle = () => {
           limit: 20,
         });
         if (search) params.append("search", search);
-        const token = localStorage.getItem("adminToken");
        
 
         const res = await fetch(
