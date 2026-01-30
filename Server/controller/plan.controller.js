@@ -97,7 +97,16 @@ export const createPlan = async (req, res) => {
 
 export const getPlans = async (req, res) => {
     try{
-        const plans =await Plan.find().sort({createdAt:-1});
+      const {search,limit=10}= req.query
+
+       const query = search
+      ? {
+          $or: [
+            { plan_name: { $regex: search, $options: "i" } }
+          ],
+        }
+      : {};
+        const plans =await Plan.find(query).sort({createdAt:-1}).limit(Number(limit));
          res.status(200).json({
       success: true,
       count: plans.length,

@@ -5,6 +5,6 @@ import { verifySuperAdminAccess } from "../rolevalidation/roleAccessMiddleware.j
 const router = express.Router();
 
 router.post("/create",verifySuperAdminAccess, createRole);
-router.get("/all",verifySuperAdminAccess, getRoles);
+router.get("/all", getRoles);
 
 export default router;

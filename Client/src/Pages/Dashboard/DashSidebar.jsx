@@ -39,7 +39,8 @@ const DashSidebar = () => {
       setActive("Provider");
      } else if (path.startsWith("/create-Role")) { 
       setActive("Role");
-       } else if (path.startsWith("/add-plans")) {
+       } else if (path.startsWith("/add-plans")||
+      path.startsWith("/view-plans")) {
       setActive("Plans and Features");
     } else if (path.startsWith("/viewarticle")) {
       setActive("Approve Articles");
@@ -137,8 +138,8 @@ const DashSidebar = () => {
           }}
           className={getNavLinkClasses("Dashboard")}
         >
-          <MdSpaceDashboard className="text-xs  text-darkgreen" />
-          Dashboard
+          <MdSpaceDashboard className="text-lg  " />
+         <span className = "text-lg"> Dashboard</span>
         </label>
         {role === "SuperAdmin" && (
   <label
@@ -148,8 +149,8 @@ const DashSidebar = () => {
     }}
     className={getNavLinkClasses("Create User")}
   >
-    <MdSpaceDashboard className="text-xs" />
-    Create User
+    <MdSpaceDashboard className="text-lg" />
+   <span className = "text-lg">Create User</span> 
   </label>
 )}
 
@@ -162,8 +163,8 @@ const DashSidebar = () => {
           }}
           className={getNavLinkClasses("Provider")}
         >
-          <IoIosMan className="text-xs" />
-          Provider
+          <IoIosMan className="text-lg" />
+         <span className = "text-lg">Provider</span> 
         </label>
 
         {/* Parent */}
@@ -174,8 +175,8 @@ const DashSidebar = () => {
           }}
           className={getNavLinkClasses("Parent")}
         >
-          <RiParentFill className="text-xs" />
-          Parent
+          <RiParentFill className="text-lg" />
+          <span className = "text-lg">Parent</span>
         </label>
 
         {/* Reports */}
@@ -196,8 +197,8 @@ const DashSidebar = () => {
           }}
           className={getNavLinkClasses("Plans and Features")}
         >
-          <TbReportSearch className="text-sm" />
-         Plans and Features
+          <TbReportSearch className="text-lg" />
+         <span className = "text-lg">Plans and Features</span>
         </label>
          <label
           onClick={() => {
@@ -206,8 +207,8 @@ const DashSidebar = () => {
           }}
           className={getNavLinkClasses("Role")}
         >
-          <TbReportSearch className="text-sm" />
-          Roles and access
+          <TbReportSearch className="text-lg" />
+          <span className = "text-lg"> Roles and access</span>
         </label>
 
         {/* Content Management  */}
@@ -222,8 +223,8 @@ const DashSidebar = () => {
             `}
           >
             <div className="flex items-center gap-2">
-              <TbArticle className="text-sm" />
-              <span className=''>Content </span>
+              <TbArticle className="text-lg" />
+              <span className='text-lg'>Content </span>
             </div>
             {(isArticleOpen || active === "Add Category" || active === "Approve Articles") ? (
               <MdArrowDropDown className="text-xl transition-transform" />
@@ -246,7 +247,7 @@ const DashSidebar = () => {
                 onClick={() => handleArticleClick("Approve Articles")}
                 className={getSubLinkClasses("Approve Articles")}
               >
-                <TbLogs className="text-lg" />
+                <TbLogs className="text-l" />
                 View Articles
               </label>
             </div>
@@ -265,8 +266,8 @@ const DashSidebar = () => {
             `}
           >
             <div className="flex items-center gap-2">
-              <MdRateReview className="text-sm" />
-              <span>Assessment</span>
+              <MdRateReview className="text-lg" />
+              <span className="text-lg">Assessment</span>
             </div>
             {(isAssessmentOpen || active === "Add Assessment" || active === "Provider Assessments") ? (
               <MdArrowDropDown className="text-xl transition-transform" />
