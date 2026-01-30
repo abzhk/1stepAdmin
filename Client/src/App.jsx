@@ -24,7 +24,7 @@ import { useDispatch,useSelector } from 'react-redux';
 import { useEffect } from 'react';
 import { setUser, logout } from '../../Client/src/redux/slice/authSlice.js';
 import RoleTab from './Pages/RoleAccess/RoleTab.jsx'
-import Plans from './Pages/Subscription/Plans.jsx';
+import Plans from './Pages/Subscription/ViewPlans.jsx';
 import Addplans from './Pages/Subscription/Addplans.jsx';
 
 const App = () => {
