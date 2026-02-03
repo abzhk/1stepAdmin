@@ -7,18 +7,24 @@ export const createPlan = async (req, res) => {
       plan_name,
       slug,
       description,
-      is_featured,
+      is_featured = false,
       price,
       discount = 0,
       currency,
       billing_interval,
-      trial_period_days,
+      trial_period_days = 0,
       stripe_price_id,
-      video_sessions_count,
-      session_duration_mins,
-      chat_access_level,
-      resource_library_access,
-      therapist_matching_type,
+
+      available_modules = [],
+      max_messages_per_month = 0,
+      max_assessments_per_month = 0,
+      max_providers_allowed = 1,
+      video_sessions_count = 0,
+      session_duration_mins = 60,
+      chat_access_level = "none",
+      resource_library_access = false,
+      therapist_matching_type = "auto",
+      priority_support = false,
     } = req.body;
 
     if (
@@ -57,7 +63,7 @@ export const createPlan = async (req, res) => {
     const plan = await Plan.create({
       plan_key,
       plan_name,
-      slug,
+      slug: `${slug}-v${nextVersion}`, 
       description,
       is_featured,
       price,
@@ -67,11 +73,18 @@ export const createPlan = async (req, res) => {
       billing_interval,
       trial_period_days,
       stripe_price_id,
+
+      available_modules,
+      max_messages_per_month,
+      max_assessments_per_month,
+      max_providers_allowed,
       video_sessions_count,
       session_duration_mins,
       chat_access_level,
       resource_library_access,
       therapist_matching_type,
+      priority_support,
+
       version_number: nextVersion,
       is_active: true,
     });
@@ -83,7 +96,7 @@ export const createPlan = async (req, res) => {
   } catch (error) {
     if (error.code === 11000) {
       return res.status(409).json({
-        message: "Version conflict. Please retry.",
+        message: "Duplicate plan or slug conflict",
       });
     }
 

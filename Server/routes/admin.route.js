@@ -11,10 +11,10 @@ import { verifyAdminOrSuperAdmin,verifySuperAdminAccess } from '../rolevalidatio
 
 const router = express.Router();
 
-router.post('/create-admin',verifySuperAdminAccess,createAdmin)
+router.post('/create-admin',createAdmin)
 router.post('/login-admin',login)
 router.post("/admin/logout", logoutAdmin);
-router.get("/verify-token",   verifyAdminToken,verifyAdminSession);
+router.get("/verify-token",  verifyAdminSession);
 
 
 //delete provider

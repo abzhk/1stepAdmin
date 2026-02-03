@@ -32,6 +32,8 @@ app.use('/api',router)
 mongoose.connect(MONGODB)
     .then(() => console.log('Connected to MongoDB successfully'))
     .catch((error) => console.error('Error connecting to MongoDB:', error.message));
+    console.log("CONNECTED DB:", mongoose.connection.name);
+
 
 
 app.listen(PORT, () => {

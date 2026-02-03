@@ -50,6 +50,8 @@ const Login = () => {
       });
 
       const data = await res.json();
+      console.log(data.user);
+
 
       if (!res.ok || !data.success) {
         setError(data.message || "Login failed");
