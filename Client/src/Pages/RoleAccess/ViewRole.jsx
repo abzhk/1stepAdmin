@@ -1,31 +1,46 @@
 import React, { useState, useEffect } from "react";
 import { FiEdit2, FiTrash2 } from "react-icons/fi";
+import CreateRP from "./CreateRP";
+
 
 const ViewRole = () => {
   const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState();
   const [error, setError] = useState();
+  const [editingRole, setEditingRole] = useState(null);
 
-  useEffect(() => {
-    const fetchRoles = async () => {
-      try {
-        setLoading(true);
-        setError("");
+ useEffect(() => {
+  const fetchRoles = async () => {
+    try {
+      setLoading(true);
+      setError("");
 
-        const res = await fetch("http://localhost:3001/api/role/all");
-        const data = await res.json();
+      const res = await fetch("http://localhost:3001/api/role/all", {
+        method: "GET",
+        credentials: "include",
+      });
 
-        if (!res.ok) {
-          throw new Error(data.message || "Failed to fetch roles");
-        }
-
-        setRoles(data.roles || []);
-      } catch (err) {
-        setError(err.message || "Something went wrong");
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.message || "Unauthorized");
       }
-    };
-    fetchRoles();
-  }, []);
+
+      const data = await res.json();
+      setRoles(data.roles || []);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchRoles();
+}, []);
+
+  const handleEdit = (id) => {
+    const roleToEdit = roles.find((r) => r._id === id);
+    setEditingRole(roleToEdit);
+  };
 
   return (
     <div className="bg-secondary p-4">
@@ -52,22 +67,37 @@ const ViewRole = () => {
 
                   <td className="px-4 py-3">
                     <div className="flex flex-wrap gap-2">
-                      {role.permissions?.map((perm, index) => (
-                        <span
-                          key={index}
-                          className="px-2 py-1 text-xs bg-green-100 rounded-md"
+                      {role.permissions.map((perm) => (
+                        <div
+                          key={perm._id || perm.module}
+                          className="flex flex-wrap items-center gap-2"
                         >
-                          {perm}
-                        </span>
+                          <span className="font-medium text-gray-800 capitalize">
+                            {perm.module}
+                          </span>
+
+                          {perm.actions.map((action) => (
+                            <span
+                              key={action}
+                              className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-700"
+                            >
+                              {action}
+                            </span>
+                          ))}
+                        </div>
                       ))}
                     </div>
                   </td>
 
                   <td className="px-4 py-3">
                     <div className="flex justify-center gap-3">
-                      <button className="p-2 rounded-lg text-blue-600 hover:bg-blue-50">
+                      <button
+                        onClick={() => handleEdit(role._id)}
+                        className="p-2 rounded-lg text-blue-600 hover:bg-blue-50"
+                      >
                         <FiEdit2 size={16} />
                       </button>
+
                       <button className="p-2 rounded-lg text-red-600 hover:bg-red-50">
                         <FiTrash2 size={16} />
                       </button>
@@ -77,6 +107,22 @@ const ViewRole = () => {
               ))}
             </tbody>
           </table>
+          {editingRole && (
+  <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+    <div className="bg-white rounded-xl w-full max-w-6xl max-h-[90vh] overflow-y-auto">
+      <CreateRP
+        mode="edit"
+        roleData={editingRole}
+         onClose={() => setEditingRole(null)}
+        onSuccess={() => {
+          setEditingRole(null);
+          window.location.reload();
+        }}
+      />
+    </div>
+  </div>
+)}
+
 
           {roles.length === 0 && (
             <p className="text-center text-gray-500 py-6">No roles found</p>

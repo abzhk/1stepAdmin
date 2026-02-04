@@ -9,7 +9,7 @@ const RoleTab = () => {
   const [activeTab, setActiveTab] = useState("create");
 
   return (
-    <div className="p-4 md:p-6">
+    <div className="p-4 md:p-6 ">
       <div className="flex gap-6 mb-6">
         <button
           onClick={() => setActiveTab("create")}

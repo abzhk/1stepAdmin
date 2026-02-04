@@ -16,7 +16,13 @@ const MODULES = [
 
 const ACTIONS = ["read", "create", "update", "delete", "export"];
 
-const CreateRP = ({}) => {
+const ROLES = {
+  PARENT: "Parent",
+  PROVIDER: "Provider",
+  ADMIN: "Admin",
+};
+
+const CreateRP = ({ mode = "create", roleData, onClose, onSuccess }) => {
   const [roleName, setRoleName] = useState("");
   const [description, setDescription] = useState("");
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
@@ -63,62 +69,102 @@ const CreateRP = ({}) => {
   };
 
   const handleSubmit = async () => {
-    if (!roleName.trim()) return;
+  if (!roleName.trim()) return;
 
-    try {
-      setLoading(true);
+  try {
+    setLoading(true);
 
-      const formattedPermissions = Object.entries(permissions).map(
-        ([module, actions]) => ({
-          module,
-          actions,
-        }),
-      );
+    const formattedPermissions = Object.entries(permissions).map(
+      ([module, actions]) => ({ module, actions })
+    );
 
-      const payload = {
-        role: roleName.trim(),
-        description,
-        isSuperAdmin,
-        defaultModules,
-        permissions: isSuperAdmin ? [] : formattedPermissions,
-      };
+    const payload = {
+      description,
+      defaultModules,
+      permissions: isSuperAdmin ? [] : formattedPermissions,
+    };
 
-      const res = await fetch("http://localhost:3001/api/role/roles", {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+    const url =
+      mode === "edit"
+        ? `http://localhost:3001/api/role/${roleName}`
+        : "http://localhost:3001/api/role/roles";
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message);
+    const method = mode === "edit" ? "PUT" : "POST";
 
-      alert("Role saved successfully");
-      resetForm();
-    } catch (err) {
-      alert(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+    const res = await fetch(url, {
+      method,
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(
+        mode === "edit" ? payload : { role: roleName, ...payload }
+      ),
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message);
+
+    alert(mode === "edit" ? "Role updated" : "Role created");
+
+    onSuccess?.();
+    if (mode === "create") resetForm();
+  } catch (err) {
+    alert(err.message);
+  } finally {
+    setLoading(false);
+  }
+};
+
+  useEffect(() => {
+  if (mode === "edit" && roleData) {
+    setRoleName(roleData.role);
+    setDescription(roleData.description || "");
+    setIsSuperAdmin(roleData.isSuperAdmin || false);
+    setDefaultModules(roleData.defaultModules || []);
+
+    // permissions array → object
+    const perms = {};
+    roleData.permissions?.forEach((p) => {
+      perms[p.module] = p.actions;
+    });
+    setPermissions(perms);
+  }
+}, [mode, roleData]);
+
 
   return (
     <div className="min-h-screen p-6">
       <div className="max-w-6xl mx-auto bg-white rounded-xl shadow-sm p-6 space-y-8">
-        <h1 className="text-2xl font-semibold text-gray-800">Create Role</h1>
+      <div className="flex justify-between items-center">
+  <h1 className="text-2xl font-semibold text-gray-800">
+    {mode === "edit" ? "Edit Role" : "Create Role"}
+  </h1>
+
+  {onClose && (
+    <button
+      onClick={onClose}
+      className="text-gray-400 hover:text-gray-600 text-xl"
+    >
+      ✕
+    </button>
+  )}
+</div>
 
         <div className="grid md:grid-cols-2 gap-6">
           <select
-            value={roleName}
-            onChange={(e) => setRoleName(e.target.value)}
-            className="border rounded-lg px-3 py-2 bg-white"
-          >
+  value={roleName}
+  disabled={mode === "edit"}
+  onChange={(e) => setRoleName(e.target.value)}
+  className="border rounded-lg px-3 py-2 bg-white disabled:bg-gray-100"
+>
             <option value="" disabled>
               Select role
             </option>
-            <option value="Parent">Parent</option>
-            <option value="Provider">Provider</option>
-            <option value="Admin">Admin</option>
+
+            {Object.values(ROLES).map((role) => (
+              <option key={role} value={role}>
+                {role}
+              </option>
+            ))}
           </select>
 
           <input
@@ -184,7 +230,18 @@ const CreateRP = ({}) => {
         {error && <p className="text-red-500">{error}</p>}
 
         {/* ACTIONS */}
-        <div className="flex justify-end">
+        {/* <div className="flex justify-end"> */}
+
+          <div className="flex justify-end gap-3">
+  {onClose && (
+    <button
+      type="button"
+      onClick={onClose}
+      className="px-5 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100"
+    >
+      Cancel
+    </button>
+  )}
           <button
             onClick={handleSubmit}
             disabled={loading}

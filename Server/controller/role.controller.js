@@ -46,7 +46,7 @@ export const createRole = async (req, res) => {
 
 
 export const getRoles = async (req, res) => {
-  const roles = await Role.find().populate("permissions");
+  const roles = await Role.find();
   res.json({ success: true, roles });
 }; 
 

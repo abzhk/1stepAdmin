@@ -152,7 +152,7 @@ const handleReject = async (reason) => {
             </h1>
           </div>
 
-          <div className="w-full sm:w-64">
+          {/* <div className="w-full sm:w-64">
             <input
               type="text"
               value={search}
@@ -163,7 +163,7 @@ const handleReject = async (reason) => {
               placeholder="Search by title or provider..."
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-          </div>
+          </div> */}
         </div>
 
 

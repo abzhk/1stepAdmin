@@ -200,6 +200,7 @@ const DashSidebar = () => {
           <TbReportSearch className="text-lg" />
          <span className = "text-lg">Plans and Features</span>
         </label>
+        {role === "super_admin" && (
          <label
           onClick={() => {
             setActive("Role");
@@ -210,6 +211,7 @@ const DashSidebar = () => {
           <TbReportSearch className="text-lg" />
           <span className = "text-lg"> Roles and access</span>
         </label>
+        )}
 
         {/* Content Management  */}
         <div className="transition-all duration-300">
