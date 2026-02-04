@@ -92,7 +92,7 @@ function EditProvider() {
   };
 
   return (
-    <div className="min-h-screen bg-background p-8">
+    <div className="min-h-screen bg-offwhite p-8">
       <div className="max-w-6xl mx-auto">
 
         {/* <div className="flex items-center justify-between mb-6">
@@ -108,7 +108,7 @@ function EditProvider() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
-<div className="bg-gray-100 rounded-2xl p-4">
+<div className=" rounded-2xl p-4">
 <div className="flex justify-end gap-3 mb-2">
             <button
               type="button"

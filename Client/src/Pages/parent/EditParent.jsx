@@ -81,7 +81,7 @@ function EditParent() {
   };
 
   return (
-    <div className="p-6 max-w-xl mx-auto bg-white rounded-xl shadow">
+    <div className="p-6 mt-6 max-w-xl mx-auto bg-white rounded-xl shadow">
       <h2 className="text-2xl font-bold mb-6">Edit Parent</h2>
 
       {error && (
