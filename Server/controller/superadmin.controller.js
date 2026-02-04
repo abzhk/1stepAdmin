@@ -49,7 +49,7 @@ export const loginSuperAdmin = async (req, res) => {
       });
     }
 
-    const superAdminRole = await Role.findOne({ role: "SuperAdmin" });
+    const superAdminRole = await Role.findOne({ role: "Super Admin" });
     if (!superAdminRole) {
       return res.status(500).json({
         success: false,
@@ -82,7 +82,7 @@ export const loginSuperAdmin = async (req, res) => {
     const token = jwt.sign(
       {
         id: user._id,
-        role: "SuperAdmin",
+        role: "Super Admin",
       },
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
@@ -96,7 +96,7 @@ export const loginSuperAdmin = async (req, res) => {
         id: user._id,
         username: user.username,
         email: user.email,
-        role: "SuperAdmin",
+        role: "Super Admin",
       },
     });
   } catch (error) {

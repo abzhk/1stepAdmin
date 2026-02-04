@@ -53,7 +53,7 @@ export const login = async (req, res) => {
       });
     }
 
-    const user = await User.findOne({ username }).populate("role");
+   const user = await User.findOne({ username }).populate("role");
 
     if (!user || !user.role) {
       return res.status(401).json({
@@ -75,6 +75,7 @@ export const login = async (req, res) => {
         id: user._id,
         role: user.role.role,
         permissions: user.role.permissions,
+        isSuperAdmin: user.role.isSuperAdmin,
       },
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
@@ -94,6 +95,7 @@ export const login = async (req, res) => {
         username: user.username,
         role: user.role.role,
         permissions: user.role.permissions,
+        isSuperAdmin: user.role.isSuperAdmin,
       },
     });
   } catch (error) {

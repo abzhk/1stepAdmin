@@ -10,15 +10,6 @@ import {
 } from "react-icons/fa";
 
 const MainDashboard = () => {
- 
-
-  const recentActivities = [
-    {id: 1,time: "2m ago",text: "Appointment booked — Abi",type: "appointment",},
-    {id: 2,time: "15m ago",text: "Provider onboarding — Arun",type: "provider",},
-    {id: 3,time: "1h ago",text: "Profile updated — Jenish",type: "profile",},
-    {id: 4,time: "3h ago",text: "Appointment cancelled — Kumar",type: "appointment",},
-    {id: 5,time: "1d ago",text: "New clinic added — Vibin Clinic",type: "clinic",},
-  ];
   
 
   const [stats, setStats] = useState(null);
