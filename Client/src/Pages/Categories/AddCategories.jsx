@@ -44,9 +44,9 @@ const AddCategory = ({ isOpen, onClose, onSave }) => {
     try {
       setIsLoading(true);
       setErrorMsg("");
+ const API = import.meta.env.VITE_API_URL;
 
-
-      const res = await fetch("http://localhost:3001/api/category/addcategory", {
+      const res = await fetch(`${API}/api/category/addcategory`, {
         method: "POST",
        credentials: "include",
          headers: {

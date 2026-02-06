@@ -12,9 +12,9 @@ const ViewAssessment = () => {
     try {
       setLoading(true);
       setError("");
-
+ const API = import.meta.env.VITE_API_URL;
       const res = await fetch(
-        "http://localhost:3001/api/assessment/category/getall"
+        `${API}/api/assessment/category/getall`
       );
       const data = await res.json();
 

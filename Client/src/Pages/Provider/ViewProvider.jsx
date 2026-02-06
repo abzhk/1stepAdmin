@@ -24,6 +24,7 @@ function ViewProvider() {
       try {
         setLoading(true);
         setError("");
+         const API = import.meta.env.VITE_API_URL;
 
         const params = new URLSearchParams({
           limit: String(limit),
@@ -35,7 +36,7 @@ function ViewProvider() {
         }
 
         const res = await fetch(
-          `http://localhost:3001/api/provider/getProviders?${params.toString()}`
+          `${API}/api/provider/getProviders?${params.toString()}`
         );
 
         const data = await res.json();

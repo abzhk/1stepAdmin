@@ -27,9 +27,9 @@ const AddAssessmentCategory = () => {
     setError("");
     setSuccess("");
     setLoading(true);
-
+ const API = import.meta.env.VITE_API_URL;
     try {
-      const res = await fetch("http://localhost:3001/api/assessment/category", {
+      const res = await fetch(`${API}/api/assessment/category`, {
         method: "POST",
         credentials: "include",
          headers: {

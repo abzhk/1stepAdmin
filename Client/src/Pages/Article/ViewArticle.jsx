@@ -17,7 +17,7 @@ const ViewArticle = () => {
       try {
         setLoading(true);
         setError("");
-
+ const API = import.meta.env.VITE_API_URL;
         const params = new URLSearchParams({
           page,
           limit: 20,
@@ -26,7 +26,7 @@ const ViewArticle = () => {
        
 
         const res = await fetch(
-  `http://localhost:3001/api/article/pendingarticle?${params.toString()}`,
+  `${API}/api/article/pendingarticle?${params.toString()}`,
   {
     method: "GET",
     credentials:"include",
@@ -73,9 +73,9 @@ const ViewArticle = () => {
 
   const handleApprove = async (articleId) => {
   try {
-
+ const API = import.meta.env.VITE_API_URL;
     const res = await fetch(
-      `http://localhost:3001/api/article/admin/${articleId}/approve`,
+      `${API}/api/article/admin/${articleId}/approve`,
       {
         method: "PUT",
         credentials: "include",

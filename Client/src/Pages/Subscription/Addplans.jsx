@@ -92,7 +92,9 @@ const Addplans = () => {
     console.log("Submitting payload:", payload);
 
     try {
-      const response = await fetch("http://localhost:3001/api/plan/create", {
+      const API = import.meta.env.VITE_API_URL;
+
+      const response = await fetch(`${API}/api/plan/create`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },

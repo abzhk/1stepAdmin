@@ -11,10 +11,10 @@ const EditCategory = ({ isOpen, onClose, categoryId, onUpdated }) => {
   useEffect(() => {
     const fetchCategory = async () => {
       if (!categoryId) return;
-
+ const API = import.meta.env.VITE_API_URL;
       try {
         setLoading(true);
-        const res = await fetch(`http://localhost:3001/api/category/category/${categoryId}`);
+        const res = await fetch(`${API}/api/category/category/${categoryId}`);
         const data = await res.json();
 
         if (!res.ok) throw new Error(data.message);
