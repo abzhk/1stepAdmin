@@ -291,7 +291,7 @@ function ProviderStats() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-white h-64 p-8 rounded-2xl text-white flex flex-col justify-between">
           <div className="flex justify-between items-center">
-            <p className="text-maintext font-bold">Appointments</p>
+            <p className="text-darkgreen font-bold">Appointments</p>
             <span className="text-sm text-white font-semibold">
               All time: {allTime.total}
             </span>
@@ -312,36 +312,36 @@ function ProviderStats() {
             </div>
           </div>
 
-          <p className="text-xs text-maintext text-center mt-4">
+          <p className="text-xs text-darkgreen text-center mt-4">
             {allTime.approved} approved out of {allTime.total} bookings
           </p>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div className="bg-white p-4 rounded-2xl text-white">
-            <p className="text-maintext font-bold">Booking</p>
-            <h2 className="text-2xl font-bold text-secondarytext">
+            <p className="text-darkgreen font-bold">Booking</p>
+            <h2 className="text-2xl font-bold text-darkgreen">
               {displayStats.total}
             </h2>
           </div>
 
           <div className="bg-white p-4 rounded-2xl text-white">
-            <p className="text-maintext font-bold">Queue</p>
-            <h2 className="text-2xl font-bold text-secondarytext">
+            <p className="text-darkgreen font-bold">Queue</p>
+            <h2 className="text-2xl font-bold text-darkgreen">
               {displayStats.pending}
             </h2>
           </div>
 
           <div className="bg-white p-4 rounded-2xl text-white">
-            <p className="text-maintext font-bold">Rejected</p>
-            <h2 className="text-2xl font-bold text-secondarytext">
+            <p className="text-darkgreen font-bold">Rejected</p>
+            <h2 className="text-2xl font-bold text-darkgreen">
               {displayStats.rejected}
             </h2>
           </div>
 
           <div className="bg-white p-4 rounded-2xl text-white">
-            <p className="text-maintext font-bold">Approved</p>
-            <h2 className="text-2xl font-bold text-secondarytext">
+            <p className="text-darkgreen font-bold">Approved</p>
+            <h2 className="text-2xl font-bold text-darkgreen">
               {displayStats.approved}
             </h2>
           </div>

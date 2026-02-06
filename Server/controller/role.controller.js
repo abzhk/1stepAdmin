@@ -1,4 +1,5 @@
 import Role from "../model/role.model.js";
+import { enforceBasePermissions } from "../utils/rolepermission.js";
 
 export const createRole = async (req, res) => {
   try {
@@ -23,10 +24,14 @@ export const createRole = async (req, res) => {
       return res.status(409).json({ message: "Role already exists" });
     }
 
+    const normalizedPermissions = isSuperAdmin
+  ? []
+  : enforceBasePermissions(defaultModules, permissions);
+
     const newRole = await Role.create({
       role,
       description,
-      permissions,
+      permissions: normalizedPermissions,
       defaultModules,
       isSuperAdmin,
     });

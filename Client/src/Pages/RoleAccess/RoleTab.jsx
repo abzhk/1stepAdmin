@@ -6,12 +6,12 @@ import CreatePermission from "./CreatePermission";
 import Croleper from "./CreateRP";
 
 const RoleTab = () => {
-  const [activeTab, setActiveTab] = useState("create");
+  const [activeTab, setActiveTab] = useState("view");
 
   return (
     <div className="p-4 md:p-6 ">
       <div className="flex gap-6 mb-6">
-        <button
+        {/* <button
           onClick={() => setActiveTab("create")}
           className={`pb-2 text-sm font-medium transition ${
             activeTab === "create"
@@ -20,8 +20,8 @@ const RoleTab = () => {
           }`}
         >
           Create Role
-        </button>
-
+        </button> */}
+{/* 
          <button
           onClick={() => setActiveTab("createpermission")}
           className={`pb-2 text-sm font-medium transition ${
@@ -31,7 +31,7 @@ const RoleTab = () => {
           }`}
         >
           Create Permission
-        </button>
+        </button> */}
 
         <button
           onClick={() => setActiveTab("view")}
@@ -44,7 +44,7 @@ const RoleTab = () => {
           View Role & Access
         </button>
 
-         <button
+         {/* <button
           onClick={() => setActiveTab("permission")}
           className={`pb-2 text-sm font-medium transition ${
             activeTab === "permission"
@@ -53,12 +53,12 @@ const RoleTab = () => {
           }`}
         >
           Permission View
-        </button>
+        </button> */}
 
          <button
-          onClick={() => setActiveTab("createrp")}
+          onClick={() => setActiveTab("create")}
           className={`pb-2 text-sm font-medium transition ${
-            activeTab === "permission"
+            activeTab === "create"
               ? "border-b-2 border-green-600 text-green-600"
               : "text-gray-500 hover:text-gray-700"
           }`}
@@ -67,11 +67,11 @@ const RoleTab = () => {
         </button>
       </div>
 
-      {activeTab === "create" && <CreateRole />}
+      {/* {activeTab === "create" && <CreateRole />} */}
       {activeTab === "view" && <ViewRole />}
-      {activeTab === "permission" && <PermissionView />}
-       {activeTab === "createpermission" && <CreatePermission />}
-          {activeTab === "createrp" && <Croleper />}
+      {/* {activeTab === "permission" && <PermissionView />}
+       {activeTab === "createpermission" && <CreatePermission />} */}
+          {activeTab === "create" && <Croleper />}
     </div>
   );
 };
