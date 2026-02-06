@@ -23,7 +23,7 @@ function ViewParent() {
     try {
       setLoading(true);
       setError("");
-
+ const API = import.meta.env.VITE_API_URL;
       const params = new URLSearchParams({
         limit: String(limit),
         startIndex: String((page - 1) * limit),
@@ -32,7 +32,7 @@ function ViewParent() {
       if (searchTerm.trim()) params.append("searchTerm", searchTerm);
 
       const res = await fetch(
-        `http://localhost:3001/api/parent/getallparents?${params.toString()}`
+        `${API}/api/parent/getallparents?${params.toString()}`
       );
 
       const data = await res.json();

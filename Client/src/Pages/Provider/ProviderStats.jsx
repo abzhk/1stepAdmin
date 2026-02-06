@@ -166,6 +166,7 @@ function ProviderStats() {
       try {
         setAssessmentsLoading(true);
         setAssessmentsError("");
+         const API = import.meta.env.VITE_API_URL;
 
         const params = new URLSearchParams({
           limit: String(assessmentLimit),
@@ -173,7 +174,7 @@ function ProviderStats() {
         });
 
         const res = await fetch(
-          `http://localhost:3001/api/assessment/getassessment/${id}?${params.toString()}`
+          `${API}/api/assessment/getassessment/${id}?${params.toString()}`
         );
 
         const data = await res.json();

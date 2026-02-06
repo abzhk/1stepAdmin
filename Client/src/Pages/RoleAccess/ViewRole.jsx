@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FiEdit2, FiTrash2 } from "react-icons/fi";
-import CreateRP from "./CreateRP";
+import CreateRP from "./CreateRoleandPermission";
 
 const ViewRole = () => {
   const [roles, setRoles] = useState([]);
@@ -13,8 +13,8 @@ const ViewRole = () => {
       try {
         setLoading(true);
         setError("");
-
-        const res = await fetch("http://localhost:3001/api/role/all", {
+ const API = import.meta.env.VITE_API_URL;
+        const res = await fetch(`${API}/api/role/all`, {
           method: "GET",
           credentials: "include",
         });

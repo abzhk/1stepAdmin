@@ -21,9 +21,9 @@ const ParentStatsCards = () => {
       try {
         setParentLoading(true);
         setParentError("");
-
+ const API = import.meta.env.VITE_API_URL;
         const res = await fetch(
-          `http://localhost:3001/api/parent/getparent/${userId}`,
+          `${API}/api/parent/getparent/${userId}`,
           {
             method: "GET",
             credentials: "include",

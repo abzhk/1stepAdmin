@@ -27,7 +27,8 @@ const itemsPerPage = 4;
 useEffect(() => {
   const fetchStats = async () => {
     try {
-      const res = await fetch("http://localhost:3001/api/track/stats", {
+       const API = import.meta.env.VITE_API_URL;
+      const res = await fetch(`${API}/api/track/stats`, {
         method: "GET",
         credentials: "include",  
       });
@@ -65,9 +66,9 @@ const fetchParentandProvider = async () => {
       limit: itemsPerPage,
       startIndex,
     });
-
+ const API = import.meta.env.VITE_API_URL;
     const res = await fetch(
-      `http://localhost:3001/api/admin/parents-providers/list?${params.toString()}`,
+      `${API}/api/admin/parents-providers/list?${params.toString()}`,
       {
         method: "GET",
         credentials: "include",
@@ -110,7 +111,8 @@ useEffect(() => {
 
 const fetchRecentBookings = async () => {
   try {
-    const res = await fetch("http://localhost:3001/api/booking/recent", {
+ const API = import.meta.env.VITE_API_URL;
+    const res = await fetch(`${API}/api/booking/recent`, {
       method: "GET",
       credentials: "include",
     });

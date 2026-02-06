@@ -16,9 +16,9 @@ const ViewPlans = () => {
     const fetchPlans = async () => {
       try {
         setLoading(true);
-
+const API = import.meta.env.VITE_API_URL;
         const response = await fetch(
-          `http://localhost:3001/api/plan/get?search=${searchTerm}`,
+          `${API}/api/plan/get?search=${searchTerm}`,
         );
 
         const data = await response.json();

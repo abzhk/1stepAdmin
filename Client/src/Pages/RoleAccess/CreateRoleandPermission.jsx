@@ -89,6 +89,7 @@ const toggleDefaultModule = (module) => {
 
   try {
     setLoading(true);
+     const API = import.meta.env.VITE_API_URL;
 
     const formattedPermissions = Object.entries(permissions).map(
       ([module, actions]) => ({ module, actions })
@@ -102,8 +103,8 @@ const toggleDefaultModule = (module) => {
 
     const url =
       mode === "edit"
-        ? `http://localhost:3001/api/role/${roleName}`
-        : "http://localhost:3001/api/role/roles";
+        ? `${API}/api/role/${roleName}`
+        : `${API}/api/role/roles`;
 
     const method = mode === "edit" ? "PUT" : "POST";
 

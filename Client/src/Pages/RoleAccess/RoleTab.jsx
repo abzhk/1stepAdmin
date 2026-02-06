@@ -3,7 +3,7 @@ import CreateRole from "./CreateRole";
 import ViewRole from "./ViewRole";
 import PermissionView from "./PermissionView";
 import CreatePermission from "./CreatePermission";
-import Croleper from "./CreateRP";
+import Createrole from "./CreateRoleandPermission";
 
 const RoleTab = () => {
   const [activeTab, setActiveTab] = useState("view");
@@ -70,8 +70,8 @@ const RoleTab = () => {
       {/* {activeTab === "create" && <CreateRole />} */}
       {activeTab === "view" && <ViewRole />}
       {/* {activeTab === "permission" && <PermissionView />}
-       {activeTab === "createpermission" && <CreatePermission />} */}
-          {activeTab === "create" && <Croleper />}
+      {activeTab === "createpermission" && <CreatePermission />} */}
+      {activeTab === "create" && <Createrole />}
     </div>
   );
 };

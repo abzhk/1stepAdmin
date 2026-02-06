@@ -20,9 +20,9 @@ function EditParent() {
     const fetchParent = async () => {
       try {
         setLoading(true);
-
+ const API = import.meta.env.VITE_API_URL;
         const res = await fetch(
-          `http://localhost:3001/api/parent/getparent/${parentId}`
+          `${API}/api/parent/getparent/${parentId}`,
         );
 
         const data = await res.json();

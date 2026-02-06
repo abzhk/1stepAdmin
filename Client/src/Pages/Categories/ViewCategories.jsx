@@ -28,8 +28,8 @@ useEffect(() => {
     try {
       setLoading(true);
       setError("");
-
-      const res = await fetch("http://localhost:3001/api/category/getallcategories", {
+ const API = import.meta.env.VITE_API_URL;
+      const res = await fetch(`${API}/api/category/getallcategories`, {
         method: "GET",
         credentials: "include",
         headers: {
