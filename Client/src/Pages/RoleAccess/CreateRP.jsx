@@ -16,12 +16,6 @@ const MODULES = [
 
 const ACTIONS = ["read", "create", "update", "delete", "export"];
 
-const ROLES = {
-  PARENT: "Parent",
-  PROVIDER: "Provider",
-  ADMIN: "Admin",
-};
-
 const CreateRP = ({ mode = "create", roleData, onClose, onSuccess }) => {
   const [roleName, setRoleName] = useState("");
   const [description, setDescription] = useState("");
@@ -30,7 +24,10 @@ const CreateRP = ({ mode = "create", roleData, onClose, onSuccess }) => {
     "dashboard",
     "profile",
   ]);
-  const [permissions, setPermissions] = useState({});
+  const [permissions, setPermissions] = useState({
+  dashboard: ["read", "create"],
+  profile: ["read", "create"],
+});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -43,13 +40,32 @@ const CreateRP = ({ mode = "create", roleData, onClose, onSuccess }) => {
     setError("");
   };
 
-  const toggleDefaultModule = (module) => {
-    setDefaultModules((prev) =>
-      prev.includes(module)
-        ? prev.filter((m) => m !== module)
-        : [...prev, module],
-    );
-  };
+const AUTO_ACTIONS = ["read", "create"];
+
+const toggleDefaultModule = (module) => {
+  setDefaultModules((prev) => {
+    const isSelected = prev.includes(module);
+
+    setPermissions((perms) => {
+      const updated = { ...perms };
+
+      if (!isSelected) {
+        updated[module] = updated[module]
+          ? Array.from(new Set([...updated[module], ...AUTO_ACTIONS]))
+          : [...AUTO_ACTIONS];
+      } else {
+        delete updated[module];
+      }
+
+      return updated;
+    });
+
+    return isSelected
+      ? prev.filter((m) => m !== module)
+      : [...prev, module];
+  });
+};
+
 
   const togglePermission = (module, action) => {
     setPermissions((prev) => {
@@ -150,22 +166,18 @@ const CreateRP = ({ mode = "create", roleData, onClose, onSuccess }) => {
 </div>
 
         <div className="grid md:grid-cols-2 gap-6">
-          <select
+         <input
+  placeholder="Role name "
   value={roleName}
   disabled={mode === "edit"}
-  onChange={(e) => setRoleName(e.target.value)}
+  onChange={(e) =>
+    setRoleName(
+      e.target.value.toLowerCase().replace(/\s+/g, "_")
+    )
+  }
   className="border rounded-lg px-3 py-2 bg-white disabled:bg-gray-100"
->
-            <option value="" disabled>
-              Select role
-            </option>
+/>
 
-            {Object.values(ROLES).map((role) => (
-              <option key={role} value={role}>
-                {role}
-              </option>
-            ))}
-          </select>
 
           <input
             placeholder="Description"
