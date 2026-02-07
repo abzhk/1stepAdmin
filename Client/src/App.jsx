@@ -13,10 +13,10 @@ import AddAssessmentCategory from './pages/Assessment/AddAssessmentCategory.jsx'
 import ProviderAssessment from './pages/Assessment/ProviderAssessment.jsx';
 import ViewProvider from './pages/Provider/ViewProvider.jsx';
 import ProviderStats from './pages/Provider/ProviderStats.jsx';
-import ViewParent from './pages/Parent/ViewParent.jsx';
-import ParentStats from './pages/Parent/ParentStatsCard.jsx'
+import ViewParent from './pages/parent/ViewParent.jsx';
+import ParentStats from './pages/parent/ParentStatsCard.jsx'
 import EditProvider from './pages/Provider/EditProvider.jsx'
-import EditParent from './pages/Parent/EditParent.jsx';
+import EditParent from './pages/parent/EditParent.jsx';
 import PrivateRoute from './pages/PrivateRoute.jsx';
 import CreateAdmin from './pages/CreateUser/CreateAdmin.jsx';
 import UserTab from './pages/CreateUser/UserTab.jsx';
