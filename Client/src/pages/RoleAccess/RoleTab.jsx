@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import CreateRole from "./CreateRole";
+// import CreateRole from "./CreateRole";
 import ViewRole from "./ViewRole";
-import PermissionView from "./PermissionView";
-import CreatePermission from "./CreatePermission";
+// import PermissionView from "./PermissionView";
+// import CreatePermission from "./CreatePermission";
 import Createrole from "./CreateRoleandPermission";
 
 const RoleTab = () => {

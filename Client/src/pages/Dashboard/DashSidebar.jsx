@@ -141,11 +141,11 @@ const DashSidebar = () => {
           <MdSpaceDashboard className="text-lg  " />
          <span className = "text-lg"> Dashboard</span>
         </label>
-        {role === "SuperAdmin" && (
+        {role === "super_admin" && (
   <label
     onClick={() => {
       setActive("Create User");
-      navigate("/create-admin");
+      navigate("/create-admin-role");
     }}
     className={getNavLinkClasses("Create User")}
   >

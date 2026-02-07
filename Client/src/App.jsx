@@ -18,7 +18,7 @@ import ParentStats from './pages/Parent/ParentStatsCard.jsx'
 import EditProvider from './pages/Provider/EditProvider.jsx'
 import EditParent from './pages/Parent/EditParent.jsx';
 import PrivateRoute from './pages/PrivateRoute.jsx';
-// import CreateAdmin from './pages/CreateUser/CreateAdmin.jsx';
+import CreateAdmin from './pages/CreateUser/CreateAdmin.jsx';
 import UserTab from './pages/CreateUser/UserTab.jsx';
 import { useDispatch,useSelector } from 'react-redux';
 import { useEffect } from 'react';
@@ -81,8 +81,8 @@ const App = () => {
       <Route path="/parent-stats-card/:userId" element={<ParentStats />} />
       <Route path="/providers/edit/:id" element={<EditProvider />} />
       <Route path="/parent/edit/:parentId" element={<EditParent />} />
-      {/* <Route path="/create-admin" element={<CreateAdmin/>}/> */}
-      <Route path="/create-admin" element={<UserTab/>}/>
+      <Route path="/create-admin" element={<CreateAdmin/>}/>
+      <Route path="/create-admin-role" element={<UserTab/>}/>
        <Route path="/create-Role" element={<RoleTab/>}/>
         <Route path="/view-plans" element={<Plans/>}/>
         <Route path="/add-plans" element={<Addplans/>}/>
