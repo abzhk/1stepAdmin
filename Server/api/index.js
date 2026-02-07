@@ -22,6 +22,7 @@ const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:5174",
   "https://admin1step.vercel.app",
+  "https://admin1step.vercel.app/api",
   "https://admin1step-4i4k6e6hm-abisheks-projects-eb26add9.vercel.app",
   "https://admin1step-git-test-abisheks-projects-eb26add9.vercel.app",
 ];
@@ -44,14 +45,15 @@ app.use(express.urlencoded({ extended: true }));
 
 
 // ================= ROUTES =================
+// root test
+app.get("/api", (req, res) => {
+  res.send("API root working 🚀");
+});
 
 // your existing APIs
 app.use("/api", router);
 
-// root test
-app.get("/", (req, res) => {
-  res.status(200).send("Backend is live 🚀");
-});
+
 
 
 // ================= DATABASE =================
