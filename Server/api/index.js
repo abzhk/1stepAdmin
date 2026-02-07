@@ -4,96 +4,72 @@ import cors from "cors";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 
-// 🔥 path from /Server/api → /Server/routes
+// 🔥 IMPORTANT → path goes one level up from /api
 import router from "../routes/route.js";
 
 dotenv.config();
 
+const MONGODB = process.env.MONGODB_URI;
+
 const app = express();
 
-console.log("✅ API function started");
+console.log("Router loaded");
 
-
-// ======================================================
-// MIDDLEWARE
-// ======================================================
+// ================= MIDDLEWARE =================
 
 app.use(cookieParser());
 
-// ---------- CORS ----------
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:5174",
+  "https://admin1step.vercel.app",
+  "https://admin1step.vercel.app/api",
+  "https://admin1step-4i4k6e6hm-abisheks-projects-eb26add9.vercel.app",
+  "https://admin1step-git-test-abisheks-projects-eb26add9.vercel.app",
+  "https://admin1step-5ov0p7213-abisheks-projects-eb26add9.vercel.app"
+];
+
 app.use(
   cors({
-    origin: (origin, callback) => {
-      // allow localhost + any vercel deployment
-      if (!origin || origin.includes("localhost") || origin.endsWith(".vercel.app")) {
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
-        callback(null, false);
+        callback(new Error("Not allowed by CORS"));
       }
     },
     credentials: true,
   })
 );
 
-// ---------- VERY IMPORTANT ----------
-// without this, browser preflight may return 404
-app.options("*", (req, res) => {
-  res.setHeader("Access-Control-Allow-Origin", req.headers.origin);
-  res.setHeader("Access-Control-Allow-Credentials", "true");
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET,POST,PUT,DELETE,OPTIONS"
-  );
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "Content-Type, Authorization"
-  );
-  return res.status(200).end();
-});
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 
-// ======================================================
-// ROUTES
-// ======================================================
-
-// health endpoint
+// ================= ROUTES =================
+// root test
 app.get("/api", (req, res) => {
-  res.status(200).send("API root working 🚀");
+  res.send("API root working 🚀");
 });
 
-// real application routes
+// your existing APIs
 app.use("/api", router);
 
 
-// ======================================================
-// DATABASE (reuse connection in serverless)
-// ======================================================
 
-const MONGODB = process.env.MONGODB_URI;
+
+// ================= DATABASE =================
 
 if (!mongoose.connections[0].readyState) {
   mongoose
     .connect(MONGODB)
-    .then(() => console.log("✅ Mongo connected"))
-    .catch((err) => console.error("❌ Mongo error:", err.message));
+    .then(() => console.log("Connected to MongoDB successfully"))
+    .catch((error) =>
+      console.error("Error connecting to MongoDB:", error.message)
+    );
 }
 
 
-// ======================================================
-// GLOBAL ERROR HANDLER (prevents fake CORS)
-// ======================================================
-
-app.use((err, req, res, next) => {
-  console.error("🔥 GLOBAL ERROR:", err);
-  res.status(500).json({ success: false, message: err.message });
-});
-
-
-// ======================================================
-// EXPORT
-// ======================================================
+// ================= EXPORT (VERY IMPORTANT) =================
 
 export default app;
