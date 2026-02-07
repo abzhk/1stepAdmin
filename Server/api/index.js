@@ -25,6 +25,7 @@ const allowedOrigins = [
   "https://admin1step.vercel.app/api",
   "https://admin1step-4i4k6e6hm-abisheks-projects-eb26add9.vercel.app",
   "https://admin1step-git-test-abisheks-projects-eb26add9.vercel.app",
+  "https://admin1step-5ov0p7213-abisheks-projects-eb26add9.vercel.app"
 ];
 
 app.use(

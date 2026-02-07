@@ -36,7 +36,7 @@ const App = () => {
     const restoreSession = async () => {
       try {
         const API = import.meta.env.VITE_API_URL;
-        const res = await fetch(`${API}/api/admin/verify-token`, {
+        const res = await fetch(`${API}api/admin/verify-token`, {
             method: "GET",
             credentials: "include", 
           }
