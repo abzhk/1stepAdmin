@@ -43,6 +43,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // const router = require("./routes/route");
 app.use('/api',router)
 
+app.get("/", (req, res) => {
+  res.status(200).send("Backend is live ");
+});
+
 mongoose.connect(MONGODB)
     .then(() => console.log('Connected to MongoDB successfully'))
     .catch((error) => console.error('Error connecting to MongoDB:', error.message));
