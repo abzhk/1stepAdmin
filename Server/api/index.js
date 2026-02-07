@@ -1,5 +1,6 @@
 import express from "express";
 import mongoose from "mongoose";
+import cors from "cors";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 
@@ -13,63 +14,50 @@ const MONGODB = process.env.MONGODB_URI;
 const app = express();
 
 
-// ======================================================
-// ✅ FORCE CORS — SERVERLESS + PREVIEW SAFE
-// ======================================================
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
+// ================= MIDDLEWARE =================
 
-  if (
-    !origin ||
-    origin.includes("localhost") ||
-    origin.endsWith(".vercel.app")
-  ) {
-    res.setHeader("Access-Control-Allow-Origin", origin);
-  }
-
-  res.setHeader("Access-Control-Allow-Credentials", "true");
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET,POST,PUT,DELETE,OPTIONS"
-  );
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "Content-Type, Authorization"
-  );
-
-  // Immediately answer preflight
-  if (req.method === "OPTIONS") {
-    return res.status(200).end();
-  }
-
-  next();
-});
-
-
-// ======================================================
-// MIDDLEWARE
-// ======================================================
 app.use(cookieParser());
+
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:5174",
+  "https://admin1step.vercel.app",
+  "https://admin1step.vercel.app/api",
+  "https://admin1step-4i4k6e6hm-abisheks-projects-eb26add9.vercel.app",
+  "https://admin1step-git-test-abisheks-projects-eb26add9.vercel.app",
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  })
+);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 
-// ======================================================
-// ROUTES
-// ======================================================
-
-// health check
+// ================= ROUTES =================
+// root test
 app.get("/api", (req, res) => {
   res.send("API root working 🚀");
 });
 
-// your actual APIs
+// your existing APIs
 app.use("/api", router);
 
 
-// ======================================================
-// DATABASE
-// ======================================================
+
+
+// ================= DATABASE =================
+
 if (!mongoose.connections[0].readyState) {
   mongoose
     .connect(MONGODB)
@@ -80,7 +68,6 @@ if (!mongoose.connections[0].readyState) {
 }
 
 
-// ======================================================
-// EXPORT (VERY IMPORTANT)
-// ======================================================
+// ================= EXPORT (VERY IMPORTANT) =================
+
 export default app;
