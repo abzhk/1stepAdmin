@@ -13,6 +13,7 @@ const MONGODB = process.env.MONGODB_URI;
 
 const app = express();
 
+console.log("Router loaded");
 
 // ================= MIDDLEWARE =================
 
@@ -30,16 +31,17 @@ const allowedOrigins = [
 
 app.use(
   cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
+    origin: (origin, callback) => {
+      if (!origin || origin.endsWith(".vercel.app") || origin.includes("localhost")) {
         callback(null, true);
       } else {
-        callback(new Error("Not allowed by CORS"));
+        callback(null, false);
       }
     },
     credentials: true,
   })
 );
+
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

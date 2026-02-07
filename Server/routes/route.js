@@ -12,7 +12,7 @@ import AuthRoute from './auth.route.js';
 import Permission from './permission.route.js';
 import role from './role.route.js'
 import PlanRoute from './plan.route.js'
-
+console.log("✅ Main router file loaded");
 const router = express.Router(); 
 
 //dashboard stats

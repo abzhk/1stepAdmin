@@ -8,8 +8,12 @@ import {createAdmin,login,deleteProvider,
 } from '../controller/admin.controller.js';
 import { verifyAdminToken } from '../middlewares/authMiddleware.js';
 import { verifyAdminOrSuperAdmin,verifySuperAdminAccess } from '../rolevalidation/roleAccessMiddleware.js';
+console.log("Admin route loaded");
 
 const router = express.Router();
+router.get("/", (req, res) => {
+  res.send("Admin router working");
+});
 
 router.post('/create-admin',createAdmin)
 router.post('/login-admin',login)
