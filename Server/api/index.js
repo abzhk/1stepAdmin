@@ -4,7 +4,6 @@ import cors from "cors";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 
-// 🔥 IMPORTANT → path goes one level up from /api
 import router from "../routes/route.js";
 
 dotenv.config();
@@ -13,8 +12,6 @@ const MONGODB = process.env.MONGODB_URI;
 
 const app = express();
 
-
-// ================= MIDDLEWARE =================
 
 app.use(cookieParser());
 
@@ -43,18 +40,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 
-// ================= ROUTES =================
-
-// your existing APIs
 app.use("/api", router);
 
-// root test
+
 app.get("/api", (req, res) => {
-  res.status(200).send("Backend is live 🚀");
+  res.status(200).send("Backend is live ");
 });
 
 
-// ================= DATABASE =================
 
 if (!mongoose.connections[0].readyState) {
   mongoose
@@ -65,7 +58,5 @@ if (!mongoose.connections[0].readyState) {
     );
 }
 
-
-// ================= EXPORT (VERY IMPORTANT) =================
 
 export default app;
