@@ -23,6 +23,12 @@ const allowedOrigins = [
   "https://admin1step-git-test-abisheks-projects-eb26add9.vercel.app",
 ];
 
+app.use((req, res, next) => {
+  console.log("PATH RECEIVED:", req.originalUrl);
+  next();
+});
+
+
 app.use(
   cors({
     origin: function (origin, callback) {
