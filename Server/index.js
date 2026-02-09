@@ -4,7 +4,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
  
-import router from "../routes/route.js";
+import router from "./routes/route.js";
  
 dotenv.config();
  
