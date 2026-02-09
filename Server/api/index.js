@@ -20,25 +20,9 @@ const allowedOrigins = [
  
 app.use(
   cors({
-    origin: function (origin, callback) {
-      if (!origin) return callback(null, true);
-
-      // localhost
-      if (
-        origin.startsWith("http://localhost")
-      ) {
-        return callback(null, true);
-      }
-
-      // allow all vercel domains
-      if (origin.endsWith(".vercel.app")) {
-        return callback(null, true);
-      }
-
-      return callback(new Error("Not allowed by CORS"));
-    },
+    origin: allowedOrigins,
     credentials: true,
-  })
+  }),
 );
 
  
