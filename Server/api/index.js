@@ -19,6 +19,7 @@ const allowedOrigins = [
   "https://admin1step-git-test-abisheks-projects-eb26add9.vercel.app",
   "https://admin1step-6hg40tlki-abisheks-projects-eb26add9.vercel.app",
   "https://admin1step-7bwijxs61-abisheks-projects-eb26add9.vercel.app",
+  "https://admin1step-f7r1mx10p-abisheks-projects-eb26add9.vercel.app",
 ];
  
 app.use(
