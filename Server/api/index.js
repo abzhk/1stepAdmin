@@ -18,6 +18,7 @@ const allowedOrigins = [
   "https://admin1step.vercel.app",
 ];
  
+
 app.use(
   cors({
     origin: allowedOrigins,
