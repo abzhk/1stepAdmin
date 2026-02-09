@@ -24,11 +24,27 @@ const allowedOrigins = [
  
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+
+      // localhost
+      if (
+        origin.startsWith("http://localhost")
+      ) {
+        return callback(null, true);
+      }
+
+      // allow all vercel domains
+      if (origin.endsWith(".vercel.app")) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("Not allowed by CORS"));
+    },
     credentials: true,
-  }),
+  })
 );
- 
+
  
 app.use(cookieParser());
 app.use(express.json());
