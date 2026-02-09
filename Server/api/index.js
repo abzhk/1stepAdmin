@@ -19,10 +19,8 @@ const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:5174",
   "https://admin1step.vercel.app",
-  "https://admin1step-4i4k6e6hm-abisheks-projects-eb26add9.vercel.app",
   "https://admin1step-git-test-abisheks-projects-eb26add9.vercel.app",
-  "admin1step-blmd3hpie-abisheks-projects-eb26add9.vercel.app",
-  "admin1step-6hg40tlki-abisheks-projects-eb26add9.vercel.app,"
+  "https://admin1step-6hg40tlki-abisheks-projects-eb26add9.vercel.app",
 ];
 
 app.use((req, res, next) => {
