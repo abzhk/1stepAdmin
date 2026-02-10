@@ -25,8 +25,8 @@ const CreateRP = ({ mode = "create", roleData, onClose, onSuccess }) => {
     "profile",
   ]);
   const [permissions, setPermissions] = useState({
-  dashboard: ["read", "create"],
-  profile: ["read", "create"],
+  dashboard: ["read", "create","update","delete","export"],
+  profile: ["read", "create","update","delete","export"],
 });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -40,7 +40,7 @@ const CreateRP = ({ mode = "create", roleData, onClose, onSuccess }) => {
     setError("");
   };
 
-const AUTO_ACTIONS = ["read", "create"];
+const AUTO_ACTIONS = ["read", "create","update","delete","export"];
 
 const toggleDefaultModule = (module) => {
   setDefaultModules((prev) => {
