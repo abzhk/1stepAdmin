@@ -93,7 +93,8 @@ const DashSidebar = () => {
 
   const handleLogout = async () => {
   try {
-    await fetch("http://localhost:3001/api/admin/logout", {
+    const API = import.meta.env.VITE_API_URL;
+    await fetch(`${API}/api/admin/logout`, {
       method: "POST",
       credentials: "include", 
     });
