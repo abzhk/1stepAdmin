@@ -15,7 +15,7 @@ router.get("/", (req, res) => {
   res.send("Admin router working");
 });
 
-router.post('/create-admin',createAdmin)
+router.post('/create-admin',verifyAdminToken,createAdmin)
 router.post('/login-admin',login)
 router.post("/admin/logout", logoutAdmin);
 router.get("/verify-token",  verifyAdminSession);

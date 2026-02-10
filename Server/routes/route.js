@@ -12,7 +12,8 @@ import AuthRoute from './auth.route.js';
 import Permission from './permission.route.js';
 import role from './role.route.js'
 import PlanRoute from './plan.route.js'
-console.log("✅ Main router file loaded");
+import accessRoutes from './access.route.js';
+
 const router = express.Router(); 
 
 //dashboard stats
@@ -41,6 +42,8 @@ router.use('/permission',Permission);
 router.use("/role", role);
 //plan route
 router.use('/plan',PlanRoute)
+//access permission by admin
+router.use("/access", accessRoutes);
 
 
 export default router;

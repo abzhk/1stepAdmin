@@ -16,7 +16,7 @@ const MODULES = [
 
 const ACTIONS = ["read", "create", "update", "delete", "export"];
 
-const CreateRP = ({ mode = "create", roleData, onClose, onSuccess }) => {
+const CreateRoleandPermission = ({ mode = "create", roleData,userId,  onClose, onSuccess }) => {
   const [roleName, setRoleName] = useState("");
   const [description, setDescription] = useState("");
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
@@ -30,6 +30,21 @@ const CreateRP = ({ mode = "create", roleData, onClose, onSuccess }) => {
 });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const buildPermissions = (rolePerms = [], override = []) => {
+  const map = {};
+
+  rolePerms.forEach((p) => {
+    map[p.module] = [...p.actions];
+  });
+
+  override.forEach((o) => {
+    map[o.module] = [...o.actions];
+  });
+
+  return map;
+};
+
 
   const resetForm = () => {
     setRoleName("");
@@ -84,16 +99,35 @@ const toggleDefaultModule = (module) => {
     });
   };
 
-  const handleSubmit = async () => {
-  if (!roleName.trim()) return;
+ const handleSubmit = async () => {
+  const API = import.meta.env.VITE_API_URL;
 
   try {
     setLoading(true);
-     const API = import.meta.env.VITE_API_URL;
 
     const formattedPermissions = Object.entries(permissions).map(
       ([module, actions]) => ({ module, actions })
     );
+
+    if (mode === "user") {
+      const res = await fetch(
+        `${API}/api/access/user/${userId}/override`,
+        {
+          method: "PUT",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ permissions: formattedPermissions }),
+        }
+      );
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+
+      alert("User permissions updated");
+      onSuccess?.();
+      return; 
+    }
+    if (!roleName.trim()) return;
 
     const payload = {
       description,
@@ -147,6 +181,23 @@ const toggleDefaultModule = (module) => {
   }
 }, [mode, roleData]);
 
+useEffect(() => {
+  if (mode !== "user" || !roleData) return;
+
+  setRoleName(roleData.userRef.username);
+  setDescription(roleData.userRef.email);
+  setIsSuperAdmin(roleData.userRef.role.isSuperAdmin || false);
+  setDefaultModules(roleData.userRef.role.defaultModules || []);
+
+  const perms = buildPermissions(
+    roleData.userRef.role.permissions,
+    roleData.userRef.permissionsOverride
+  );
+
+  setPermissions(perms);
+}, [mode, roleData]);
+
+
 
   return (
     <div className="min-h-screen p-6">
@@ -170,7 +221,7 @@ const toggleDefaultModule = (module) => {
          <input
   placeholder="Role name "
   value={roleName}
-  disabled={mode === "edit"}
+  disabled={mode === "edit"|| mode === "user"}
   onChange={(e) =>
     setRoleName(
       e.target.value.toLowerCase().replace(/\s+/g, "_")
@@ -268,4 +319,4 @@ const toggleDefaultModule = (module) => {
   );
 };
 
-export default CreateRP;
+export default CreateRoleandPermission;

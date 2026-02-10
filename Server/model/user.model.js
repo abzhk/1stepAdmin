@@ -23,6 +23,13 @@ const userSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Role",
     },
+    permissionsOverride: [
+  {
+    module: String,
+    actions: [String],
+  },
+],
+
     refreshToken: {
       type: String,
       default: "",

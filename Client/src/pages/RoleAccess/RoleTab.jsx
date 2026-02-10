@@ -4,6 +4,7 @@ import ViewRole from "./ViewRole";
 // import PermissionView from "./PermissionView";
 // import CreatePermission from "./CreatePermission";
 import Createrole from "./CreateRoleandPermission";
+import RolebyAccessView from "./RolebyAccessView";
 
 const RoleTab = () => {
   const [activeTab, setActiveTab] = useState("view");
@@ -65,6 +66,19 @@ const RoleTab = () => {
         >
           create role with permission
         </button>
+
+
+
+          <button
+          onClick={() => setActiveTab("RolebyAccess")}
+          className={`pb-2 text-sm font-medium transition ${
+            activeTab === "RolebyAccess"
+              ? "border-b-2 border-green-600 text-green-600"
+              : "text-gray-500 hover:text-gray-700"
+          }`}
+        >
+          parent and provide role view
+        </button>
       </div>
 
       {/* {activeTab === "create" && <CreateRole />} */}
@@ -72,6 +86,7 @@ const RoleTab = () => {
       {/* {activeTab === "permission" && <PermissionView />}
       {activeTab === "createpermission" && <CreatePermission />} */}
       {activeTab === "create" && <Createrole />}
+      {activeTab === "RolebyAccess" && <RolebyAccessView />}
     </div>
   );
 };

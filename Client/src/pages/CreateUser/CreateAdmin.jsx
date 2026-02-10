@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import toast from "react-hot-toast";
+
 
 const CreateAdmin = () => {
   const [formData, setFormData] = useState({
@@ -31,6 +33,7 @@ const API = import.meta.env.VITE_API_URL;
         `${API}/api/admin/create-admin`,
         {
           method: "POST",
+          credentials: "include",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(formData),
         }
@@ -39,10 +42,10 @@ const API = import.meta.env.VITE_API_URL;
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);
 
-      setSuccess("Admin created successfully");
+       toast.success("Admin created successfully");
       setFormData({ username: "", email: "", password: "" });
     } catch (err) {
-      setError(err.message || "Failed to create admin");
+      toast.error(err.message || "Failed to create admin");
     } finally {
       setLoading(false);
     }

@@ -26,6 +26,8 @@ import { setUser, logout } from './redux/slice/authSlice.js';
 import RoleTab from './pages/RoleAccess/RoleTab.jsx'
 import Plans from './pages/Subscription/ViewPlans.jsx';
 import Addplans from './pages/Subscription/Addplans.jsx';
+import { Toaster } from "react-hot-toast";
+
 
 const App = () => {
 
@@ -60,6 +62,7 @@ const App = () => {
   if (loading) return null;
   
   return (
+     <>
   <Routes>
     <Route path='/' element={<Navigate to = "/log"/>}/>
     {/* <Route path='/navbar' element={<Navbar />} /> */}
@@ -89,6 +92,11 @@ const App = () => {
         <Route path="/addplans/:id" element={<Addplans />} />
     </Route>
     </Routes>
+     <Toaster
+        position="top-right"
+        toastOptions={{ duration: 3000 }}
+      />
+    </>
   )
 }
 
