@@ -65,6 +65,7 @@ function ProviderStats() {
       try {
         setLoading(true);
         setError("");
+        const API = import.meta.env.VITE_API_URL;
 
         const params = new URLSearchParams({
           month: String(month),
@@ -74,7 +75,7 @@ function ProviderStats() {
         });
 
         const res = await fetch(
-          `http://localhost:3001/api/provider/getallbooking/${id}?${params.toString()}`
+          `${API}/api/provider/getallbooking/${id}?${params.toString()}`
         );
 
         const data = await res.json();
@@ -101,13 +102,14 @@ function ProviderStats() {
       try {
         setTableLoading(true);
         setTableError("");
+        const API = import.meta.env.VITE_API_URL;
 
         const params = new URLSearchParams({
           limit: String(limit),
           startIndex: String(startIndex),
         });
         const res = await fetch(
-          `http://localhost:3001/api/booking/getbookingbyprovider/${id}?${params.toString()}`
+          `${API}/api/booking/getbookingbyprovider/${id}?${params.toString()}`
         );
         const data = await res.json();
 
@@ -132,6 +134,7 @@ function ProviderStats() {
       try {
         setArticlesLoading(true);
         setArticlesError("");
+        const API = import.meta.env.VITE_API_URL;
 
         const params = new URLSearchParams({
           limit: articleLimit,
@@ -139,7 +142,7 @@ function ProviderStats() {
         });
 
         const res = await fetch(
-          `http://localhost:3001/api/article/providerarticle/${id}?${params.toString()}`
+          `${API}/api/article/providerarticle/${id}?${params.toString()}`
         );
 
         const data = await res.json();
