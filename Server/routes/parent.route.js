@@ -1,5 +1,7 @@
 import express from 'express';
-import { getallparents,parentstats,getParent,createParent } from '../controller/parent.controller.js';
+import { getallparents,parentstats,getParent,createParent,
+    setParentActiveStatus,
+ } from '../controller/parent.controller.js';
 import { verifyAdminToken } from "../middlewares/authMiddleware.js";
 
 
@@ -11,5 +13,8 @@ router.get("/parent/:parentId/stats",verifyAdminToken, parentstats)
 router.get("/getparent/:id", getParent);
 //create Parent
 router.post("/createparent/:id",createParent);
+//activate or deactivate parent by admin
+router.put("/admin/parent/status", setParentActiveStatus);
+
 
 export default router;

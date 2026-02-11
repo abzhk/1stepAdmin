@@ -1,4 +1,4 @@
-import Stats from "../model/stats.js";
+import Stats from "../model/stats.model.js";
 
 
 export const getStats = async (req, res) => {

@@ -3,6 +3,7 @@ import Provider from "../model/provider.model.js";
 import { Booking } from "../model/booking.model.js";
 import { errorHandler } from "../utils/error.js";
 import nodemailer from "nodemailer";
+import User from "../model/user.model.js";
 // import { BookedSlots } from "../models/booking.model.js";
 // import Proof from "../models/proof.model.js";
 // import SkilledProvider from "../models/skilledprovider.model.js";
@@ -225,7 +226,7 @@ export const getProviders = async (req, res, next) => {
         .limit(Number(limit))
         .skip(Number(startIndex))
         .select(
-          "fullName name address profilePicture createdAt verified regularPrice experience therapytype ratingSummary timeSlots"
+          "fullName name address profilePicture createdAt verified regularPrice experience therapytype ratingSummary timeSlots userRef"
         )
         .lean(),
 
@@ -255,10 +256,20 @@ export const getProviders = async (req, res, next) => {
       bookings.map((b) => [b._id.toString(), b.count])
     );
 
-    const providersWithBooking = providers.map((provider) => ({
+    const providersWithBooking = await Promise.all(
+  providers.map(async (provider) => {
+    const user = await User.findById(
+      new mongoose.Types.ObjectId(provider.userRef)
+    ).select("isActive");
+
+    return {
       ...provider,
       totalBookings: bookingMap.get(provider._id.toString()) || 0,
-    }));
+      isActive: user ? user.isActive : false,
+    };
+  })
+);
+
 
     res.status(200).json({
       providers: providersWithBooking,
@@ -732,6 +743,51 @@ export const getProviderStats = async (req, res, next) => {
     });
   } catch (error) {
     console.error(error);
+    next(error);
+  }
+};
+//provider status deactivate or activate
+export const setProviderActiveStatus = async (req, res, next) => {
+  try {
+    const { providerId, isActive } = req.body;
+
+    if (!providerId) {
+      return res.status(400).json({
+        success: false,
+        message: "providerId is required",
+      });
+    }
+
+    // find provider
+    const provider = await Provider.findById(providerId);
+    if (!provider) {
+      return res.status(404).json({
+        success: false,
+        message: "Provider not found",
+      });
+    }
+
+    const userId = new mongoose.Types.ObjectId(provider.userRef);
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { isActive },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "Linked user not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: `Provider ${isActive ? "Activated" : "Deactivated"} successfully`,
+      isActive: user.isActive,
+    });
+  } catch (error) {
     next(error);
   }
 };

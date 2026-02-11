@@ -139,7 +139,7 @@ const fetchRecentBookings = async () => {
         <div className="flex flex-col bg-gradient-to-l from-white to-gray-50 p-6 rounded-2xl shadow-md border border-gray-200 min-w-[280px] ">
           <div className="flex items-center gap-3 mb-2">
             <FaUserInjured className="text-black text-3xl" />
-            <h2 className="text-xl font-semibold text-maintext">Patients</h2>
+            <h2 className="text-xl font-semibold text-maintext">Parent</h2>
           </div>
           <p className="text-gray-600 text-2xl font-semibold mt-12"> {stats?.totalParents}</p>
         </div>
@@ -163,7 +163,7 @@ const fetchRecentBookings = async () => {
 <div className="flex-col  bg-gradient-to-l from-white to-gray-50  p-6 rounded-2xl shadow-xl border border-gray-200 min-w-[280px]">
           <div className="flex items-center gap-3 mb-2">
             <FaHospital className="text-black text-3xl" />
-            <h2 className="text-xl font-semibold text-maintext">Cources</h2>
+            <h2 className="text-xl font-semibold text-maintext">Courses</h2>
           </div>
           <p className="text-gray-600 text-2xl font-semibold mt-12">{stats?.lessonsCount}</p>
         </div>
@@ -182,9 +182,9 @@ const fetchRecentBookings = async () => {
         <div className="flex-col  bg-gradient-to-l from-white to-gray-50  p-6 rounded-2xl shadow-xl border border-gray-200 min-w-[580px]">
           <div className="flex items-center gap-3 mb-2">
             <FaHospital className="text-black text-3xl" />
-            <h2 className="text-xl font-semibold text-maintext">subscription plans</h2>
+            <h2 className="text-xl font-semibold text-maintext">Subscription plans</h2>
           </div>
-          <p className="text-gray-600 text-2xl font-semibold mt-12">{stats?.totalCentreProviders}</p>
+          <p className="text-gray-600 text-2xl font-semibold mt-12">0</p>
         </div>
       </div>
 

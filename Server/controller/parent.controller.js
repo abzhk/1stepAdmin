@@ -259,7 +259,7 @@ const{
       Parent.find(query)
         .populate({
           path: "userRef",
-          select: "username email profilePicture",
+          select: "_id username email profilePicture isActive",
         })
         .sort(sortQuery)
         .skip(numericStartIndex)
@@ -360,5 +360,38 @@ export const parentstats = async (req, res, next) => {
     next(error);
   }
 };
+//actve or deactivate parent 
+export const setParentActiveStatus = async (req, res, next) => {
+  try {
+    const { userId, isActive } = req.body;
 
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: "userId is required",
+      });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { isActive },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: `Parent ${isActive ? "Activated" : "Deactivated"} successfully`,
+      isActive: user.isActive,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 

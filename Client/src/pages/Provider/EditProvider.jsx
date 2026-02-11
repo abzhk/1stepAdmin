@@ -69,9 +69,9 @@ function EditProvider() {
     try {
       setLoading(true);
       setError("");
-
+const API = import.meta.env.VITE_API_URL;
       const res = await fetch(
-        `http://localhost:3001/api/admin/providers/${id}`,
+        `${API}/api/admin/providers/${id}`,
         {
           method: "PUT",
           credentials: "include",
@@ -133,6 +133,7 @@ function EditProvider() {
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <label>Full Name
               <input
                 name="fullName"
                 value={formData.fullName}
@@ -141,7 +142,8 @@ function EditProvider() {
                 required
                 className="w-full rounded-xl border border-gray-200 px-4 py-2 focus:border-lightbutton focus:ring-lightbutton outline-none"
               />
-
+</label>
+<label>Email
               <input
                 name="email"
                 type="email"
@@ -150,7 +152,8 @@ function EditProvider() {
                 placeholder="Email Address"
                 className="w-full rounded-xl  border border-gray-200 px-4 py-2 focus:border-lightbutton focus:ring-lightbutton outline-none"
               />
-
+              </label>
+<label>Phone
               <input
                 name="phone"
                 value={formData.phone}
@@ -158,7 +161,8 @@ function EditProvider() {
                 placeholder="Phone Number"
                 className="w-full rounded-xl border border-gray-200 px-4 py-2 focus:border-lightbutton focus:ring-lightbutton outline-none"
               />
-
+              </label>
+<label>Provider Type
               <select
                 name="providerType"
                 value={formData.providerType}
@@ -168,6 +172,7 @@ function EditProvider() {
                 <option value="individual">Individual</option>
                 <option value="centre">Centre</option>
               </select>
+              </label>
             </div>
           </div>
 
@@ -178,6 +183,7 @@ function EditProvider() {
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <label>Qualification
               <input
                 name="qualification"
                 value={formData.qualification}
@@ -185,7 +191,8 @@ function EditProvider() {
                 placeholder="Qualification"
                 className="w-full rounded-xl border border-gray-200 px-4 py-2 focus:border-lightbutton focus:ring-lightbutton outline-none"
               />
-
+              </label>
+<label>Experience
               <input
                 name="experience"
                 value={formData.experience}
@@ -193,7 +200,8 @@ function EditProvider() {
                 placeholder="Experience"
                 className="w-full rounded-xl border border-gray-200 px-4 py-2 focus:border-lightbutton focus:ring-lightbutton outline-none"
               />
-
+              </label>
+<label>License
               <input
                 name="license"
                 value={formData.license}
@@ -201,7 +209,8 @@ function EditProvider() {
                 placeholder="License Number"
                 className="w-full rounded-xl border border-gray-200 px-4 py-2 focus:border-lightbutton focus:ring-lightbutton outline-none"
               />
-
+              </label>
+<label>Consultation Fee
               <input
                 name="regularPrice"
                 type="number"
@@ -210,8 +219,10 @@ function EditProvider() {
                 placeholder="Consultation Fee"
                 className="w-full rounded-xl border border-gray-200 px-4 py-2 focus:border-lightbutton focus:ring-lightbutton outline-none"
               />
+              </label>
             </div>
-
+            <div className="grid grid-cols-1  gap-4 mt-4">
+<label>Teraphy type
             <input
               value={formData.therapytype.join(", ")}
               onChange={(e) =>
@@ -226,14 +237,17 @@ function EditProvider() {
               placeholder="Therapy Types"
               className="mt-4 w-full rounded-xl border border-gray-200 px-4 py-2 focus:border-lightbutton focus:ring-lightbutton outline-none"
             />
-
+            </label>
+<label>Description
             <textarea
               name="description"
               value={formData.description}
               onChange={handleChange}
               placeholder="Provider Description"
-              className="mt-4 w-full h-28 rounded-xl border border-gray-200 px-4 py-2 focus:border-lightbutton focus:ring-lightbutton outline-none"
+              className=" w-full h-28 rounded-xl border border-gray-200 px-4 py-2 focus:border-lightbutton focus:ring-lightbutton outline-none"
             />
+            </label>
+            </div>
           </div>
 
 

@@ -7,12 +7,13 @@ import assessmentRoute from './assessment.route.js';
 import providerRoute from './provider.route.js'
 import bookingRoute from './booking.route.js'
 import parentRoute from './parent.route.js'
-import SuperAdminRoute from './superadmin.route.js';
+// import SuperAdminRoute from './superadmin.route.js';
 import AuthRoute from './auth.route.js';
 import Permission from './permission.route.js';
 import role from './role.route.js'
 import PlanRoute from './plan.route.js'
 import accessRoutes from './access.route.js';
+import userRoute from './user.route.js';
 
 const router = express.Router(); 
 
@@ -33,7 +34,7 @@ router.use('/booking',bookingRoute)
 //parent route
 router.use('/parent',parentRoute)
 //superadmin route
-router.use('/superadmin',SuperAdminRoute)
+// router.use('/superadmin',SuperAdminRoute)
 //auth route
 router.use('/auth',AuthRoute)
 //permission
@@ -44,6 +45,8 @@ router.use("/role", role);
 router.use('/plan',PlanRoute)
 //access permission by admin
 router.use("/access", accessRoutes);
+//user route
+router.use("/users", userRoute);
 
 
 export default router;

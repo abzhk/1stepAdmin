@@ -15,7 +15,7 @@ function ViewProvider() {
   const limit = 12;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [deleteId, setDeleteId] = useState(null);
+  // const [deleteId, setDeleteId] = useState(null);
   const { searchTerm } = useOutletContext();
 
 
@@ -24,7 +24,7 @@ function ViewProvider() {
       try {
         setLoading(true);
         setError("");
-         const API = import.meta.env.VITE_API_URL;
+        const API = import.meta.env.VITE_API_URL;
 
         const params = new URLSearchParams({
           limit: String(limit),
@@ -36,7 +36,7 @@ function ViewProvider() {
         }
 
         const res = await fetch(
-          `${API}/api/provider/getProviders?${params.toString()}`
+          `${API}/api/provider/getProviders?${params.toString()}`,
         );
 
         const data = await res.json();
@@ -59,39 +59,67 @@ function ViewProvider() {
 
   const totalPages = Math.max(1, Math.ceil(totalCount / limit));
 
-  const handleDelete = async (providerId) => {
+  // const handleDelete = async (providerId) => {
+  //   try {
+  //     const res = await fetch(
+  //       `http://localhost:3001/api/admin/providers/${providerId}`,
+  //       {
+  //         method: "DELETE",
+  //         credentials: "include",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //       }
+  //     );
+
+  //     const data = await res.json();
+
+  //     if (!res.ok) {
+  //       throw new Error(data.message || "Failed to delete provider");
+  //     }
+
+  //     setProviders((prev) =>
+  //       prev.filter((provider) => provider._id !== providerId)
+  //     );
+
+  //     setTotalCount((prev) => prev - 1);
+  //   } catch (error) {
+  //     alert(error.message || "Something went wrong while deleting provider");
+  //   }
+  // };
+
+  const changeStatus = async (providerId, newStatus) => {
     try {
-      const res = await fetch(
-        `http://localhost:3001/api/admin/providers/${providerId}`,
-        {
-          method: "DELETE",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const API = import.meta.env.VITE_API_URL;
+
+      const res = await fetch(`${API}/api/provider/admin/provider/status`, {
+        method: "PUT",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          providerId,
+          isActive: newStatus,
+        }),
+      });
 
       const data = await res.json();
 
-      if (!res.ok) {
-        throw new Error(data.message || "Failed to delete provider");
-      }
+      if (!res.ok) throw new Error(data.message);
 
       setProviders((prev) =>
-        prev.filter((provider) => provider._id !== providerId)
+        prev.map((p) =>
+          p._id === providerId ? { ...p, isActive: newStatus } : p,
+        ),
       );
-
-      setTotalCount((prev) => prev - 1);
     } catch (error) {
-      alert(error.message || "Something went wrong while deleting provider");
+      alert(error.message);
     }
   };
 
   return (
     <div className="p-4 md:p-6 bg-offwhite  min-h-screen ">
-       
-
       {error && (
         <div className="mb-6 text-red-700 bg-red-100 border border-red-300 px-4 py-3 rounded-xl">
           <strong>Error:</strong> {error}
@@ -108,8 +136,8 @@ function ViewProvider() {
             const therapies = Array.isArray(provider.therapytype)
               ? provider.therapytype
               : provider.therapytype
-              ? [provider.therapytype]
-              : [];
+                ? [provider.therapytype]
+                : [];
 
             return (
               <div
@@ -127,73 +155,83 @@ function ViewProvider() {
                       />
                     )}
                   </div>
-                </div>
+                </div> 
+                <div className="flex item-center "><button
+                      onClick={() =>
+                        changeStatus(provider._id, !provider.isActive)
+                      }
+                      className={`px-3 py-2 rounded-xl text-sm font-medium shadow-sm transition
+  ${
+    provider.isActive
+      ? "bg-red-50 text-red-600 hover:bg-red-100"
+      : "bg-green-50 text-green-600 hover:bg-green-100"
+  }`}
+                    >
+                      {provider.isActive ? "Deactivate" : "Activate"}
+                    </button>
+                    </div>
                 <div className="p-1 ">
-                <div className="p-1 mt-2">
-                  <h2 className="text-xl  font-semibold text-textcol mb-2 ml-1">
-                    {provider.fullName}
-                  </h2>
-                </div>
-
-                {/* Provider Details */}
-                <div className="space-y-3 mb-4">
-                  <div className="flex items-center text-gray-600 text-sm ml-2">
-                    {/* <FiMapPin className="text-blue-500 mr-2 " /> */}
-                    <strong>City:</strong>
-                    <span className="ml-1">{provider.address?.city}</span>
+                  <div className="p-1 mt-2">
+                    <h2 className="text-xl  font-semibold text-textcol mb-2 ml-1">
+                      {provider.fullName}
+                    </h2>
                   </div>
 
-                  <div className="flex items-start text-gray-600 text-sm ml-2">
-                    {/* <FiUsers className="text-green-500 mt-0.5 mr-2 " /> */}
-                    <strong>Therapy:</strong>
-                    <div className="flex flex-wrap gap-1 ml-1">
-                      {therapies.length > 0 ? (
-                        therapies.map((type, i) => (
-                          <span
-                            key={i}
-                            className="px-2 py-0.5 rounded-full text-xs font-medium bg-tag text-tagtext"
-                          >
-                            {type}
+                  {/* Provider Details */}
+                  <div className="space-y-3 mb-4">
+                    <div className="flex items-center text-gray-600 text-sm ml-2">
+                      {/* <FiMapPin className="text-blue-500 mr-2 " /> */}
+                      <strong>City:</strong>
+                      <span className="ml-1">{provider.address?.city}</span>
+                    </div>
+
+                    <div className="flex items-start text-gray-600 text-sm ml-2">
+                      {/* <FiUsers className="text-green-500 mt-0.5 mr-2 " /> */}
+                      <strong>Therapy:</strong>
+                      <div className="flex flex-wrap gap-1 ml-1">
+                        {therapies.length > 0 ? (
+                          therapies.map((type, i) => (
+                            <span
+                              key={i}
+                              className="px-2 py-0.5 rounded-full text-xs font-medium bg-tag text-tagtext"
+                            >
+                              {type}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500">
+                            N/A
                           </span>
-                        ))
-                      ) : (
-                        <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500">
-                          N/A
-                        </span>
-                      )}
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div className="flex items-center gap-3 ml-2">
-                  <button
-                    onClick={() => navigate(`/provider-stats/${provider._id}`)}
-                    className="flex items-center  justify-center gap-2 px-4 py-2 rounded-2xl bg-button text-white font-medium shadow-md
+                  <div className="flex items-center gap-3 ml-2">
+                    <button
+                      onClick={() =>
+                        navigate(`/provider-stats/${provider._id}`)
+                      }
+                      className="flex items-center  justify-center gap-2 px-4 py-2 rounded-2xl bg-button text-white font-medium shadow-md
                hover:bg-lighthov transition duration-150 w-40"
-                  >
-                    <AiFillEye className="text-lg" />
-                    <span className="text-sm">View Details</span>
-                  </button>
+                    >
+                      <AiFillEye className="text-lg" />
+                      <span className="text-sm">View Details</span>
+                    </button>
 
-                  <button
-                    onClick={() => navigate(`/providers/edit/${provider._id}`)}
-                    className="w-10 h-10 flex items-center justify-center rounded-xl
+                    <button
+                      onClick={() =>
+                        navigate(`/providers/edit/${provider._id}`)
+                      }
+                      className="w-10 h-10 flex items-center justify-center rounded-xl
                bg-blue-50 text-blue-600 hover:bg-blue-100
                transition shadow-sm"
-                    title="Edit"
-                  >
-                    <FiEdit2 className="text-lg" />
-                  </button>
-                  <button
-                    onClick={() => setDeleteId(provider._id)}
-                    className="w-10 h-10 flex items-center justify-center rounded-xl
-             bg-red-50 text-red-600 hover:bg-red-100
-             transition shadow-sm"
-                    title="Delete"
-                  >
-                    <FiTrash2 className="text-lg" />
-                  </button>
+                      title="Edit"
+                    >
+                      <FiEdit2 className="text-lg" />
+                    </button>
+                   
 
-                  {deleteId && (
+                    {/* {deleteId && (
                     <div className="fixed inset-0  flex items-center justify-center z-50">
                       <div className="bg-white rounded-xl p-6 w-96 shadow-xl">
                         <h3 className="text-lg font-semibold text-gray-800 mb-3">
@@ -225,8 +263,8 @@ function ViewProvider() {
                       </div>
                     </div>
                     
-                  )}
-                </div>
+                  )} */}
+                  </div>
                 </div>
               </div>
             );

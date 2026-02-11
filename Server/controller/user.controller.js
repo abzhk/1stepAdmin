@@ -1,5 +1,5 @@
-import Provider from "../models/provider.model.js";
-import User from "../models/user.model.js";
+import Provider from "../model/provider.model.js";
+import User from "../model/user.model.js";
 import { errorHandler } from "../utils/error.js";
 
 import bcryptjs from "bcryptjs";

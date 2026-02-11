@@ -191,7 +191,7 @@ providerSchema.index(
 );
 providerSchema.post("save", async function () {
   try {
-    const Stats = (await import("./stats.js")).default;
+    const Stats = (await import("./stats.model.js")).default;
 
     const update = {
       $inc: {

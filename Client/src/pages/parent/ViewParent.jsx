@@ -23,7 +23,7 @@ function ViewParent() {
     try {
       setLoading(true);
       setError("");
- const API = import.meta.env.VITE_API_URL;
+      const API = import.meta.env.VITE_API_URL;
       const params = new URLSearchParams({
         limit: String(limit),
         startIndex: String((page - 1) * limit),
@@ -32,7 +32,7 @@ function ViewParent() {
       if (searchTerm.trim()) params.append("searchTerm", searchTerm);
 
       const res = await fetch(
-        `${API}/api/parent/getallparents?${params.toString()}`
+        `${API}/api/parent/getallparents?${params.toString()}`,
       );
 
       const data = await res.json();
@@ -54,24 +54,32 @@ function ViewParent() {
   const fromIndex = parents.length ? (page - 1) * limit + 1 : 0;
   const toIndex = (page - 1) * limit + parents.length;
 
-  const handleDelete = async (parentId) => {
+  const changeStatus = async (userId, newStatus) => {
     try {
-      const res = await fetch(
-        `http://localhost:3001/api/admin/parent/user/${parentId}`,
-        {
-          method: "DELETE",
-          credentials: "include",
-        }
-      );
-      const data = await res.json();
+      const API = import.meta.env.VITE_API_URL;
 
-      if (!res.ok) {
-        throw new Error(data.message || "Failed to delete parent");
-      }
-      setParents((prev) => prev.filter((parent) => parent._id !== parentId));
-    } catch (error) {
-      console.error("Delete parent error:", error);
-      alert(error.message || "Something went wrong");
+      const res = await fetch(`${API}/api/parent/admin/parent/status`, {
+        method: "PUT",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId,
+          isActive: newStatus,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+
+      setParents((prev) =>
+        prev.map((p) =>
+          p.userRef?._id === userId
+            ? { ...p, userRef: { ...p.userRef, isActive: newStatus } }
+            : p,
+        ),
+      );
+    } catch (err) {
+      alert(err.message);
     }
   };
 
@@ -108,60 +116,69 @@ function ViewParent() {
                       />
                     )}
                   </div>
+                   <button
+                        onClick={() =>
+                          changeStatus(
+                            parent.userRef?._id,
+                            !parent.userRef?.isActive,
+                          )
+                        }
+                        className={`px-3 py-2 rounded-xl text-sm font-medium shadow-sm transition
+                     ${
+                       parent.userRef?.isActive
+                         ? "bg-red-50 text-red-600 hover:bg-red-100"
+                         : "bg-green-50 text-green-600 hover:bg-green-100"
+                     }`}
+                      >
+                        {parent.userRef?.isActive ? "Deactivate" : "Activate"}
+                      </button>
                   <div className="p-1 ">
                     <div className="p-1  mb-2 ml-1">
                       <h2 className="text-lg md:text-xl font-semibold text-gray-900">
                         {parent.parentDetails?.fullName}
                       </h2>
                     </div>
-                
 
-                  {/* Details */}
-                  <div className="space-y-2 mb-4 text-sm text-gray-700">
-                    <div className="flex items-center text-gray-600 text-sm ml-2">
-                      {/* <FaChild className="text-secondarytext mr-2 " /> */}
-                      <span className="font-semibold">Child Name : </span>
-                      <span>{parent.parentDetails?.childName}</span>
+                    {/* Details */}
+                    <div className="space-y-2 mb-4 text-sm text-gray-700">
+                      <div className="flex items-center text-gray-600 text-sm ml-2">
+                        {/* <FaChild className="text-secondarytext mr-2 " /> */}
+                        <span className="font-semibold">Child Name : </span>
+                        <span>{parent.parentDetails?.childName}</span>
+                      </div>
+                      <div className="flex items-center text-gray-600 text-sm ml-2">
+                        {/* <CiPhone className="text-blue-500 mr-2 " /> */}
+                        <span className="font-semibold">Phone: </span>
+                        <span>{parent.parentDetails?.phoneNumber}</span>
+                      </div>
                     </div>
-                    <div className="flex items-center text-gray-600 text-sm ml-2">
-                      {/* <CiPhone className="text-blue-500 mr-2 " /> */}
-                      <span className="font-semibold">Phone: </span>
-                      <span>{parent.parentDetails?.phoneNumber}</span>
-                    </div>
-                  </div>
-                  <div className=" flex items-center  gap-3 ml-2">
-                    {/* View Button */}
-                    <button
-                      onClick={() =>
-                        navigate(`/parent-stats-card/${parent.userRef?._id}`)
-                      }
-                      className="flex items-center  justify-center gap-2 px-4 py-2 rounded-2xl bg-button text-white font-medium shadow-md
+                    <div className=" flex items-center  gap-3 ml-2">
+                      {/* View Button */}
+                      <button
+                        onClick={() =>
+                          navigate(`/parent-stats-card/${parent.userRef?._id}`)
+                        }
+                        className="flex items-center  justify-center gap-2 px-4 py-2 rounded-2xl bg-button text-white font-medium shadow-md
                hover:bg-lighthov transition duration-150 w-40"
-                    >
-                      <AiFillEye className="text-xl" />
-                      <span>View Details</span>
-                    </button>
+                      >
+                        <AiFillEye className="text-xl" />
+                        <span>View Details</span>
+                      </button>
 
-                    <button
-                     onClick={() => navigate(`/parent/edit/${parent.userRef?._id}`)}
-                      className="w-10 h-10 flex items-center justify-center rounded-xl
+                      <button
+                        onClick={() =>
+                          navigate(`/parent/edit/${parent.userRef?._id}`)
+                        }
+                        className="w-10 h-10 flex items-center justify-center rounded-xl
                                bg-blue-50 text-blue-600 hover:bg-blue-100
                                transition shadow-sm"
-                      title="Edit"
-                    >
-                      <FiEdit2 className="text-lg" />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(parent.userRef?._id)}
-                      className="w-10 h-10 flex items-center justify-center rounded-xl
-                             bg-red-50 text-red-600 hover:bg-red-100
-                             transition shadow-sm"
-                      title="Delete"
-                    >
-                      <FiTrash2 className="text-lg" />
-                    </button>
-                  </div>
+                        title="Edit"
+                      >
+                        <FiEdit2 className="text-lg" />
+                      </button>
+                     
                     </div>
+                  </div>
                 </div>
               </div>
             );
