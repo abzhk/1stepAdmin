@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import {FiBookOpen,FiAward,FiHeart,FiActivity,FiCalendar,} from "react-icons/fi";
 import { useParams } from "react-router-dom";
 import dateFormatUtils from "../../utils/dateFormatUtils";
+import ParentBookings from "./ParentBookings.jsx";
 
 const ParentStatsCards = () => {
   const { userId } = useParams();
@@ -197,6 +198,7 @@ const ParentStatsCards = () => {
           </div>
         </div>
       </div>
+      <ParentBookings/>
     </div>
   );
 };

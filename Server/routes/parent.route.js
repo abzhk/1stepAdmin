@@ -2,6 +2,7 @@ import express from 'express';
 import { getallparents,parentstats,getParent,createParent,
     setParentActiveStatus,
     getInactiveParents,
+     getParentBookings,
  } from '../controller/parent.controller.js';
 import { verifyAdminToken } from "../middlewares/authMiddleware.js";
 
@@ -18,6 +19,9 @@ router.post("/createparent/:id",createParent);
 router.put("/admin/parent/status", setParentActiveStatus);
 //get inactive parents
 router.get("/inactive-parents", getInactiveParents);
+//bookings of parent
+router.get("/bookings/:parentId", getParentBookings);
+
 
 
 

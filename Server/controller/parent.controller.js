@@ -451,5 +451,36 @@ export const getInactiveParents = async (req, res, next) => {
     next(error);
   }
 };
+//booking parents
 
+export const getParentBookings = async (req, res, next) => {
+  try {
+    const { parentId } = req.params;
+    const { limit = 10, startIndex = 0 } = req.query;
+
+    const numericLimit = Number(limit);
+    const numericStartIndex = Number(startIndex);
+
+    const [bookings, total] = await Promise.all([
+      Booking.find({ patient: parentId })
+        .populate("provider", "fullName email profilePicture")
+        .sort({ createdAt: -1 })
+        .skip(numericStartIndex)
+        .limit(numericLimit)
+        .lean(),
+
+      Booking.countDocuments({ patient: parentId }),
+    ]);
+
+    return res.status(200).json({
+      success: true,
+      bookings,
+      total,
+      totalPages: Math.ceil(total / numericLimit),
+      currentPage: Math.floor(numericStartIndex / numericLimit) + 1,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 

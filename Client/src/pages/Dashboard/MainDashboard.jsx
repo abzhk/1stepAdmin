@@ -193,7 +193,7 @@ const fetchRecentBookings = async () => {
           <table className="min-w-full text-sm text-left border-collapse">
             <thead>
               <tr className=" bg-primary text-white">
-                <th className="px-6 py-3 font-semibold">Sl.No</th>
+                {/* <th className="px-6 py-3 font-semibold">Sl.No</th> */}
                 <th className="px-6 py-3 font-semibold">Name</th>
                 <th className="px-6 py-3 font-semibold">Email</th>
                 <th className="px-6 py-3 font-semibold">Role</th>
@@ -221,9 +221,9 @@ const fetchRecentBookings = async () => {
             ) : (
               tableData.map((item, index) => (
                 <tr key={index}>
-                  <td className="px-6 py-4">
+                  {/* <td className="px-6 py-4">
                     {(currentPage - 1) * itemsPerPage + index + 1}
-                  </td>
+                  </td> */}
                   <td className="px-6 py-4">{item.name}</td>
                   <td className="px-6 py-4">{item.email}</td>
                   <td className="px-6 py-4">{item.role}</td>
