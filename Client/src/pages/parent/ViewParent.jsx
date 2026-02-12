@@ -92,6 +92,11 @@ function ViewParent() {
         </div>
       )}
 
+<div className="flex justify-end mb-6">
+  <button  onClick={() => navigate("/inactive-parents")} className="px-4 py-2 rounded-xl font-semibold shadow transition">Inactive users
+    </button>
+</div>
+
       {/* Card Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
         {loading ? (
@@ -105,6 +110,7 @@ function ViewParent() {
                 key={parent._id}
                 className="bg-white rounded-xl shadow-lg hover:shadow-xl transition duration-300  flex flex-col justify-between  border-gray-100 "
               >
+               
                 {/* Card Header */}
                 <div className=" mb-2 ">
                   <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-2  h-52">
@@ -116,7 +122,7 @@ function ViewParent() {
                       />
                     )}
                   </div>
-                   <button
+                   {/* <button
                         onClick={() =>
                           changeStatus(
                             parent.userRef?._id,
@@ -131,16 +137,33 @@ function ViewParent() {
                      }`}
                       >
                         {parent.userRef?.isActive ? "Deactivate" : "Activate"}
-                      </button>
+                      </button> */}
                   <div className="p-1 ">
-                    <div className="p-1  mb-2 ml-1">
-                      <h2 className="text-lg md:text-xl font-semibold text-gray-900">
-                        {parent.parentDetails?.fullName}
-                      </h2>
-                    </div>
+                     <div className="flex items-start justify-between">
+                  <h2 className="font-semibold text-gray-900 text-lg leading-snug">
+                    {parent.parentDetails?.fullName}
+                  </h2>
+
+                  <button
+                        onClick={() =>
+                          changeStatus(
+                            parent.userRef?._id,
+                            !parent.userRef?.isActive,
+                          )
+                        }
+                        className={`text-xs px-3 py-1 rounded-full font-medium
+                     ${
+                       parent.userRef?.isActive
+                         ? "bg-red-50 text-red-600 hover:bg-red-100"
+                         : "bg-green-50 text-green-600 hover:bg-green-100"
+                     }`}
+                      >
+                        {parent.userRef?.isActive ? "Deactivate" : "Activate"}
+                      </button>
+                </div>
 
                     {/* Details */}
-                    <div className="space-y-2 mb-4 text-sm text-gray-700">
+                    <div className="space-y-2 mb-4 text-sm text-gray-700 mt-4">
                       <div className="flex items-center text-gray-600 text-sm ml-2">
                         {/* <FaChild className="text-secondarytext mr-2 " /> */}
                         <span className="font-semibold">Child Name : </span>
@@ -152,7 +175,7 @@ function ViewParent() {
                         <span>{parent.parentDetails?.phoneNumber}</span>
                       </div>
                     </div>
-                    <div className=" flex items-center  gap-3 ml-2">
+                    <div className=" flex items-center justify-between  gap-3 ">
                       {/* View Button */}
                       <button
                         onClick={() =>

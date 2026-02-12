@@ -108,11 +108,17 @@ function ViewProvider() {
 
       if (!res.ok) throw new Error(data.message);
 
-      setProviders((prev) =>
-        prev.map((p) =>
-          p._id === providerId ? { ...p, isActive: newStatus } : p,
-        ),
-      );
+      if (newStatus === false) {
+  setProviders((prev) => prev.filter((p) => p._id !== providerId));
+  setTotalCount((prev) => prev - 1);
+} else {
+  setProviders((prev) =>
+    prev.map((p) =>
+      p._id === providerId ? { ...p, isActive: newStatus } : p
+    )
+  );
+}
+
     } catch (error) {
       alert(error.message);
     }
@@ -125,6 +131,10 @@ function ViewProvider() {
           <strong>Error:</strong> {error}
         </div>
       )}
+      <div className="flex justify-end mb-6">
+  <button  onClick={() => navigate("/inactive-providers")} className="px-4 py-2 rounded-xl font-semibold shadow transition">Inactive users
+    </button>
+</div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
         {loading ? (
@@ -156,7 +166,9 @@ function ViewProvider() {
                     )}
                   </div>
                 </div> 
-                <div className="flex item-center "><button
+                <div className="flex item-center ">
+                  
+                  {/* <button
                       onClick={() =>
                         changeStatus(provider._id, !provider.isActive)
                       }
@@ -168,14 +180,37 @@ function ViewProvider() {
   }`}
                     >
                       {provider.isActive ? "Deactivate" : "Activate"}
-                    </button>
+                    </button> */}
                     </div>
                 <div className="p-1 ">
-                  <div className="p-1 mt-2">
+ <div className="p-1 mt-2">
+<div className="flex items-start justify-between">
+                  <h2 className="font-semibold text-gray-900 text-lg leading-snug">
+                    {provider.fullName}
+                  </h2>
+
+                  <button
+                      onClick={() =>
+                        changeStatus(provider._id, !provider.isActive)
+                      }
+                      className={`px-1 py-1 rounded-xl text-sm font-medium shadow-sm transition
+  ${
+    provider.isActive
+      ? "bg-red-50 text-red-600 hover:bg-red-100"
+      : "bg-green-50 text-green-600 hover:bg-green-100"
+  }`}
+                    >
+                      {provider.isActive ? "Deactivate" : "Activate"}
+                    </button>
+                </div>
+                </div>
+
+
+                  {/* <div className="p-1 mt-2">
                     <h2 className="text-xl  font-semibold text-textcol mb-2 ml-1">
                       {provider.fullName}
                     </h2>
-                  </div>
+                  </div> */}
 
                   {/* Provider Details */}
                   <div className="space-y-3 mb-4">
@@ -206,7 +241,7 @@ function ViewProvider() {
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3 ml-2">
+                  <div className="flex items-center  justify-between">
                     <button
                       onClick={() =>
                         navigate(`/provider-stats/${provider._id}`)

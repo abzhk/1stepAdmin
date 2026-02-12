@@ -22,7 +22,7 @@ router.get("/verify-token",  verifyAdminSession);
 
 
 //delete provider
-router.delete("/providers/:providerId", verifyAdminToken, deleteProvider);
+router.delete("/providers/:providerId",  deleteProvider);
 //update provider details by admin
 router.put("/providers/:providerId",verifyAdminToken,updateProvider);
 //get provider and parent for admin 

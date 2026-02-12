@@ -256,7 +256,7 @@ export const getProviders = async (req, res, next) => {
       bookings.map((b) => [b._id.toString(), b.count])
     );
 
-    const providersWithBooking = await Promise.all(
+   const providersWithBooking = await Promise.all(
   providers.map(async (provider) => {
     const user = await User.findById(
       new mongoose.Types.ObjectId(provider.userRef)
@@ -269,6 +269,10 @@ export const getProviders = async (req, res, next) => {
     };
   })
 );
+const activeProviders = providersWithBooking.filter(
+  (p) => p.isActive === true
+);
+
 
 
     res.status(200).json({
@@ -778,7 +782,7 @@ export const setProviderActiveStatus = async (req, res, next) => {
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: "Linked user not found",
+        message: "user not found",
       });
     }
 
@@ -791,3 +795,25 @@ export const setProviderActiveStatus = async (req, res, next) => {
     next(error);
   }
 };
+//get inactive users of provider
+export const getInactiveProviders = async (req, res, next) => {
+  try {
+    const providers = await Provider.find({})
+      .populate({
+        path: "userRef",
+        match: { isActive: false },
+        select: "_id username email profilePicture isActive",
+      })
+      .lean();
+
+    const inactiveProviders = providers.filter((p) => p.userRef);
+
+    res.status(200).json({
+      success: true,
+      providers: inactiveProviders,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+

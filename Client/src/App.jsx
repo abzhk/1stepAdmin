@@ -27,7 +27,8 @@ import RoleTab from './pages/RoleAccess/RoleTab.jsx'
 import Plans from './pages/Subscription/ViewPlans.jsx';
 import Addplans from './pages/Subscription/Addplans.jsx';
 import { Toaster } from "react-hot-toast";
-
+import InactiveParents from './pages/Parent/InactiveParents.jsx';
+import InactiveProviders from './pages//Provider/InactiveProvider.jsx';
 
 const App = () => {
 
@@ -90,6 +91,8 @@ const App = () => {
         <Route path="/view-plans" element={<Plans/>}/>
         <Route path="/add-plans" element={<Addplans/>}/>
         <Route path="/addplans/:id" element={<Addplans />} />
+        <Route path="/inactive-parents" element={<InactiveParents />} />
+     <Route path="/inactive-providers" element={<InactiveProviders />} />
     </Route>
     </Routes>
      <Toaster

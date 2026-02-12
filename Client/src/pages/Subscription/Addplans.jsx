@@ -25,6 +25,7 @@ const Addplans = () => {
 
   const [formData, setFormData] = useState({
     plan_key: "basic",
+    user_type: "parent",
     plan_name: "",
     slug: "",
     description: "",
@@ -132,14 +133,15 @@ const Addplans = () => {
       : formData.price;
   useEffect(() => {
     if (!id) return;
-
+const API = import.meta.env.VITE_API_URL;
     const fetchPlan = async () => {
-      const res = await fetch(`http://localhost:3001/api/plan/${id}`);
+      const res = await fetch(`${API}/api/plan/${id}`);
       const data = await res.json();
 
       if (res.ok) {
         setFormData({
           plan_key: data.plan.plan_key,
+           user_type: data.plan.user_type, 
           plan_name: data.plan.plan_name,
           slug: data.plan.slug,
           description: data.plan.description,
@@ -314,7 +316,18 @@ const Addplans = () => {
                           <option value="pro">Pro</option>
                           <option value="premium">Premium</option>
                         </select>
-
+                         <label className="text-sm font-bold text-[#2d4a36]">
+                         User Type
+                       </label>
+ <select
+                     name="user_type"
+                    value={formData.user_type}
+                        onChange={handleChange}
+                         className="mt-1 w-full px-4 py-3 rounded-xl bg-[#F6F4F0] border border-[#8fa797]/30 focus:ring-2 focus:ring-[#2d4a36] outline-none text-[#2d4a36]"
+                           > 
+                        <option value="parent">Parent</option>
+                       <option value="provider">Provider</option>
+                        </select>
                         <label className="text-sm font-bold text-[#2d4a36]">
                           Plan Name
                         </label>
@@ -327,6 +340,8 @@ const Addplans = () => {
                           className="mt-1 w-full px-4 py-3 rounded-xl bg-[#F6F4F0] border border-[#8fa797]/30 focus:ring-2 focus:ring-[#2d4a36] outline-none text-[#2d4a36]"
                           autoFocus
                         />
+                        
+                       
                       </div>
                       <div>
                         <label className="text-sm font-bold text-[#2d4a36]">

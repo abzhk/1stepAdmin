@@ -9,6 +9,11 @@ const planSchema = new mongoose.Schema(
       lowercase: true,
       enum: ["free", "basic", "pro", "premium"],
     },
+     user_type: {
+     type: String,
+     enum: ["parent", "provider"],
+     index: true
+    },
     plan_name: {
       type: String,
       required: true,
@@ -136,7 +141,7 @@ const planSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-planSchema.index({ plan_key: 1, version_number: 1 }, { unique: true });
+planSchema.index({ plan_key: 1, user_type: 1, version_number: 1 }, { unique: true });
 planSchema.index({ slug: 1 });
 planSchema.index({ is_active: 1 });
 

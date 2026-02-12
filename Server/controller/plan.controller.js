@@ -4,6 +4,7 @@ export const createPlan = async (req, res) => {
   try {
     const {
       plan_key,
+      user_type,
       plan_name,
       slug,
       description,
@@ -29,6 +30,7 @@ export const createPlan = async (req, res) => {
 
     if (
       !plan_key ||
+     !user_type ||
       !plan_name ||
       !slug ||
       !description ||
@@ -46,7 +48,7 @@ export const createPlan = async (req, res) => {
         ? Math.round(price - (price * discount) / 100)
         : price;
 
-    const latestPlan = await Plan.findOne({ plan_key })
+    const latestPlan = await Plan.findOne({ plan_key,user_type })
       .sort({ version_number: -1 });
 
     const nextVersion = latestPlan
@@ -62,6 +64,7 @@ export const createPlan = async (req, res) => {
 
     const plan = await Plan.create({
       plan_key,
+      user_type,
       plan_name,
       slug: `${slug}-v${nextVersion}`, 
       description,
@@ -110,15 +113,17 @@ export const createPlan = async (req, res) => {
 
 export const getPlans = async (req, res) => {
     try{
-      const {search,limit=10}= req.query
+      const {search,limit=10,user_type}= req.query
 
-       const query = search
-      ? {
-          $or: [
-            { plan_name: { $regex: search, $options: "i" } }
-          ],
-        }
-      : {};
+      const query = {};
+
+if (search) {
+  query.plan_name = { $regex: search, $options: "i" };
+}
+
+if (user_type) {
+  query.user_type = user_type;
+}
         const plans =await Plan.find(query).sort({createdAt:-1}).limit(Number(limit));
          res.status(200).json({
       success: true,

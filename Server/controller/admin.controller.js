@@ -110,16 +110,16 @@ export const login = async (req, res) => {
 //delete provider
 export const deleteProvider = async (req, res) => {
   try {
-    const { providerId } = req.params;
+    const { providerId } = req.params;   
 
     if (!mongoose.Types.ObjectId.isValid(providerId)) {
       return res.status(400).json({
         success: false,
-        message: "Invalid provider id",
+        message: "Invalid user id",
       });
     }
 
-    const providerDoc = await Provider.findById(providerId);
+    const providerDoc = await Provider.findOne({ userRef: providerId });
 
     if (!providerDoc) {
       return res.status(404).json({
@@ -128,18 +128,19 @@ export const deleteProvider = async (req, res) => {
       });
     }
 
-    await Provider.findByIdAndDelete(providerId);
+    await Provider.deleteOne({ userRef: providerId });
+
+    await User.deleteOne({ _id: providerId });
 
     return res.status(200).json({
       success: true,
       message: "Provider deleted successfully",
     });
   } catch (error) {
-    console.error("Delete provider error:", error);
-    return res.status(500).json({
+    console.error(error);
+    res.status(500).json({
       success: false,
       message: "Failed to delete provider",
-      error: error.message,
     });
   }
 };
@@ -324,6 +325,7 @@ export const deleteParent = async (req, res) => {
     }
 
     await Parent.findOneAndDelete({ userRef });
+    await User.deleteOne({ _id: userRef });
 
     return res.status(200).json({
       success: true,

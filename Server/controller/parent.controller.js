@@ -217,24 +217,22 @@ export const fetchLikedResource = async (req, res, next) => {
 export const viewCountResource = async (req, res, next) => {};
 
 export const getallparents = async(req,res,next)=>{
- try{
-const{
-    limit=9,
-    startIndex=0,
-    searchTerm='',
-    sort='createdAt',
-    order='desc'
-}= req.query;
+  try{
+    const{
+      limit=9,
+      startIndex=0,
+      searchTerm="",
+      sort="createdAt",
+      order="desc",
+} = req.query;
 
- const query = { isParent: true };
+    const query = { isParent: true };
     const searchFilters = [];
 
-      if (searchTerm) {
-      const cleanedSearchTerm = searchTerm.trim().replace(/\s+/g, " ");
-
-      if (cleanedSearchTerm) {
-        const regex = new RegExp(cleanedSearchTerm, "i");
-
+    if (searchTerm) {
+      const cleaned = searchTerm.trim().replace(/\s+/g, " ");
+      if (cleaned) {
+        const regex = new RegExp(cleaned, "i");
         searchFilters.push({
           $or: [
             { "parentDetails.fullName": regex },
@@ -245,9 +243,7 @@ const{
         });
       }
     }
-   if (searchFilters.length > 0) {
-      query.$and = searchFilters;
-    }
+    if (searchFilters.length) query.$and = searchFilters;
 
     const sortQuery = {};
     sortQuery[sort] = order === "desc" ? -1 : 1;
@@ -255,24 +251,27 @@ const{
     const numericLimit = Number(limit);
     const numericStartIndex = Number(startIndex);
 
-    const [parents, totalCount] = await Promise.all([
-      Parent.find(query)
-        .populate({
-          path: "userRef",
-          select: "_id username email profilePicture isActive",
-        })
-        .sort(sortQuery)
-        .skip(numericStartIndex)
-        .limit(numericLimit)
-        .lean(),
-      Parent.countDocuments(query),
-    ]);
+    const parentsData = await Parent.find(query)
+      .populate({
+        path: "userRef",
+        match: { isActive: true },
+        select: "_id username email profilePicture isActive",
+      })
+      .sort(sortQuery)
+      .lean();
+
+    const activeParents = parentsData.filter((p) => p.userRef);
+
+    const paginated = activeParents.slice(
+      numericStartIndex,
+      numericStartIndex + numericLimit,
+    );
 
     return res.status(200).json({
       success: true,
-      parents,
-      totalParents: totalCount,
-      totalPages: Math.ceil(totalCount / numericLimit),
+      parents: paginated,
+      totalParents: activeParents.length,
+      totalPages: Math.ceil(activeParents.length / numericLimit),
       currentPage: Math.floor(numericStartIndex / numericLimit) + 1,
       limit: numericLimit,
     });
@@ -394,4 +393,63 @@ export const setParentActiveStatus = async (req, res, next) => {
     next(error);
   }
 };
+
+export const getInactiveParents = async (req, res, next) => {
+  try {
+    const {
+      limit = 12,
+      startIndex = 0,
+      searchTerm = "",
+      sort = "createdAt",
+      order = "desc",
+    } = req.query;
+
+    const numericLimit = Number(limit);
+    const numericStartIndex = Number(startIndex);
+
+    // parent filters
+    const parentQuery = { isParent: true };
+
+    if (searchTerm) {
+      const regex = new RegExp(searchTerm.trim(), "i");
+      parentQuery.$or = [
+        { "parentDetails.fullName": regex },
+        { "parentDetails.childName": regex },
+        { "parentDetails.phoneNumber": regex },
+      ];
+    }
+
+    const sortQuery = { [sort]: order === "desc" ? -1 : 1 };
+
+    const [parents, totalCount] = await Promise.all([
+      Parent.find(parentQuery)
+        .populate({
+          path: "userRef",
+          match: { isActive: false }, 
+          select: "_id username email profilePicture isActive",
+        })
+        .sort(sortQuery)
+        .skip(numericStartIndex)
+        .limit(numericLimit)
+        .lean(),
+
+      Parent.countDocuments(parentQuery),
+    ]);
+
+    // remove records where populate failed (means active users)
+    const filteredParents = parents.filter((p) => p.userRef);
+
+    return res.status(200).json({
+      success: true,
+      parents: filteredParents,
+      totalParents: filteredParents.length,
+      totalPages: Math.ceil(filteredParents.length / numericLimit),
+      currentPage: Math.floor(numericStartIndex / numericLimit) + 1,
+      limit: numericLimit,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 

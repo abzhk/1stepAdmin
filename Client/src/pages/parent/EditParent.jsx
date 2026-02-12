@@ -31,7 +31,7 @@ function EditParent() {
 
       setFormData({
   fullName: data.parentDetails?.fullName,
-  childName: data.parentDetails?.childName ,
+  childName: data.parentDetails?.childName , 
   phoneNumber: data.parentDetails?.phoneNumber,
   address: data.parentDetails?.address,
 });
@@ -51,9 +51,9 @@ function EditParent() {
 
     try {
       setLoading(true);
-
+const API = import.meta.env.VITE_API_URL;
       const res = await fetch(
-        `http://localhost:3001/api/admin/parent/user/${parentId}`,
+        `${API}/api/admin/parent/user/${parentId}`,
         {
           method: "PUT",
           credentials: "include",
@@ -91,6 +91,7 @@ function EditParent() {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
+        <label className="block text-sm font-medium text-gray-700">Full Name</label>
         <input
           className="w-full border rounded-lg p-2"
           placeholder="Full Name"
@@ -99,7 +100,7 @@ function EditParent() {
             setFormData({ ...formData, fullName: e.target.value })
           }
         />
-
+<label className="block text-sm font-medium text-gray-700">Child Name</label>
         <input
           className="w-full border rounded-lg p-2"
           placeholder="Child Name"
@@ -108,7 +109,7 @@ function EditParent() {
             setFormData({ ...formData, childName: e.target.value })
           }
         />
-
+<label className="block text-sm font-medium text-gray-700">Phone Number</label>
         <input
           className="w-full border rounded-lg p-2"
           placeholder="Phone Number"
@@ -117,7 +118,7 @@ function EditParent() {
             setFormData({ ...formData, phoneNumber: e.target.value })
           }
         />
-
+<label className="block text-sm font-medium text-gray-700">Address</label>
         <input
           className="w-full border rounded-lg p-2"
           placeholder="Address"

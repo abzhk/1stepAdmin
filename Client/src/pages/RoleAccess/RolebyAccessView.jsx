@@ -70,8 +70,9 @@ const RolebyAccessView = () => {
           className="flex justify-between border p-3 rounded-lg"
         >
           <div>
-            <p className="font-semibold">{r.username}</p>
+            <p className="font-semibold">{r.username}<span className=" ml-2 px-2 py-1 text-xs font-medium bg-green-100 text-green-700 rounded-full">  {r.role}</span></p>
             <p className="text-sm">{r.email}</p>
+          
           </div>
 
           <button

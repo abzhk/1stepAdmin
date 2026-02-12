@@ -5,8 +5,8 @@ import CreateProvider from "./CreateProvider";
 
 const tabs = [
   { key: "admin", label: "Create Admin" },
-  { key: "user", label: "Create Parent" },
-  { key: "provider", label: "Create Provider" },
+  // { key: "user", label: "Create Parent" },
+  // { key: "provider", label: "Create Provider" },
 ];
 
 const UserTab = () => {
