@@ -27,7 +27,7 @@ import RoleTab from './pages/RoleAccess/RoleTab.jsx'
 import Plans from './pages/Subscription/ViewPlans.jsx';
 import Addplans from './pages/Subscription/Addplans.jsx';
 import { Toaster } from "react-hot-toast";
-import InactiveParents from './pages/Parent/InactiveParents.jsx';
+import InactiveParents from './pages/parent/InactiveParents.jsx';
 import InactiveProviders from './pages//Provider/InactiveProvider.jsx';
 
 const App = () => {
