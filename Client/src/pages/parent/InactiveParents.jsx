@@ -17,7 +17,6 @@ const InacticeParents = () => {
 
       if (!res.ok) throw new Error(data.message || "Failed");
 
-      // filter inactive
       const inactive = (data.parents || []).filter(
         (p) => !p.userRef?.isActive
       );
@@ -50,6 +49,30 @@ const InacticeParents = () => {
       alert(err.message);
     }
   };
+
+  const handleActive = async (userId) => {
+  try {
+    const res = await fetch(`${API}/api/parent/admin/parent/status`, {
+      method: "PUT",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId,
+        isActive: true,
+      }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message);
+
+    alert("Parent activated");
+
+    setParents((prev) => prev.filter((p) => p.userRef?._id !== userId));
+  } catch (err) {
+    alert(err.message);
+  }
+};
+
 
   return (
     <div className="p-6 min-h-screen bg-offwhite">
@@ -93,9 +116,8 @@ const InacticeParents = () => {
                   </td>
 
                   <td className="px-6 py-4">
-                    <span className="px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-600">
-                      Inactive
-                    </span>
+                    <button onClick={()=>handleActive(p.userRef?._id)} 
+                    className="bg-green-50 px-2 py-2 rounded-lg text-green-600">Activate</button>
                   </td>
 
                   <td className="px-6 py-4 text-center">
