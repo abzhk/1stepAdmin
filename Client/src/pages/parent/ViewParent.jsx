@@ -98,7 +98,7 @@ function ViewParent() {
 </div>
 
       {/* Card Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-10 gap-y-14">
         {loading ? (
           <div className="col-span-full text-center py-10 text-gray-500 font-medium text-lg">
             Loading parents...

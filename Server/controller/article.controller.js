@@ -886,3 +886,29 @@ export const toggleArticleCategoryStatus = async (req, res) => {
     });
   }
 };
+
+export const getAllArticles = async (req, res) => {
+  try {
+    const { page = 1, limit = 10 } = req.query;
+
+    const articles = await Article.find({})
+      .populate("providerId", "fullName email profilePicture")
+      .populate("categoryId", "name slug icon color")
+      .sort({ createdAt: -1 })
+      .limit(Number(limit))
+      .skip((page - 1) * limit);
+
+    const total = await Article.countDocuments();
+
+    res.status(200).json({
+      success: true,
+      total,
+      totalPages: Math.ceil(total / limit),
+      currentPage: Number(page),
+      articles,
+    });
+  } catch (error) {
+    console.error("Get all articles error:", error);
+    res.status(500).json({ message: "Error fetching articles" });
+  }
+};

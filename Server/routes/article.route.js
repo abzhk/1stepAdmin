@@ -4,6 +4,7 @@ import { getPendingArticles,
     rejectArticle ,
     getArticleByProvider,
 toggleArticleCategoryStatus,
+ getAllArticles,
 } from '../controller/article.controller.js';
 import {verifyAdminToken} from '../middlewares/authMiddleware.js';
 
@@ -18,6 +19,8 @@ router.put("/admin/:id/reject",verifyAdminToken,rejectArticle);
 router.get("/providerarticle/:providerId",getArticleByProvider);
 
 router.put("/admin/categories/:id/status",verifyAdminToken,toggleArticleCategoryStatus);
+//get all articles
+router.get("/all", getAllArticles);
 
 
 

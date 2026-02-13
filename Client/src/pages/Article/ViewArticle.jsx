@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import RejectArticle from "./RejectArticle";
 import dateFormatUtils from "../../utils/dateFormatUtils";
+import { useNavigate } from "react-router-dom";
+
 
 const ViewArticle = () => {
   const [articles, setArticles] = useState([]);
@@ -11,6 +13,8 @@ const ViewArticle = () => {
   const [error, setError] = useState("");
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [selectedArticleId, setSelectedArticleId] = useState(null);
+  const navigate = useNavigate();
+
 
   useEffect(() => {
     const fetchArticles = async () => {
@@ -143,6 +147,11 @@ const handleReject = async (reason) => {
 
   return (
     <div className="min-h-screen bg-secondary py-8 px-4 sm:px-6 lg:px-8">
+      <div className="flex justify-end mb-4">
+  <button  onClick={() => navigate("/list-view-article")} className="px-4 py-2 rounded-lg bg-white shadow text-sm font-medium hover:bg-gray-50">
+    List View
+  </button>
+</div>
       <div className="max-w-7xl mx-auto">
 
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">

@@ -6,6 +6,7 @@ import Like from "../model/like.model.js";
 import {Booking} from '../model/booking.model.js'
 import Progress from '../model/Training/progress.model.js'
 import mongoose from "mongoose";
+import UserSubscription from "../model/subscription.model.js";
 
 export const createParent = async (req, res, next) => {
   const id = req.params.id;
@@ -371,6 +372,36 @@ export const setParentActiveStatus = async (req, res, next) => {
       });
     }
 
+    if (isActive === false) {
+      const now = new Date();
+
+      const hasUpcomingBookings = await Booking.exists({
+        patient: userId,
+        "scheduledTime.date": { $gte: now },
+        status: { $in: ["pending", "approved"] },
+      });
+
+      if (hasUpcomingBookings) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "Cannot deactivate parent. There are upcoming bookings.",
+        });
+      }
+
+      const subscription = await UserSubscription.findOne({ user: userId });
+
+      if (
+        subscription &&
+        ["trial", "active", "past_due"].includes(subscription.status)
+      ) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "Cannot deactivate parent. Active subscription exists.",
+        });
+      }
+    }
     const user = await User.findByIdAndUpdate(
       userId,
       { isActive },
