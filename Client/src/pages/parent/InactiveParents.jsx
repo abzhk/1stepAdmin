@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+
 
 const InacticeParents = () => {
   const [parents, setParents] = useState([]);
@@ -65,7 +67,8 @@ const InacticeParents = () => {
     const data = await res.json();
     if (!res.ok) throw new Error(data.message);
 
-    alert("Parent activated");
+   toast.success("Parent activated");
+
 
     setParents((prev) => prev.filter((p) => p.userRef?._id !== userId));
   } catch (err) {

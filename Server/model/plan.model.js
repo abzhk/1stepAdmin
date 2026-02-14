@@ -93,6 +93,15 @@ const planSchema = new mongoose.Schema(
       type: Number,
       default: 0, // 0 = unlimited
     },
+
+     max_parents_allowed: {
+      type: Number,
+      default: 1,
+    },
+    video_sessions_upload_per_month: {
+      type: Number,
+      default: 0, // 0 = unlimited
+    },
     session_duration_mins: {
       type: Number,
       default: 60,

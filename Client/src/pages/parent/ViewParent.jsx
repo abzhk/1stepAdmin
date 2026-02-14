@@ -163,13 +163,13 @@ function ViewParent() {
                 </div>
 
                     {/* Details */}
-                    <div className="space-y-2 mb-4 text-sm text-gray-700 mt-4">
-                      <div className="flex items-center text-gray-600 text-sm ml-2">
+                    <div className="space-y-2 mb-4 text-sm  mt-4">
+                      <div className="flex items-center  text-sm gap-2">
                         {/* <FaChild className="text-secondarytext mr-2 " /> */}
-                        <span className="font-semibold">Child Name : </span>
+                        <span className="font-semibold">Client Name : </span>
                         <span>{parent.parentDetails?.childName}</span>
                       </div>
-                      <div className="flex items-center text-gray-600 text-sm ml-2">
+                      <div className="flex items-center  text-sm gap-2">
                         {/* <CiPhone className="text-blue-500 mr-2 " /> */}
                         <span className="font-semibold">Phone: </span>
                         <span>{parent.parentDetails?.phoneNumber}</span>

@@ -1,7 +1,6 @@
 import User from '../model/user.model.js';
 import Role from '../model/role.model.js';
 import Provider from '../model/provider.model.js';
-import mongoose from 'mongoose';
 import Parent from "../model/parent.model.js";
 
 export const searchAccessUsers = async (req, res, next) => {

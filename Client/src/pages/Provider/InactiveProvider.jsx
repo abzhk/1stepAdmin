@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 
-const InacticeProvider = () => {
+const InactiveProvider = () => {
   const [providers, setProviders] = useState([]);
-  
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -18,33 +17,64 @@ const InacticeProvider = () => {
       });
 
       const data = await res.json();
+
       if (!res.ok) throw new Error(data.message || "Failed");
-console.log("Inactive Providers API Response:", data.providers);
-      setProviders(data.providers || []);  
+
+      console.log("Inactive Providers API Response:", data.providers);
+
+      setProviders(data.providers || []);
     } catch (err) {
       setError(err.message);
     }
+
     setLoading(false);
   };
 
   useEffect(() => {
-    getInactiveProviders();  
+    getInactiveProviders();
   }, []);
 
-  const handleDelete = async (userId) => {
-    if (!window.confirm("Delete this provider?")) return;
 
+  const handleActive = async (providerId) => {
     try {
-      const res = await fetch(`${API}/api/admin/providers/${userId}`, {
-        method: "DELETE",
-        credentials: "include",
-      });
+      const res = await fetch(
+        `${API}/api/provider/admin/provider/status`,
+        {
+          method: "PUT",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            providerId,
+            isActive: true,
+          }),
+        }
+      );
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);
 
+      setProviders((prev) => prev.filter((p) => p._id !== providerId));
+    } catch (err) {
+      alert(err.message);
+    }
+  };
 
-      setProviders((prev) => prev.filter((p) => p.userRef !== userId));
+  const handleDelete = async (providerId) => {
+    if (!window.confirm("Delete this provider?")) return;
+
+    try {
+      const res = await fetch(
+        `${API}/api/admin/providers/${providerId}`,
+        {
+          method: "DELETE",
+          credentials: "include",
+        }
+      );
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+
+      setProviders((prev) => prev.filter((p) => p._id !== providerId));
     } catch (err) {
       alert(err.message);
     }
@@ -73,8 +103,8 @@ console.log("Inactive Providers API Response:", data.providers);
               <tr>
                 <th className="px-6 py-4">Name</th>
                 <th className="px-6 py-4">Phone</th>
-                <th className="px-6 py-4">Status</th>
-                <th className="px-6 py-4 text-center">Action</th>
+                <th className="px-6 py-4 text-center">Activate</th>
+                <th className="px-6 py-4 text-center">Delete</th>
               </tr>
             </thead>
 
@@ -89,11 +119,13 @@ console.log("Inactive Providers API Response:", data.providers);
                     {p.phone}
                   </td>
 
-
-                  <td className="px-6 py-4">
-                    <span className="px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-600">
-                      Inactive
-                    </span>
+                  <td className="px-6 py-4 text-center">
+                    <button
+                      onClick={() => handleActive(p._id)}
+                      className="px-3 py-2 rounded-lg bg-green-50 text-green-600 hover:bg-green-100 transition"
+                    >
+                      Activate
+                    </button>
                   </td>
 
                   <td className="px-6 py-4 text-center">
@@ -114,4 +146,4 @@ console.log("Inactive Providers API Response:", data.providers);
   );
 };
 
-export default InacticeProvider;
+export default InactiveProvider;

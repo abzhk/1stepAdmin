@@ -4,7 +4,7 @@ import { Booking } from "../model/booking.model.js";
 import { errorHandler } from "../utils/error.js";
 import nodemailer from "nodemailer";
 import User from "../model/user.model.js";
-// import { BookedSlots } from "../models/booking.model.js";
+import { BookedSlots } from "../model/booking.model.js";
 // import Proof from "../models/proof.model.js";
 // import SkilledProvider from "../models/skilledprovider.model.js";
 
@@ -771,6 +771,25 @@ export const setProviderActiveStatus = async (req, res, next) => {
       });
     }
 
+      if (isActive === false) {
+      const startOfToday = new Date();
+      startOfToday.setHours(0, 0, 0, 0);
+
+      const hasBookings = await Booking.exists({
+        provider: provider._id,
+        "scheduledTime.date": { $gte: startOfToday },
+        status: { $nin: ["rejected", "completed", "expired"] },
+      });
+
+      if (hasBookings) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "Provider has upcoming bookings. Cannot deactivate.",
+        });
+      }
+    }
+
     const userId = new mongoose.Types.ObjectId(provider.userRef);
 
     const user = await User.findByIdAndUpdate(
@@ -798,22 +817,35 @@ export const setProviderActiveStatus = async (req, res, next) => {
 //get inactive users of provider
 export const getInactiveProviders = async (req, res, next) => {
   try {
-    const providers = await Provider.find({})
-      .populate({
-        path: "userRef",
-        match: { isActive: false },
-        select: "_id username email profilePicture isActive",
-      })
-      .lean();
-
-    const inactiveProviders = providers.filter((p) => p.userRef);
+    const providers = await Provider.aggregate([
+      {
+        $addFields: {
+          userObjId: { $toObjectId: "$userRef" },
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "userObjId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      { $unwind: "$user" },
+      {
+        $match: {
+          "user.isActive": false,
+        },
+      },
+    ]);
 
     res.status(200).json({
       success: true,
-      providers: inactiveProviders,
+      providers,
     });
   } catch (error) {
     next(error);
   }
 };
+
 

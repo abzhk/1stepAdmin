@@ -39,6 +39,8 @@ const Addplans = () => {
     available_modules: [],
     max_messages_per_month: 0,
     max_assessments_per_month: 0,
+   max_parents_allowed: 0,
+  video_sessions_upload_per_month: 0,
     max_providers_allowed: 1,
     priority_support: false,
     video_sessions_count: 4,
@@ -74,6 +76,24 @@ const Addplans = () => {
     }));
   };
 
+
+  useEffect(() => {
+  if (formData.user_type === "parent") {
+    setFormData(prev => ({
+      ...prev,
+      max_parents_allowed: 0,
+      video_sessions_upload_per_month: 0
+    }));
+  }
+
+  if (formData.user_type === "provider") {
+    setFormData(prev => ({
+      ...prev,
+      max_providers_allowed: 0
+    }));
+  }
+}, [formData.user_type]);
+
   const handleFinalPublishClick = async () => {
     const payload = {
       ...formData,
@@ -85,6 +105,9 @@ const Addplans = () => {
       max_messages_per_month: Number(formData.max_messages_per_month),
       max_assessments_per_month: Number(formData.max_assessments_per_month),
       max_providers_allowed: Number(formData.max_providers_allowed),
+      max_parents_allowed: Number(formData.max_parents_allowed),
+     video_sessions_upload_per_month: Number(formData.video_sessions_upload_per_month),
+
 
       video_sessions_count: Number(formData.video_sessions_count),
       session_duration_mins: Number(formData.session_duration_mins),
@@ -158,6 +181,8 @@ const API = import.meta.env.VITE_API_URL;
           max_providers_allowed: data.plan.max_providers_allowed || 1,
           priority_support: data.plan.priority_support || false,
           video_sessions_count: data.plan.video_sessions_count,
+          max_parents_allowed: data.plan.max_parents_allowed || 0,
+          video_sessions_upload_per_month: data.plan.video_sessions_upload_per_month || 0,
           session_duration_mins: data.plan.session_duration_mins,
           chat_access_level: data.plan.chat_access_level,
           resource_library_access: data.plan.resource_library_access,
@@ -257,6 +282,9 @@ const API = import.meta.env.VITE_API_URL;
     <div className="min-h-screen bg-[#F6F4F0] p-6 md:p-12 font-sans text-slate-800 flex items-center justify-center">
       <div className="max-w-7xl w-full grid grid-cols-1 lg:grid-cols-12 gap-8">
         <div className="lg:col-span-7 flex flex-col">
+
+          
+                       
           <div className="mb-8 pl-2">
             <div className="flex items-center space-x-2 sm:space-x-4">
               {[1, 2, 3, 4, 5].map((s) => (
@@ -300,6 +328,19 @@ const API = import.meta.env.VITE_API_URL;
                       </h2>
                     </div>
                     <div className="space-y-4">
+
+                       <label className="text-sm font-bold text-[#2d4a36]">
+                         User Type
+                       </label>
+ <select
+                     name="user_type"
+                    value={formData.user_type}
+                        onChange={handleChange}
+                         className="mt-1 w-full px-4 py-3 rounded-xl bg-[#F6F4F0] border border-[#8fa797]/30 focus:ring-2 focus:ring-[#2d4a36] outline-none text-[#2d4a36]"
+                           > 
+                        <option value="parent">Parent</option>
+                       <option value="provider">Provider</option>
+                        </select>
                       <div>
                         <label className="text-sm font-bold text-[#2d4a36]">
                           Plan key
@@ -317,18 +358,6 @@ const API = import.meta.env.VITE_API_URL;
                           <option value="premium">Premium</option>
                         </select>
                          <label className="text-sm font-bold text-[#2d4a36]">
-                         User Type
-                       </label>
- <select
-                     name="user_type"
-                    value={formData.user_type}
-                        onChange={handleChange}
-                         className="mt-1 w-full px-4 py-3 rounded-xl bg-[#F6F4F0] border border-[#8fa797]/30 focus:ring-2 focus:ring-[#2d4a36] outline-none text-[#2d4a36]"
-                           > 
-                        <option value="parent">Parent</option>
-                       <option value="provider">Provider</option>
-                        </select>
-                        <label className="text-sm font-bold text-[#2d4a36]">
                           Plan Name
                         </label>
                         <input
@@ -340,7 +369,6 @@ const API = import.meta.env.VITE_API_URL;
                           className="mt-1 w-full px-4 py-3 rounded-xl bg-[#F6F4F0] border border-[#8fa797]/30 focus:ring-2 focus:ring-[#2d4a36] outline-none text-[#2d4a36]"
                           autoFocus
                         />
-                        
                        
                       </div>
                       <div>
@@ -651,7 +679,26 @@ const API = import.meta.env.VITE_API_URL;
                         <Library className="w-5 h-5" />
                         <span className="block text-xs font-bold">Library</span>
                       </button>
-                    </div>
+                   
+                    {formData.user_type === "provider" && (
+  <>
+
+    <div>
+      <label className="text-sm font-bold text-[#2d4a36]">
+        Video Upload / Month
+      </label>
+      <input
+        type="number"
+        name="video_sessions_upload_per_month"
+        min="0"
+        value={formData.video_sessions_upload_per_month}
+        onChange={handleChange}
+        className="mt-1 w-full px-4 py-3 rounded-xl bg-[#F6F4F0] border border-[#8fa797]/30"
+      />
+    </div>
+  </>
+)}
+ </div>
                   </div>
                 )}
 
@@ -731,6 +778,7 @@ const API = import.meta.env.VITE_API_URL;
                       </div>
 
                       {/* Providers */}
+                      {formData.user_type === "parent" && (
                       <div>
                         <label className="text-sm font-bold text-[#2d4a36]">
                           Max Providers Allowed
@@ -744,7 +792,24 @@ const API = import.meta.env.VITE_API_URL;
                           className="mt-1 w-full px-4 py-3 rounded-xl bg-[#F6F4F0] border border-[#8fa797]/30"
                         />
                       </div>
-
+                      )}
+                      {formData.user_type === "provider" && (
+  <>
+    <div>
+      <label className="text-sm font-bold text-[#2d4a36]">
+        Max Parents Allowed
+      </label>
+      <input
+        type="number"
+        name="max_parents_allowed"
+        min="0"
+        value={formData.max_parents_allowed}
+        onChange={handleChange}
+        className="mt-1 w-full px-4 py-3 rounded-xl bg-[#F6F4F0] border border-[#8fa797]/30"
+      />
+    </div>
+  </>
+)}
                       {/* Priority Support */}
                       <label className="flex items-center gap-3 p-4 border border-[#8fa797]/30 rounded-xl cursor-pointer hover:bg-[#F6F4F0]">
                         <input

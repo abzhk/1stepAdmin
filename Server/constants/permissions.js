@@ -12,6 +12,8 @@ export const MODULES = {
   BILLING: "billing",
   RESOURCE_LIBRARY: "resource_library",
   SETTINGS: "settings",
+  COURSES: "courses",
+  ARTICLES: "articles",
 };
 
 export const ACTIONS = {

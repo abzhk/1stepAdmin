@@ -136,7 +136,7 @@ function ViewProvider() {
     </button>
 </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-10 gap-y-14">
         {loading ? (
           <div className="col-span-full text-center py-10 text-xl text-gray-500 font-medium">
             Loading providers...
@@ -183,7 +183,7 @@ function ViewProvider() {
                     </button> */}
                     </div>
                 <div className="p-1 ">
- <div className="p-1 mt-2">
+ <div className=" mb-2">
 <div className="flex items-start justify-between">
                   <h2 className="font-semibold text-gray-900 text-lg leading-snug">
                     {provider.fullName}
@@ -214,13 +214,13 @@ function ViewProvider() {
 
                   {/* Provider Details */}
                   <div className="space-y-3 mb-4">
-                    <div className="flex items-center text-gray-600 text-sm ml-2">
+                    <div className="flex items-center text-gray-600 text-sm ">
                       {/* <FiMapPin className="text-blue-500 mr-2 " /> */}
                       <strong>City:</strong>
                       <span className="ml-1">{provider.address?.city}</span>
                     </div>
 
-                    <div className="flex items-start text-gray-600 text-sm ml-2">
+                    <div className="flex items-start text-gray-600 text-sm ">
                       {/* <FiUsers className="text-green-500 mt-0.5 mr-2 " /> */}
                       <strong>Therapy:</strong>
                       <div className="flex flex-wrap gap-1 ml-1">

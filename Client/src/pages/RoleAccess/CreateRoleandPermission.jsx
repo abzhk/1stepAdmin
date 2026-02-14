@@ -12,6 +12,8 @@ const MODULES = [
   "billing",
   "resource_library",
   "settings",
+  "courses",
+  "articles",
 ];
 
 const ACTIONS = ["read", "create", "update", "delete", "export"];
@@ -21,12 +23,9 @@ const CreateRoleandPermission = ({ mode = "create", roleData,userId,  onClose, o
   const [description, setDescription] = useState("");
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const [defaultModules, setDefaultModules] = useState([
-    "dashboard",
-    "profile",
   ]);
   const [permissions, setPermissions] = useState({
-  dashboard: ["read", "create","update","delete","export"],
-  profile: ["read", "create","update","delete","export"],
+ 
 });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
