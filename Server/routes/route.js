@@ -14,6 +14,7 @@ import role from './role.route.js'
 import PlanRoute from './plan.route.js'
 import accessRoutes from './access.route.js';
 import userRoute from './user.route.js';
+import moduleRoute from './module.route.js';
 
 const router = express.Router(); 
 
@@ -47,6 +48,8 @@ router.use('/plan',PlanRoute)
 router.use("/access", accessRoutes);
 //user route
 router.use("/users", userRoute);
+//modules
+router.use("/module",moduleRoute);
 
 
 export default router;

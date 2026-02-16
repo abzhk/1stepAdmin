@@ -11,14 +11,21 @@ const ViewPlans = () => {
   const { searchTerm } = useOutletContext();
 
   const navigate = useNavigate();
+  const API = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const fetchPlans = async () => {
       try {
         setLoading(true);
-const API = import.meta.env.VITE_API_URL;
+
         const response = await fetch(
-          `${API}/api/plan/get?search=${searchTerm}`,
+          `${API}/api/plan/get?search=${searchTerm}`,{
+            method: "GET",
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
         );
 
         const data = await response.json();

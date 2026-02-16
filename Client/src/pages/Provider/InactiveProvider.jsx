@@ -60,7 +60,6 @@ const InactiveProvider = () => {
   };
 
   const handleDelete = async (providerId) => {
-    if (!window.confirm("Delete this provider?")) return;
 
     try {
       const res = await fetch(
@@ -74,6 +73,7 @@ const InactiveProvider = () => {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);
 
+       getInactiveProviders();
       setProviders((prev) => prev.filter((p) => p._id !== providerId));
     } catch (err) {
       alert(err.message);

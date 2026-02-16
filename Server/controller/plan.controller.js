@@ -45,6 +45,21 @@ export const createPlan = async (req, res) => {
       });
     }
 
+    if (isNaN(price)) {
+  return res.status(400).json({ message: "Price must be a number" });
+}
+
+if (price < 0) {
+  return res.status(400).json({ message: "Price cannot be negative" });
+}
+
+if (plan_key !== "free" && Number(price) === 0) {
+  return res.status(400).json({
+    message: "Paid plans must have price greater than 0",
+  });
+}
+
+
     const final_price =
       discount > 0
         ? Math.round(price - (price * discount) / 100)
@@ -68,7 +83,7 @@ export const createPlan = async (req, res) => {
       plan_key,
       user_type,
       plan_name,
-      slug: `${slug}-v${nextVersion}`, 
+      slug: `${slug}-${user_type}-v${nextVersion}`, 
       description,
       is_featured,
       price,

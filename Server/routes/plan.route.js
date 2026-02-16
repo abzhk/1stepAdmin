@@ -5,12 +5,13 @@ import { createPlan ,
      updatePlan,
         deletePlan,
 } from "../controller/plan.controller.js";
+import {verifyAdminToken} from '../middlewares/authMiddleware.js';
 
 const router  = express.Router();
-router.post("/create", createPlan);
-router.get("/get", getPlans);
-router.get("/:id", getPlanById);
-router.put("/update/:id", updatePlan);
+router.post("/create", verifyAdminToken ,createPlan);
+router.get("/get",verifyAdminToken, getPlans);
+router.get("/:id",verifyAdminToken, getPlanById);
+router.put("/update/:id",verifyAdminToken, updatePlan);
 router.delete("/delete/:id", deletePlan);
 
 export default router;

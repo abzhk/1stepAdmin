@@ -22,6 +22,7 @@ const Addplans = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const navigate = useNavigate();
   const { id } = useParams();
+  const API = import.meta.env.VITE_API_URL;
 
   const [formData, setFormData] = useState({
     plan_key: "basic",
@@ -156,9 +157,15 @@ const Addplans = () => {
       : formData.price;
   useEffect(() => {
     if (!id) return;
-const API = import.meta.env.VITE_API_URL;
+
     const fetchPlan = async () => {
-      const res = await fetch(`${API}/api/plan/${id}`);
+      const res = await fetch(`${API}/api/plan/${id}`,{
+        method: "GET",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
       const data = await res.json();
 
       if (res.ok) {
@@ -332,7 +339,7 @@ const API = import.meta.env.VITE_API_URL;
                        <label className="text-sm font-bold text-[#2d4a36]">
                          User Type
                        </label>
- <select
+                       <select
                      name="user_type"
                     value={formData.user_type}
                         onChange={handleChange}

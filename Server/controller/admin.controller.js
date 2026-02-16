@@ -5,6 +5,8 @@ import jwt from 'jsonwebtoken';
 import Provider from '../model/provider.model.js';
 import mongoose from 'mongoose';
 import Parent from "../model/parent.model.js";
+import { Booking, BookedSlots } from "../model/booking.model.js";
+
 
 export const createAdmin = async (req, res) => {
   try {
@@ -127,6 +129,10 @@ export const deleteProvider = async (req, res) => {
         message: "Provider not found",
       });
     }
+
+    await Booking.deleteMany({ provider: providerDoc._id });
+
+    await BookedSlots.deleteMany({ provider: providerDoc._id });
 
     await Provider.deleteOne({ userRef: providerId });
 

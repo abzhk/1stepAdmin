@@ -1,10 +1,8 @@
 import React, { useState } from "react";
-// import CreateRole from "./CreateRole";
 import ViewRole from "./ViewRole";
-// import PermissionView from "./PermissionView";
-// import CreatePermission from "./CreatePermission";
 import Createrole from "./CreateRoleandPermission";
 import RolebyAccessView from "./RolebyAccessView";
+import CreateModule from "./CreateModule";
 
 const RoleTab = () => {
   const [activeTab, setActiveTab] = useState("view");
@@ -79,6 +77,19 @@ const RoleTab = () => {
         >
           parent and provide role view
         </button>
+
+
+
+         <button
+          onClick={() => setActiveTab("createmodule")}
+          className={`pb-2 text-sm font-medium transition ${
+            activeTab === "createmodule"
+              ? "border-b-2 border-green-600 text-green-600"
+              : "text-gray-500 hover:text-gray-700"
+          }`}
+        >
+          Create Module
+        </button>
       </div>
 
       {/* {activeTab === "create" && <CreateRole />} */}
@@ -87,6 +98,7 @@ const RoleTab = () => {
       {activeTab === "createpermission" && <CreatePermission />} */}
       {activeTab === "create" && <Createrole />}
       {activeTab === "RolebyAccess" && <RolebyAccessView />}
+      {activeTab === "CreateModule" && <CreateModule/>}
     </div>
   );
 };
