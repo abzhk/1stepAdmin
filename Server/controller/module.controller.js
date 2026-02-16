@@ -1,4 +1,4 @@
-import Module from "../model/modules.model.js";
+import Module from "../model/acessmodule.model.js";
 
 
 export const createModule = async (req, res) => {

@@ -329,6 +329,7 @@ export const deleteParent = async (req, res) => {
         message: "Parent not found",
       });
     }
+    await Booking.deleteMany({ patient: userRef });
 
     await Parent.findOneAndDelete({ userRef });
     await User.deleteOne({ _id: userRef });

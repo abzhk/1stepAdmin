@@ -98,7 +98,7 @@ const RoleTab = () => {
       {activeTab === "createpermission" && <CreatePermission />} */}
       {activeTab === "create" && <Createrole />}
       {activeTab === "RolebyAccess" && <RolebyAccessView />}
-      {activeTab === "CreateModule" && <CreateModule/>}
+      {activeTab === "createmodule" && <CreateModule/>}
     </div>
   );
 };
