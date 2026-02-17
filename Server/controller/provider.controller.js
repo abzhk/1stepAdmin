@@ -7,6 +7,8 @@ import User from "../model/user.model.js";
 import { BookedSlots } from "../model/booking.model.js";
 // import Proof from "../models/proof.model.js";
 // import SkilledProvider from "../models/skilledprovider.model.js";
+import UserSubscription from "../model/subscription.model.js";
+
 
 //validator
 // import { validateResource } from "../validator/resourceProvider.js";
@@ -770,8 +772,23 @@ export const setProviderActiveStatus = async (req, res, next) => {
         message: "Provider not found",
       });
     }
+ const userId = new mongoose.Types.ObjectId(provider.userRef);
+
 
       if (isActive === false) {
+
+      const subscription = await UserSubscription.findOne({
+        user: userId,
+        status: { $in: ["active", "trial", "past_due"] },
+      });
+
+      if (subscription) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "Provider has an active subscription. Cancel subscription before deactivating.",
+        });
+      }
       const startOfToday = new Date();
       startOfToday.setHours(0, 0, 0, 0);
 
@@ -790,8 +807,7 @@ export const setProviderActiveStatus = async (req, res, next) => {
       }
     }
 
-    const userId = new mongoose.Types.ObjectId(provider.userRef);
-
+   
     const user = await User.findByIdAndUpdate(
       userId,
       { isActive },

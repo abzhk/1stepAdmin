@@ -7,6 +7,9 @@ import {
   FaHospital,
   FaClock,
   FaCalendarCheck,
+  FaBookOpen,
+  FaCreditCard,
+  FaBuilding
 } from "react-icons/fa";
 
 const MainDashboard = () => {
@@ -129,6 +132,56 @@ const fetchRecentBookings = async () => {
     console.error("Recent bookings fetch error:", err);
   }
 };
+ const statCards = [
+    {
+      icon: FaUserInjured,
+      label: "Total Patients",
+      value: stats?.totalParents || 0,
+      color: "from-blue-500 to-blue-600",
+      bgColor: "bg-blue-50",
+      iconColor: "text-blue-600",
+    },
+    {
+      icon: FaUserMd,
+      label: "Healthcare Providers",
+      value: stats?.totalProviders || 0,
+      color: "from-emerald-500 to-emerald-600",
+      bgColor: "bg-emerald-50",
+      iconColor: "text-emerald-600",
+    },
+    {
+      icon: FaCalendarCheck,
+      label: "Total Bookings",
+      value: stats?.totalBookings || 0,
+      color: "from-violet-500 to-violet-600",
+      bgColor: "bg-violet-50",
+      iconColor: "text-violet-600",
+    },
+    {
+      icon: FaBookOpen,
+      label: "Active Courses",
+      value: stats?.lessonsCount || 0,
+      color: "from-amber-500 to-amber-600",
+      bgColor: "bg-amber-50",
+      iconColor: "text-amber-600",
+    },
+    {
+      icon: FaBuilding,
+      label: "Healthcare Centers",
+      value: stats?.totalCentreProviders || 0,
+      color: "from-rose-500 to-rose-600",
+      bgColor: "bg-rose-50",
+      iconColor: "text-rose-600",
+    },
+    {
+      icon: FaCreditCard,
+      label: "Active Subscriptions",
+      value: 0,
+      color: "from-indigo-500 to-indigo-600",
+      bgColor: "bg-indigo-50",
+      iconColor: "text-indigo-600",
+    },
+  ];
 
 
   return (
@@ -136,57 +189,31 @@ const fetchRecentBookings = async () => {
   
     <div className="min-h-screen p-6 bg-offwhite">
       <div className="flex gap-4 mb-4 h-44">
-        <div className="flex flex-col bg-gradient-to-l from-white to-gray-50 p-6 rounded-2xl shadow-md border border-gray-200 min-w-[280px] ">
-          <div className="flex items-center gap-3 mb-2">
-            <FaUserInjured className="text-black text-3xl" />
-            <h2 className="text-xl font-semibold text-maintext">Parent</h2>
-          </div>
-          <p className="text-gray-600 text-2xl font-semibold mt-12"> {stats?.totalParents}</p>
+        <div className="flex flex-col w-full p-4 rounded-2xl shadow-md border border-gray-200 min-w-[280px] ">
+           <div className="">
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-8 ">
+          {statCards.map((stat, index) => (
+            <div
+              key={index}
+              className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-shadow"
+            >
+              <div className="flex items-center justify-between mb-3">
+                <div className={`p-2.5 rounded-lg ${stat.bgColor}`}>
+                  <stat.icon className={`text-lg ${stat.iconColor}`} />
+                </div>
+                {/* <span className="text-xs font-medium text-gray-400">Today</span> */}
+              </div>
+              <p className="text-2xl font-bold text-gray-800 mb-1">
+                {stat.value.toLocaleString()}
+              </p>
+              <p className="text-xs text-gray-500">{stat.label}</p>
+            </div>
+          ))}
         </div>
-
-        <div className="flex-col bg-gradient-to-l from-white to-gray-50  p-6 rounded-2xl shadow-xl border border-gray-200 min-w-[280px]">
-          <div className="flex items-center gap-3 mb-2">
-            <FaUserMd className="text-black text-3xl" />
-            <h2 className="text-xl font-semibold text-maintext">Providers</h2>
-          </div>
-          <p className="text-gray-600 text-2xl font-semibold mt-12">{stats?.totalProviders}</p>
         </div>
-
-        <div className="flex-col  bg-gradient-to-l from-white to-gray-50  p-6 rounded-2xl shadow-xl border border-gray-200 min-w-[280px]">
-          <div className="flex items-center gap-3 mb-2">
-            <FaHospital className="text-black text-3xl" />
-            <h2 className="text-xl font-semibold text-maintext">Bookings</h2>
-          </div>
-          <p className="text-gray-600 text-2xl font-semibold mt-12">{stats?.totalBookings}</p>
         </div>
-        
-<div className="flex-col  bg-gradient-to-l from-white to-gray-50  p-6 rounded-2xl shadow-xl border border-gray-200 min-w-[280px]">
-          <div className="flex items-center gap-3 mb-2">
-            <FaHospital className="text-black text-3xl" />
-            <h2 className="text-xl font-semibold text-maintext">Courses</h2>
-          </div>
-          <p className="text-gray-600 text-2xl font-semibold mt-12">{stats?.lessonsCount}</p>
         </div>
-
-
-
-      </div>
-      <div className="flex gap-4 mb-4 ">
-        <div className="flex-col  bg-gradient-to-l from-white to-gray-50  p-6 rounded-2xl shadow-xl border border-gray-200 min-w-[580px]">
-          <div className="flex items-center gap-3 mb-2">
-            <FaHospital className="text-black text-3xl" />
-            <h2 className="text-xl font-semibold text-maintext">Centers</h2>
-          </div>
-          <p className="text-gray-600 text-2xl font-semibold mt-12">{stats?.totalCentreProviders}</p>
-        </div>
-        <div className="flex-col  bg-gradient-to-l from-white to-gray-50  p-6 rounded-2xl shadow-xl border border-gray-200 min-w-[580px]">
-          <div className="flex items-center gap-3 mb-2">
-            <FaHospital className="text-black text-3xl" />
-            <h2 className="text-xl font-semibold text-maintext">Subscription plans</h2>
-          </div>
-          <p className="text-gray-600 text-2xl font-semibold mt-12">0</p>
-        </div>
-      </div>
 
       <div className="flex gap-6">
         <div className="flex-1 bg-surface p-6 rounded-2xl shadow-sm border border-gray-200 overflow-x-auto bg-white">

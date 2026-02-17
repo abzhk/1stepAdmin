@@ -237,16 +237,6 @@ export const updateProvider = async (req, res) => {
         });
       }
     }
-    if (
-      req.body.providerType === "centre" &&
-      !req.body.locationUrl
-    ) {
-      return res.status(400).json({
-        success: false,
-        message: "locationUrl is required for centre providers",
-      });
-    }
-
 
     const updatedProvider = await Provider.findByIdAndUpdate(
       providerId,
