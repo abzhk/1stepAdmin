@@ -33,9 +33,15 @@ const DashSidebar = () => {
       setActive("Dashboard");
     }else if (path.startsWith("/create-admin")) {
       setActive("Create User");
-    } else if (path.startsWith("/view-parent")) { 
+    } else if (path.startsWith("/view-parent")||
+      path.startsWith("/inactive-parents")||
+       path.startsWith("/parent-stats-card")||
+        path.startsWith("/parent/edit/")) { 
       setActive("Parent");
-    } else if (path.startsWith("/allproviders")) { 
+    } else if (path.startsWith("/allproviders")||
+      path.startsWith("/inactive-providers")||
+       path.startsWith("/provider-stats")||
+        path.startsWith("/providers/edit")) { 
       setActive("Provider");
      } else if (path.startsWith("/create-Role")) { 
       setActive("Role");
