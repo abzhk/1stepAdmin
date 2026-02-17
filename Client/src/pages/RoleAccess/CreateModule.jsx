@@ -53,11 +53,11 @@ const CreateModule = () => {
   };
 
   return (
-    <div className="max-w-xl">
+    <div className="w-full bg-offwhite p-6 md:p-8 font-sans text-darkgreen mt-8">
       <h2 className="text-lg font-semibold mb-4">Create Module</h2>
 
 
-      <form onSubmit={handleSubmit} className="flex gap-2 mb-6">
+      <form onSubmit={handleSubmit} className="flex gap-2 mb-6 w-90">
         <input
           value={moduleName}
           onChange={(e) => setModuleName(e.target.value)}

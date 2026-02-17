@@ -3,6 +3,8 @@ import { FiEdit2, FiTrash2 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { useOutletContext } from "react-router-dom";
 import { IoIosArrowRoundBack } from "react-icons/io";
+import { formatDecimal } from "../../utils/formatdecimal.js";
+
 
 const ViewPlans = () => {
   const [plans, setPlans] = useState([]);
@@ -91,8 +93,8 @@ const ViewPlans = () => {
                 <td className="p-3">{plan.plan_name}</td>
                 <td className="p-3">{plan.billing_interval}</td>
                 <td className="p-3">{plan.user_type}</td>
-                <td className="p-3">{plan.price}</td>
-                <td className="p-3">{plan.final_price}</td>
+                <td className="p-3">{formatDecimal(plan.price)}</td>
+                <td className="p-3">{formatDecimal(plan.final_price)}</td>
                 <td className="p-3">
                   {plan.is_active ? "Active" : "Inactive"}
                 </td>

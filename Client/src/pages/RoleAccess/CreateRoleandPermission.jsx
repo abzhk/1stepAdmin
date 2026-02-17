@@ -1,21 +1,5 @@
 import React, { useEffect, useState } from "react";
 
-const MODULES = [
-  "dashboard",
-  "profile",
-  "patients",
-  "messages",
-  "assessment",
-  "appointments",
-  "video_sessions",
-  "reports",
-  "billing",
-  "resource_library",
-  "settings",
-  "courses",
-  "articles",
-];
-
 const ACTIONS = ["read", "create", "update", "delete", "export"];
 
 const CreateRoleandPermission = ({ mode = "create", roleData,userId,  onClose, onSuccess }) => {
@@ -24,11 +8,30 @@ const CreateRoleandPermission = ({ mode = "create", roleData,userId,  onClose, o
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const [defaultModules, setDefaultModules] = useState([
   ]);
-  const [permissions, setPermissions] = useState({
- 
-});
+  const [permissions, setPermissions] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [modules, setModules] = useState([]);
+const [selectedModules, setSelectedModules] = useState([]);
+
+const API = import.meta.env.VITE_API_URL;
+
+
+const fetchModules = async () => {
+  try {
+    const res = await fetch(`${API}/api/module/get-module`, {
+      credentials: "include",
+    });
+    const data = await res.json();
+    setModules(data);
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+useEffect(() => {
+  fetchModules();
+}, []);
 
   const buildPermissions = (rolePerms = [], override = []) => {
   const map = {};
@@ -79,7 +82,6 @@ const toggleDefaultModule = (module) => {
       : [...prev, module];
   });
 };
-
 
   const togglePermission = (module, action) => {
     setPermissions((prev) => {
@@ -239,24 +241,26 @@ useEffect(() => {
         </div>
 
         {/* DEFAULT MODULES */}
-        <div>
-          <h2 className="font-semibold mb-2">Default Modules</h2>
-          <div className="flex flex-wrap gap-2">
-            {MODULES.map((m) => (
-              <button
-                key={m}
-                onClick={() => toggleDefaultModule(m)}
-                className={`px-3 py-1 rounded-full text-sm border ${
-                  defaultModules.includes(m)
-                    ? "bg-yellow text-white"
-                    : "bg-white"
-                }`}
-              >
-                {m}
-              </button>
-            ))}
-          </div>
-        </div>
+       <div>
+  <h2 className="font-semibold mb-2">Default Modules</h2>
+
+  <div className="flex flex-wrap gap-2">
+    {modules.map((m) => (
+      <button
+        key={m._id}
+        type="button"
+        onClick={() => toggleDefaultModule(m.modules)}
+        className={`px-3 py-1 rounded-full text-sm border transition ${
+          defaultModules.includes(m.modules)
+            ? "bg-yellow text-white"
+            : "bg-white hover:bg-gray-50"
+        }`}
+      >
+        {m.modules}
+      </button>
+    ))}
+  </div>
+</div>
 
         {/* PERMISSIONS */}
         {!isSuperAdmin && (
@@ -272,20 +276,20 @@ useEffect(() => {
               </tr>
             </thead>
             <tbody>
-              {MODULES.map((m) => (
-                <tr key={m} className="border-t">
-                  <td className="p-2 font-medium">{m}</td>
-                  {ACTIONS.map((a) => (
-                    <td key={a} className="text-center">
-                      <input
-                        type="checkbox"
-                        checked={permissions[m]?.includes(a) || false}
-                        onChange={() => togglePermission(m, a)}
-                      />
-                    </td>
-                  ))}
-                </tr>
-              ))}
+              {modules.map((m) => (
+               <tr key={m._id} className="border-t">
+                 <td className="p-2 font-medium">{m.modules}</td>
+              {ACTIONS.map((a) => (
+                   <td key={a} className="text-center">
+                 <input
+                   type="checkbox"
+                    checked={permissions[m.modules]?.includes(a) || false}
+                  onChange={() => togglePermission(m.modules, a)}
+                   />
+               </td>
+                ))}
+              </tr>
+        ))}
             </tbody>
           </table>
         )}

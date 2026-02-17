@@ -23,6 +23,7 @@ const Addplans = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const API = import.meta.env.VITE_API_URL;
+  const [modules, setModules] = useState([]);
 
   const [formData, setFormData] = useState({
     plan_key: "basic",
@@ -40,8 +41,8 @@ const Addplans = () => {
     available_modules: [],
     max_messages_per_month: 0,
     max_assessments_per_month: 0,
-   max_parents_allowed: 0,
-  video_sessions_upload_per_month: 0,
+    max_parents_allowed: 0,
+    video_sessions_upload_per_month: 0,
     max_providers_allowed: 1,
     priority_support: false,
     video_sessions_count: 4,
@@ -50,6 +51,26 @@ const Addplans = () => {
     resource_library_access: false,
     therapist_matching_type: "auto",
   });
+
+  useEffect(() => {
+    const fetchModules = async () => {
+      try {
+        const res = await fetch(`${API}/api/module/get-module`, {
+          method: "GET",
+          credentials: "include",
+        });
+
+        const data = await res.json();
+
+        setModules(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.error("Failed to fetch modules", err);
+        setModules([]);
+      }
+    };
+
+    fetchModules();
+  }, []);
 
   useEffect(() => {
     if (!formData.plan_name) return;
@@ -77,23 +98,22 @@ const Addplans = () => {
     }));
   };
 
-
   useEffect(() => {
-  if (formData.user_type === "parent") {
-    setFormData(prev => ({
-      ...prev,
-      max_parents_allowed: 0,
-      video_sessions_upload_per_month: 0
-    }));
-  }
+    if (formData.user_type === "parent") {
+      setFormData((prev) => ({
+        ...prev,
+        max_parents_allowed: 0,
+        video_sessions_upload_per_month: 0,
+      }));
+    }
 
-  if (formData.user_type === "provider") {
-    setFormData(prev => ({
-      ...prev,
-      max_providers_allowed: 0
-    }));
-  }
-}, [formData.user_type]);
+    if (formData.user_type === "provider") {
+      setFormData((prev) => ({
+        ...prev,
+        max_providers_allowed: 0,
+      }));
+    }
+  }, [formData.user_type]);
 
   const handleFinalPublishClick = async () => {
     const payload = {
@@ -107,8 +127,9 @@ const Addplans = () => {
       max_assessments_per_month: Number(formData.max_assessments_per_month),
       max_providers_allowed: Number(formData.max_providers_allowed),
       max_parents_allowed: Number(formData.max_parents_allowed),
-     video_sessions_upload_per_month: Number(formData.video_sessions_upload_per_month),
-
+      video_sessions_upload_per_month: Number(
+        formData.video_sessions_upload_per_month,
+      ),
 
       video_sessions_count: Number(formData.video_sessions_count),
       session_duration_mins: Number(formData.session_duration_mins),
@@ -159,19 +180,19 @@ const Addplans = () => {
     if (!id) return;
 
     const fetchPlan = async () => {
-      const res = await fetch(`${API}/api/plan/${id}`,{
+      const res = await fetch(`${API}/api/plan/${id}`, {
         method: "GET",
         credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
-      })
+      });
       const data = await res.json();
 
       if (res.ok) {
         setFormData({
           plan_key: data.plan.plan_key,
-           user_type: data.plan.user_type, 
+          user_type: data.plan.user_type,
           plan_name: data.plan.plan_name,
           slug: data.plan.slug,
           description: data.plan.description,
@@ -189,7 +210,8 @@ const Addplans = () => {
           priority_support: data.plan.priority_support || false,
           video_sessions_count: data.plan.video_sessions_count,
           max_parents_allowed: data.plan.max_parents_allowed || 0,
-          video_sessions_upload_per_month: data.plan.video_sessions_upload_per_month || 0,
+          video_sessions_upload_per_month:
+            data.plan.video_sessions_upload_per_month || 0,
           session_duration_mins: data.plan.session_duration_mins,
           chat_access_level: data.plan.chat_access_level,
           resource_library_access: data.plan.resource_library_access,
@@ -289,9 +311,6 @@ const Addplans = () => {
     <div className="min-h-screen bg-[#F6F4F0] p-6 md:p-12 font-sans text-slate-800 flex items-center justify-center">
       <div className="max-w-7xl w-full grid grid-cols-1 lg:grid-cols-12 gap-8">
         <div className="lg:col-span-7 flex flex-col">
-
-          
-                       
           <div className="mb-8 pl-2">
             <div className="flex items-center space-x-2 sm:space-x-4">
               {[1, 2, 3, 4, 5].map((s) => (
@@ -335,19 +354,18 @@ const Addplans = () => {
                       </h2>
                     </div>
                     <div className="space-y-4">
-
-                       <label className="text-sm font-bold text-[#2d4a36]">
-                         User Type
-                       </label>
-                       <select
-                     name="user_type"
-                    value={formData.user_type}
+                      <label className="text-sm font-bold text-[#2d4a36]">
+                        User Type
+                      </label>
+                      <select
+                        name="user_type"
+                        value={formData.user_type}
                         onChange={handleChange}
-                         className="mt-1 w-full px-4 py-3 rounded-xl bg-[#F6F4F0] border border-[#8fa797]/30 focus:ring-2 focus:ring-[#2d4a36] outline-none text-[#2d4a36]"
-                           > 
+                        className="mt-1 w-full px-4 py-3 rounded-xl bg-[#F6F4F0] border border-[#8fa797]/30 focus:ring-2 focus:ring-[#2d4a36] outline-none text-[#2d4a36]"
+                      >
                         <option value="parent">Parent</option>
-                       <option value="provider">Provider</option>
-                        </select>
+                        <option value="provider">Provider</option>
+                      </select>
                       <div>
                         <label className="text-sm font-bold text-[#2d4a36]">
                           Plan key
@@ -364,7 +382,7 @@ const Addplans = () => {
                           <option value="pro">Pro</option>
                           <option value="premium">Premium</option>
                         </select>
-                         <label className="text-sm font-bold text-[#2d4a36]">
+                        <label className="text-sm font-bold text-[#2d4a36]">
                           Plan Name
                         </label>
                         <input
@@ -376,7 +394,6 @@ const Addplans = () => {
                           className="mt-1 w-full px-4 py-3 rounded-xl bg-[#F6F4F0] border border-[#8fa797]/30 focus:ring-2 focus:ring-[#2d4a36] outline-none text-[#2d4a36]"
                           autoFocus
                         />
-                       
                       </div>
                       <div>
                         <label className="text-sm font-bold text-[#2d4a36]">
@@ -430,6 +447,9 @@ const Addplans = () => {
                             name="price"
                             value={formData.price}
                             onChange={handleChange}
+                            onKeyDown={(e) =>
+                              e.key === "." && e.preventDefault()
+                            }
                             className="w-full pl-8 pr-4 py-3 rounded-xl bg-[#F6F4F0] border border-[#8fa797]/30 focus:ring-2 focus:ring-[#2d4a36] outline-none text-[#2d4a36] font-semibold"
                           />
                         </div>
@@ -487,6 +507,9 @@ const Addplans = () => {
                         name="trial_period_days"
                         value={formData.trial_period_days}
                         onChange={handleChange}
+                        min="0"
+                        max="7"
+                        onKeyDown={(e) => e.key === "." && e.preventDefault()}
                         className="mt-1 w-full px-4 py-3 rounded-xl bg-[#F6F4F0] border border-[#8fa797]/30 focus:ring-2 focus:ring-[#2d4a36] outline-none text-[#2d4a36]"
                       />
                     </div>
@@ -530,7 +553,6 @@ const Addplans = () => {
                           <Check className="absolute top-2 right-2 w-4 h-4 text-[#2d4a36]" />
                         )}
                       </button>
-
 
                       <button
                         type="button"
@@ -686,26 +708,25 @@ const Addplans = () => {
                         <Library className="w-5 h-5" />
                         <span className="block text-xs font-bold">Library</span>
                       </button>
-                   
-                    {formData.user_type === "provider" && (
-  <>
 
-    <div>
-      <label className="text-sm font-bold text-[#2d4a36]">
-        Video Upload / Month
-      </label>
-      <input
-        type="number"
-        name="video_sessions_upload_per_month"
-        min="0"
-        value={formData.video_sessions_upload_per_month}
-        onChange={handleChange}
-        className="mt-1 w-full px-4 py-3 rounded-xl bg-[#F6F4F0] border border-[#8fa797]/30"
-      />
-    </div>
-  </>
-)}
- </div>
+                      {formData.user_type === "provider" && (
+                        <>
+                          <div>
+                            <label className="text-sm font-bold text-[#2d4a36]">
+                              Video Upload / Month
+                            </label>
+                            <input
+                              type="number"
+                              name="video_sessions_upload_per_month"
+                              min="0"
+                              value={formData.video_sessions_upload_per_month}
+                              onChange={handleChange}
+                              className="mt-1 w-full px-4 py-3 rounded-xl bg-[#F6F4F0] border border-[#8fa797]/30"
+                            />
+                          </div>
+                        </>
+                      )}
+                    </div>
                   </div>
                 )}
 
@@ -717,30 +738,21 @@ const Addplans = () => {
                       </h3>
 
                       <div className="grid grid-cols-2 gap-3">
-                        {[
-                          "dashboard",
-                          "profile",
-                          "messages",
-                          "assessment",
-                          "appointments",
-                          "video_sessions",
-                          "reports",
-                          "billing",
-                          "resource_library",
-                        ].map((module) => (
-                          <button
-                            key={module}
-                            type="button"
-                            onClick={() => toggleModule(module)}
-                            className={`px-3 py-2 rounded-lg text-sm font-semibold border transition-all capitalize ${
-                              formData.available_modules.includes(module)
-                                ? "bg-[#2d4a36] text-white border-[#2d4a36]"
-                                : "bg-white text-[#2d4a36] border-[#8fa797]/30 hover:bg-[#F6F4F0]"
-                            }`}
-                          >
-                            {module.replace("_", " ")}
-                          </button>
-                        ))}
+                        {Array.isArray(modules) &&
+                          modules.map((mod) => (
+                            <button
+                              key={mod._id}
+                              type="button"
+                              onClick={() => toggleModule(mod.modules)}
+                              className={`px-3 py-2 rounded-lg text-sm font-semibold border transition-all capitalize ${
+                                formData.available_modules.includes(mod.modules)
+                                  ? "bg-[#2d4a36] text-white border-[#2d4a36]"
+                                  : "bg-white text-[#2d4a36] border-[#8fa797]/30 hover:bg-[#F6F4F0]"
+                              }`}
+                            >
+                              {mod.modules.replace("_", " ")}
+                            </button>
+                          ))}
                       </div>
                     </div>
 
@@ -749,7 +761,7 @@ const Addplans = () => {
                         Usage Limits
                       </h2>
                       <p className="text-sm text-[#8fa797]">
-                        Set monthly limits 
+                        Set monthly limits
                       </p>
                     </div>
 
@@ -765,6 +777,7 @@ const Addplans = () => {
                           min="0"
                           value={formData.max_messages_per_month}
                           onChange={handleChange}
+                          onKeyDown={(e) => e.key === "." && e.preventDefault()}
                           className="mt-1 w-full px-4 py-3 rounded-xl bg-[#F6F4F0] border border-[#8fa797]/30"
                         />
                       </div>
@@ -780,43 +793,50 @@ const Addplans = () => {
                           min="0"
                           value={formData.max_assessments_per_month}
                           onChange={handleChange}
+                          onKeyDown={(e) => e.key === "." && e.preventDefault()}
                           className="mt-1 w-full px-4 py-3 rounded-xl bg-[#F6F4F0] border border-[#8fa797]/30"
                         />
                       </div>
 
                       {/* Providers */}
                       {formData.user_type === "parent" && (
-                      <div>
-                        <label className="text-sm font-bold text-[#2d4a36]">
-                          Max Providers Allowed
-                        </label>
-                        <input
-                          type="number"
-                          name="max_providers_allowed"
-                          min="1"
-                          value={formData.max_providers_allowed}
-                          onChange={handleChange}
-                          className="mt-1 w-full px-4 py-3 rounded-xl bg-[#F6F4F0] border border-[#8fa797]/30"
-                        />
-                      </div>
+                        <div>
+                          <label className="text-sm font-bold text-[#2d4a36]">
+                            Max Providers Allowed
+                          </label>
+                          <input
+                            type="number"
+                            name="max_providers_allowed"
+                            min="1"
+                            value={formData.max_providers_allowed}
+                            onChange={handleChange}
+                            onKeyDown={(e) =>
+                              e.key === "." && e.preventDefault()
+                            }
+                            className="mt-1 w-full px-4 py-3 rounded-xl bg-[#F6F4F0] border border-[#8fa797]/30"
+                          />
+                        </div>
                       )}
                       {formData.user_type === "provider" && (
-  <>
-    <div>
-      <label className="text-sm font-bold text-[#2d4a36]">
-        Max Parents Allowed
-      </label>
-      <input
-        type="number"
-        name="max_parents_allowed"
-        min="0"
-        value={formData.max_parents_allowed}
-        onChange={handleChange}
-        className="mt-1 w-full px-4 py-3 rounded-xl bg-[#F6F4F0] border border-[#8fa797]/30"
-      />
-    </div>
-  </>
-)}
+                        <>
+                          <div>
+                            <label className="text-sm font-bold text-[#2d4a36]">
+                              Max Parents Allowed
+                            </label>
+                            <input
+                              type="number"
+                              name="max_parents_allowed"
+                              min="0"
+                              value={formData.max_parents_allowed}
+                              onChange={handleChange}
+                              onKeyDown={(e) =>
+                                e.key === "." && e.preventDefault()
+                              }
+                              className="mt-1 w-full px-4 py-3 rounded-xl bg-[#F6F4F0] border border-[#8fa797]/30"
+                            />
+                          </div>
+                        </>
+                      )}
                       {/* Priority Support */}
                       <label className="flex items-center gap-3 p-4 border border-[#8fa797]/30 rounded-xl cursor-pointer hover:bg-[#F6F4F0]">
                         <input
