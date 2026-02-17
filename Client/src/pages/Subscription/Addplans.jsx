@@ -16,6 +16,8 @@ import {
 import { useNavigate } from "react-router-dom";
 import { GrView } from "react-icons/gr";
 import { useParams } from "react-router-dom";
+import toast from "react-hot-toast";
+
 
 const Addplans = () => {
   const [step, setStep] = useState(1);
@@ -150,14 +152,16 @@ const Addplans = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        console.error("Create plan failed:", data.message);
-        alert(data.message);
+        toast.error(data.message || "Failed to create plan");
         return;
       }
+       toast.success("Plan  created successfully");
+
 
       setIsSubmitted(true);
     } catch (err) {
       console.error("Network error:", err);
+       toast.error("Something went wrong. Please try again.");
     }
   };
 
