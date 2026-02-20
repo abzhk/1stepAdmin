@@ -30,6 +30,7 @@ import { Toaster } from "react-hot-toast";
 import InactiveParents from './pages/parent/InactiveParents.jsx';
 import InactiveProviders from './pages//Provider/InactiveProvider.jsx';
 import ListViewArticle from './pages/Article/ListViewArticle.jsx';
+import MasterData from "./pages/Master/MasterData.jsx"
 
 const App = () => {
 
@@ -95,6 +96,7 @@ const App = () => {
         <Route path="/inactive-parents" element={<InactiveParents />} />
      <Route path="/inactive-providers" element={<InactiveProviders />} />
      <Route path="/list-view-article" element={<ListViewArticle />} />
+     <Route path="/master-data" element={<MasterData />} />
     </Route>
     </Routes>
      <Toaster

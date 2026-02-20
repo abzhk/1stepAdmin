@@ -58,6 +58,8 @@ const DashSidebar = () => {
       setActive("Add Assessment");
     } else if (path.startsWith("/providerassessment")) {
       setActive("Provider Assessments");
+    } else if (path.startsWith("/master-data")) {
+      setActive("Master Data");
     } else {
       setActive("");
     }
@@ -152,7 +154,7 @@ const DashSidebar = () => {
   <label
     onClick={() => {
       setActive("Create User");
-      navigate("/create-admin-role");
+      navigate("/create-admin");
     }}
     className={getNavLinkClasses("Create User")}
   >
@@ -302,11 +304,20 @@ const DashSidebar = () => {
                 <TbReportSearch className="text-lg" />
                 Provider Assessments
               </label>
-
-
-              
             </div>
           )}
+
+          <label
+          onClick={() => {
+            setActive("Master Data");
+            navigate("/master-data");
+          }}
+          className={getNavLinkClasses("Master Data")}
+        >
+          <RiParentFill className="text-lg" />
+          <span className = "text-lg">Master</span>
+        </label>
+              
         </div>
       </nav>
 

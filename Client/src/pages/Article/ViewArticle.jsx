@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import RejectArticle from "./RejectArticle";
 import dateFormatUtils from "../../utils/dateFormatUtils";
 import { useNavigate } from "react-router-dom";
-
+import { GrView } from "react-icons/gr";
 
 const ViewArticle = () => {
   const [articles, setArticles] = useState([]);
@@ -148,8 +148,8 @@ const handleReject = async (reason) => {
   return (
     <div className="min-h-screen bg-secondary py-8 px-4 sm:px-6 lg:px-8">
       <div className="flex justify-end mb-4">
-  <button  onClick={() => navigate("/list-view-article")} className="px-4 py-2 rounded-lg bg-white shadow text-sm font-medium hover:bg-gray-50">
-    List View
+  <button  onClick={() => navigate("/list-view-article")} className="ml-auto flex items-center gap-2 px-4 py-2 bg-yellow border rounded-lg bg-peach text-darkgreen">
+     <GrView className="text-darkgreen" /> List View
   </button>
 </div>
       <div className="max-w-7xl mx-auto">

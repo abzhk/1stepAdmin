@@ -113,7 +113,7 @@ const API = import.meta.env.VITE_API_URL;
             <button
               type="button"
               onClick={() => navigate("/allproviders")}
-              className="rounded-xl bg-gray-200 px-5 py-2 text-gray-700"
+              className="rounded-xl bg-white px-5 py-2 text-darkgreen"
             >
               Cancel
             </button>
@@ -140,7 +140,7 @@ const API = import.meta.env.VITE_API_URL;
                 onChange={handleChange}
                 placeholder="Full Name"
                 required
-                className="w-full rounded-xl border border-gray-200 px-4 py-2 focus:border-lightbutton focus:ring-lightbutton outline-none"
+                className="w-full rounded-xl border border-gray-200 bg-offwhite px-4 py-2 focus:border-lightbutton focus:ring-lightbutton outline-none"
               />
 </label>
 <label>Email
@@ -150,7 +150,7 @@ const API = import.meta.env.VITE_API_URL;
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="Email Address"
-                className="w-full rounded-xl  border border-gray-200 px-4 py-2 focus:border-lightbutton focus:ring-lightbutton outline-none"
+                className="w-full rounded-xl  border border-gray-200  bg-offwhite px-4 py-2 focus:border-lightbutton focus:ring-lightbutton outline-none"
               />
               </label>
 <label>Phone
@@ -159,7 +159,7 @@ const API = import.meta.env.VITE_API_URL;
                 value={formData.phone}
                 onChange={handleChange}
                 placeholder="Phone Number"
-                className="w-full rounded-xl border border-gray-200 px-4 py-2 focus:border-lightbutton focus:ring-lightbutton outline-none"
+                className="w-full rounded-xl border border-gray-200 bg-offwhite px-4 py-2 focus:border-lightbutton focus:ring-lightbutton outline-none"
               />
               </label>
 <label>Provider Type
@@ -167,7 +167,7 @@ const API = import.meta.env.VITE_API_URL;
                 name="providerType"
                 value={formData.providerType}
                 onChange={handleChange}
-                className="w-full rounded-xl border border-gray-200 px-4 py-2 bg-white focus:border-lightbutton focus:ring-lightbutton outline-none"
+                className="w-full rounded-xl border border-gray-200 bg-offwhite px-4 py-2 bg-white focus:border-lightbutton focus:ring-lightbutton outline-none"
               >
                 <option value="individual">Individual</option>
                 <option value="centre">Centre</option>
@@ -189,7 +189,7 @@ const API = import.meta.env.VITE_API_URL;
                 value={formData.qualification}
                 onChange={handleChange}
                 placeholder="Qualification"
-                className="w-full rounded-xl border border-gray-200 px-4 py-2 focus:border-lightbutton focus:ring-lightbutton outline-none"
+                className="w-full rounded-xl border border-gray-200 bg-offwhite px-4 py-2 focus:border-lightbutton focus:ring-lightbutton outline-none"
               />
               </label>
 <label>Experience
@@ -198,7 +198,7 @@ const API = import.meta.env.VITE_API_URL;
                 value={formData.experience}
                 onChange={handleChange}
                 placeholder="Experience"
-                className="w-full rounded-xl border border-gray-200 px-4 py-2 focus:border-lightbutton focus:ring-lightbutton outline-none"
+                className="w-full rounded-xl border border-gray-200 bg-offwhite px-4 py-2 focus:border-lightbutton focus:ring-lightbutton outline-none"
               />
               </label>
 <label>License
@@ -207,7 +207,7 @@ const API = import.meta.env.VITE_API_URL;
                 value={formData.license}
                 onChange={handleChange}
                 placeholder="License Number"
-                className="w-full rounded-xl border border-gray-200 px-4 py-2 focus:border-lightbutton focus:ring-lightbutton outline-none"
+                className="w-full rounded-xl border border-gray-200  bg-offwhite px-4 py-2 focus:border-lightbutton focus:ring-lightbutton outline-none"
               />
               </label>
 <label>Consultation Fee
@@ -217,7 +217,7 @@ const API = import.meta.env.VITE_API_URL;
                 value={formData.regularPrice}
                 onChange={handleChange}
                 placeholder="Consultation Fee"
-                className="w-full rounded-xl border border-gray-200 px-4 py-2 focus:border-lightbutton focus:ring-lightbutton outline-none"
+                className="w-full rounded-xl border border-gray-200 bg-offwhite px-4 py-2 focus:border-lightbutton focus:ring-lightbutton outline-none"
               />
               </label>
             </div>
@@ -235,7 +235,7 @@ const API = import.meta.env.VITE_API_URL;
                 })
               }
               placeholder="Therapy Types"
-              className="mt-4 w-full rounded-xl border border-gray-200 px-4 py-2 focus:border-lightbutton focus:ring-lightbutton outline-none"
+              className="mt-4 w-full rounded-xl border border-gray-200 bg-offwhite px-4 py-2 focus:border-lightbutton focus:ring-lightbutton outline-none"
             />
             </label>
 <label>Description
@@ -244,7 +244,7 @@ const API = import.meta.env.VITE_API_URL;
               value={formData.description}
               onChange={handleChange}
               placeholder="Provider Description"
-              className=" w-full h-28 rounded-xl border border-gray-200 px-4 py-2 focus:border-lightbutton focus:ring-lightbutton outline-none"
+              className=" w-full h-28 rounded-xl border border-gray-200 bg-offwhite px-4 py-2 focus:border-lightbutton focus:ring-lightbutton outline-none"
             />
             </label>
             </div>

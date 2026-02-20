@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 const ACTIONS = ["read", "create", "update", "delete", "export"];
 
@@ -12,7 +13,7 @@ const CreateRoleandPermission = ({ mode = "create", roleData,userId,  onClose, o
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [modules, setModules] = useState([]);
-const [selectedModules, setSelectedModules] = useState([]);
+// const [selectedModules, setSelectedModules] = useState([]);
 
 const API = import.meta.env.VITE_API_URL;
 
@@ -124,7 +125,7 @@ const toggleDefaultModule = (module) => {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);
 
-      alert("User permissions updated");
+      toast.success("User permissions updated");
       onSuccess?.();
       return; 
     }

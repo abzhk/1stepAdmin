@@ -90,7 +90,7 @@ const ViewPlans = () => {
                 className="border-t hover:bg-gray-100 transition-colors duration-200 cursor-pointer"
               >
                 <td className="p-3">{index + 1}</td>
-                <td className="p-3">{plan.plan_name}</td>
+                <td className="p-3  uppercase">{plan.plan_name}</td>
                 <td className="p-3">{plan.billing_interval}</td>
                 <td className="p-3">{plan.user_type}</td>
                 <td className="p-3">{formatDecimal(plan.price)}</td>

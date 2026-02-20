@@ -47,8 +47,7 @@ useEffect(() => {
     } catch (err) {
       console.error("Stats fetch error:", err);
       setError("Something went wrong");
-    } finally {
-    }
+    } 
   };
 
   fetchStats();

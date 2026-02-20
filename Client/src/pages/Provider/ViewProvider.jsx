@@ -132,11 +132,11 @@ function ViewProvider() {
         </div>
       )}
       <div className="flex justify-end mb-6">
-  <button  onClick={() => navigate("/inactive-providers")} className="px-4 py-2 rounded-xl font-semibold shadow transition">Inactive users
+  <button  onClick={() => navigate("/inactive-providers")} className="px-4 py-2 rounded-xl font-semibold shadow transition bg-yellow">Inactive users
     </button>
 </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-10 gap-y-14">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-10 gap-y-14 w-305">
         {loading ? (
           <div className="col-span-full text-center py-10 text-xl text-gray-500 font-medium">
             Loading providers...
@@ -168,19 +168,7 @@ function ViewProvider() {
                 </div> 
                 <div className="flex item-center ">
                   
-                  {/* <button
-                      onClick={() =>
-                        changeStatus(provider._id, !provider.isActive)
-                      }
-                      className={`px-3 py-2 rounded-xl text-sm font-medium shadow-sm transition
-  ${
-    provider.isActive
-      ? "bg-red-50 text-red-600 hover:bg-red-100"
-      : "bg-green-50 text-green-600 hover:bg-green-100"
-  }`}
-                    >
-                      {provider.isActive ? "Deactivate" : "Activate"}
-                    </button> */}
+              
                     </div>
                 <div className="p-1 ">
  <div className=" mb-2">
@@ -222,7 +210,7 @@ function ViewProvider() {
 
                     <div className="flex items-start text-gray-600 text-sm ">
                       {/* <FiUsers className="text-green-500 mt-0.5 mr-2 " /> */}
-                      <strong>Therapy:</strong>
+                      <strong>Session:</strong>
                       <div className="flex flex-wrap gap-1 ml-1">
                         {therapies.length > 0 ? (
                           therapies.map((type, i) => (
@@ -241,7 +229,7 @@ function ViewProvider() {
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center  justify-between">
+                  <div className="flex items-center  justify-center  gap-3 ">
                     <button
                       onClick={() =>
                         navigate(`/provider-stats/${provider._id}`)

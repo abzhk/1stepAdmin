@@ -26,6 +26,8 @@ const Addplans = () => {
   const { id } = useParams();
   const API = import.meta.env.VITE_API_URL;
   const [modules, setModules] = useState([]);
+  const isEditMode = !!id;
+
 
   const [formData, setFormData] = useState({
     plan_key: "basic",
@@ -118,52 +120,62 @@ const Addplans = () => {
   }, [formData.user_type]);
 
   const handleFinalPublishClick = async () => {
-    const payload = {
-      ...formData,
+  const isEditMode = !!id;
 
-      price: Number(formData.price),
-      discount: Number(formData.discount),
-      trial_period_days: Number(formData.trial_period_days),
-
-      max_messages_per_month: Number(formData.max_messages_per_month),
-      max_assessments_per_month: Number(formData.max_assessments_per_month),
-      max_providers_allowed: Number(formData.max_providers_allowed),
-      max_parents_allowed: Number(formData.max_parents_allowed),
-      video_sessions_upload_per_month: Number(
-        formData.video_sessions_upload_per_month,
-      ),
-
-      video_sessions_count: Number(formData.video_sessions_count),
-      session_duration_mins: Number(formData.session_duration_mins),
-    };
-
-    console.log("Submitting payload:", payload);
-
-    try {
-      const API = import.meta.env.VITE_API_URL;
-
-      const response = await fetch(`${API}/api/plan/create`, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        toast.error(data.message || "Failed to create plan");
-        return;
+  const payload = isEditMode
+    ? {
+        plan_name: formData.plan_name,
+        description: formData.description,
+        is_featured: formData.is_featured,
       }
-       toast.success("Plan  created successfully");
+    : {
+        ...formData,
+        price: Number(formData.price),
+        discount: Number(formData.discount),
+        trial_period_days: Number(formData.trial_period_days),
+        max_messages_per_month: Number(formData.max_messages_per_month),
+        max_assessments_per_month: Number(formData.max_assessments_per_month),
+        max_providers_allowed: Number(formData.max_providers_allowed),
+        max_parents_allowed: Number(formData.max_parents_allowed),
+        video_sessions_upload_per_month: Number(
+          formData.video_sessions_upload_per_month
+        ),
+        video_sessions_count: Number(formData.video_sessions_count),
+        session_duration_mins: Number(formData.session_duration_mins),
+      };
 
+  try {
+    const url = isEditMode
+      ? `${API}/api/plan/update/${id}`
+      : `${API}/api/plan/create`;
 
-      setIsSubmitted(true);
-    } catch (err) {
-      console.error("Network error:", err);
-       toast.error("Something went wrong. Please try again.");
+    const method = isEditMode ? "PUT" : "POST";
+
+    const response = await fetch(url, {
+      method,
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      toast.error(data.message || "Failed to save plan");
+      return;
     }
-  };
+
+    toast.success(
+      isEditMode ? "Plan updated successfully" : "Plan created successfully"
+    );
+
+    setIsSubmitted(true);
+  } catch (err) {
+    console.error(err);
+    toast.error("Something went wrong");
+  }
+};
+
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
@@ -365,6 +377,7 @@ const Addplans = () => {
                         name="user_type"
                         value={formData.user_type}
                         onChange={handleChange}
+                         disabled={isEditMode}
                         className="mt-1 w-full px-4 py-3 rounded-xl bg-[#F6F4F0] border border-[#8fa797]/30 focus:ring-2 focus:ring-[#2d4a36] outline-none text-[#2d4a36]"
                       >
                         <option value="parent">Parent</option>
@@ -378,6 +391,7 @@ const Addplans = () => {
                           name="plan_key"
                           value={formData.plan_key}
                           onChange={handleChange}
+                           disabled={isEditMode}
                           className="mt-1 w-full px-4 py-3 rounded-xl bg-[#F6F4F0] border border-[#8fa797]/30 focus:ring-2 focus:ring-[#2d4a36] outline-none text-[#2d4a36]
                           autoFocus"
                         >
@@ -451,8 +465,8 @@ const Addplans = () => {
                             name="price"
                             value={formData.price}
                             onChange={handleChange}
-                            onKeyDown={(e) =>
-                              e.key === "." && e.preventDefault()
+                             disabled={isEditMode}
+                            onKeyDown={(e) =>e.key === "." && e.preventDefault()
                             }
                             className="w-full pl-8 pr-4 py-3 rounded-xl bg-[#F6F4F0] border border-[#8fa797]/30 focus:ring-2 focus:ring-[#2d4a36] outline-none text-[#2d4a36] font-semibold"
                           />
@@ -466,6 +480,7 @@ const Addplans = () => {
                           name="billing_interval"
                           value={formData.billing_interval}
                           onChange={handleChange}
+                           disabled={isEditMode}
                           className="mt-1 w-full px-4 py-3 rounded-xl bg-[#F6F4F0] border border-[#8fa797]/30 focus:ring-2 focus:ring-[#2d4a36] outline-none text-[#2d4a36]"
                         >
                           <option value="monthly">Monthly</option>
@@ -483,6 +498,7 @@ const Addplans = () => {
                         name="stripe_price_id"
                         value={formData.stripe_price_id}
                         onChange={handleChange}
+                         disabled={isEditMode}
                         placeholder="price_..."
                         className="mt-1 w-full px-4 py-3 rounded-xl bg-[#F6F4F0] border border-[#8fa797]/30 focus:ring-2 focus:ring-[#2d4a36] outline-none font-mono text-sm text-[#2d4a36]"
                       />
@@ -498,6 +514,8 @@ const Addplans = () => {
                         onChange={handleChange}
                         min="0"
                         max="100"
+                         disabled={isEditMode}
+                        onKeyDown={(e) =>e.key === "." && e.preventDefault()}
                         className="mt-1 w-full px-4 py-3 rounded-xl bg-[#F6F4F0] border border-[#8fa797]/30"
                       />
                     </div>
@@ -514,6 +532,7 @@ const Addplans = () => {
                         min="0"
                         max="7"
                         onKeyDown={(e) => e.key === "." && e.preventDefault()}
+                         disabled={isEditMode}
                         className="mt-1 w-full px-4 py-3 rounded-xl bg-[#F6F4F0] border border-[#8fa797]/30 focus:ring-2 focus:ring-[#2d4a36] outline-none text-[#2d4a36]"
                       />
                     </div>
@@ -560,6 +579,7 @@ const Addplans = () => {
 
                       <button
                         type="button"
+                         disabled={isEditMode}
                         onClick={() =>
                           setFormData({
                             ...formData,
@@ -627,6 +647,7 @@ const Addplans = () => {
                           <button
                             type="button"
                             onClick={() => updateSessionCount(-1)}
+                             disabled={isEditMode}
                             className="w-8 h-8 flex items-center justify-center rounded-md hover:bg-[#F6F4F0] text-[#8fa797] font-bold text-lg"
                           >
                             -
@@ -637,6 +658,7 @@ const Addplans = () => {
                           <button
                             type="button"
                             onClick={() => updateSessionCount(1)}
+                             disabled={isEditMode}
                             className="w-8 h-8 flex items-center justify-center rounded-md hover:bg-[#F6F4F0] text-[#2d4a36] font-bold text-lg"
                           >
                             +
@@ -658,6 +680,7 @@ const Addplans = () => {
                                   session_duration_mins: mins,
                                 })
                               }
+                               disabled={isEditMode}
                               className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                                 formData.session_duration_mins === mins
                                   ? "bg-[#2d4a36] text-white"
@@ -967,7 +990,8 @@ const Addplans = () => {
                     onClick={handleFinalPublishClick}
                     className="bg-[#8fa797] hover:bg-[#7a9181] text-white px-10 py-3 rounded-xl font-bold flex items-center gap-2 shadow-xl shadow-[#8fa797]/30 transition-all transform hover:-translate-y-0.5"
                   >
-                    Confirm & Publish <Check className="w-5 h-5" />
+                   {isEditMode ? "Update Plan" : "Confirm & Publish"}
+ <Check className="w-5 h-5" />
                   </button>
                 )}
               </div>
@@ -978,7 +1002,7 @@ const Addplans = () => {
         <div className="lg:col-span-5 hidden lg:block">
           <button
             onClick={handleView}
-            className="ml-auto flex items-center gap-2 px-4 py-2 border rounded-lg bg-peach text-darkgreen hover:bg-peach"
+            className="ml-auto flex items-center gap-2 px-4 py-2 bg-yellow border rounded-lg bg-peach text-darkgreen"
           >
             <GrView className="text-darkgreen" />
             List View

@@ -93,7 +93,7 @@ function ViewParent() {
       )}
 
 <div className="flex justify-end mb-6">
-  <button  onClick={() => navigate("/inactive-parents")} className="px-4 py-2 rounded-xl font-semibold shadow transition">Inactive users
+  <button  onClick={() => navigate("/inactive-parents")} className="px-4 py-2 rounded-xl font-semibold shadow transition bg-yellow">Inactive users
     </button>
 </div>
 
@@ -175,7 +175,7 @@ function ViewParent() {
                         <span>{parent.parentDetails?.phoneNumber}</span>
                       </div>
                     </div>
-                    <div className=" flex items-center justify-between  gap-3 ">
+                    <div className=" flex items-center justify-center  gap-3 ">
                       {/* View Button */}
                       <button
                         onClick={() =>

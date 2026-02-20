@@ -73,7 +73,9 @@ const planSchema = new mongoose.Schema(
           "billing",
           "resource_library",
           "patients",
-          "settings"
+          "settings",
+          "article",
+          "courses",
         ],
       },
     ],

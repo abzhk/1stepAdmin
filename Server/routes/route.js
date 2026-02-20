@@ -15,6 +15,8 @@ import PlanRoute from './plan.route.js'
 import accessRoutes from './access.route.js';
 import userRoute from './user.route.js';
 import moduleRoute from './module.route.js';
+import masterRoute from './masterData.route.js';
+
 
 const router = express.Router(); 
 
@@ -50,6 +52,8 @@ router.use("/access", accessRoutes);
 router.use("/users", userRoute);
 //modules
 router.use("/module",moduleRoute);
+//service typrs
+router.use("/services",masterRoute)
 
 
 export default router;

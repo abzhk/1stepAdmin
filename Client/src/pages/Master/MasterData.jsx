@@ -1,0 +1,199 @@
+import React, { useEffect, useState } from "react";
+
+const MasterData = () => {
+  const [services, setServices] = useState([]);
+
+  const [formData, setFormData] = useState({
+    code: "",
+    label: "",
+    durationDefault: "",
+    billable: false,
+  });
+
+  useEffect(() => {
+    fetchServices();
+  }, []);
+
+  const fetchServices = async () => {
+    try {
+      const res = await fetch(
+        "http://localhost:3001/api/services/serviceType?format=raw"
+      );
+      const data = await res.json();
+      setServices(data.data || []);
+    } catch (error) {
+      console.error("Fetch failed:", error);
+    }
+  };
+
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData({
+      ...formData,
+      [name]: type === "checkbox" ? checked : value,
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    await fetch("http://localhost:3001/api/services/create-service", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        type: "serviceType",
+        code: formData.code,
+        label: formData.label,
+        metadata: {
+          durationDefault: Number(formData.durationDefault),
+          billable: formData.billable,
+        },
+      }),
+    });
+
+    setFormData({
+      code: "",
+      label: "",
+      durationDefault: "",
+      billable: false,
+    });
+
+    fetchServices();
+  };
+
+  return (
+    <div className="min-h-screen bg-offwhite p-8">
+      <div className="max-w-6xl mx-auto">
+
+        <h2 className="text-2xl font-bold text-gray-800 mb-6">
+          Service Management
+        </h2>
+
+
+        <div className="bg-white p-6 rounded-2xl shadow-md mb-8">
+          <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4">
+
+            <div className="flex flex-col">
+              <label className="text-sm font-medium mb-1">Service Name</label>
+              <input
+                type="text"
+                name="label"
+                value={formData.label}
+                onChange={handleChange}
+                className="border rounded-lg px-3 py-2  "
+                required
+              />
+            </div>
+
+            <div className="flex flex-col">
+              <label className="text-sm font-medium mb-1">Code</label>
+              <input
+                type="text"
+                name="code"
+                value={formData.code}
+                onChange={handleChange}
+                className="border rounded-lg px-3 py-2 "
+                required
+              />
+            </div>
+
+            <div className="flex flex-col">
+              <label className="text-sm font-medium mb-1">
+                Duration (minutes)
+              </label>
+              <input
+                type="number"
+                name="durationDefault"
+                value={formData.durationDefault}
+                onChange={handleChange}
+                className="border rounded-lg px-3 py-2 "
+              />
+            </div>
+
+            <div className="flex items-center mt-6 border rounded-lg px-3 py-2 focus:outline-none ">
+              <input
+                type="checkbox"
+                name="billable"
+                checked={formData.billable}
+                onChange={handleChange}
+                className="mr-2"
+              />
+              <label className="text-sm font-medium">Billable</label>
+            </div>
+
+            <div className="col-span-2 flex justify-end">
+              <button
+                type="submit"
+                className="bg-peach text-white px-6 py-2 rounded-lg hover:bg-green-700 transition"
+              >
+                Submit
+              </button>
+            </div>
+
+          </form>
+        </div>
+
+        <div className="bg-white p-6 rounded-2xl shadow-md">
+          <h3 className="text-lg font-semibold mb-4">
+            Existing Services
+          </h3>
+
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="bg-gray-200 text-left text-sm">
+                  <th className="p-3">Service</th>
+                  <th className="p-3">Code</th>
+
+                  <th className="p-3">Billable</th>
+                  <th className="p-3">Status</th>
+                  {/* <th className="p-3">Disabled</th> */}
+                  <th className="p-3">Created At</th>
+
+                </tr>
+              </thead>
+
+              <tbody>
+                {services.map((service) => (
+                  <tr
+                    key={service._id}
+                    className="border-b hover:bg-gray-50 text-sm"
+                  >
+                    <td className="p-3">{service.label}</td>
+                    <td className="p-3">{service.code}</td>
+                    
+                    <td className="p-3">
+                      {service.metadata?.billable ? "Yes" : "No"}
+                    </td>
+                    <td className="p-3">
+                      {service.isActive ? "Active" : "Inactive"}
+                    </td>
+                    {/* <td className="p-3">
+                      {service.isDisabled ? "Yes" : "No"}
+                    </td> */}
+                    <td className="p-3">
+  {new Date(service.createdAt).toLocaleDateString()}
+</td>
+
+                  </tr>
+                ))}
+
+                {services.length === 0 && (
+                  <tr>
+                    <td colSpan="6" className="p-4 text-center text-gray-500">
+                      No services found
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+};
+
+export default MasterData;

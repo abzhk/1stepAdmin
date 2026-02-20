@@ -260,9 +260,15 @@ if (user_type) {
 
 export const updatePlan = async (req, res) => {
   try {
+    const { plan_name, description, is_featured } = req.body;
+
     const updatedPlan = await Plan.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      {
+        plan_name,
+        description,
+        is_featured,
+      },
       { new: true, runValidators: true }
     );
 
@@ -283,6 +289,7 @@ export const updatePlan = async (req, res) => {
     });
   }
 };
+
 
 
 export const deletePlan = async (req, res) => {
