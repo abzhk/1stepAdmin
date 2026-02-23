@@ -47,7 +47,7 @@ app.get("/api", (req, res) => {
   res.status(200).send("Backend is live ");
 });
 app.use((req, res, next) => {
-  console.log("PATH RECEIVED:", req.originalUrl);
+  // console.log("PATH RECEIVED:", req.originalUrl);
   next();
 });
  

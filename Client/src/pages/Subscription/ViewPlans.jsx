@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useOutletContext } from "react-router-dom";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { formatDecimal } from "../../utils/formatdecimal.js";
+import { TfiReload } from "react-icons/tfi";
 
 
 const ViewPlans = () => {
@@ -75,8 +76,9 @@ const ViewPlans = () => {
             <tr>
               <th className="p-3 text-left">Sl.no</th>
               <th className="p-3 text-left">Name</th>
-              <th className="p-3 text-left">Mo/Yr</th>
+              <th className="p-3 text-left">Version</th>
               <th className="p-3 text-left">User</th>
+              <th className="p-3 text-left">Mo/Yr</th>
               <th className="p-3 text-left">Price</th>
               <th className="p-3 text-left">Final Price</th>
               <th className="p-3 text-left">Active plans</th>
@@ -91,8 +93,9 @@ const ViewPlans = () => {
               >
                 <td className="p-3">{index + 1}</td>
                 <td className="p-3  uppercase">{plan.plan_name}</td>
+                 <td className="p-3  uppercase">{plan.version_number}</td>
+                 <td className="p-3">{plan.user_type}</td>
                 <td className="p-3">{plan.billing_interval}</td>
-                <td className="p-3">{plan.user_type}</td>
                 <td className="p-3">{formatDecimal(plan.price)}</td>
                 <td className="p-3">{formatDecimal(plan.final_price)}</td>
                 <td className="p-3">
@@ -105,6 +108,13 @@ const ViewPlans = () => {
                   >
                     <FiEdit2 size={16} />
                   </button>
+
+                  <button
+    onClick={() => navigate(`/addplans/${plan._id}?mode=version`)}
+    className="p-2 rounded-lg text-darkgreen hover:bg-green-50"
+  >
+    <TfiReload size={16} />
+  </button>
                 </td>
               </tr>
             ))}

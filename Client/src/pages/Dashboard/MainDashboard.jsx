@@ -1,339 +1,326 @@
-import React, { useState,useEffect } from "react";
-
-
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   FaUserInjured,
   FaUserMd,
-  FaHospital,
   FaClock,
   FaCalendarCheck,
   FaBookOpen,
   FaCreditCard,
-  FaBuilding
+  FaBuilding,
+  FaChartLine,
+  FaCog,
+  FaUsers,
+  FaEye
 } from "react-icons/fa";
+import { TbCategoryPlus, TbReportSearch } from "react-icons/tb";
+import { MdRateReview, MdArticle } from "react-icons/md";
 
 const MainDashboard = () => {
-  
-
+  const navigate = useNavigate();
   const [stats, setStats] = useState(null);
-const [recentBookings, setRecentBookings] = useState([]);
+  const [recentBookings, setRecentBookings] = useState([]);
+  const [pendingApprovals, setPendingApprovals] = useState({
+    articles: 0,
+    providers: 0,
+    assessments: 0
+  });
 
- const [parents, setParents] = useState([]);
-const [providers, setProviders] = useState([]);
-const [loading, setLoading] = useState(false);
-const [error, setError] = useState("");
+  useEffect(() => {
+    fetchStats();
+    fetchRecentBookings();
 
-const [currentPage, setCurrentPage] = useState(1);
-const itemsPerPage = 4;
+  }, []);
 
-
-useEffect(() => {
   const fetchStats = async () => {
     try {
-       const API = import.meta.env.VITE_API_URL;
+      const API = import.meta.env.VITE_API_URL;
       const res = await fetch(`${API}/api/track/stats`, {
         method: "GET",
-        credentials: "include",  
+        credentials: "include",
       });
-
       const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.message || "Failed to load stats");
-        return;
+      if (res.ok) {
+        setStats(data);
       }
-
-      setStats(data);
     } catch (err) {
       console.error("Stats fetch error:", err);
-      setError("Something went wrong");
-    } 
+    }
   };
 
-  fetchStats();
-}, []);
-
-useEffect(() => {
-  fetchParentandProvider();
-}, [currentPage]);
-
-const fetchParentandProvider = async () => {
-  try {
-    setLoading(true);
-    setError("");
-
-    const startIndex = (currentPage - 1) * itemsPerPage;
-
-    const params = new URLSearchParams({
-      limit: itemsPerPage,
-      startIndex,
-    });
- const API = import.meta.env.VITE_API_URL;
-    const res = await fetch(
-      `${API}/api/admin/parents-providers/list?${params.toString()}`,
-      {
+  const fetchRecentBookings = async () => {
+    try {
+      const API = import.meta.env.VITE_API_URL;
+      const res = await fetch(`${API}/api/booking/recent`, {
         method: "GET",
         credentials: "include",
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setRecentBookings(data.bookings || []);
       }
-    );
-
-    const data = await res.json();
-
-    if (!res.ok) throw new Error(data.message);
-
-    setParents(data.parents || []);
-    setProviders(data.providers || []);
-  } catch (err) {
-    setError(err.message || "Failed to load data");
-  } finally {
-    setLoading(false);
-  }
-};
-
-const tableData = [
-    ...parents.map((p) => ({
-      name: p.userRef?.username ,
-      email: p.userRef?.email ,
-      role: "Patient",
-    })),
-    ...providers.map((p) => ({
-      name: p.fullName ,
-      email: p.email,
-      role: "Provider",
-    })),
-  ];
-
-
-const totalPages = Math.max(1, Math.ceil(tableData.length / itemsPerPage));
-
-useEffect(() => {
-  fetchRecentBookings();
-}, []);
-
-
-const fetchRecentBookings = async () => {
-  try {
- const API = import.meta.env.VITE_API_URL;
-    const res = await fetch(`${API}/api/booking/recent`, {
-      method: "GET",
-      credentials: "include",
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      console.error("Failed to load recent bookings");
-      return;
+    } catch (err) {
+      console.error("Recent bookings fetch error:", err);
     }
+  };
 
-    setRecentBookings(data.bookings || []);
-  } catch (err) {
-    console.error("Recent bookings fetch error:", err);
-  }
-};
- const statCards = [
+  // const fetchPendingApprovals = async () => {
+  //   try {
+  //     const API = import.meta.env.VITE_API_URL;
+  //     const res = await fetch(`${API}/api/admin/pending-approvals`, {
+  //       method: "GET",
+  //       credentials: "include",
+  //     });
+  //     const data = await res.json();
+      
+  //     if (res.ok) {
+  //       setPendingApprovals(data);
+  //     }
+  //   } catch (err) {
+  //     console.error("Pending approvals fetch error:", err);
+  //   }
+  // };
+
+  const statCards = [
     {
       icon: FaUserInjured,
-      label: "Total Patients",
+      label: "Parents",
       value: stats?.totalParents || 0,
-      color: "from-blue-500 to-blue-600",
-      bgColor: "bg-blue-50",
-      iconColor: "text-blue-600",
+      bgColor: "bg-yellow",
+      iconColor: "text-darkgreen",
     },
     {
       icon: FaUserMd,
-      label: "Healthcare Providers",
-      value: stats?.totalProviders || 0,
-      color: "from-emerald-500 to-emerald-600",
-      bgColor: "bg-emerald-50",
-      iconColor: "text-emerald-600",
+      label: "Providers",
+      value: stats?.totalIndividualProviders || 0,
+      bgColor: "bg-yellow",
+      iconColor: "text-darkgreen",
     },
     {
       icon: FaCalendarCheck,
-      label: "Total Bookings",
+      label: "Bookings",
       value: stats?.totalBookings || 0,
-      color: "from-violet-500 to-violet-600",
-      bgColor: "bg-violet-50",
-      iconColor: "text-violet-600",
+      bgColor: "bg-yellow",
+      iconColor: "text-darkgreen",
     },
     {
       icon: FaBookOpen,
-      label: "Active Courses",
+      label: "Courses",
       value: stats?.lessonsCount || 0,
-      color: "from-amber-500 to-amber-600",
-      bgColor: "bg-amber-50",
-      iconColor: "text-amber-600",
+      bgColor: "bg-yellow",
+      iconColor: "text-darkgreen",
     },
     {
       icon: FaBuilding,
-      label: "Healthcare Centers",
+      label: "Centers",
       value: stats?.totalCentreProviders || 0,
-      color: "from-rose-500 to-rose-600",
-      bgColor: "bg-rose-50",
-      iconColor: "text-rose-600",
+      bgColor: "bg-yellow",
+      iconColor: "text-darkgreen",
     },
     {
       icon: FaCreditCard,
-      label: "Active Subscriptions",
-      value: 0,
-      color: "from-indigo-500 to-indigo-600",
-      bgColor: "bg-indigo-50",
-      iconColor: "text-indigo-600",
+      label: "Subscriptions",
+      value: stats?.activeSubscriptions || 0,
+      bgColor: "bg-yellow",
+      iconColor: "text-peach",
     },
   ];
 
+  const quickActions = [
+    {
+      icon: TbCategoryPlus,
+      label: "Add Category",
+      color: "bg-purple-100 text-purple-600",
+      onClick: () => navigate("/viewcat")
+    },
+    {
+      icon: MdArticle,
+      label: "Article",
+      color: "bg-indigo-100 text-indigo-600",
+      onClick: () => navigate("/viewarticle")
+    },
+    {
+      icon: MdRateReview,
+      label: "Add Assessment",
+      color: "bg-green-100 text-green-600",
+      onClick: () => navigate("/addassessment")
+    },
+    {
+      icon: TbReportSearch,
+      label: "Reports",
+      color: "bg-orange-100 text-orange-600",
+      onClick: () => navigate("/report")
+    },
+    {
+      icon: FaUsers,
+      label: "Roles & Access",
+      color: "bg-pink-100 text-pink-600",
+      onClick: () => navigate("/create-Role")
+    },
+    {
+      icon: FaCog,
+      label: "Master Data",
+      color: "bg-gray-100 text-gray-600",
+      onClick: () => navigate("/master-data")
+    }
+  ];
 
   return (
-    <div>
-  
     <div className="min-h-screen p-6 bg-offwhite">
-      <div className="flex gap-4 mb-4 h-44">
-        <div className="flex flex-col w-full p-4 rounded-2xl shadow-md border border-gray-200 min-w-[280px] ">
-           <div className="">
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-8 ">
-          {statCards.map((stat, index) => (
-            <div
-              key={index}
-              className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-shadow"
-            >
-              <div className="flex items-center justify-between mb-3">
-                <div className={`p-2.5 rounded-lg ${stat.bgColor}`}>
-                  <stat.icon className={`text-lg ${stat.iconColor}`} />
-                </div>
-                {/* <span className="text-xs font-medium text-gray-400">Today</span> */}
-              </div>
-              <p className="text-2xl font-bold text-gray-800 mb-1">
-                {stat.value.toLocaleString()}
-              </p>
-              <p className="text-xs text-gray-500">{stat.label}</p>
-            </div>
-          ))}
-        </div>
-        </div>
-        </div>
-        </div>
 
-      <div className="flex gap-6">
-        <div className="flex-1 bg-surface p-6 rounded-2xl shadow-sm border border-gray-200 overflow-x-auto bg-white">
-          <table className="min-w-full text-sm text-left border-collapse">
-            <thead>
-              <tr className=" bg-primary text-white">
-                {/* <th className="px-6 py-3 font-semibold">Sl.No</th> */}
-                <th className="px-6 py-3 font-semibold">Name</th>
-                <th className="px-6 py-3 font-semibold">Email</th>
-                <th className="px-6 py-3 font-semibold">Role</th>
-              </tr>
-            </thead>
-              <tbody className="divide-y">
-            {loading ? (
-              <tr>
-                <td colSpan="6" className="text-center py-6">
-                  Loading...
-                </td>
-              </tr>
-            ) : error ? (
-              <tr>
-                <td colSpan="6" className="text-center py-6 text-red-500">
-                  {error}
-                </td>
-              </tr>
-            ) : tableData.length === 0 ? (
-              <tr>
-                <td colSpan="6" className="text-center py-6">
-                  No records found
-                </td>
-              </tr>
-            ) : (
-              tableData.map((item, index) => (
-                <tr key={index}>
-                  {/* <td className="px-6 py-4">
-                    {(currentPage - 1) * itemsPerPage + index + 1}
-                  </td> */}
-                  <td className="px-6 py-4">{item.name}</td>
-                  <td className="px-6 py-4">{item.email}</td>
-                  <td className="px-6 py-4">{item.role}</td>
-                </tr>
-              ))
-            )}
-          </tbody>
-          </table>
 
-         <div className="flex justify-end gap-3 mt-4">
-          <button
-            onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-            className="px-4 py-2 bg-gray-200 rounded"
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+        {statCards.map((stat, index) => (
+          <div
+            key={index}
+            className="bg-white rounded-2xl border border-gray-100 p-6 
+                       shadow-sm hover:shadow-lg hover:-translate-y-1
+                       transition-all duration-300 group"
           >
-            Prev
-          </button>
-
-          <span className="px-3 py-2 bg-gray-100 rounded">
-            Page {currentPage} of {totalPages}
-          </span>
-
-          <button
-            onClick={() => setCurrentPage((p) => p + 1)}
-            className="px-4 py-2 bg-gray-200 rounded"
-          >
-            Next
-          </button>
-        </div>
-        </div>
-
-        <div className="flex gap-6">
-          <aside className="w-80  space-y-6">
-            <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-200">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-lg font-semibold">Recent Activity</h3>
-                <span className="text-sm text-gray-500">Live</span>
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-sm text-gray-500 mb-2">
+                  {stat.label}
+                </p>
+                <p className="text-3xl font-bold text-gray-800 tracking-tight">
+                  {stat.value.toLocaleString()}
+                </p>
               </div>
 
-             <ul className="space-y-3">
-  {recentBookings.length === 0 ? (
-    <p className="text-gray-500 text-sm">No recent activity</p>
-  ) : (
-    recentBookings.slice(0, 5).map((book) => (
-      <li key={book._id} className="flex items-start gap-3 py-1.5">
-        <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-green-50 text-green-700">
-          <FaClock />
-        </div>
-
-        <div className="flex-1">
-          <p className="text-sm font-normal">
-            {book.patientDetails?.username} booked  with {book.providerDetails?.fullName}
-          </p>
-
-        </div>
-      </li>
-    ))
-  )}
-</ul>
-
-
-              {/* <button className="mt-4 w-full text-sm px-3 py-2 rounded-lg bg-greenbtn text-white shadow">
-                View all
-              </button> */}
+              <div className={`p-3 rounded-xl ${stat.bgColor} group-hover:scale-110 transition`}>
+                <stat.icon className={`text-xl ${stat.iconColor}`} />
+              </div>
             </div>
+          </div>
+        ))}
+      </div>
 
-            <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-200">
-              <div className="flex items-center gap-3 mb-3">
-                <FaCalendarCheck className="text-2xl text-green-700" />
-                <h3 className="text-lg font-semibold">Appointments</h3>
+      {/* Pending Approvals */}
+      {/* {(pendingApprovals.articles > 0 ||
+        pendingApprovals.providers > 0 ||
+        pendingApprovals.assessments > 0) && (
+        <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-8 rounded-lg">
+          <div className="flex items-center gap-3">
+            <FaClock className="text-yellow-500" />
+            <p className="text-sm text-yellow-700">
+              <span className="font-bold">Pending Approvals:</span>
+              {pendingApprovals.articles > 0 && ` ${pendingApprovals.articles} Articles`}
+              {pendingApprovals.providers > 0 && ` • ${pendingApprovals.providers} Providers`}
+              {pendingApprovals.assessments > 0 && ` • ${pendingApprovals.assessments} Assessments`}
+            </p>
+          </div>
+        </div>
+      )} */}
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        {/* LEFT SIDE */}
+        <div className="space-y-6">
+
+          {/* Quick Actions */}
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-5">
+            <h3 className="text-lg font-semibold mb-5">Quick Actions</h3>
+
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
+              {quickActions.map((action, index) => (
+                <button
+                  key={index}
+                  onClick={action.onClick}
+                  className="flex flex-col items-center justify-center p-5 rounded-2xl 
+                             bg-gray-50 hover:bg-white 
+                             border border-transparent hover:border-gray-200
+                             transition-all duration-200 group"
+                >
+                  <div className={`p-4 rounded-xl ${action.color} mb-3 group-hover:scale-110 transition`}>
+                    <action.icon className="text-xl" />
+                  </div>
+                  <span className="text-sm font-medium text-gray-700 text-center">
+                    {action.label}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+        </div>
+
+        {/* RIGHT SIDE */}
+        <div className="space-y-6">
+
+          {/* Articles */}
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-5">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-semibold">Articles</h3>
+                <p className="text-xs text-gray-500 mt-1">
+                  Manage and review all articles
+                </p>
               </div>
-              <p className="text-sm text-gray-600">
-                Next: Will — Today, 4:30 PM
-              </p>
-              <p className="text-sm text-gray-500 mt-2">
-                2 new bookings • 1 cancellation
-              </p>
-              <button className="mt-4 w-full text-sm px-3 py-2 rounded-lg bg-button text-white shadow">
-                Manage
+
+              <button
+                onClick={() => navigate("/list-view-article")}
+                className="flex items-center gap-2 bg-green-50 text-green-600 px-4 py-2 rounded-lg hover:bg-green-100 transition"
+              >
+                <FaEye className="text-sm" />
+                View All
               </button>
             </div>
-          </aside>
+          </div>
+
+          {/* Assessments */}
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-5">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-semibold">Assessments</h3>
+                <p className="text-xs text-gray-500 mt-1">
+                  Review and manage assessments
+                </p>
+              </div>
+
+              <button
+                onClick={() => navigate("/providerassessment")}
+                className="flex items-center gap-2 bg-green-50 text-green-600 px-4 py-2 rounded-lg hover:bg-green-100 transition"
+              >
+                <FaEye className="text-sm" />
+                View All
+              </button>
+            </div>
+          </div>
+
+          {/* Recent Bookings */}
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">Recent Bookings</h3>
+              <span className="text-xs bg-green-100 text-green-600 px-2 py-1 rounded-full">
+                Live
+              </span>
+            </div>
+
+            <ul className="space-y-3">
+              {recentBookings.length === 0 ? (
+                <p className="text-gray-500 text-sm">No recent activity</p>
+              ) : (
+                recentBookings.slice(0, 5).map((book) => (
+                  <li key={book._id} className="flex items-start gap-3 py-1.5">
+                    <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-green-50 text-green-700">
+                      <FaClock className="text-sm" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">
+                        {book.patientDetails?.username}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        with {book.providerDetails?.fullName}
+                      </p>
+                    </div>
+                  </li>
+                ))
+              )}
+            </ul>
+          </div>
+
         </div>
       </div>
-    </div>
     </div>
   );
 };

@@ -14,9 +14,10 @@ const DashSidebar = () => {
   const navigate = useNavigate();
   const location = useLocation(); 
   const [active, setActive] = useState("");
-  const [isArticleOpen, setIsArticleOpen] = useState(false);
-  const [isAssessmentOpen, setIsAssessmentOpen] = useState(false);
+  // const [isArticleOpen, setIsArticleOpen] = useState(false);
+  // const [isAssessmentOpen, setIsAssessmentOpen] = useState(false);
   const role = useSelector((state) => state.auth.user?.role);
+  
   const dispatch = useDispatch();
 
 
@@ -65,39 +66,39 @@ const DashSidebar = () => {
     }
     
     // Auto-open dropdowns if a child item is active
-    if (["Add Category", "Approve Articles"].includes(active)) {
-      setIsArticleOpen(true);
-    }
-    if (["Add Assessment", "Provider Assessments"].includes(active)) {
-      setIsAssessmentOpen(true);
-    }
+    // if (["Add Category", "Approve Articles"].includes(active)) {
+    //   setIsArticleOpen(true);
+    // }
+    // if (["Add Assessment", "Provider Assessments"].includes(active)) {
+    //   setIsAssessmentOpen(true);
+    // }
   }, [location.pathname, active]); 
 
-  const handleArticleClick = (section) => {
-    setActive(section);
-    if (section === "Add Category") {
-      navigate("/viewcat");
-    } else if (section === "Approve Articles") {
-      navigate("/viewarticle"); 
-    }
-  };
+  // const handleArticleClick = (section) => {
+  //   setActive(section);
+  //   if (section === "Add Category") {
+  //     navigate("/viewcat");
+  //   } else if (section === "Approve Articles") {
+  //     navigate("/viewarticle"); 
+  //   }
+  // };
 
-  const handleAssessmentClick = (section) => {
-    setActive(section);
-    if (section === "Add Assessment") {
-      navigate("/addassessment");
-    } else if (section === "Provider Assessments") {
-      navigate("/providerassessment");
-    }
-  }
+  // const handleAssessmentClick = (section) => {
+  //   setActive(section);
+  //   if (section === "Add Assessment") {
+  //     navigate("/addassessment");
+  //   } else if (section === "Provider Assessments") {
+  //     navigate("/providerassessment");
+  //   }
+  // }
 
-  const toggleAssessmentSection = () => {
-    setIsAssessmentOpen((prev) => !prev);
-  };
+  // const toggleAssessmentSection = () => {
+  //   setIsAssessmentOpen((prev) => !prev);
+  // };
 
-  const toggleArticleSection = () => {
-    setIsArticleOpen(!isArticleOpen);
-  };
+  // const toggleArticleSection = () => {
+  //   setIsArticleOpen(!isArticleOpen);
+  // };
 
   const handleLogout = async () => {
   try {
@@ -124,13 +125,13 @@ const DashSidebar = () => {
   `;
   
 
-  const getSubLinkClasses = (name) => `
-    flex items-center gap-2 cursor-pointer transition p-2 rounded text-sm
-    ${active === name
-      ? `${activeBg} ${activeText} font-medium`
-      : `${defaultText} ${hoverBg}`
-    }
-  `;
+  // const getSubLinkClasses = (name) => `
+  //   flex items-center gap-2 cursor-pointer transition p-2 rounded text-sm
+  //   ${active === name
+  //     ? `${activeBg} ${activeText} font-medium`
+  //     : `${defaultText} ${hoverBg}`
+  //   }
+  // `;
 
   return (
     <div className="w-56 bg-greenmuted text-gray-700  h-full flex flex-col shadow-xl border  rounded-3xl "> 
@@ -209,7 +210,7 @@ const DashSidebar = () => {
           <TbReportSearch className="text-lg" />
          <span className = "text-lg">Plans and Features</span>
         </label>
-        {role === "super_admin" && (
+         {role === "Super Admin" && (
          <label
           onClick={() => {
             setActive("Role");
@@ -220,10 +221,10 @@ const DashSidebar = () => {
           <TbReportSearch className="text-lg" />
           <span className = "text-lg"> Roles and access</span>
         </label>
-        )}
+        )} 
 
         {/* Content Management  */}
-        <div className="transition-all duration-300">
+        {/* <div className="transition-all duration-300">
           <div
             onClick={toggleArticleSection}
             className={`flex items-center justify-between font-semibold cursor-pointer transition p-3 rounded-lg
@@ -263,10 +264,10 @@ const DashSidebar = () => {
               </label>
             </div>
           )}
-        </div>
+        </div> */}
 
         {/* Assessment (Dropdown) */}
-        <div className="transition-all duration-300">
+        {/* <div className="transition-all duration-300">
           <div
             onClick={toggleAssessmentSection}
             className={`flex items-center justify-between font-semibold cursor-pointer transition p-3 rounded-lg
@@ -306,8 +307,8 @@ const DashSidebar = () => {
               </label>
             </div>
           )}
-
-          <label
+</div> */}
+           <label
           onClick={() => {
             setActive("Master Data");
             navigate("/master-data");
@@ -315,10 +316,10 @@ const DashSidebar = () => {
           className={getNavLinkClasses("Master Data")}
         >
           <RiParentFill className="text-lg" />
-          <span className = "text-lg">Master</span>
-        </label>
+          <span className = "text-lg">Master Data</span>
+        </label> 
               
-        </div>
+        
       </nav>
 
       {/* Logout Button */}

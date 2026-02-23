@@ -216,7 +216,7 @@ function ViewProvider() {
                           therapies.map((type, i) => (
                             <span
                               key={i}
-                              className="px-2 py-0.5 rounded-full text-xs font-medium bg-tag text-tagtext"
+                              className="px-2 py-0.5 rounded-full text-xs font-medium bg-tag text-darkgreen"
                             >
                               {type}
                             </span>

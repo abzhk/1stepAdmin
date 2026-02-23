@@ -166,7 +166,7 @@ export const createPlan = async (req, res) => {
       plan_key,
       user_type,
       plan_name,
-      slug: `${slug}-${user_type}-v${nextVersion}`,
+      slug: `${slug}-${user_type}`,
       description,
       is_featured,
       price: normalizedPrice,

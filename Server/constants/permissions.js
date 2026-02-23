@@ -28,6 +28,6 @@ export const ROLES = {
   PARENT: "parent",
   PROVIDER: "provider",
   ADMIN: "admin",
-  SUPER_ADMIN: "super_admin",
+  SUPER_ADMIN: "Super Admin",
 };
 

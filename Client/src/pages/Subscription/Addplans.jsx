@@ -17,6 +17,7 @@ import { useNavigate } from "react-router-dom";
 import { GrView } from "react-icons/gr";
 import { useParams } from "react-router-dom";
 import toast from "react-hot-toast";
+import { useLocation } from "react-router-dom";
 
 
 const Addplans = () => {
@@ -26,7 +27,12 @@ const Addplans = () => {
   const { id } = useParams();
   const API = import.meta.env.VITE_API_URL;
   const [modules, setModules] = useState([]);
-  const isEditMode = !!id;
+  const location = useLocation();
+const searchParams = new URLSearchParams(location.search);
+const mode = searchParams.get("mode");
+
+const isEditMode = !!id && mode !== "version";
+const isVersionMode = !!id && mode === "version";
 
 
   const [formData, setFormData] = useState({
@@ -76,6 +82,8 @@ const Addplans = () => {
     fetchModules();
   }, []);
 
+  
+
   useEffect(() => {
     if (!formData.plan_name) return;
 
@@ -120,37 +128,42 @@ const Addplans = () => {
   }, [formData.user_type]);
 
   const handleFinalPublishClick = async () => {
-  const isEditMode = !!id;
+  let payload;
+  let url;
+  let method;
 
-  const payload = isEditMode
-    ? {
-        plan_name: formData.plan_name,
-        description: formData.description,
-        is_featured: formData.is_featured,
-      }
-    : {
-        ...formData,
-        price: Number(formData.price),
-        discount: Number(formData.discount),
-        trial_period_days: Number(formData.trial_period_days),
-        max_messages_per_month: Number(formData.max_messages_per_month),
-        max_assessments_per_month: Number(formData.max_assessments_per_month),
-        max_providers_allowed: Number(formData.max_providers_allowed),
-        max_parents_allowed: Number(formData.max_parents_allowed),
-        video_sessions_upload_per_month: Number(
-          formData.video_sessions_upload_per_month
-        ),
-        video_sessions_count: Number(formData.video_sessions_count),
-        session_duration_mins: Number(formData.session_duration_mins),
-      };
+  if (isEditMode) {
+    // metadata edit only
+    payload = {
+      plan_name: formData.plan_name,
+      description: formData.description,
+      is_featured: formData.is_featured,
+    };
+
+    url = `${API}/api/plan/update/${id}`;
+    method = "PUT";
+  } else {
+    payload = {
+      ...formData,
+      price: Number(formData.price),
+      discount: Number(formData.discount),
+      trial_period_days: Number(formData.trial_period_days),
+      max_messages_per_month: Number(formData.max_messages_per_month),
+      max_assessments_per_month: Number(formData.max_assessments_per_month),
+      max_providers_allowed: Number(formData.max_providers_allowed),
+      max_parents_allowed: Number(formData.max_parents_allowed),
+      video_sessions_upload_per_month: Number(
+        formData.video_sessions_upload_per_month
+      ),
+      video_sessions_count: Number(formData.video_sessions_count),
+      session_duration_mins: Number(formData.session_duration_mins),
+    };
+
+    url = `${API}/api/plan/create`;
+    method = "POST";
+  }
 
   try {
-    const url = isEditMode
-      ? `${API}/api/plan/update/${id}`
-      : `${API}/api/plan/create`;
-
-    const method = isEditMode ? "PUT" : "POST";
-
     const response = await fetch(url, {
       method,
       credentials: "include",
@@ -166,7 +179,11 @@ const Addplans = () => {
     }
 
     toast.success(
-      isEditMode ? "Plan updated successfully" : "Plan created successfully"
+      isEditMode
+        ? "Plan updated successfully"
+        : isVersionMode
+        ? "New version created successfully"
+        : "Plan created successfully"
     );
 
     setIsSubmitted(true);
@@ -175,7 +192,6 @@ const Addplans = () => {
     toast.error("Something went wrong");
   }
 };
-
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
@@ -377,7 +393,7 @@ const Addplans = () => {
                         name="user_type"
                         value={formData.user_type}
                         onChange={handleChange}
-                         disabled={isEditMode}
+                        disabled={isEditMode || isVersionMode}
                         className="mt-1 w-full px-4 py-3 rounded-xl bg-[#F6F4F0] border border-[#8fa797]/30 focus:ring-2 focus:ring-[#2d4a36] outline-none text-[#2d4a36]"
                       >
                         <option value="parent">Parent</option>
@@ -391,7 +407,7 @@ const Addplans = () => {
                           name="plan_key"
                           value={formData.plan_key}
                           onChange={handleChange}
-                           disabled={isEditMode}
+                          disabled={isEditMode || isVersionMode}
                           className="mt-1 w-full px-4 py-3 rounded-xl bg-[#F6F4F0] border border-[#8fa797]/30 focus:ring-2 focus:ring-[#2d4a36] outline-none text-[#2d4a36]
                           autoFocus"
                         >
@@ -408,6 +424,7 @@ const Addplans = () => {
                           name="plan_name"
                           value={formData.plan_name}
                           onChange={handleChange}
+                          disabled={isVersionMode}
                           placeholder="e.g. Premium Plan"
                           className="mt-1 w-full px-4 py-3 rounded-xl bg-[#F6F4F0] border border-[#8fa797]/30 focus:ring-2 focus:ring-[#2d4a36] outline-none text-[#2d4a36]"
                           autoFocus
