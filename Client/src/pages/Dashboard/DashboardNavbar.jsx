@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Bell, Settings, Info, Mail, ChevronDown, CheckCircle, AlertCircle } from 'lucide-react';
 import ProfileImage from '../../assets/profile.jpeg';
 import NavSearch from '../../utils/navbarSearch.jsx';
+import { useLocation } from "react-router-dom";
 
 const DashboardNavbar = ({ searchTerm, setSearchTerm }) => {
   const navigate = useNavigate();
@@ -13,6 +14,25 @@ const DashboardNavbar = ({ searchTerm, setSearchTerm }) => {
   
   const profileRef = useRef(null);
   const notifRef = useRef(null);
+  const location = useLocation();
+
+  const getPageTitle = () => {
+  const path = location.pathname;
+
+  if (path.startsWith("/dashboard")) return "Dashboard";
+  if (path.startsWith("/users")) return "Users";
+  if (path.startsWith("/allproviders")||path.startsWith("/inactive-providers")) return "Providers";
+  if (path.startsWith("/view-parent") ||path.startsWith("/inactive-parents")) return "parents";
+  if (path.startsWith("/add-plans")||path.startsWith("/view-plans")) return "Plans";
+  if (path.startsWith("/create-Role")) return "Roles";
+  if (path.startsWith("/reports")) return "Reports";
+  if (path.startsWith("/viewcat") ||path.startsWith("/viewarticle")) return "Article";
+  if (path.startsWith("/addassessment") ||path.startsWith("/providerassessment")) return "Assessment";
+  if (path.startsWith("/master-data")) return "Master Data";
+  return "Dashboard";
+};
+
+const pageTitle = getPageTitle();
 
   // Mock Notifications Data
   const notifications = [
@@ -32,8 +52,12 @@ const DashboardNavbar = ({ searchTerm, setSearchTerm }) => {
   }, []);
 
   return (
-    <div className="w-full bg-white text-white p-4 rounded-2xl ">
-      <div className="flex justify-end">
+   <div className="w-full bg-white p-4 rounded-2xl flex justify-between items-center">
+  <h1 className="text-2xl font-semibold text-gray-800 tracking-tight">
+    {pageTitle}
+  </h1>
+
+  <div className="flex items-center gap-6">
         <div className="flex items-center gap-6">
           
           {/* Search Input */}

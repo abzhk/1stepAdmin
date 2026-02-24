@@ -228,7 +228,7 @@ export const getProviders = async (req, res, next) => {
         .limit(Number(limit))
         .skip(Number(startIndex))
         .select(
-          "fullName name address profilePicture createdAt verified regularPrice experience therapytype ratingSummary timeSlots userRef"
+          "fullName name address email phone providerType profilePicture createdAt verified regularPrice experience therapytype ratingSummary timeSlots userRef"
         )
         .lean(),
 

@@ -122,7 +122,7 @@ const MainDashboard = () => {
       label: "Subscriptions",
       value: stats?.activeSubscriptions || 0,
       bgColor: "bg-yellow",
-      iconColor: "text-peach",
+      iconColor: "text-darkgreen",
     },
   ];
 
@@ -167,33 +167,48 @@ const MainDashboard = () => {
 
   return (
     <div className="min-h-screen p-6 bg-offwhite">
-
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
-        {statCards.map((stat, index) => (
-          <div
-            key={index}
-            className="bg-white rounded-2xl border border-gray-100 p-6 
-                       shadow-sm hover:shadow-lg hover:-translate-y-1
-                       transition-all duration-300 group"
-          >
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-sm text-gray-500 mb-2">
-                  {stat.label}
-                </p>
-                <p className="text-3xl font-bold text-gray-800 tracking-tight">
-                  {stat.value.toLocaleString()}
-                </p>
-              </div>
-
-              <div className={`p-3 rounded-xl ${stat.bgColor} group-hover:scale-110 transition`}>
-                <stat.icon className={`text-xl ${stat.iconColor}`} />
-              </div>
-            </div>
-          </div>
-        ))}
+      <div className="flex items-center justify-between mb-12">
+      <div>
+        <h1 className="text-3xl font-bold text-gray-800">
+          Welcome Back 
+        </h1>
+        <p className="text-gray-500 text-sm mt-2">
+          Here's what's happening today.
+        </p>
       </div>
+      </div>
+
+     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+  {statCards.map((stat, index) => (
+    <div
+      key={index}
+      className="relative overflow-hidden bg-white rounded-4xl border border-gray-100 p-6 
+                 shadow-sm hover:shadow-lg hover:-translate-y-1
+                 transition-all duration-300 group"
+    >
+      <div className="absolute top-0 right-0 w-24 h-24 
+                      bg-green-50 
+                      rounded-bl-[60px] 
+                      opacity-90">
+      </div>
+
+      <div className="relative flex items-start justify-between">
+        <div>
+          <p className="text-sm text-gray-500 mb-2">
+            {stat.label}
+          </p>
+          <p className="text-3xl font-bold text-gray-800 tracking-tight">
+            {stat.value.toLocaleString()}
+          </p>
+        </div>
+
+        <div className={`p-3 rounded-xl ${stat.bgColor} group-hover:scale-110 transition`}>
+          <stat.icon className={`text-xl ${stat.iconColor}`} />
+        </div>
+      </div>
+    </div>
+  ))}
+</div>
 
       {/* Pending Approvals */}
       {/* {(pendingApprovals.articles > 0 ||
@@ -218,7 +233,7 @@ const MainDashboard = () => {
         <div className="space-y-6">
 
           {/* Quick Actions */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-5">
+          <div className="bg-white rounded-4xl shadow-sm border border-gray-200 p-5">
             <h3 className="text-lg font-semibold mb-5">Quick Actions</h3>
 
             <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
@@ -248,7 +263,7 @@ const MainDashboard = () => {
         <div className="space-y-6">
 
           {/* Articles */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-5">
+          <div className="bg-white rounded-4xl shadow-sm border border-gray-200 p-5">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-lg font-semibold">Articles</h3>
@@ -268,7 +283,7 @@ const MainDashboard = () => {
           </div>
 
           {/* Assessments */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-5">
+          <div className="bg-white rounded-4xl shadow-sm border border-gray-200 p-5">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-lg font-semibold">Assessments</h3>

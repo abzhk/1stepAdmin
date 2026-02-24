@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
 import dateFormatUtils from "../../utils/dateFormatUtils";
+import { IoIosArrowRoundBack } from "react-icons/io";
+import { useNavigate } from "react-router-dom";
 
 function ProviderAssessment() {
   const [assessments, setAssessments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const fetchAssessments = async () => {
     try {
@@ -42,6 +45,15 @@ function ProviderAssessment() {
     <div className="min-h-screen bg-secondary p-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6">
         <div>
+
+                   <button
+                type="button"
+                onClick={() => navigate("/dashboard")}
+                className="flex gap-2 items-center mb-6 text-darkgreen hover:text-green-700"
+              >
+                <IoIosArrowRoundBack size={22} />
+                Back
+              </button>
           <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
             Provider Assessments
           </h1>
