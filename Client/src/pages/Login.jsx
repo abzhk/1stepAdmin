@@ -7,6 +7,7 @@ import doctor from "../../Assets/Doctor image.jpg";
 import { TbPasswordFingerprint } from "react-icons/tb";
 import { useDispatch } from "react-redux";
 import { setUser } from "../redux/slice/authSlice";
+import toast from "react-hot-toast";
 
 const messages = [
   "Welcome — please login to access your account",
@@ -60,10 +61,11 @@ const Login = () => {
         return;
       }
      dispatch(setUser(data.user));
+      toast.success("Login successful ");
       navigate("/dashboard");
     } catch (err) {
       console.error("Login error:", err);
-      setError("Something went wrong. Please try again.");
+      toast.error("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }

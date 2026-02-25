@@ -30,6 +30,7 @@ const DashboardNavbar = ({ searchTerm, setSearchTerm }) => {
   if (path.startsWith("/addassessment") ||path.startsWith("/providerassessment")) return "Assessment";
   if (path.startsWith("/master-data")) return "Master Data";
   if (path.startsWith("/report")) return "Reports";
+  if (path.startsWith("/create-admin")) return "Create Admin";
   return "Dashboard";
 };
 

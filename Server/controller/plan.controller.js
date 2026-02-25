@@ -1,4 +1,5 @@
 import Plan from "../model/plan.model.js";
+import AccessModules from "../model/acessmodule.model.js";
 
 export const createPlan = async (req, res) => {
   try {
@@ -45,6 +46,27 @@ export const createPlan = async (req, res) => {
       });
     }
 
+if (!Array.isArray(available_modules)) {
+  return res.status(400).json({
+    message: "available_modules must be an array",
+  });
+}
+
+const validModules = await AccessModules.find().select("_id");
+
+const validModuleIds = new Set(
+  validModules.map((m) => m._id.toString())
+);
+
+const invalidModules = available_modules.filter(
+  (id) => !validModuleIds.has(id.toString())
+);
+
+if (invalidModules.length > 0) {
+  return res.status(400).json({
+    message: `Invalid module IDs selected`,
+  });
+}
 
     const normalizedPrice = Number(price);
     const normalizedDiscount = Number(discount);
@@ -93,7 +115,7 @@ export const createPlan = async (req, res) => {
         billing_interval,
         trial_period_days: normalizedTrial,
         stripe_price_id,
-        available_modules: [...available_modules].sort(),
+        available_modules: [...available_modules.map(id => id.toString())].sort(),
         max_messages_per_month: Number(max_messages_per_month),
         max_assessments_per_month: Number(max_assessments_per_month),
         max_providers_allowed: Number(max_providers_allowed),
@@ -122,7 +144,7 @@ export const createPlan = async (req, res) => {
         billing_interval: latestPlan.billing_interval,
         trial_period_days: latestPlan.trial_period_days,
         stripe_price_id: latestPlan.stripe_price_id,
-        available_modules: [...latestPlan.available_modules].sort(),
+        available_modules: [...latestPlan.available_modules.map(id => id.toString())].sort(),
         max_messages_per_month: latestPlan.max_messages_per_month,
         max_assessments_per_month:
           latestPlan.max_assessments_per_month,

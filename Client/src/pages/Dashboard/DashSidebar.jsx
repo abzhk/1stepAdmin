@@ -9,6 +9,7 @@ import logo from '../../assets/logo.svg'
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { logout } from "../../redux/slice/authSlice";
+import toast from 'react-hot-toast';
 
 const DashSidebar = () => {
   const navigate = useNavigate();
@@ -108,6 +109,7 @@ const DashSidebar = () => {
       credentials: "include", 
     });
     dispatch(logout());
+    toast.success("Logged out successfully");
     navigate("/log");
   } catch (error) {
     console.error("Logout error", error);

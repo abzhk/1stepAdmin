@@ -60,25 +60,11 @@ const planSchema = new mongoose.Schema(
 
     // 🔥 MODULES UNLOCKED BY THIS PLAN
     available_modules: [
-      {
-        type: String,
-        enum: [
-          "dashboard",
-          "profile",
-          "messages",
-          "assessment",
-          "appointments",
-          "video_sessions",
-          "reports",
-          "billing",
-          "resource_library",
-          "patients",
-          "settings",
-          "article",
-          "courses",
-        ],
-      },
-    ],
+  {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "AccessModules",
+  },
+],
 
     // 🔥 USAGE LIMITS
     max_messages_per_month: {
