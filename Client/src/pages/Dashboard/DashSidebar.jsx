@@ -151,7 +151,7 @@ const DashSidebar = () => {
           <MdSpaceDashboard className="text-lg  " />
          <span className = "text-lg"> Dashboard</span>
         </label>
-        {role === "super_admin" && (
+        {role === "Super Admin" && (
   <label
     onClick={() => {
       setActive("Create User");
