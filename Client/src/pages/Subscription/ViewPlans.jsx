@@ -12,6 +12,8 @@ const ViewPlans = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { searchTerm } = useOutletContext();
+  const [page, setPage] = useState(1);
+const [totalPages, setTotalPages] = useState(1);
 
   const navigate = useNavigate();
   const API = import.meta.env.VITE_API_URL;
@@ -22,7 +24,7 @@ const ViewPlans = () => {
         setLoading(true);
 
         const response = await fetch(
-          `${API}/api/plan/get?search=${searchTerm}`,{
+          `${API}/api/plan/get?search=${searchTerm}&page=${page}&limit=10`,{
             method: "GET",
             credentials: "include",
             headers: {
@@ -38,6 +40,7 @@ const ViewPlans = () => {
         }
 
         setPlans(data.plans);
+setTotalPages(data.totalPages);
         setError(null);
       } catch (err) {
         console.error(err);
@@ -48,7 +51,7 @@ const ViewPlans = () => {
     };
 
     fetchPlans();
-  }, [searchTerm]);
+  }, [searchTerm,page]);
 
   if (loading) {
     return <p className="p-6">Loading plans...</p>;
@@ -120,6 +123,27 @@ const ViewPlans = () => {
             ))}
           </tbody>
         </table>
+        <div className="flex justify-end items-center gap-4 mt-6">
+  <button
+    disabled={page === 1}
+    onClick={() => setPage((prev) => prev - 1)}
+    className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+  >
+    Previous
+  </button>
+
+  <span className="font-medium">
+    Page {page} of {totalPages}
+  </span>
+
+  <button
+    disabled={page === totalPages}
+    onClick={() => setPage((prev) => prev + 1)}
+    className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+  >
+    Next
+  </button>
+</div>
       </div>
     </div>
   );

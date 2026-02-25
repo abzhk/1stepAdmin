@@ -212,24 +212,44 @@ export const createPlan = async (req, res) => {
 
 
 export const getPlans = async (req, res) => {
-    try{
-      const {search,limit=10,user_type}= req.query
+  try {
+    const {
+      search,
+      user_type,
+      page = 1,
+      limit = 10
+    } = req.query;
 
-      const query = {};
+    const query = {};
 
-if (search) {
-  query.plan_name = { $regex: search, $options: "i" };
-}
+    if (search) {
+      query.plan_name = { $regex: search, $options: "i" };
+    }
 
-if (user_type) {
-  query.user_type = user_type;
-}
-        const plans =await Plan.find(query).sort({createdAt:-1}).limit(Number(limit));
-         res.status(200).json({
+    if (user_type) {
+      query.user_type = user_type;
+    }
+
+    const pageNumber = Number(page);
+    const limitNumber = Number(limit);
+
+    const skip = (pageNumber - 1) * limitNumber;
+
+    const totalPlans = await Plan.countDocuments(query);
+
+    const plans = await Plan.find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limitNumber);
+
+    res.status(200).json({
       success: true,
-      count: plans.length,
+      totalPlans,
+      totalPages: Math.ceil(totalPlans / limitNumber),
+      currentPage: pageNumber,
       plans,
     });
+
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -237,8 +257,7 @@ if (user_type) {
       error: error.message,
     });
   }
-    }
-
+};
     export const getPlanById = async (req, res) => {
   try {
     const plan = await Plan.findById(req.params.id);

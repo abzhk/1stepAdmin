@@ -20,11 +20,11 @@ const MainDashboard = () => {
   const navigate = useNavigate();
   const [stats, setStats] = useState(null);
   const [recentBookings, setRecentBookings] = useState([]);
-  const [pendingApprovals, setPendingApprovals] = useState({
-    articles: 0,
-    providers: 0,
-    assessments: 0
-  });
+  // const [pendingApprovals, setPendingApprovals] = useState({
+  //   articles: 0,
+  //   providers: 0,
+  //   assessments: 0
+  // });
 
   useEffect(() => {
     fetchStats();
