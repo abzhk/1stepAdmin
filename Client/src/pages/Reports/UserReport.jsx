@@ -140,7 +140,7 @@ const UserReport = () => {
 
   return (
     <div className="p-6 bg-offwhite min-h-screen">
-      <div className="bg-white rounded-xl shadow-md p-6">
+     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-gray-800">
             User Report
@@ -168,60 +168,75 @@ const UserReport = () => {
         {loading && <div>Loading...</div>}
         {error && <div className="text-red-500">{error}</div>}
 
-        <div className="overflow-x-auto">
-          <table className="min-w-full border border-gray-300 text-sm">
-            <thead className="bg-gray-100">
-              <tr className="text-center">
-                <th className="border px-4 py-2">Name</th>
-                <th className="border px-4 py-2">Mobile</th>
-                <th className="border px-4 py-2">Email</th>
-                <th className="border px-4 py-2">Created At</th>
-                <th className="border px-4 py-2">User Type</th>
-              </tr>
-            </thead>
-            <tbody>
-              {userType === "Parent" &&
-                parents.map((parent) => (
-                  <tr key={parent._id} className="text-center">
-                    <td className="border px-4 py-2">
-                      {parent.parentDetails?.fullName || "-"}
-                    </td>
-                    <td className="border px-4 py-2">
-                      {parent.parentDetails?.phoneNumber || "-"}
-                    </td>
-                    <td className="border px-4 py-2">
-                      {parent.userRef?.email || "-"}
-                    </td>
-                    <td className="border px-4 py-2">
-                      {dateFormatUtils(parent.createdAt) || "-"}
-                    </td>
-                    <td className="border px-4 py-2">Parent</td>
-                  </tr>
-                ))}
+        <div className="overflow-hidden rounded-xl border border-gray-200">
+  <table className="min-w-full text-sm">
+    <thead className="bg-[#f6f4f0] text-gray-600 uppercase text-xs tracking-wider">
+      <tr>
+        <th className="px-6 py-4 text-left">Name</th>
+        <th className="px-6 py-4 text-left">Mobile</th>
+        <th className="px-6 py-4 text-left">Email</th>
+        <th className="px-6 py-4 text-left">Created At</th>
+        <th className="px-6 py-4 text-left">
+          {userType === "Parent" ? "User Type" : "Provider Type"}
+        </th>
+      </tr>
+    </thead>
 
-              {userType === "Provider" &&
-                providers.map((provider) => (
-                  <tr key={provider._id} className="text-center">
-                    <td className="border px-4 py-2">
-                      {provider.fullName || "-"}
-                    </td>
-                    <td className="border px-4 py-2">
-                      {provider.phone || "-"}
-                    </td>
-                    <td className="border px-4 py-2">
-                      {provider.email || "-"}
-                    </td>
-                    <td className="border px-4 py-2">
-                      {dateFormatUtils(provider.createdAt) || "-"}
-                    </td>
-                    <td className="border px-4 py-2">
-                      {provider.providerType || "-"}
-                    </td>
-                  </tr>
-                ))}
-            </tbody>
-          </table>
-        </div>
+    <tbody className="divide-y divide-gray-100 bg-white">
+      {userType === "Parent" &&
+        parents.map((parent) => (
+          <tr
+            key={parent._id}
+            className="hover:bg-gray-50 transition duration-150"
+          >
+            <td className="px-6 py-4 font-medium text-gray-800">
+              {parent.parentDetails?.fullName || "-"}
+            </td>
+            <td className="px-6 py-4 text-gray-600">
+              {parent.parentDetails?.phoneNumber || "-"}
+            </td>
+            <td className="px-6 py-4 text-gray-600">
+              {parent.userRef?.email || "-"}
+            </td>
+            <td className="px-6 py-4 text-gray-500">
+              {dateFormatUtils(parent.createdAt) || "-"}
+            </td>
+            <td className="px-6 py-4">
+              <span className="px-3 py-1 text-xs font-semibold rounded-full ">
+                Parent
+              </span>
+            </td>
+          </tr>
+        ))}
+
+      {userType === "Provider" &&
+        providers.map((provider) => (
+          <tr
+            key={provider._id}
+            className="hover:bg-gray-50 transition duration-150"
+          >
+            <td className="px-6 py-4 font-medium text-gray-800">
+              {provider.fullName || "-"}
+            </td>
+            <td className="px-6 py-4 text-gray-600">
+              {provider.phone || "-"}
+            </td>
+            <td className="px-6 py-4 text-gray-600">
+              {provider.email || "-"}
+            </td>
+            <td className="px-6 py-4 text-gray-500">
+              {dateFormatUtils(provider.createdAt) || "-"}
+            </td>
+            <td className="px-6 py-4">
+              <span className="px-3 py-1 text-xs font-semibold rounded-full ">
+                {provider.providerType || "-"}
+              </span>
+            </td>
+          </tr>
+        ))}
+    </tbody>
+  </table>
+</div>
 
         <div className="flex justify-end items-end mt-6">
           <button
