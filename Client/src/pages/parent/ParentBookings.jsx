@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import dateFormatUtils from "../../utils/dateFormatUtils";
+import {api} from "../../utils/api.js"
 
 const ParentBookings = () => {
   const { userId } = useParams();
@@ -17,19 +18,15 @@ const ParentBookings = () => {
         setLoading(true);
         setError("");
 
-        const API = import.meta.env.VITE_API_URL;
 
-        const res = await fetch(
-          `${API}/api/parent/bookings/${userId}`,
+
+        const data = await api(
+          `/api/parent/bookings/${userId}`,
           {
             method: "GET",
             credentials: "include",
           }
         );
-
-        const data = await res.json();
-
-        if (!res.ok) throw new Error(data.message || "Failed to fetch");
 
         setBookings(data.bookings || []);
       } catch (err) {

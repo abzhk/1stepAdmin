@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import {api} from "../../utils/api.js"
 
 
 const InacticeParents = () => {
@@ -14,10 +15,8 @@ const InacticeParents = () => {
       setLoading(true);
       setError("");
 
-      const res = await fetch(`${API}/api/parent/inactive-parents`);
-      const data = await res.json();
+      const data= await api(`/api/parent/inactive-parents`);
 
-      if (!res.ok) throw new Error(data.message || "Failed");
 
       const inactive = (data.parents || []).filter(
         (p) => !p.userRef?.isActive
@@ -38,13 +37,13 @@ const InacticeParents = () => {
     if (!window.confirm("Delete this parent?")) return;
 
     try {
-      const res = await fetch(`${API}/api/admin/parent/user/${userId}`, {
+      const data = await api(`/api/admin/parent/user/${userId}`, {
         method: "DELETE",
         credentials: "include",
       });
+      if (!data.success) throw new Error(data.message);
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message);
+      toast.success("Parent deleted");
 
       setParents((prev) => prev.filter((p) => p.userRef?._id !== userId));
     } catch (err) {

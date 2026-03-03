@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import{api} from "../../utils/api.js";
 
 function EditProvider() {
   const { id } = useParams();
@@ -27,14 +28,10 @@ function EditProvider() {
       try {
         setLoading(true);
         setError("");
- const API = import.meta.env.VITE_API_URL;
-        const res = await fetch(
-          `${API}/api/provider/providersbyid/${id}`,
-          { credentials: "include" }
-        );
 
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.message);
+        const data = await api(
+          `/api/provider/providersbyid/${id}`
+        );
 
         setFormData({
           fullName: data.provider.fullName || "",
@@ -69,19 +66,17 @@ function EditProvider() {
     try {
       setLoading(true);
       setError("");
-const API = import.meta.env.VITE_API_URL;
-      const res = await fetch(
-        `${API}/api/admin/providers/${id}`,
+
+      const data = await api(
+        `/api/admin/providers/${id}`,
         {
           method: "PUT",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(formData),
         }
       );
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message);
+       if (!data.success) {
+      throw new Error(data.message || "Update failed");
+    }
 
        navigate("/allproviders");
     } catch (err) {

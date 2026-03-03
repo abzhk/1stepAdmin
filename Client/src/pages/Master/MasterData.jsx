@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import {api} from "../../utils/api.js";
 
 const MasterData = () => {
   const [services, setServices] = useState([]);
@@ -16,10 +17,9 @@ const MasterData = () => {
 
   const fetchServices = async () => {
     try {
-      const res = await fetch(
-        "http://localhost:3001/api/services/serviceType?format=raw"
-      );
-      const data = await res.json();
+       const data = await api(
+      "/api/services/serviceType?format=raw"
+    );
       setServices(data.data || []);
     } catch (error) {
       console.error("Fetch failed:", error);
@@ -37,7 +37,7 @@ const MasterData = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    await fetch("http://localhost:3001/api/services/create-service", {
+    await api("/api/services/create-service", {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
@@ -81,7 +81,7 @@ const MasterData = () => {
                 name="label"
                 value={formData.label}
                 onChange={handleChange}
-                className="border rounded-lg px-3 py-2  "
+                className=" rounded-lg px-3 py-2  bg-offwhite "
                 required
               />
             </div>
@@ -93,7 +93,7 @@ const MasterData = () => {
                 name="code"
                 value={formData.code}
                 onChange={handleChange}
-                className="border rounded-lg px-3 py-2 "
+                className=" rounded-lg px-3 py-2 bg-offwhite "
                 required
               />
             </div>
@@ -107,11 +107,11 @@ const MasterData = () => {
                 name="durationDefault"
                 value={formData.durationDefault}
                 onChange={handleChange}
-                className="border rounded-lg px-3 py-2 "
+                className=" rounded-lg px-3 py-2 bg-offwhite "
               />
             </div>
 
-            <div className="flex items-center mt-6 border rounded-lg px-3 py-2 focus:outline-none ">
+            <div className="flex items-center mt-6  rounded-lg px-3 py-2 focus:outline-none bg-offwhite ">
               <input
                 type="checkbox"
                 name="billable"
@@ -119,7 +119,7 @@ const MasterData = () => {
                 onChange={handleChange}
                 className="mr-2"
               />
-              <label className="text-sm font-medium">Billable</label>
+              <label className="text-sm font-medium ">Billable</label>
             </div>
 
             <div className="col-span-2 flex justify-end">

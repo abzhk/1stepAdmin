@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import {api} from "../../utils/api.js";
 
 const ViewAssessment = () => {
   const [categories, setCategories] = useState([]);
@@ -12,14 +13,8 @@ const ViewAssessment = () => {
     try {
       setLoading(true);
       setError("");
- const API = import.meta.env.VITE_API_URL;
-      const res = await fetch(
-        `${API}/api/assessment/category/getall`
-      );
-      const data = await res.json();
-
-      if (!res.ok) throw new Error(data.message || "Failed to fetch");
-
+ const data = await api(`/api/assessment/category/getall`);
+    
       setCategories(data.data || []);
       setCurrentPage(1);
     } catch (err) {

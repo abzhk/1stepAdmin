@@ -10,6 +10,7 @@ import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { logout } from "../../redux/slice/authSlice";
 import toast from 'react-hot-toast';
+import {api} from "../../utils/api.js";
 
 const DashSidebar = () => {
   const navigate = useNavigate();
@@ -103,10 +104,8 @@ const DashSidebar = () => {
 
   const handleLogout = async () => {
   try {
-    const API = import.meta.env.VITE_API_URL;
-    await fetch(`${API}/api/admin/logout`, {
+    await api("/api/admin/admin/logout", {
       method: "POST",
-      credentials: "include", 
     });
     dispatch(logout());
     toast.success("Logged out successfully");

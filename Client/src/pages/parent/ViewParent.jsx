@@ -4,6 +4,7 @@ import { FiSearch, FiEdit2, FiTrash2 } from "react-icons/fi";
 import { FaChild } from "react-icons/fa";
 import { CiPhone } from "react-icons/ci";
 import { useNavigate, useOutletContext } from "react-router-dom";
+import {api} from "../../utils/api.js"
 
 function ViewParent() {
   const navigate = useNavigate();
@@ -23,7 +24,6 @@ function ViewParent() {
     try {
       setLoading(true);
       setError("");
-      const API = import.meta.env.VITE_API_URL;
       const params = new URLSearchParams({
         limit: String(limit),
         startIndex: String((page - 1) * limit),
@@ -31,12 +31,8 @@ function ViewParent() {
 
       if (searchTerm.trim()) params.append("searchTerm", searchTerm);
 
-      const res = await fetch(
-        `${API}/api/parent/getallparents?${params.toString()}`,
-      );
+      const data = await api(`/api/parent/getallparents?${params.toString()}`);
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Failed to fetch");
 
       setParents(data.parents || []);
       setTotalPages(data.totalPages || 1);

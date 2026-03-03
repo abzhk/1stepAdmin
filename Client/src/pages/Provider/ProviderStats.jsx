@@ -3,6 +3,7 @@ import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import { AiFillEye } from "react-icons/ai";
 import "react-circular-progressbar/dist/styles.css";
 import { useParams } from "react-router-dom";
+import {api} from "../../utils/api.js"
 
 const MONTHS = [
   { value: 1, label: "Jan" },
@@ -74,15 +75,8 @@ function ProviderStats() {
           startIndex: String(startIndex),
         });
 
-        const res = await fetch(
-          `${API}/api/provider/getallbooking/${id}?${params.toString()}`
-        );
-
-        const data = await res.json();
-
-        if (!res.ok) {
-          throw new Error(data.message || "Failed to load stats");
-        }
+        const data = await api(`/api/provider/getallbooking/${id}?${params.toString()}`);
+       
 
         setStats(data.stats || null);
       } catch (err) {
@@ -102,20 +96,14 @@ function ProviderStats() {
       try {
         setTableLoading(true);
         setTableError("");
-        const API = import.meta.env.VITE_API_URL;
 
         const params = new URLSearchParams({
           limit: String(limit),
           startIndex: String(startIndex),
         });
-        const res = await fetch(
-          `${API}/api/booking/getbookingbyprovider/${id}?${params.toString()}`
+        const data = await api(
+          `/api/booking/getbookingbyprovider/${id}?${params.toString()}`
         );
-        const data = await res.json();
-
-        if (!res.ok) {
-          throw new Error(data.message || "Failed to load bookings");
-        }
 
         setBookings(data.bookingDetails || []);
       } catch (err) {

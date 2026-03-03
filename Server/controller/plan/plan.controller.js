@@ -1,5 +1,5 @@
-import Plan from "../model/plan.model.js";
-import AccessModules from "../model/acessmodule.model.js";
+import Plan from "../../model/plan.model.js";
+import AccessModules from "../../model/acessmodule.model.js";
 
 export const createPlan = async (req, res) => {
   try {

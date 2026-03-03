@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import dateFormatUtils from "../../utils/dateFormatUtils";
 import { useNavigate } from "react-router-dom";
 import { IoIosArrowRoundBack } from "react-icons/io";
+import {api} from "../../utils/api.js"
 
 
 const ListViewArticle = () => {
@@ -13,7 +14,7 @@ const ListViewArticle = () => {
   const navigate = useNavigate();
 
 
-  const API = import.meta.env.VITE_API_URL;
+
 
   useEffect(() => {
     const fetchArticles = async () => {
@@ -21,19 +22,9 @@ const ListViewArticle = () => {
         setLoading(true);
         setError("");
 
-        const res = await fetch(
-          `${API}/api/article/all?page=${page}&limit=10`,
-          {
-            method: "GET",
-            credentials: "include",
-          }
-        );
-
-        if (!res.ok) {
-          throw new Error("Failed to fetch articles");
-        }
-
-        const data = await res.json();
+       const data = await api(
+  `/api/article/all?page=${page}&limit=10`
+);
 
         setArticles(data.articles || []);
         setTotalPages(data.totalPages || 1);

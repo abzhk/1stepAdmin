@@ -4,6 +4,7 @@ import { FiSearch, FiMapPin, FiUsers } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { FiEdit2, FiTrash2 } from "react-icons/fi";
 import {  useOutletContext } from "react-router-dom";
+import { api } from "../../utils/api.js";
 
 
 function ViewProvider() {
@@ -24,7 +25,7 @@ function ViewProvider() {
       try {
         setLoading(true);
         setError("");
-        const API = import.meta.env.VITE_API_URL;
+       
 
         const params = new URLSearchParams({
           limit: String(limit),
@@ -35,15 +36,10 @@ function ViewProvider() {
           params.append("searchTerm", searchTerm.trim());
         }
 
-        const res = await fetch(
-          `${API}/api/provider/getProviders?${params.toString()}`,
-        );
+        const data = await api(
+  `/api/provider/getProviders?${params.toString()}`
+);
 
-        const data = await res.json();
-
-        if (!res.ok) {
-          throw new Error(data.message || "Failed to fetch providers");
-        }
 
         setProviders(data.providers || []);
         setTotalCount(data.totalCount || 0);
@@ -90,23 +86,20 @@ function ViewProvider() {
 
   const changeStatus = async (providerId, newStatus) => {
     try {
-      const API = import.meta.env.VITE_API_URL;
 
-      const res = await fetch(`${API}/api/provider/admin/provider/status`, {
+
+      const data = await api(`/api/provider/admin/provider/status`, {
         method: "PUT",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
+      
         body: JSON.stringify({
           providerId,
           isActive: newStatus,
         }),
       });
 
-      const data = await res.json();
-
-      if (!res.ok) throw new Error(data.message);
+      if(!data.success){
+        throw new Error(data.message || "Failed to update status");
+      }
 
       if (newStatus === false) {
   setProviders((prev) => prev.filter((p) => p._id !== providerId));

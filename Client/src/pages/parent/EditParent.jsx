@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import {api} from "../../utils/api.js"
 
 function EditParent() {
   const { parentId } = useParams();
@@ -20,14 +21,9 @@ function EditParent() {
     const fetchParent = async () => {
       try {
         setLoading(true);
- const API = import.meta.env.VITE_API_URL;
-        const res = await fetch(
-          `${API}/api/parent/getparent/${parentId}`,
-        );
-
-        const data = await res.json();
-        console.log("Parent :", data);
-        if (!res.ok) throw new Error(data.message);
+const data = await api(
+  `/api/parent/getparent/${parentId}`
+);
 
       setFormData({
   fullName: data.parentDetails?.fullName,
@@ -51,9 +47,9 @@ function EditParent() {
 
     try {
       setLoading(true);
-const API = import.meta.env.VITE_API_URL;
-      const res = await fetch(
-        `${API}/api/admin/parent/user/${parentId}`,
+
+      const data = await api(
+        `/api/admin/parent/user/${parentId}`,
         {
           method: "PUT",
           credentials: "include",
@@ -68,9 +64,6 @@ const API = import.meta.env.VITE_API_URL;
           }),
         }
       );
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message);
 
       navigate(-1); 
     } catch (err) {

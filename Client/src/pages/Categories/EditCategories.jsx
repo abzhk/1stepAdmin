@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import {api} from "../../utils/api.js";
 
 const EditCategory = ({ isOpen, onClose, categoryId, onUpdated }) => {
   const [loading, setLoading] = useState(false);
@@ -11,13 +12,10 @@ const EditCategory = ({ isOpen, onClose, categoryId, onUpdated }) => {
   useEffect(() => {
     const fetchCategory = async () => {
       if (!categoryId) return;
- const API = import.meta.env.VITE_API_URL;
+
       try {
         setLoading(true);
-        const res = await fetch(`${API}/api/category/category/${categoryId}`);
-        const data = await res.json();
-
-        if (!res.ok) throw new Error(data.message);
+        const data = await api(`/api/category/category/${categoryId}`);
 
         reset({
           name: data.category.name,
@@ -42,15 +40,15 @@ const EditCategory = ({ isOpen, onClose, categoryId, onUpdated }) => {
     try {
       setLoading(true);
 
-      const res = await fetch(`http://localhost:3001/api/category/category/${categoryId}`, {
+      const data = await api(`/api/category/category/${categoryId}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
         body: JSON.stringify(formData),
       });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message);
+      if (!data.success) {
+      throw new Error(data.message || "Failed to update category");
+    }
+
 
       if (onUpdated) onUpdated();
       onClose();

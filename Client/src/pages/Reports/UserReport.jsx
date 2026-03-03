@@ -3,9 +3,10 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import dateFormatUtils from "../../utils/dateFormatUtils";
 import { useOutletContext } from "react-router-dom";
+import {api} from "../../utils/api.js"
 
 const UserReport = () => {
-  const API = import.meta.env.VITE_API_URL;
+
 
   const [parents, setParents] = useState([]);
   const [providers, setProviders] = useState([]);
@@ -29,17 +30,12 @@ const UserReport = () => {
       try {
         setLoading(true);
 
-        const res = await fetch(
-          `${API}/api/parent/getallparents?searchTerm=${searchTerm}&page=${page}&limit=${limit}`,
-          {
-            method: "GET",
-            credentials: "include",
-          }
+        const data = await api(
+          `/api/parent/getallparents?searchTerm=${searchTerm}&page=${page}&limit=${limit}`,
         );
 
-        if (!res.ok) throw new Error("Failed to fetch parents");
+        if (!data.success) throw new Error(data.message || "Failed to fetch parents");
 
-        const data = await res.json();
 
         setParents(data.parents || []);
         setTotalPages(data.totalPages || 1);
@@ -51,7 +47,7 @@ const UserReport = () => {
     };
 
     fetchParents();
-  }, [API, searchTerm, userType, page, limit]);
+  }, [ searchTerm, userType, page, limit]);
 
 
   useEffect(() => {
@@ -61,17 +57,11 @@ const UserReport = () => {
       try {
         setLoading(true);
 
-        const res = await fetch(
-          `${API}/api/provider/getproviders?searchTerm=${searchTerm}&page=${page}&limit=${limit}`,
-          {
-            method: "GET",
-            credentials: "include",
-          }
+        const data = await api(
+          `/api/provider/getproviders?searchTerm=${searchTerm}&page=${page}&limit=${limit}`,
         );
 
-        if (!res.ok) throw new Error("Failed to fetch providers");
-
-        const data = await res.json();
+        if (!data.success) throw new Error(data.message || "Failed to fetch providers");
 
         setProviders(data.providers || []);
         setTotalPages(data.totalPages || 1);
@@ -83,7 +73,7 @@ const UserReport = () => {
     };
 
     fetchProviders();
-  }, [API, searchTerm, userType, page, limit]);
+  }, [ searchTerm, userType, page, limit]);
 
 
   const exportToExcel = () => {

@@ -1,24 +1,22 @@
 import React, { useEffect, useState } from "react";
+import {api} from "../../utils/api.js";
 
 const InactiveProvider = () => {
   const [providers, setProviders] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const API = import.meta.env.VITE_API_URL;
 
   const getInactiveProviders = async () => {
     try {
       setLoading(true);
       setError("");
 
-      const res = await fetch(`${API}/api/provider/inactive-providers`, {
-        credentials: "include",
-      });
+      const data = await api(`/api/provider/inactive-providers`, 
+  );
 
-      const data = await res.json();
 
-      if (!res.ok) throw new Error(data.message || "Failed");
+      if (!data.success) throw new Error(data.message || "Failed");
 
       console.log("Inactive Providers API Response:", data.providers);
 
@@ -37,12 +35,10 @@ const InactiveProvider = () => {
 
   const handleActive = async (providerId) => {
     try {
-      const res = await fetch(
-        `${API}/api/provider/admin/provider/status`,
+      const data = await api(
+        `/api/provider/admin/provider/status`,
         {
           method: "PUT",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             providerId,
             isActive: true,
@@ -50,28 +46,30 @@ const InactiveProvider = () => {
         }
       );
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message);
-
+        if (!data.success) {      
+      throw new Error(data.message || "Activation failed");
+        }
       setProviders((prev) => prev.filter((p) => p._id !== providerId));
-    } catch (err) {
-      alert(err.message);
-    }
-  };
+
+    }  catch (err) {
+    setError(err.message);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleDelete = async (providerId) => {
 
     try {
-      const res = await fetch(
-        `${API}/api/admin/providers/${providerId}`,
+      const data = await api(
+        `/api/admin/providers/${providerId}`,
         {
           method: "DELETE",
-          credentials: "include",
         }
       );
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message);
+      if (!data.success) {
+        throw new Error(data.message || "Deletion failed");
+      }
 
        getInactiveProviders();
       setProviders((prev) => prev.filter((p) => p._id !== providerId));

@@ -8,6 +8,7 @@ import { TbPasswordFingerprint } from "react-icons/tb";
 import { useDispatch } from "react-redux";
 import { setUser } from "../redux/slice/authSlice";
 import toast from "react-hot-toast";
+import {api} from "../utils/api.js"
 
 const messages = [
   "Welcome — please login to access your account",
@@ -41,25 +42,15 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const API = import.meta.env.VITE_API_URL;
-      const res = await fetch(`${API}/api/admin/login-admin`, {
+
+      const data = await api(`/api/admin/login-admin`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-         credentials: "include", 
+       
         body: JSON.stringify({ username, password }),
       });
 
-      const data = await res.json();
       console.log(data.user);
 
-
-      if (!res.ok || !data.success) {
-        setError(data.message || "Login failed");
-        setLoading(false);
-        return;
-      }
      dispatch(setUser(data.user));
       toast.success("Login successful ");
       navigate("/dashboard");

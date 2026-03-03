@@ -4,7 +4,7 @@ import { createPlan ,
      getPlanById,
      updatePlan,
         deletePlan,
-} from "../controller/plan.controller.js";
+} from "../controller/plan/plan.controller.js";
 import {verifyAdminToken} from '../middlewares/authMiddleware.js';
 
 const router  = express.Router();

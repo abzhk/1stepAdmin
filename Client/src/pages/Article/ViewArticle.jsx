@@ -3,6 +3,7 @@ import RejectArticle from "./RejectArticle";
 import dateFormatUtils from "../../utils/dateFormatUtils";
 import { useNavigate } from "react-router-dom";
 import { GrView } from "react-icons/gr";
+import {api} from "../../utils/api.js"
 
 const ViewArticle = () => {
   const [articles, setArticles] = useState([]);
@@ -21,29 +22,17 @@ const ViewArticle = () => {
       try {
         setLoading(true);
         setError("");
- const API = import.meta.env.VITE_API_URL;
+
         const params = new URLSearchParams({
           page,
           limit: 20,
         });
         if (search) params.append("search", search);
        
-
-        const res = await fetch(
-  `${API}/api/article/pendingarticle?${params.toString()}`,
-  {
-    method: "GET",
-    credentials:"include",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  }
+const data = await api (
+  `/api/article/pendingarticle?${params.toString()}`
 );
-        if (!res.ok) {
-          throw new Error("Failed to load articles");
-        }
 
-        const data = await res.json();
         console.log("pending articles response:", data);
 
         setArticles(data.articles || []);
@@ -77,22 +66,14 @@ const ViewArticle = () => {
 
   const handleApprove = async (articleId) => {
   try {
- const API = import.meta.env.VITE_API_URL;
-    const res = await fetch(
-      `${API}/api/article/admin/${articleId}/approve`,
-      {
-        method: "PUT",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
+ const data = await api(
+  `/api/article/admin/${articleId}/approve`,
+  {
+    method: "PUT",
+  }
+);
 
-    const data = await res.json();
-
-    if (!res.ok || !data.success) {
-      console.error("Approve error:", data);
+     if (!data.success) {
       alert(data.message || "Failed to approve article");
       return;
     }
@@ -110,21 +91,15 @@ const ViewArticle = () => {
 const handleReject = async (reason) => {
   try {
 
-    const res = await fetch(
-      `http://localhost:3001/api/article/admin/${selectedArticleId}/reject`,
+   const data = await api(
+      `/api/article/admin/${selectedArticleId}/reject`,
       {
         method: "PUT",
-         credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
         body: JSON.stringify({ reason }),
       }
     );
 
-    const data = await res.json();
-
-    if (!res.ok || !data.success) {
+    if (!data.success) {
       alert(data.message || "Failed to reject article");
       return;
     }

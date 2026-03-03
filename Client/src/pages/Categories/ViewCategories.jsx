@@ -2,6 +2,7 @@ import React, { useState, useMemo } from "react";
 import AddCategory from "./AddCategories";
 import { useEffect } from "react";
 import EditCategory from "./EditCategories";
+import {api} from "../../utils/api.js";
 
 
 const ViewCategories = () => {
@@ -28,20 +29,8 @@ useEffect(() => {
     try {
       setLoading(true);
       setError("");
- const API = import.meta.env.VITE_API_URL;
-      const res = await fetch(`${API}/api/category/getallcategories`, {
-        method: "GET",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
 
-      if (!res.ok) {
-        throw new Error("Failed to fetch");
-      }
-
-      const data = await res.json();
+      const data = await api(`/api/category/getallcategories`);
 
       setCategories(data.categories || []);
       setTotalCount(data.total || 0);

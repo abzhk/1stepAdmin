@@ -3,6 +3,7 @@ import {FiBookOpen,FiAward,FiHeart,FiActivity,FiCalendar,} from "react-icons/fi"
 import { useParams } from "react-router-dom";
 import dateFormatUtils from "../../utils/dateFormatUtils";
 import ParentBookings from "./ParentBookings.jsx";
+import {api} from "../../utils/api.js"
 
 const ParentStatsCards = () => {
   const { userId } = useParams();
@@ -22,20 +23,10 @@ const ParentStatsCards = () => {
       try {
         setParentLoading(true);
         setParentError("");
- const API = import.meta.env.VITE_API_URL;
-        const res = await fetch(
-          `${API}/api/parent/getparent/${userId}`,
-          {
-            method: "GET",
-            credentials: "include",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        const data = await res.json();
 
-        if (!res.ok) throw new Error(data.message || "Failed to fetch parent");
+        const data = await api(
+          `/api/parent/getparent/${userId}`
+        );
 
         setParent(data.parent || data);
       } catch (err) {
@@ -56,19 +47,9 @@ const ParentStatsCards = () => {
         setStatsLoading(true);
         setStatsError("");
 
-        const res = await fetch(
-          `http://localhost:3001/api/parent/parent/${userId}/stats`,
-          {
-            method: "GET",
-            credentials: "include",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
+        const data = await api(
+          `/api/parent/parent/${userId}/stats`,
         );
-        const data = await res.json();
-
-        if (!res.ok) throw new Error(data.message || "Failed to fetch stats");
 
         setStats(data.data || null);
       } catch (err) {
@@ -103,6 +84,26 @@ const ParentStatsCards = () => {
       </div>
     );
   }
+
+  if (statsLoading) {
+  return (
+    <div className="p-10 text-center">
+      <div className="bg-blue-50 text-blue-700 p-4 rounded-lg inline-block">
+        Loading statistics...
+      </div>
+    </div>
+  );
+}
+
+if (statsError) {
+  return (
+    <div className="p-10 text-center">
+      <div className="bg-red-50 text-red-700 p-4 rounded-lg inline-block">
+        {statsError}
+      </div>
+    </div>
+  );
+}
 
   return (
     <div className="min-h-screen bg-secondary p-4 md:p-8 font-sans text-gray-800">

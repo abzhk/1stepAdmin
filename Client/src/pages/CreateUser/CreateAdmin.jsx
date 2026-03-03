@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import toast from "react-hot-toast";
+import {api} from "../../utils/api.js"
 
 
 const CreateAdmin = () => {
@@ -29,16 +30,14 @@ const CreateAdmin = () => {
 
     try {
       setLoading(true);
-      const API = import.meta.env.VITE_API_URL;
-      const res = await fetch(`${API}/api/admin/create-admin`, {
+  
+      const data = await api('/api/admin/create-admin',{
         method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message);
+         body: JSON.stringify(formData),
+      })
+      if (!data.success) {
+      throw new Error(data.message || "Failed to create admin");
+    }
 
       toast.success("Admin created successfully");
       setFormData({ username: "", email: "", password: "" });
@@ -60,7 +59,7 @@ const CreateAdmin = () => {
         </div>
         <form
           onSubmit={handleSubmit}
-          className="grid grid-cols-1 md:grid-cols-2 gap-8"
+          className="grid grid-cols-1 md:grid-cols-2 gap-8 p-3 shadow bg-white rounded-2xl"
         >
 
           <div>

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import dateFormatUtils from "../../utils/dateFormatUtils";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
+import {api} from '../../utils/api.js'
 
 function ProviderAssessment() {
   const [assessments, setAssessments] = useState([]);
@@ -13,21 +14,9 @@ function ProviderAssessment() {
     try {
       setLoading(true);
       setError("");
- const API = import.meta.env.VITE_API_URL;
 
-      const res = await fetch(
-       `${API}/api/assessment/admin/allassessments`,
-        {
-          method: "GET",
-          credentials: "include",
-        }
-      );
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.message || "Failed to fetch assessments");
-      }
+const data = await api(`/api/assessment/admin/allassessments`);
+     
 
       setAssessments(data.data || []);
     } catch (err) {

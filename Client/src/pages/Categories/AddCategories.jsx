@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import {api} from "../../utils/api.js";
 
 const AddCategory = ({ isOpen, onClose, onSave }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -44,14 +45,9 @@ const AddCategory = ({ isOpen, onClose, onSave }) => {
     try {
       setIsLoading(true);
       setErrorMsg("");
- const API = import.meta.env.VITE_API_URL;
 
-      const res = await fetch(`${API}/api/category/addcategory`, {
-        method: "POST",
-       credentials: "include",
-         headers: {
-    "Content-Type": "application/json",   
-  },
+const data = await api('/api/category/addcategory',{
+  method: "POST",
         body: JSON.stringify({
           name: formData.name.trim(),
           description: formData.description.trim(),
@@ -61,11 +57,6 @@ const AddCategory = ({ isOpen, onClose, onSave }) => {
         }),
       });
 
-      const data = await res.json();
-
-      if (!res.ok || data.success === false) {
-        throw new Error(data.message || "Failed to create category");
-      }
 
       console.log("Category created successfully:", data);
 

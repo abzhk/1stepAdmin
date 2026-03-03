@@ -15,6 +15,7 @@ import {
 } from "react-icons/fa";
 import { TbCategoryPlus, TbReportSearch } from "react-icons/tb";
 import { MdRateReview, MdArticle } from "react-icons/md";
+import {api} from "../../utils/api.js";
 
 const MainDashboard = () => {
   const navigate = useNavigate();
@@ -34,15 +35,8 @@ const MainDashboard = () => {
 
   const fetchStats = async () => {
     try {
-      const API = import.meta.env.VITE_API_URL;
-      const res = await fetch(`${API}/api/track/stats`, {
-        method: "GET",
-        credentials: "include",
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setStats(data);
-      }
+const data = await api(`/api/track/stats`);
+              setStats(data);
     } catch (err) {
       console.error("Stats fetch error:", err);
     }
@@ -50,16 +44,10 @@ const MainDashboard = () => {
 
   const fetchRecentBookings = async () => {
     try {
-      const API = import.meta.env.VITE_API_URL;
-      const res = await fetch(`${API}/api/booking/recent`, {
-        method: "GET",
-        credentials: "include",
-      });
-      const data = await res.json();
-      if (res.ok) {
+      const data = await api('/api/booking/recent');
         setRecentBookings(data.bookings || []);
       }
-    } catch (err) {
+    catch (err) {
       console.error("Recent bookings fetch error:", err);
     }
   };

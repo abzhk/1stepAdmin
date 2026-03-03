@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import ViewAssessmentCategories from "./ViewAssessment";
+import {api} from "../../utils/api.js"
 
 const AddAssessmentCategory = () => {
   const [formData, setFormData] = useState({
@@ -27,22 +28,17 @@ const AddAssessmentCategory = () => {
     setError("");
     setSuccess("");
     setLoading(true);
- const API = import.meta.env.VITE_API_URL;
+
     try {
-      const res = await fetch(`${API}/api/assessment/category`, {
+
+      const data = await api ('/api/assessment/category',{
         method: "POST",
-        credentials: "include",
-         headers: {
-           "Content-Type": "application/json",   
-           },
-        body: JSON.stringify(formData),
-      });
+         body: JSON.stringify(formData),
+      })
+      if (!data.success) {
+      throw new Error(data.message || "Failed to update category");
+    }
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.message || "Failed to create category");
-      }
 
       setSuccess("Category created successfully");
 
