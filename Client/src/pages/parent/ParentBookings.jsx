@@ -43,9 +43,6 @@ const ParentBookings = () => {
     <div className="mt-8 bg-white rounded-3xl shadow-sm border border-gray-100">
       <div className="p-6 border-b border-gray-100">
         <h3 className="text-lg font-bold text-gray-800">Bookings</h3>
-        <p className="text-sm text-gray-500">
-          List of appointments made by this parent
-        </p>
       </div>
 
       {loading && (

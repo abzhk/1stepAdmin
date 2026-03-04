@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import {api} from "../../utils/api.js";
+import dateFormatUtils from "../../utils/dateFormatUtils.js";
 
 const MasterData = () => {
   const [services, setServices] = useState([]);
-
+  
   const [formData, setFormData] = useState({
     code: "",
     label: "",
@@ -39,8 +40,7 @@ const MasterData = () => {
 
     await api("/api/services/create-service", {
       method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
+      
       body: JSON.stringify({
         type: "serviceType",
         code: formData.code,
@@ -148,7 +148,6 @@ const MasterData = () => {
 
                   <th className="p-3">Billable</th>
                   <th className="p-3">Status</th>
-                  {/* <th className="p-3">Disabled</th> */}
                   <th className="p-3">Created At</th>
 
                 </tr>
@@ -169,11 +168,8 @@ const MasterData = () => {
                     <td className="p-3">
                       {service.isActive ? "Active" : "Inactive"}
                     </td>
-                    {/* <td className="p-3">
-                      {service.isDisabled ? "Yes" : "No"}
-                    </td> */}
                     <td className="p-3">
-  {new Date(service.createdAt).toLocaleDateString()}
+  {dateFormatUtils(service.createdAt)}
 </td>
 
                   </tr>

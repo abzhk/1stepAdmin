@@ -13,6 +13,7 @@ router.get("/all",verifySuperAdminAccess, getRoles);
 
 router.post(
   "/roles",
+   ...verifyAdminWithPermissions(MODULES.SETTINGS, ACTIONS.UPDATE),
   createRole
 );
 router.put(

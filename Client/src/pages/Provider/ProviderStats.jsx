@@ -66,7 +66,7 @@ function ProviderStats() {
       try {
         setLoading(true);
         setError("");
-        const API = import.meta.env.VITE_API_URL;
+        
 
         const params = new URLSearchParams({
           month: String(month),
@@ -122,20 +122,18 @@ function ProviderStats() {
       try {
         setArticlesLoading(true);
         setArticlesError("");
-        const API = import.meta.env.VITE_API_URL;
+        
 
         const params = new URLSearchParams({
           limit: articleLimit,
           startIndex: articleStartIndex,
         });
 
-        const res = await fetch(
-          `${API}/api/article/providerarticle/${id}?${params.toString()}`
+        const data = await api(
+          `/api/article/providerarticle/${id}?${params.toString()}`
         );
 
-        const data = await res.json();
-
-        if (!res.ok) throw new Error(data.message || "Failed to load articles");
+        
 
         const list = data.articles || data.data || [];
         setArticles(list);
@@ -157,20 +155,18 @@ function ProviderStats() {
       try {
         setAssessmentsLoading(true);
         setAssessmentsError("");
-         const API = import.meta.env.VITE_API_URL;
+         
 
         const params = new URLSearchParams({
           limit: String(assessmentLimit),
           startIndex: String(assessmentStartIndex),
         });
 
-        const res = await fetch(
-          `${API}/api/assessment/getassessment/${id}?${params.toString()}`
+        const data = await api(
+          `/api/assessment/getassessment/${id}?${params.toString()}`
         );
 
-        const data = await res.json();
 
-        if (!res.ok) throw new Error(data.message || "Failed to load assessments");
 
         const list = Array.isArray(data.data) ? data.data : data.assessments || [];
         setAssessments(list);

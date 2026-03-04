@@ -2,6 +2,7 @@ import User from '../model/user.model.js';
 import Role from '../model/role.model.js';
 import Provider from '../model/provider.model.js';
 import Parent from "../model/parent.model.js";
+import { errorHandler } from '../utils/error.js';
 
 export const searchAccessUsers = async (req, res, next) => {
   try {
@@ -78,7 +79,7 @@ export const searchAccessUsers = async (req, res, next) => {
       results,
     });
   } catch (error) {
-    next(error);
+    return next(errorHandler(500, "Error searching users"));
   }
 };
 
@@ -104,7 +105,7 @@ export const getParentAccess = async (req, res, next) => {
       data: parent,
     });
   } catch (error) {
-    next(error);
+    return next(errorHandler(500, "Error fetching parent access"));
   }
 };
 
@@ -141,7 +142,7 @@ export const getProviderAccess = async (req, res, next) => {
       },
     });
   } catch (error) {
-    next(error);
+    return next(errorHandler(500, "Error fetching provider access"));
   }
 };
 
@@ -170,6 +171,6 @@ export const updateUserOverride = async (req, res, next) => {
       message: "Permissions updated successfully",
     });
   } catch (error) {
-    next(error);
+    return next(errorHandler(500, "Error updating permissions"));
   }
 };

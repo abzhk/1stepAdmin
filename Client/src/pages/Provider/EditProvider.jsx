@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import{api} from "../../utils/api.js";
+import toast from "react-hot-toast";
 
 function EditProvider() {
   const { id } = useParams();
@@ -77,10 +78,12 @@ function EditProvider() {
        if (!data.success) {
       throw new Error(data.message || "Update failed");
     }
+    toast.success("Provider updated successfully");
 
        navigate("/allproviders");
     } catch (err) {
       setError(err.message);
+      toast.error(err.message || "Something went wrong");
     } finally {
       setLoading(false);
     }
@@ -118,7 +121,7 @@ function EditProvider() {
               disabled={loading}
               className="rounded-xl bg-button px-6 py-2 text-white"
             >
-              {loading ? "Saving..." : "Save Changes"}
+              {loading ? "Updating..." : "Update"}
             </button>
           </div>
 

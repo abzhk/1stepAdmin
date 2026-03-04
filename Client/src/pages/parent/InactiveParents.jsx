@@ -8,7 +8,6 @@ const InacticeParents = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const API = import.meta.env.VITE_API_URL;
 
   const getInactiveParents = async () => {
     try {

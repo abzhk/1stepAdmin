@@ -50,16 +50,16 @@ const CreateAdmin = () => {
 
   return (
     <div className=" w-full bg-offwhite flex justify-center items-center px-4 py-12">
-      <div className="w-full max-w-3xl bg-white rounded-2xl shadow-xl border border-gray-100 p-10">
-        
-        <div className="mb-10">
+      <div className="w-full max-w-3xl bg-offwhite rounded-2xl  p-10">
+       
+        {/* <div className="mb-2">
           <h2 className="text-3xl font-semibold text-gray-800">
             Create Admin
           </h2>
-        </div>
+        </div> */}
         <form
           onSubmit={handleSubmit}
-          className="grid grid-cols-1 md:grid-cols-2 gap-8 p-3 shadow bg-white rounded-2xl"
+          className="grid grid-cols-1 md:grid-cols-2 gap-8 p-6 shadow bg-white rounded-2xl"
         >
 
           <div>
@@ -133,7 +133,7 @@ const CreateAdmin = () => {
             </div>
           )}
 
-          <div className="md:col-span-2 flex justify-end pt-4">
+          <div className="md:col-span-2 flex justify-end">
             <button
               type="submit"
               disabled={loading}
@@ -144,7 +144,7 @@ const CreateAdmin = () => {
           </div>
         </form>
       </div>
-    </div>
+      </div>
   );
 };
 

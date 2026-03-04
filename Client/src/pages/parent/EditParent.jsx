@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {api} from "../../utils/api.js"
+import toast from "react-hot-toast";
 
 function EditParent() {
   const { parentId } = useParams();
@@ -52,10 +53,7 @@ const data = await api(
         `/api/admin/parent/user/${parentId}`,
         {
           method: "PUT",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          
           body: JSON.stringify({
             "parentDetails.fullName": formData.fullName,
             "parentDetails.childName": formData.childName,
@@ -64,10 +62,15 @@ const data = await api(
           }),
         }
       );
+      if (!data.success) {
+      throw new Error(data.message || "Update failed");
+    }
+    toast.success("Parent updated successfully");
 
       navigate(-1); 
     } catch (err) {
       setError(err.message);
+      toast.error(err.message || "Something went wrong");
     } finally {
       setLoading(false);
     }

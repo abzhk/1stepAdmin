@@ -39,8 +39,9 @@ function ViewParent() {
       setTotalParents(data.totalParents || 0);
     } catch (err) {
       setError(err.message);
+    }finally{
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   useEffect(() => {
@@ -52,20 +53,18 @@ function ViewParent() {
 
   const changeStatus = async (userId, newStatus) => {
     try {
-      const API = import.meta.env.VITE_API_URL;
+      
 
-      const res = await fetch(`${API}/api/parent/admin/parent/status`, {
+      const data = await api(`/api/parent/admin/parent/status`, {
         method: "PUT",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userId,
           isActive: newStatus,
         }),
       });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message);
+if (!data.success) {
+  throw new Error(data.message);
+}
 
       setParents((prev) =>
         prev.map((p) =>
@@ -76,6 +75,7 @@ function ViewParent() {
       );
     } catch (err) {
       alert(err.message);
+      setError(err.message || "Failed to update status");
     }
   };
 

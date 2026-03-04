@@ -1,22 +1,27 @@
 import React, { useEffect, useState } from "react";
+import {api} from "../../utils/api";
 
-const API = import.meta.env.VITE_API_URL;
 
 const CreateModule = () => {
   const [moduleName, setModuleName] = useState("");
   const [modules, setModules] = useState([]);
+  const[loader,setLoader]= useState(false);
+  const[error,setError]=useState(null);
 
   const fetchModules = async () => {
     try {
-      const res = await fetch(`${API}/api/module/get-module`, {
+      setLoader(true);
+      setError(null);
+      const data = await api(`/api/module/get-module`, {
         method: "GET",
-        credentials: "include",
       });
 
-      const data = await res.json();
       setModules(data);
     } catch (error) {
       console.error("Fetch module error:", error);
+      setError(error.message || "Failed to fetch modules");
+    } finally {
+      setLoader(false);
     }
   };
 
@@ -29,28 +34,37 @@ const CreateModule = () => {
     if (!moduleName.trim()) return;
 
     try {
-      const res = await fetch(`${API}/api/module/create`, {
+      setError(null);
+
+      await api(`/api/module/create`, {
         method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({ modules: moduleName }),
       });
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        alert(data.message);
-        return;
-      }
-
       setModuleName("");
-      fetchModules(); 
+      fetchModules();
     } catch (error) {
       console.error("Create module error:", error);
+      setError(error.message || "Something went wrong");
     }
   };
+
+  if (loader) {
+    return (
+      <div className="w-full bg-offwhite p-6 md:p-8 font-sans text-darkgreen mt-8"> 
+        <h2 className="text-lg font-semibold mb-4">Create Module</h2>
+        <p>Loading...</p>
+      </div>
+    );
+  }
+  if(error){
+    return (
+      <div className="w-full bg-offwhite p-6 md:p-8 font-sans text-darkgreen mt-8"> 
+        <h2 className="text-lg font-semibold mb-4">Create Module</h2>
+        <p className="text-red-500">{error}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full bg-offwhite p-6 md:p-8 font-sans text-darkgreen mt-8">
