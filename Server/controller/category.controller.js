@@ -7,7 +7,7 @@ import Category from "../model/Article/category.model.js";
 // ============================================
 
 // Get all categories (Public)
-export const getAllCategories = async (req, res) => {
+export const getAllCategories = async (req, res,next) => {
   try {
     // const { includeInactive } = req.query;
 
@@ -22,9 +22,7 @@ export const getAllCategories = async (req, res) => {
     });
   } catch (error) {
     console.error("Get categories error:", error);
-    res.status(500).json({
-      message: "Error fetching categories",
-    });
+   next(error)
   }
 };
 
@@ -108,7 +106,7 @@ export const getCategoryBySlug = async (req, res) => {
 // ============================================
 
 // Create new category (Admin only)
-export const createCategory = async (req, res) => {
+export const createCategory = async (req, res, next) => {
   try {
     const { name, description, icon, color, order } = req.body;
 
@@ -147,15 +145,12 @@ export const createCategory = async (req, res) => {
     });
   } catch (error) {
     console.error("Create category error:", error);
-    res.status(500).json({
-      message: "Error creating category",
-      error: error.message,
-    });
+    next(error); 
   }
 };
 
 // Update category (Admin only)
-export const updateCategory = async (req, res) => {
+export const updateCategory = async (req, res,next) => {
   try {
     const { id } = req.params;
     const { name, description, icon, color, order, isActive } = req.body;
@@ -202,10 +197,7 @@ export const updateCategory = async (req, res) => {
     });
   } catch (error) {
     console.error("Update category error:", error);
-    res.status(500).json({
-      message: "Error updating category",
-      error: error.message,
-    });
+    next(error);
   }
 };
 
@@ -249,7 +241,7 @@ export const deleteCategory = async (req, res) => {
 };
 
 // Toggle category active status (Admin only)
-export const toggleCategoryStatus = async (req, res) => {
+export const toggleCategoryStatus = async (req, res,next) => {
   try {
     const { id } = req.params;
 
@@ -273,9 +265,7 @@ export const toggleCategoryStatus = async (req, res) => {
     });
   } catch (error) {
     console.error("Toggle category status error:", error);
-    res.status(500).json({
-      message: "Error toggling category status",
-    });
+    next(error);
   }
 };
 

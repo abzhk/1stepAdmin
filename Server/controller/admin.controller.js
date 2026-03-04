@@ -6,6 +6,7 @@ import Provider from '../model/provider.model.js';
 import mongoose from 'mongoose';
 import Parent from "../model/parent.model.js";
 import { Booking, BookedSlots } from "../model/booking.model.js";
+import { errorHandler } from '../utils/error.js';
 
 
 export const createAdmin = async (req, res) => {
@@ -44,32 +45,23 @@ export const createAdmin = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
-export const login = async (req, res) => {
+export const login = async (req, res,next) => {
   try {
     const { username, password } = req.body;
 
     if (!username || !password) {
-      return res.status(400).json({
-        success: false,
-        message: "Username and password are required",
-      });
+      return next(errorHandler(400, "Username and password are required"));
     }
 
    const user = await User.findOne({ username }).populate("role");
 
     if (!user || !user.role) {
-      return res.status(401).json({
-        success: false,
-        message: "Invalid credentials",
-      });
+      return  next(errorHandler(401, "Invalid credentials"));
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(401).json({
-        success: false,
-        message: "Invalid credentials",
-      });
+      return next(errorHandler(401, "Invalid credentials"));
     }
 
     const token = jwt.sign(
@@ -102,15 +94,12 @@ export const login = async (req, res) => {
     });
   } catch (error) {
     console.error("Login error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Login failed",
-    });
+     next(errorHandler(500, "Login failed"));
   }
 };
 
 //delete provider
-export const deleteProvider = async (req, res) => {
+export const deleteProvider = async (req, res,next) => {
   try {
     const { providerId } = req.params;   
 
@@ -144,13 +133,11 @@ export const deleteProvider = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to delete provider",
-    });
+
+    next(errorHandler(500, "Failed to delete provider"));
   }
 };
-export const logoutAdmin = async (req, res) => {
+export const logoutAdmin = async (req, res,next) => {
   try {
     res.clearCookie("token", {
       httpOnly: true,
@@ -164,10 +151,7 @@ export const logoutAdmin = async (req, res) => {
       message: "Logout successful",
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Logout failed",
-    });
+   next(errorHandler(500, "Logout failed"));
   }
 };
 
@@ -203,15 +187,12 @@ export const verifyAdminSession = async (req, res) => {
 
 
 //updateprovider details byadmin
-export const updateProvider = async (req, res) => {
+export const updateProvider = async (req, res,next) => {
   try {
     const { providerId } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(providerId)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid provider id",
-      });
+      return next(errorHandler(400, "Invalid provider id"));
     }
 
     const providerDoc = await Provider.findById(providerId);
@@ -256,11 +237,7 @@ export const updateProvider = async (req, res) => {
     });
   } catch (error) {
     console.error("Update provider error:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Failed to update provider",
-      error: error.message,
-    });
+    return next(errorHandler(500, "Failed to update provider"));
   }
 };
 
@@ -340,15 +317,12 @@ export const deleteParent = async (req, res) => {
 
 
 //update parent
-export const updateParent = async (req, res) => {
+export const updateParent = async (req, res ,next) => {
   try {
     const { userRef } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(userRef)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid userRef ID",
-      });
+      return next(errorHandler(400, "Invalid userRef ID"));
     }
 
     const parentDoc = await Parent.findOne({ userRef });
@@ -378,10 +352,6 @@ export const updateParent = async (req, res) => {
     });
   } catch (error) {
     console.error("Update parent error:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Failed to update parent",
-      error: error.message,
-    });
+    return next(errorHandler(500, "Failed to update parent"));
   }
 };

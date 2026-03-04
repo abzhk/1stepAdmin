@@ -45,7 +45,7 @@ const planSchema = new mongoose.Schema(
     },
     billing_interval: {
       type: String,
-      enum: ["monthly", "quarterly", "annually", "lifetime"],
+      enum: ["monthly", "quarterly", "annually"],
       required: true,
     },
     trial_period_days: {

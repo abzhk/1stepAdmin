@@ -18,6 +18,7 @@ import { GrView } from "react-icons/gr";
 import { useParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useLocation } from "react-router-dom";
+import{api} from "../../utils/api.js"
 
 
 const Addplans = () => {
@@ -25,7 +26,6 @@ const Addplans = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const navigate = useNavigate();
   const { id } = useParams();
-  const API = import.meta.env.VITE_API_URL;
   const [modules, setModules] = useState([]);
   const location = useLocation();
 const searchParams = new URLSearchParams(location.search);
@@ -65,12 +65,7 @@ const isVersionMode = !!id && mode === "version";
   useEffect(() => {
     const fetchModules = async () => {
       try {
-        const res = await fetch(`${API}/api/module/get-module`, {
-          method: "GET",
-          credentials: "include",
-        });
-
-        const data = await res.json();
+        const data = await api(`/api/module/get-module`);
 
         setModules(Array.isArray(data) ? data : []);
       } catch (err) {
@@ -129,18 +124,17 @@ const isVersionMode = !!id && mode === "version";
 
   const handleFinalPublishClick = async () => {
   let payload;
-  let url;
+  let endpoint;
   let method;
 
   if (isEditMode) {
-    // metadata edit only
     payload = {
       plan_name: formData.plan_name,
       description: formData.description,
       is_featured: formData.is_featured,
     };
 
-    url = `${API}/api/plan/update/${id}`;
+    endpoint = `/api/plan/update/${id}`;
     method = "PUT";
   } else {
     payload = {
@@ -159,24 +153,15 @@ const isVersionMode = !!id && mode === "version";
       session_duration_mins: Number(formData.session_duration_mins),
     };
 
-    url = `${API}/api/plan/create`;
+    endpoint = `/api/plan/create`;  
     method = "POST";
   }
 
-  try {
-    const response = await fetch(url, {
+   try {
+    await api(endpoint, {
       method,
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      toast.error(data.message || "Failed to save plan");
-      return;
-    }
 
     toast.success(
       isEditMode
@@ -212,16 +197,9 @@ const isVersionMode = !!id && mode === "version";
     if (!id) return;
 
     const fetchPlan = async () => {
-      const res = await fetch(`${API}/api/plan/${id}`, {
-        method: "GET",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
+      const data = await api(`/api/plan/${id}`, {
       });
-      const data = await res.json();
 
-      if (res.ok) {
         setFormData({
           plan_key: data.plan.plan_key,
           user_type: data.plan.user_type,
@@ -249,7 +227,6 @@ const isVersionMode = !!id && mode === "version";
           resource_library_access: data.plan.resource_library_access,
           therapist_matching_type: data.plan.therapist_matching_type,
         });
-      }
     };
 
     fetchPlan();

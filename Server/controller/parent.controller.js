@@ -511,7 +511,7 @@ export const getParentBookings = async (req, res, next) => {
       currentPage: Math.floor(numericStartIndex / numericLimit) + 1,
     });
   } catch (error) {
-    next(error);
+    return next(errorHandler(500, "Error fetching parent bookings"));
   }
 };
 

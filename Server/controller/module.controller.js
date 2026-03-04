@@ -1,22 +1,19 @@
 import Module from "../model/acessmodule.model.js";
+import { errorHandler } from "../utils/error.js";
 
 
-export const createModule = async (req, res) => {
+export const createModule = async (req, res,next) => {
   try {
     const { modules } = req.body;
 
     if (!modules) {
-      return res.status(400).json({
-        message: "Module name is required",
-      });
+      return next(errorHandler(400, "Module name is required"));
     }
 
     const existing = await Module.findOne({ modules });
 
     if (existing) {
-      return res.status(409).json({
-        message: "Module already exists",
-      });
+      return next(errorHandler(409, "Module already exists"));
     }
 
     const module = await Module.create({ modules });
@@ -26,22 +23,18 @@ export const createModule = async (req, res) => {
       module,
     });
   } catch (error) {
-    res.status(500).json({
-      message: error.message,
-    });
+    return next(errorHandler(500, "Error creating module"));
   }
 };
 
 
-export const getModules = async (req, res) => {
+export const getModules = async (req, res,next) => {
   try {
     const modules = await Module.find().sort({ createdAt: -1 });
 
     res.status(200).json(modules);
   } catch (error) {
-    res.status(500).json({
-      message: error.message,
-    });
+    return next(errorHandler(500, "Error fetching modules"));
   }
 };
 

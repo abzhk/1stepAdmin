@@ -8,7 +8,7 @@ import { verifyAdminToken } from "../middlewares/authMiddleware.js";
 
 
 const router = express.Router();
-router.get("/getallparents", getallparents);
+router.get("/getallparents",verifyAdminToken, getallparents);
 //stats
 router.get("/parent/:parentId/stats",verifyAdminToken, parentstats)
 //getparentby id
@@ -20,7 +20,7 @@ router.put("/admin/parent/status", setParentActiveStatus);
 //get inactive parents
 router.get("/inactive-parents", getInactiveParents);
 //bookings of parent
-router.get("/bookings/:parentId", getParentBookings);
+router.get("/bookings/:parentId",verifyAdminToken, getParentBookings);
 
 
 

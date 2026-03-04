@@ -1,7 +1,8 @@
 import Plan from "../../model/plan.model.js";
 import AccessModules from "../../model/acessmodule.model.js";
+import { errorHandler } from "../../utils/error.js";
 
-export const createPlan = async (req, res) => {
+export const createPlan = async (req, res,next) => {
   try {
     const {
       plan_key,

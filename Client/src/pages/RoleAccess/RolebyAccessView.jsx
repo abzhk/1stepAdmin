@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import CreateRoleandPermission from "./CreateRoleandPermission";
+import {api} from "../../utils/api.js"
 
 const RolebyAccessView = () => {
   const API = import.meta.env.VITE_API_URL;
@@ -11,22 +12,19 @@ const RolebyAccessView = () => {
   const handleSearch = async () => {
     if (!q.trim()) return;
 
-    const res = await fetch(`${API}/api/access/search?q=${q}`, {
-      credentials: "include",
+    const data = await api(`/api/access/search?q=${q}`, {
     });
 
-    const data = await res.json();
     setResults(data.results || []);
   };
 
   const openUser = async (type, profileId) => {
-    const url =
+    const endpoint =
       type === "parent"
-        ? `${API}/api/access/parent/${profileId}`
-        : `${API}/api/access/provider/${profileId}`;
+        ? `/api/access/parent/${profileId}`
+        : `/api/access/provider/${profileId}`;
 
-    const res = await fetch(url, { credentials: "include" });
-    const data = await res.json();
+    const data = await api(endpoint);
 
     if (data.success) {
       setSelectedUser(data.data);

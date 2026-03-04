@@ -14,7 +14,6 @@ const userSchema = new mongoose.Schema(
     //removed at 31-12-25 passwordless auth using OTP Login
     password: {
       type: String,
-      required: true,
     },
     profilePicture: {
       type: String,

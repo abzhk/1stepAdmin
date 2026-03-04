@@ -9,9 +9,9 @@ getProviderAssessmentbyId}
 import {verifyAdminToken} from '../middlewares/authMiddleware.js';
 const router = express.Router();
 
-router.post("/category", createCategory);
-router.get("/category/getall", getAllCategories);
-router.delete("/category/:id", deleteCategory);
+router.post("/category",verifyAdminToken, createCategory);
+router.get("/category/getall",verifyAdminToken, getAllCategories);
+router.delete("/category/:id",verifyAdminToken, deleteCategory);
 router.put("/category/toggle/:id", toggleCategory);
 
 router.get("/admin/allassessments",verifyAdminToken,adminGetAllAssessments);

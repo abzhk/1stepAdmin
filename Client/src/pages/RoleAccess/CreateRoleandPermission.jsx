@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import{api} from "../../utils/api.js"
 
 const ACTIONS = ["read", "create", "update", "delete", "export"];
 
@@ -20,10 +21,8 @@ const API = import.meta.env.VITE_API_URL;
 
 const fetchModules = async () => {
   try {
-    const res = await fetch(`${API}/api/module/get-module`, {
-      credentials: "include",
-    });
-    const data = await res.json();
+    const data = await api(`/api/module/get-module`);
+    
     setModules(data);
   } catch (err) {
     console.error(err);
@@ -102,7 +101,6 @@ const toggleDefaultModule = (module) => {
   };
 
  const handleSubmit = async () => {
-  const API = import.meta.env.VITE_API_URL;
 
   try {
     setLoading(true);
@@ -112,18 +110,13 @@ const toggleDefaultModule = (module) => {
     );
 
     if (mode === "user") {
-      const res = await fetch(
-        `${API}/api/access/user/${userId}/override`,
+      await api(
+        `/api/access/user/${userId}/override`,
         {
           method: "PUT",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ permissions: formattedPermissions }),
         }
       );
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message);
 
       toast.success("User permissions updated");
       onSuccess?.();
@@ -137,24 +130,22 @@ const toggleDefaultModule = (module) => {
       permissions: isSuperAdmin ? [] : formattedPermissions,
     };
 
-    const url =
+    const endpoint =
       mode === "edit"
-        ? `${API}/api/role/${roleName}`
-        : `${API}/api/role/roles`;
+        ? `/api/role/${roleName}`
+        : `/api/role/roles`;
 
     const method = mode === "edit" ? "PUT" : "POST";
 
-    const res = await fetch(url, {
+    await api(endpoint, {
       method,
-      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(
         mode === "edit" ? payload : { role: roleName, ...payload }
       ),
     });
 
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message);
+    
 
     alert(mode === "edit" ? "Role updated" : "Role created");
 

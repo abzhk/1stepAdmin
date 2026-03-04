@@ -5,6 +5,7 @@ import { useOutletContext } from "react-router-dom";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { formatDecimal } from "../../utils/formatdecimal.js";
 import { TfiReload } from "react-icons/tfi";
+import{api} from "../../utils/api.js";
 
 
 const ViewPlans = () => {
@@ -23,21 +24,9 @@ const [totalPages, setTotalPages] = useState(1);
       try {
         setLoading(true);
 
-        const response = await fetch(
-          `${API}/api/plan/get?search=${searchTerm}&page=${page}&limit=10`,{
-            method: "GET",
-            credentials: "include",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
+        const data = await api(
+          `/api/plan/get?search=${searchTerm}&page=${page}&limit=10`
         );
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.message || "Failed to fetch plans");
-        }
 
         setPlans(data.plans);
 setTotalPages(data.totalPages);
@@ -94,7 +83,7 @@ setTotalPages(data.totalPages);
                 key={index}
                 className="border-t hover:bg-gray-100 transition-colors duration-200 cursor-pointer"
               >
-                <td className="p-3">{index + 1}</td>
+                <td className="p-3">{(page - 1) * 10 + index + 1}</td>
                 <td className="p-3  uppercase">{plan.plan_name}</td>
                  <td className="p-3  uppercase">{plan.version_number}</td>
                  <td className="p-3">{plan.user_type}</td>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FiEdit2, FiTrash2 } from "react-icons/fi";
 import CreateRP from "./CreateRoleandPermission";
+import { api } from "../../utils/api.js";
 
 const ViewRole = () => {
   const [roles, setRoles] = useState([]);
@@ -13,18 +14,10 @@ const ViewRole = () => {
       try {
         setLoading(true);
         setError("");
- const API = import.meta.env.VITE_API_URL;
-        const res = await fetch(`${API}/api/role/all`, {
-          method: "GET",
-          credentials: "include",
-        });
 
-        if (!res.ok) {
-          const err = await res.json();
-          throw new Error(err.message || "Unauthorized");
-        }
+        const data = await api(`/api/role/all`);
 
-        const data = await res.json();
+
         setRoles(data.roles || []);
       } catch (err) {
         setError(err.message);

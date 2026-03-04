@@ -37,7 +37,7 @@ if (!mongoose.connections[0].readyState) {
     .connect(MONGODB)
     .then(() => console.log("Connected to MongoDB successfully"))
     .catch((error) =>
-      console.error("Error connecting to MongoDB:", error. Message)
+      console.error("Error connecting to MongoDB:", error.message)
     );
 }
  
@@ -56,6 +56,7 @@ app.use((err, req, res, next) => {
   
   res.status(statusCode).json({
     success: false,
+    statusCode,
     message: err.message || "Internal Server Error",
   });
 });
