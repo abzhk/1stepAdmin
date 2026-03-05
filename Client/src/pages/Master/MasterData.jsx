@@ -143,6 +143,7 @@ const MasterData = () => {
             <table className="w-full border-collapse">
               <thead>
                 <tr className="bg-gray-200 text-left text-sm">
+                  <th className="p-3">Sl.no</th>
                   <th className="p-3">Service</th>
                   <th className="p-3">Code</th>
 
@@ -154,11 +155,12 @@ const MasterData = () => {
               </thead>
 
               <tbody>
-                {services.map((service) => (
+                {services.map((service,index) => (
                   <tr
                     key={service._id}
                     className="border-b hover:bg-gray-50 text-sm"
                   >
+                    <td className="p-3">{index+1}</td>
                     <td className="p-3">{service.label}</td>
                     <td className="p-3">{service.code}</td>
                     
