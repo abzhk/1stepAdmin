@@ -592,7 +592,8 @@ export const approveArticle = async (req, res) => {
     });
   } catch (error) {
     console.error("Approve article error:", error);
-    res.status(500).json({ message: "Error approving article" });
+
+    return next(errorHandler(500, "Error approving article"));
   }
 };
 
@@ -630,7 +631,7 @@ export const rejectArticle = async (req, res) => {
     });
   } catch (error) {
     console.error("Reject article error:", error);
-    res.status(500).json({ message: "Error rejecting article" });
+    return next(errorHandler(500, "Error rejecting article"));
   }
 };
 
@@ -818,7 +819,7 @@ export const getPendingArticles = async (req, res) => {
     });
   } catch (error) {
     console.error("Get pending articles error:", error);
-    res.status(500).json({ message: "Error fetching pending articles" });
+    return next(errorHandler(500, "Error fetching pending articles"));
   }
 };
 

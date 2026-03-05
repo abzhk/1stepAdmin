@@ -16,7 +16,6 @@ const CreateRoleandPermission = ({ mode = "create", roleData,userId,  onClose, o
   const [modules, setModules] = useState([]);
 // const [selectedModules, setSelectedModules] = useState([]);
 
-const API = import.meta.env.VITE_API_URL;
 
 
 const fetchModules = async () => {

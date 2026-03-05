@@ -3,7 +3,6 @@ import CreateRoleandPermission from "./CreateRoleandPermission";
 import {api} from "../../utils/api.js"
 
 const RolebyAccessView = () => {
-  const API = import.meta.env.VITE_API_URL;
 
   const [q, setQ] = useState("");
   const [results, setResults] = useState([]);

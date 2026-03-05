@@ -17,7 +17,7 @@ const ViewPlans = () => {
 const [totalPages, setTotalPages] = useState(1);
 
   const navigate = useNavigate();
-  const API = import.meta.env.VITE_API_URL;
+
 
   useEffect(() => {
     const fetchPlans = async () => {
