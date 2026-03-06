@@ -5,6 +5,7 @@ import { FaChild } from "react-icons/fa";
 import { CiPhone } from "react-icons/ci";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import {api} from "../../utils/api.js"
+import toast from "react-hot-toast";
 
 function ViewParent() {
   const navigate = useNavigate();
@@ -65,6 +66,7 @@ function ViewParent() {
 if (!data.success) {
   throw new Error(data.message);
 }
+toast.success(`Parent ${newStatus ? "activated" : "deactivated"}`);
 
       setParents((prev) =>
         prev.map((p) =>
@@ -74,7 +76,7 @@ if (!data.success) {
         ),
       );
     } catch (err) {
-      alert(err.message);
+     console.log(err);
       setError(err.message || "Failed to update status");
     }
   };
@@ -100,7 +102,7 @@ if (!data.success) {
             Loading parents...
           </div>
         ) : parents.length > 0 ? (
-          parents.map((parent, index) => {
+          parents.map((parent) => {
             return (
               <div
                 key={parent._id}

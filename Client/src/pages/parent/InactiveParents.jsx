@@ -46,31 +46,28 @@ const InacticeParents = () => {
 
       setParents((prev) => prev.filter((p) => p.userRef?._id !== userId));
     } catch (err) {
-      alert(err.message);
+     console.log(err);
     }
   };
 
   const handleActive = async (userId) => {
   try {
-    const res = await fetch(`${API}/api/parent/admin/parent/status`, {
+    const data = await api(`/api/parent/admin/parent/status`, {
       method: "PUT",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         userId,
         isActive: true,
       }),
     });
 
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message);
+    if (!data.success) throw new Error(data.message);
 
    toast.success("Parent activated");
 
 
     setParents((prev) => prev.filter((p) => p.userRef?._id !== userId));
   } catch (err) {
-    alert(err.message);
+    console.log(err);
   }
 };
 
