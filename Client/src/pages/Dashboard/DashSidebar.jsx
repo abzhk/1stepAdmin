@@ -2,7 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom'; 
 import { CgLogOut } from "react-icons/cg";
 import { MdSpaceDashboard, MdRateReview, MdArrowDropDown, MdArrowRight } from "react-icons/md";
-import { TbReportSearch, TbCategoryPlus, TbLogs, TbArticle } from "react-icons/tb";
+import { TbReportSearch, TbCategoryPlus,
+   TbLogs, 
+  TbArticle,
+TbLockAccess 
+ } from "react-icons/tb";
 import { RiParentFill } from "react-icons/ri";
 import { IoIosMan } from "react-icons/io";
 import logo from '../../assets/logo.svg'
@@ -11,6 +15,7 @@ import { useDispatch } from "react-redux";
 import { logout } from "../../redux/slice/authSlice";
 import toast from 'react-hot-toast';
 import {api} from "../../utils/api.js";
+import { RiUserSharedLine } from "react-icons/ri";
 
 const DashSidebar = () => {
   const navigate = useNavigate();
@@ -160,7 +165,7 @@ const DashSidebar = () => {
     }}
     className={getNavLinkClasses("Create User")}
   >
-    <MdSpaceDashboard className="text-lg" />
+    <RiUserSharedLine className="text-lg" />
    <span className = "text-lg">Create User</span> 
   </label>
 )}
@@ -219,7 +224,7 @@ const DashSidebar = () => {
           }}
           className={getNavLinkClasses("Role")}
         >
-          <TbReportSearch className="text-lg" />
+         <TbLockAccess className="text-lg" />
           <span className = "text-lg"> Roles and access</span>
         </label>
         )} 

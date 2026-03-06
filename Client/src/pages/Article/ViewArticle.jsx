@@ -4,6 +4,7 @@ import dateFormatUtils from "../../utils/dateFormatUtils";
 import { useNavigate } from "react-router-dom";
 import { GrView } from "react-icons/gr";
 import {api} from "../../utils/api.js"
+import toast from "react-hot-toast";
 
 const ViewArticle = () => {
   const [articles, setArticles] = useState([]);
@@ -74,9 +75,10 @@ const data = await api (
 );
 
      if (!data.success) {
-      alert(data.message || "Failed to approve article");
+       //alert(data.message || "Failed to approve article");
       return;
     }
+    toast.success("Article approved successfully");
 
 
     setArticles((prev) => prev.filter((a) => a._id !== articleId));
@@ -84,7 +86,8 @@ const data = await api (
     console.log("Article approved:", data.article);
   } catch (err) {
     console.error("Error approving article:", err);
-    alert("Something went wrong while approving.");
+    // alert("Something went wrong while approving.");
+    toast.error(err.message || "Something went wrong while approving.");
   }
 };
 
@@ -103,6 +106,7 @@ const handleReject = async (reason) => {
       alert(data.message || "Failed to reject article");
       return;
     }
+    toast.success("Article rejected successfully");
 
 
     setArticles((prev) => prev.filter((a) => a._id !== selectedArticleId));
@@ -114,7 +118,8 @@ const handleReject = async (reason) => {
 
   } catch (err) {
     console.error("Error rejecting article:", err);
-    alert("Something went wrong.");
+    // 
+    toast.error(err.message || "Something went wrong while rejecting.");
   }
 };
 

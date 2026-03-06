@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { FiEdit2, FiTrash2 } from "react-icons/fi";
 import {  useOutletContext } from "react-router-dom";
 import { api } from "../../utils/api.js";
+import toast from "react-hot-toast";
 
 
 function ViewProvider() {
@@ -86,7 +87,7 @@ function ViewProvider() {
 
   const changeStatus = async (providerId, newStatus) => {
     try {
-
+ setError("");
 
       const data = await api(`/api/provider/admin/provider/status`, {
         method: "PUT",
@@ -100,6 +101,7 @@ function ViewProvider() {
       if(!data.success){
         throw new Error(data.message || "Failed to update status");
       }
+      toast.success(`Provider ${newStatus ? "activated" : "deactivated"}`);
 
       if (newStatus === false) {
   setProviders((prev) => prev.filter((p) => p._id !== providerId));
@@ -113,7 +115,10 @@ function ViewProvider() {
 }
 
     } catch (error) {
-      alert(error.message);
+      // alert(error.message);
+      console.log(error);
+       setError(error.message || "Something went wrong");
+       toast.error(error.message || "Failed to update status");
     }
   };
 

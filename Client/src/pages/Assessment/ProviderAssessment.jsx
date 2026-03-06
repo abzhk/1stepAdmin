@@ -37,7 +37,7 @@ const data = await api(`/api/assessment/admin/allassessments`);
 
                    <button
                 type="button"
-                onClick={() => navigate("/dashboard")}
+                onClick={() => navigate("/addassessment")}
                 className="flex gap-2 items-center mb-6 text-darkgreen hover:text-green-700"
               >
                 <IoIosArrowRoundBack size={22} />

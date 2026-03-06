@@ -41,6 +41,8 @@ const UserReport = () => {
         setTotalPages(data.totalPages || 1);
       } catch (err) {
         setError("Unable to load parents");
+        console.log(err);
+        
       } finally {
         setLoading(false);
       }
@@ -61,12 +63,14 @@ const UserReport = () => {
           `/api/provider/getproviders?searchTerm=${searchTerm}&page=${page}&limit=${limit}`,
         );
 
-        if (!data.success) throw new Error(data.message || "Failed to fetch providers");
+        if (!data.providers) throw new Error("Failed to fetch providers");
 
-        setProviders(data.providers || []);
-        setTotalPages(data.totalPages || 1);
+        setProviders(data.providers);
+         setTotalPages(Math.ceil((data.totalCount || 0) / limit));
       } catch (err) {
         setError("Unable to load providers");
+        console.log(err);
+        
       } finally {
         setLoading(false);
       }
