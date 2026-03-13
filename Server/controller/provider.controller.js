@@ -149,6 +149,7 @@ export const getProviders = async (req, res, next) => {
       startIndex = 0,
       searchTerm = "",
       address = "",
+      providerType="",
       sort = "createdAt",
       order = "desc",
     } = req.query;
@@ -204,6 +205,12 @@ export const getProviders = async (req, res, next) => {
           });
         }
       }
+    }
+
+    if(providerType){
+      searchFilters.push({
+        providerType:providerType,
+      })
     }
 
     // Combine all filters
@@ -864,4 +871,86 @@ export const getInactiveProviders = async (req, res, next) => {
   }
 };
 
+//center appointments
 
+export const getCentreAppointments = async (req, res, next) => {
+  try {
+    const { limit = 10, startIndex = 0 } = req.query;
+
+    const appointments = await Booking.aggregate([
+      {
+        $lookup: {
+          from: "providers",
+          localField: "provider",
+          foreignField: "_id",
+          as: "providerDetails",
+        },
+      },
+      { $unwind: "$providerDetails" },
+
+      {
+        $match: {
+          "providerDetails.providerType": "centre",
+        },
+      },
+
+      {
+        $lookup: {
+          from: "users",
+          localField: "patient",
+          foreignField: "_id",
+          as: "patientDetails",
+        },
+      },
+      { $unwind: "$patientDetails" },
+
+      {
+        $project: {
+          bookingId: 1,
+          patientName: 1,
+          status: 1,
+          service: 1,
+          sessionType: 1,
+          scheduledTime: 1,
+          createdAt: 1,
+
+          "providerDetails.fullName": 1,
+          "providerDetails.name": 1,
+
+          "patientDetails.username": 1,
+          "patientDetails.profilePicture": 1,
+        },
+      },
+
+      { $sort: { createdAt: -1 } },
+      { $skip: Number(startIndex) },
+      { $limit: Number(limit) },
+    ]);
+
+    const total = await Booking.aggregate([
+      {
+        $lookup: {
+          from: "providers",
+          localField: "provider",
+          foreignField: "_id",
+          as: "providerDetails",
+        },
+      },
+      { $unwind: "$providerDetails" },
+      {
+        $match: {
+          "providerDetails.providerType": "centre",
+        },
+      },
+      { $count: "total" },
+    ]);
+
+    res.status(200).json({
+      success: true,
+      appointments,
+      total: total[0]?.total || 0,
+    });
+  } catch (error) {
+    next(error);
+  }
+};

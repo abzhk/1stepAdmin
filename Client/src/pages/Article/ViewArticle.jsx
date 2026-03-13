@@ -29,10 +29,10 @@ const ViewArticle = () => {
           limit: 20,
         });
         if (search) params.append("search", search);
-       
-const data = await api (
-  `/api/article/pendingarticle?${params.toString()}`
-);
+
+        const data = await api(
+          `/api/article/pendingarticle?${params.toString()}`,
+        );
 
         console.log("pending articles response:", data);
 
@@ -66,74 +66,71 @@ const data = await api (
   }
 
   const handleApprove = async (articleId) => {
-  try {
- const data = await api(
-  `/api/article/admin/${articleId}/approve`,
-  {
-    method: "PUT",
-  }
-);
+    try {
+      const data = await api(`/api/article/admin/${articleId}/approve`, {
+        method: "PUT",
+      });
 
-     if (!data.success) {
-       //alert(data.message || "Failed to approve article");
-      return;
+      if (!data.success) {
+        //alert(data.message || "Failed to approve article");
+        return;
+      }
+      toast.success("Article approved successfully");
+
+      setArticles((prev) => prev.filter((a) => a._id !== articleId));
+
+      console.log("Article approved:", data.article);
+    } catch (err) {
+      console.error("Error approving article:", err);
+      // alert("Something went wrong while approving.");
+      toast.error(err.message || "Something went wrong while approving.");
     }
-    toast.success("Article approved successfully");
+  };
 
-
-    setArticles((prev) => prev.filter((a) => a._id !== articleId));
-
-    console.log("Article approved:", data.article);
-  } catch (err) {
-    console.error("Error approving article:", err);
-    // alert("Something went wrong while approving.");
-    toast.error(err.message || "Something went wrong while approving.");
-  }
-};
-
-const handleReject = async (reason) => {
-  try {
-
-   const data = await api(
-      `/api/article/admin/${selectedArticleId}/reject`,
-      {
+  const handleReject = async (reason) => {
+    try {
+      const data = await api(`/api/article/admin/${selectedArticleId}/reject`, {
         method: "PUT",
         body: JSON.stringify({ reason }),
+      });
+
+      if (!data.success) {
+        alert(data.message || "Failed to reject article");
+        return;
       }
-    );
+      toast.success("Article rejected successfully");
 
-    if (!data.success) {
-      alert(data.message || "Failed to reject article");
-      return;
+      setArticles((prev) => prev.filter((a) => a._id !== selectedArticleId));
+
+      console.log("Article rejected:", data.article);
+
+      setShowRejectModal(false);
+      setSelectedArticleId(null);
+    } catch (err) {
+      console.error("Error rejecting article:", err);
+      //
+      toast.error(err.message || "Something went wrong while rejecting.");
     }
-    toast.success("Article rejected successfully");
-
-
-    setArticles((prev) => prev.filter((a) => a._id !== selectedArticleId));
-
-    console.log("Article rejected:", data.article);
-
-    setShowRejectModal(false);
-    setSelectedArticleId(null);
-
-  } catch (err) {
-    console.error("Error rejecting article:", err);
-    // 
-    toast.error(err.message || "Something went wrong while rejecting.");
-  }
-};
-
-
+  };
 
   return (
     <div className="min-h-screen bg-secondary py-8 px-4 sm:px-6 lg:px-8">
-      <div className="flex justify-end mb-4">
-  <button  onClick={() => navigate("/list-view-article")} className="ml-auto flex items-center gap-2 px-4 py-2 bg-yellow border rounded-lg bg-peach text-darkgreen">
-     <GrView className="text-darkgreen" /> List View
-  </button>
-</div>
-      <div className="max-w-7xl mx-auto">
+      <div className="flex justify-end gap-3 mb-4">
+        <button
+          onClick={() => navigate("/add-article")}
+          className="px-4 py-2 bg-darkgreen text-white rounded-lg"
+        >
+          Add Article
+        </button>
 
+        <button
+          onClick={() => navigate("/list-view-article")}
+          className="flex items-center gap-2 px-4 py-2 border rounded-lg bg-peach text-darkgreen"
+        >
+          <GrView className="text-darkgreen" /> List View
+        </button>
+      </div>
+      <div className="max-w-7xl mx-auto">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 sm:text-4xl">
@@ -160,14 +157,14 @@ const handleReject = async (reason) => {
           {articles.map((article) => {
             const categoryName = article.categoryId?.name;
             const providerName =
-              article.providerName 
+            article.providerName
 
             return (
               <div
                 key={article._id}
                 className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 flex flex-col"
               >
-
+              
                 <div className="h-48 bg-gray-200 overflow-hidden">
                   {article.featuredImage ? (
                     <img
@@ -182,7 +179,7 @@ const handleReject = async (reason) => {
                   )}
                 </div>
 
-
+                
                 <div className="p-6 flex flex-col flex-grow">
                   <div className="flex items-center justify-between mb-3">
                     <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full font-medium">
@@ -228,16 +225,19 @@ const handleReject = async (reason) => {
                     </div>
 
                     <div className="flex gap-2">
-                      <button className="flex-1 bg-button text-white py-2 px-3 rounded-lg text-sm font-medium transition-colors duration-200"
-                        onClick={() => handleApprove(article._id)}>
+                      <button
+                        className="flex-1 bg-button text-white py-2 px-3 rounded-lg text-sm font-medium transition-colors duration-200"
+                        onClick={() => handleApprove(article._id)}
+                      >
                         Approve
                       </button>
-                      <button className="flex-1 bg-primary text-white py-2 px-3 rounded-lg text-sm font-medium transition-colors duration-200"
+                      <button
+                        className="flex-1 bg-primary text-white py-2 px-3 rounded-lg text-sm font-medium transition-colors duration-200"
                         onClick={() => {
-                  setSelectedArticleId(article._id);
-              setShowRejectModal(true);
-               }}
-               >
+                          setSelectedArticleId(article._id);
+                          setShowRejectModal(true);
+                        }}
+                      >
                         Reject
                       </button>
                     </div>
@@ -251,7 +251,6 @@ const handleReject = async (reason) => {
             <p className="text-gray-500">No pending articles found.</p>
           )}
         </div>
-
 
         {totalPages > 1 && (
           <div className="flex justify-center items-center gap-4 mt-10">
@@ -287,11 +286,10 @@ const handleReject = async (reason) => {
         )}
       </div>
       <RejectArticle
-  isOpen={showRejectModal}
-  onClose={() => setShowRejectModal(false)}
-  onSubmit={(reason) => handleReject(reason)}
-/>
-
+        isOpen={showRejectModal}
+        onClose={() => setShowRejectModal(false)}
+        onSubmit={(reason) => handleReject(reason)}
+      />
     </div>
   );
 };

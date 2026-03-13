@@ -137,7 +137,7 @@ const data = await api(`/api/track/stats`);
       icon: TbReportSearch,
       label: "Reports",
       color: "bg-orange-100 text-orange-600",
-      onClick: () => navigate("/report")
+      onClick: () => navigate("/reportdashboard")
     },
     {
       icon: FaUsers,
@@ -152,6 +152,25 @@ const data = await api(`/api/track/stats`);
       onClick: () => navigate("/master-data")
     }
   ];
+
+  const getStatusStyle = (status) => {
+  switch (status?.toLowerCase()) {
+    case "approved":
+      return "bg-green-100 text-green-700";
+
+    case "pending":
+      return "bg-yellow-100 text-yellow-700";
+
+    case "cancelled":
+      return "bg-red-100 text-red-700";
+
+    case "completed":
+      return "bg-blue-100 text-blue-700";
+
+    default:
+      return "bg-gray-100 text-gray-600";
+  }
+};
 
   return (
     <div className="min-h-screen p-6 bg-offwhite">
@@ -291,7 +310,7 @@ const data = await api(`/api/track/stats`);
           </div>
 
           {/* Recent Bookings */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-4">
+          <div className="bg-white rounded-4xl shadow-sm border border-gray-200 p-4">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold">Recent Bookings</h3>
               <span className="text-xs bg-green-100 text-green-600 px-2 py-1 rounded-full">
@@ -312,10 +331,17 @@ const data = await api(`/api/track/stats`);
                       <p className="text-sm font-medium">
                         {book.patientDetails?.username}
                       </p>
-                      <p className="text-xs text-gray-500">
-                        with {book.providerDetails?.fullName}
-                      </p>
+                     <p className="inline-flex items-center text-xs font-semibold rounded-2xl text-gray bg-blue-50 px-2.5 py-1 ">
+  with {book.providerDetails?.fullName}
+</p>
                     </div>
+                    <span
+  className={`px-3 py-1 text-xs font-medium rounded-full ${getStatusStyle(
+    book.status
+  )}`}
+>
+  {book.status}
+</span>
                   </li>
                 ))
               )}

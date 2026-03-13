@@ -32,6 +32,9 @@ import InactiveProviders from './pages//Provider/InactiveProvider.jsx';
 import ListViewArticle from './pages/Article/ListViewArticle.jsx';
 import MasterData from "./pages/Master/MasterData.jsx"
 import UserReport from './pages/Reports/UserReport.jsx';
+import ReportDashboard from './pages/Reports/ReportDashboard.jsx';
+import CenterReport from './pages/Reports/CenterReport.jsx';
+import AddArticle from './pages/Article/AddArticle.jsx';
 
 const App = () => {
 
@@ -99,6 +102,10 @@ const App = () => {
      <Route path="/list-view-article" element={<ListViewArticle />} />
      <Route path="/master-data" element={<MasterData />} />
      <Route path="/report" element={<UserReport/>} />
+     <Route path="/reportdashboard" element={<ReportDashboard/>} />
+      <Route path="/center-report" element={<CenterReport />} />
+      <Route path="/add-article" element={<AddArticle />} />
+      <Route path="/add-article/:id" element={<AddArticle />} />
     </Route>
     </Routes>
      <Toaster

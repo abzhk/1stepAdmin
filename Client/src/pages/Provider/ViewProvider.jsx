@@ -19,6 +19,7 @@ function ViewProvider() {
   const [error, setError] = useState("");
   // const [deleteId, setDeleteId] = useState(null);
   const { searchTerm } = useOutletContext();
+  const [providerType, setProviderType] = useState("");
 
 
   useEffect(() => {
@@ -32,6 +33,9 @@ function ViewProvider() {
           limit: String(limit),
           startIndex: String((page - 1) * limit),
         });
+        if (providerType) {
+  params.append("providerType", providerType);
+}
 
         if (searchTerm.trim()) {
           params.append("searchTerm", searchTerm.trim());
@@ -52,38 +56,10 @@ function ViewProvider() {
     };
 
     fetchProviders();
-  }, [page, searchTerm]);
+  }, [page, searchTerm,providerType]);
 
   const totalPages = Math.max(1, Math.ceil(totalCount / limit));
 
-  // const handleDelete = async (providerId) => {
-  //   try {
-  //     const res = await fetch(
-  //       `http://localhost:3001/api/admin/providers/${providerId}`,
-  //       {
-  //         method: "DELETE",
-  //         credentials: "include",
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //         },
-  //       }
-  //     );
-
-  //     const data = await res.json();
-
-  //     if (!res.ok) {
-  //       throw new Error(data.message || "Failed to delete provider");
-  //     }
-
-  //     setProviders((prev) =>
-  //       prev.filter((provider) => provider._id !== providerId)
-  //     );
-
-  //     setTotalCount((prev) => prev - 1);
-  //   } catch (error) {
-  //     alert(error.message || "Something went wrong while deleting provider");
-  //   }
-  // };
 
   const changeStatus = async (providerId, newStatus) => {
     try {
@@ -130,6 +106,18 @@ function ViewProvider() {
         </div>
       )}
       <div className="flex justify-end mb-6">
+        <select
+  value={providerType}
+  onChange={(e) => {
+    setProviderType(e.target.value);
+    setPage(1);
+  }}
+  className="px-3 py-2 border rounded-lg mr-3"
+>
+  <option value="">All</option>
+  <option value="individual">Individual</option>
+  <option value="centre">Centre</option>
+</select>
   <button  onClick={() => navigate("/inactive-providers")} className="px-4 py-2 rounded-xl font-semibold shadow transition bg-yellow">Inactive users
     </button>
 </div>

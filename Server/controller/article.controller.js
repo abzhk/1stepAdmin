@@ -6,6 +6,14 @@ import { errorHandler } from "../utils/error.js";
 // Create new article
 export const createArticle = async (req, res) => {
   try {
+// Allow only admin or superadmin
+    if (req.user.role !== "Admin" && req.user.role !== "Super Admin") {
+      return res.status(403).json({
+        success: false,
+        message: "Only admin or superadmin can create articles",
+      });
+    }
+
     const {
       title,
       content,
@@ -14,41 +22,60 @@ export const createArticle = async (req, res) => {
       categoryId,
       tags,
       readTime,
+      featured
     } = req.body;
 
-    // Validation
+  // Validation
     if (!title || !content || !excerpt || !featuredImage || !categoryId) {
       return res.status(400).json({
         message: "All required fields must be provided",
       });
     }
-
-    // Verify provider exists
-    const provider = await Provider.findOne({ userRef: req.user.id });
-    if (!provider) {
-      return res.status(404).json({ message: "Provider not found" });
-    }
-
-    // Verify provider is verified
-    if (!provider.verified) {
-      return res.status(403).json({
-        message: "Only verified providers can create articles",
-      });
-    }
-
-    // Verify category exists and is active
+// Check category
     const category = await Category.findById(categoryId);
+
     if (!category) {
-      return res.status(404).json({ message: "Category not found" });
+      return res.status(404).json({
+        success: false,
+        message: "Category not found",
+      });
     }
 
     if (!category.isActive) {
       return res.status(400).json({
+        success: false,
         message: "This category is not currently active",
       });
     }
 
-    // Create article
+    let providerId = null;
+    let providerName = "Admin";
+    let status = "approved";
+
+    const provider = await Provider.findOne({ userRef: req.user.id });
+ // Verify provider is verified
+    if (provider) {
+      if (!provider.verified) {
+        return res.status(403).json({
+          message: "Only verified providers can create articles",
+        });
+      }
+
+      providerId = provider._id;
+      providerName = provider.fullName;
+      status = "pending";
+    }
+
+    const authorType = req.user.role;
+
+    if (featured) {
+      await Article.updateMany(
+        { featured: true },
+        { $set: { featured: false } }
+      );
+    }
+
+ // Create article
     const article = new Article({
       title,
       content,
@@ -58,21 +85,30 @@ export const createArticle = async (req, res) => {
       categoryId: category._id,
       tags: tags || [],
       readTime: readTime || Math.ceil(content.split(" ").length / 200),
-      providerId: provider._id,
-      providerName: provider.fullName,
-      status: "pending",
+      providerId,
+      providerName,
+      status,
+      authorType,
+      featured: featured || false,
+      publishedAt: status === "approved" ? new Date() : undefined,
     });
 
     await article.save();
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
-      message: "Article created and submitted for approval",
+      message:
+        status === "approved"
+          ? "Article published successfully"
+          : "Article created and submitted for approval",
       article,
     });
+
   } catch (error) {
     console.error("Create article error:", error);
-    res.status(500).json({
+
+    return res.status(500).json({
+      success: false,
       message: "Error creating article",
       error: error.message,
     });
@@ -912,5 +948,156 @@ export const getAllArticles = async (req, res) => {
   } catch (error) {
     console.error("Get all articles error:", error);
     res.status(500).json({ message: "Error fetching articles" });
+  }
+};
+//featured article
+export const toggleFeaturedArticle = async (req, res) => {
+  try {
+
+    const { id } = req.params;
+
+    const article = await Article.findById(id);
+
+    if (!article) {
+      return res.status(404).json({
+        message: "Article not found",
+      });
+    }
+
+    if (article.featured) {
+      article.featured = false;
+      await article.save();
+
+      return res.status(200).json({
+        success: true,
+        featured: false,
+        message: "Featured removed",
+      });
+    }
+
+    await Article.updateMany(
+      { featured: true },
+      { $set: { featured: false } }
+    );
+
+
+    article.featured = true;
+    await article.save();
+
+    res.status(200).json({
+      success: true,
+      featured: true,
+      message: "Article marked as featured",
+    });
+
+  } catch (error) {
+    console.error("Toggle featured error:", error);
+
+    res.status(500).json({
+      message: "Error updating featured article",
+    });
+  }
+};
+
+//update article created by admin
+
+export const updateArticleAdmin = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const article = await Article.findById(id);
+
+    if (!article) {
+      return res.status(404).json({
+        message: "Article not found",
+      });
+    }
+
+    if (article.authorType !== "Admin" && article.authorType !== "Super Admin") {
+  return res.status(403).json({
+    message: "Only admin-created articles can be edit",
+  });
+}
+
+    const {
+      title,
+      content,
+      excerpt,
+      featuredImage,
+      categoryId,
+      tags,
+      readTime,
+    } = req.body;
+
+    if (!title || !content || !excerpt || !featuredImage || !categoryId) {
+      return res.status(400).json({
+        message: "All required fields must be provided",
+      });
+    }
+
+    const category = await Category.findById(categoryId);
+
+    if (!category || !category.isActive) {
+      return res.status(400).json({
+        message: "Invalid or inactive category",
+      });
+    }
+
+    article.title = title;
+    article.content = content;
+    article.excerpt = excerpt;
+    article.featuredImage = featuredImage;
+    article.category = category.name;
+    article.categoryId = category._id;
+    article.tags = tags || [];
+    article.readTime =
+      readTime || Math.ceil(content.split(" ").length / 200);
+
+    await article.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Article updated successfully",
+      article,
+    });
+  } catch (error) {
+    console.error("Admin update article error:", error);
+
+    res.status(500).json({
+      message: "Error updating article",
+    });
+  }
+};
+//delete article by admin
+export const deleteArticlebyAdmin = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const article = await Article.findById(id);
+
+    if (!article) {
+      return res.status(404).json({
+        message: "Article not found",
+      });
+    }
+
+   if (article.authorType !== "Admin" && article.authorType !== "Super Admin") {
+  return res.status(403).json({
+    message: "Only admin-created articles can be edited here",
+  });
+}
+
+    await Article.findByIdAndDelete(id);
+
+    res.status(200).json({
+      success: true,
+      message: "Article deleted successfully",
+    });
+  } catch (error) {
+    console.error("Delete article admin error:", error);
+
+    res.status(500).json({
+      message: "Error deleting article",
+    });
   }
 };

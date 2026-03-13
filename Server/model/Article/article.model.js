@@ -40,11 +40,9 @@ const articleSchema = new mongoose.Schema(
     providerId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "provider",
-      required: true,
     },
     providerName: {
       type: String,
-      required: true,
     },
     status: {
       type: String,
@@ -69,6 +67,15 @@ const articleSchema = new mongoose.Schema(
       type: Number,
       default: 5,
     },
+    featured: {
+    type: Boolean,
+    default: false,
+    },
+   authorType: {
+    type: String,
+    enum: [ "Admin", "Super Admin"],
+    default: "Admin",
+   },
     publishedAt: {
       type: Date,
     },
