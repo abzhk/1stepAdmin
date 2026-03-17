@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { AiFillEye } from "react-icons/ai";
-import { FiSearch, FiMapPin, FiUsers } from "react-icons/fi";
-import { useNavigate } from "react-router-dom";
-import { FiEdit2, FiTrash2 } from "react-icons/fi";
-import {  useOutletContext } from "react-router-dom";
+import { FiEdit2, FiGrid, FiList } from "react-icons/fi";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import { api } from "../../utils/api.js";
 import toast from "react-hot-toast";
-
 
 function ViewProvider() {
   const navigate = useNavigate();
@@ -15,36 +12,35 @@ function ViewProvider() {
   const [totalCount, setTotalCount] = useState(0);
   const [page, setPage] = useState(1);
   const limit = 12;
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  // const [deleteId, setDeleteId] = useState(null);
-  const { searchTerm } = useOutletContext();
-  const [providerType, setProviderType] = useState("");
 
+  const { searchTerm } = useOutletContext();
+
+  const [providerType, setProviderType] = useState("");
+  const [viewMode, setViewMode] = useState("grid");
 
   useEffect(() => {
     const fetchProviders = async () => {
       try {
         setLoading(true);
         setError("");
-       
 
         const params = new URLSearchParams({
           limit: String(limit),
           startIndex: String((page - 1) * limit),
         });
+
         if (providerType) {
-  params.append("providerType", providerType);
-}
+          params.append("providerType", providerType);
+        }
 
         if (searchTerm.trim()) {
           params.append("searchTerm", searchTerm.trim());
         }
 
-        const data = await api(
-  `/api/provider/getProviders?${params.toString()}`
-);
-
+        const data = await api(`/api/provider/getProviders?${params}`);
 
         setProviders(data.providers || []);
         setTotalCount(data.totalCount || 0);
@@ -56,267 +52,304 @@ function ViewProvider() {
     };
 
     fetchProviders();
-  }, [page, searchTerm,providerType]);
+  }, [page, searchTerm, providerType]);
 
   const totalPages = Math.max(1, Math.ceil(totalCount / limit));
 
-
   const changeStatus = async (providerId, newStatus) => {
     try {
- setError("");
+      setError("");
 
       const data = await api(`/api/provider/admin/provider/status`, {
         method: "PUT",
-      
         body: JSON.stringify({
           providerId,
           isActive: newStatus,
         }),
       });
 
-      if(!data.success){
+      if (!data.success) {
         throw new Error(data.message || "Failed to update status");
       }
-      toast.success(`Provider ${newStatus ? "activated" : "deactivated"}`);
+
+      toast.success(
+        `Provider ${newStatus ? "activated" : "deactivated"}`
+      );
 
       if (newStatus === false) {
-  setProviders((prev) => prev.filter((p) => p._id !== providerId));
-  setTotalCount((prev) => prev - 1);
-} else {
-  setProviders((prev) =>
-    prev.map((p) =>
-      p._id === providerId ? { ...p, isActive: newStatus } : p
-    )
-  );
-}
-
+        setProviders((prev) => prev.filter((p) => p._id !== providerId));
+        setTotalCount((prev) => prev - 1);
+      } else {
+        setProviders((prev) =>
+          prev.map((p) =>
+            p._id === providerId ? { ...p, isActive: newStatus } : p
+          )
+        );
+      }
     } catch (error) {
-      // alert(error.message);
       console.log(error);
-       setError(error.message || "Something went wrong");
-       toast.error(error.message || "Failed to update status");
+      setError(error.message || "Something went wrong");
+      toast.error(error.message || "Failed to update status");
     }
   };
 
   return (
-    <div className="p-4 md:p-6 bg-offwhite  min-h-screen ">
+    <div className="p-4 md:p-6 bg-offwhite min-h-screen">
       {error && (
         <div className="mb-6 text-red-700 bg-red-100 border border-red-300 px-4 py-3 rounded-xl">
           <strong>Error:</strong> {error}
         </div>
       )}
-      <div className="flex justify-end mb-6">
-        <select
-  value={providerType}
-  onChange={(e) => {
-    setProviderType(e.target.value);
-    setPage(1);
-  }}
-  className="px-3 py-2 border rounded-lg mr-3"
->
-  <option value="">All</option>
-  <option value="individual">Individual</option>
-  <option value="centre">Centre</option>
-</select>
-  <button  onClick={() => navigate("/inactive-providers")} className="px-4 py-2 rounded-xl font-semibold shadow transition bg-yellow">Inactive users
-    </button>
-</div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-10 gap-y-14 w-305">
-        {loading ? (
-          <div className="col-span-full text-center py-10 text-xl text-gray-500 font-medium">
-            Loading providers...
-          </div>
-        ) : providers.length > 0 ? (
-          providers.map((provider, index) => {
-            const therapies = Array.isArray(provider.therapytype)
-              ? provider.therapytype
-              : provider.therapytype
+      {/* Top Controls */}
+      <div className="flex items-center justify-between mb-6">
+
+        {/* View Toggle */}
+        <div className="flex gap-2">
+          <button
+            onClick={() => setViewMode("grid")}
+            className={`p-2 rounded-lg border ${
+              viewMode === "grid"
+                ? "bg-darkgreen text-white"
+                : "bg-white text-gray-600"
+            }`}
+          >
+            <FiGrid size={18} />
+          </button>
+
+          <button
+            onClick={() => setViewMode("list")}
+            className={`p-2 rounded-lg border ${
+              viewMode === "list"
+                ? "bg-darkgreen text-white"
+                : "bg-white text-gray-600"
+            }`}
+          >
+            <FiList size={18} />
+          </button>
+        </div>
+
+        <div className="flex">
+          <select
+            value={providerType}
+            onChange={(e) => {
+              setProviderType(e.target.value);
+              setPage(1);
+            }}
+            className="px-3 py-2 border rounded-lg mr-3"
+          >
+            <option value="">All</option>
+            <option value="individual">Individual</option>
+            <option value="centre">Centre</option>
+          </select>
+
+          <button
+            onClick={() => navigate("/inactive-providers")}
+            className="px-4 py-2 rounded-xl text-white font-semibold shadow transition bg-darkgreen hover:bg-yellow hover:text-darkgreen"
+          >
+            Inactive users
+          </button>
+        </div>
+      </div>
+
+      {/* GRID VIEW */}
+      {viewMode === "grid" ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-10 gap-y-14">
+
+          {loading ? (
+            <div className="col-span-full text-center py-10 text-xl text-gray-500 font-medium">
+              Loading providers...
+            </div>
+          ) : providers.length > 0 ? (
+            providers.map((provider) => {
+              const therapies = Array.isArray(provider.therapytype)
+                ? provider.therapytype
+                : provider.therapytype
                 ? [provider.therapytype]
                 : [];
 
-            return (
-              <div
-                key={provider._id}
-                className="bg-white rounded-xl shadow-lg hover:shadow-xl transition duration-300  flex flex-col justify-between border border-gray-100"
-              >
-                {/* Card Header */}
-                <div className="flex items-start mb-2 ">
-                  <div className="bg-white rounded-xl shadow-lg overflow-hidden ">
+              return (
+                <div
+                  key={provider._id}
+                  className="bg-white rounded-xl shadow-lg hover:shadow-xl transition border border-gray-100"
+                >
+                  <div>
                     {provider.profilePicture && (
                       <img
                         src={provider.profilePicture}
                         alt={provider.fullName}
-                        className="w-74 h-52 object-cover"
+                        className="w-full h-52 object-cover rounded-t-xl"
                       />
                     )}
                   </div>
-                </div> 
-                <div className="flex item-center ">
-                  
-              
-                    </div>
-                <div className="p-1 ">
- <div className=" mb-2">
-<div className="flex items-start justify-between">
-                  <h2 className="font-semibold text-gray-900 text-lg leading-snug">
-                    {provider.fullName}
-                  </h2>
 
-                  <button
-                      onClick={() =>
-                        changeStatus(provider._id, !provider.isActive)
-                      }
-                      className={`px-1 py-1 rounded-xl text-sm font-medium shadow-sm transition
-  ${
-    provider.isActive
-      ? "bg-red-50 text-red-600 hover:bg-red-100"
-      : "bg-green-50 text-green-600 hover:bg-green-100"
-  }`}
-                    >
-                      {provider.isActive ? "Deactivate" : "Activate"}
-                    </button>
-                </div>
-                </div>
+                  <div className="p-4">
+                    <div className="flex justify-between mb-2">
+                      <h2 className="font-semibold text-lg">
+                        {provider.fullName}
+                      </h2>
 
-
-                  {/* <div className="p-1 mt-2">
-                    <h2 className="text-xl  font-semibold text-textcol mb-2 ml-1">
-                      {provider.fullName}
-                    </h2>
-                  </div> */}
-
-                  {/* Provider Details */}
-                  <div className="space-y-3 mb-4">
-                    <div className="flex items-center text-gray-600 text-sm ">
-                      {/* <FiMapPin className="text-blue-500 mr-2 " /> */}
-                      <strong>City:</strong>
-                      <span className="ml-1">{provider.address?.city}</span>
+                      <button
+                        onClick={() =>
+                          changeStatus(provider._id, !provider.isActive)
+                        }
+                        className={`px-2 py-1 rounded-lg text-xs ${
+                          provider.isActive
+                            ? "bg-red-50 text-red-600"
+                            : "bg-green-50 text-green-600"
+                        }`}
+                      >
+                        {provider.isActive ? "Deactivate" : "Activate"}
+                      </button>
                     </div>
 
-                    <div className="flex items-start text-gray-600 text-sm ">
-                      {/* <FiUsers className="text-green-500 mt-0.5 mr-2 " /> */}
-                      <strong>Session:</strong>
-                      <div className="flex flex-wrap gap-1 ml-1">
-                        {therapies.length > 0 ? (
-                          therapies.map((type, i) => (
-                            <span
-                              key={i}
-                              className="px-2 py-0.5 rounded-full text-xs font-medium bg-tag text-darkgreen"
-                            >
-                              {type}
-                            </span>
-                          ))
-                        ) : (
-                          <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500">
-                            N/A
+                    <div className="text-sm text-gray-600 mb-2">
+                      <strong>City:</strong>{" "}
+                      {provider.address?.city || "N/A"}
+                    </div>
+
+                    <div className="flex flex-wrap gap-1 mb-4">
+                      {therapies.length > 0 ? (
+                        therapies.map((type, i) => (
+                          <span
+                            key={i}
+                            className="px-2 py-0.5 text-xs rounded-full bg-tag text-darkgreen"
+                          >
+                            {type}
                           </span>
-                        )}
-                      </div>
+                        ))
+                      ) : (
+                        <span className="text-xs bg-gray-100 px-2 py-0.5 rounded-full">
+                          N/A
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() =>
+                          navigate(`/provider-stats/${provider._id}`)
+                        }
+                        className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-button text-white text-sm"
+                      >
+                        <AiFillEye />
+                        View Details
+                      </button>
+
+                      <button
+                        onClick={() =>
+                          navigate(`/providers/edit/${provider._id}`)
+                        }
+                        className="w-10 h-10 flex items-center justify-center rounded-xl bg-blue-50 text-blue-600"
+                      >
+                        <FiEdit2 />
+                      </button>
                     </div>
                   </div>
-                  <div className="flex items-center  justify-center  gap-3 ">
+                </div>
+              );
+            })
+          ) : (
+            <div className="col-span-full text-center py-10 text-gray-500">
+              No providers found
+            </div>
+          )}
+        </div>
+      ) : (
+        /* LIST VIEW */
+        <div className="bg-white rounded-xl shadow  overflow-hidden">
+          <table className="w-full text-sm">
+            <thead className="bg-gray-100 text-gray-700">
+              <tr>
+                <th className="p-3 text-left">Provider</th>
+                <th className="p-3 text-left">City</th>
+                <th className="p-3 text-left">Session</th>
+                <th className="p-3 text-left">Status</th>
+                <th className="p-3 text-right">Actions</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {providers.map((provider) => (
+                <tr key={provider._id} className="border-t hover:bg-gray-50">
+                  <td className="p-3 flex items-center gap-3">
+                    <img
+                      src={provider.profilePicture}
+                      className="w-10 h-10 rounded-lg object-cover"
+                    />
+                    {provider.fullName}
+                  </td>
+
+                  <td className="p-3">{provider.address?.city}</td>
+
+                  <td className="p-3">
+                    {Array.isArray(provider.therapytype)
+                      ? provider.therapytype.join(", ")
+                      : provider.therapytype}
+                  </td>
+
+                  <td className="p-3">
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs ${
+                        provider.isActive
+                          ? "bg-green-100 text-green-600"
+                          : "bg-red-100 text-red-600"
+                      }`}
+                    >
+                      {provider.isActive ? "Active" : "Inactive"}
+                    </span>
+                  </td>
+
+                  <td className="p-3 flex justify-end gap-2">
                     <button
                       onClick={() =>
                         navigate(`/provider-stats/${provider._id}`)
                       }
-                      className="flex items-center  justify-center gap-2 px-4 py-2 rounded-2xl bg-button text-white font-medium shadow-md
-               hover:bg-lighthov transition duration-150 w-40"
+                      className="p-2 bg-gray-100 rounded-lg"
                     >
-                      <AiFillEye className="text-lg" />
-                      <span className="text-sm">View Details</span>
+                      <AiFillEye />
                     </button>
 
                     <button
                       onClick={() =>
                         navigate(`/providers/edit/${provider._id}`)
                       }
-                      className="w-10 h-10 flex items-center justify-center rounded-xl
-               bg-blue-50 text-blue-600 hover:bg-blue-100
-               transition shadow-sm"
-                      title="Edit"
+                      className="p-2 bg-blue-100 text-blue-600 rounded-lg"
                     >
-                      <FiEdit2 className="text-lg" />
+                      <FiEdit2 />
                     </button>
-                   
-
-                    {/* {deleteId && (
-                    <div className="fixed inset-0  flex items-center justify-center z-50">
-                      <div className="bg-white rounded-xl p-6 w-96 shadow-xl">
-                        <h3 className="text-lg font-semibold text-gray-800 mb-3">
-                          Confirm Delete
-                        </h3>
-                        <p className="text-sm text-gray-600 mb-6">
-                          Are you sure you want to delete this provider?
-                        </p>
-
-                        <div className="flex justify-end gap-3">
-                          <button
-                            onClick={() => setDeleteId(null)}
-                            className="px-4 py-2 rounded-lg border border-gray-300 text-sm"
-                          >
-                            Cancel
-                          </button>
-
-                          <button
-                            onClick={() => {
-                              handleDelete(deleteId);
-                              setDeleteId(null);
-                            }}
-                            className="px-4 py-2 rounded-lg bg-red-600 text-white text-sm hover:bg-red-700"
-                          >
-                            Delete
-                          </button>
-                          
-                        </div>
-                      </div>
-                    </div>
-                    
-                  )} */}
-                  </div>
-                </div>
-              </div>
-            );
-          })
-        ) : (
-          <div className="col-span-full text-center py-10 text-xl text-gray-500 font-medium">
-            No providers found matching your criteria.
-          </div>
-        )}
-      </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {/* Pagination */}
-      <div className="flex flex-col md:flex-row items-center justify-between mt-8 pt-4 border-t border-gray-200">
+      <div className="flex flex-col md:flex-row items-center justify-between mt-8 pt-4 border-t">
         <p className="text-sm text-gray-600 mb-4 md:mb-0">
-          Showing{" "}
-          <span className="font-semibold text-gray-800">
-            {providers.length ? (page - 1) * limit + 1 : 0}
-          </span>{" "}
-          to{" "}
-          <span className="font-semibold text-gray-800">
-            {(page - 1) * limit + providers.length}
-          </span>{" "}
-          of <span className="font-semibold text-gray-800">{totalCount}</span>{" "}
-          providers
+          Showing {(page - 1) * limit + 1} to{" "}
+          {(page - 1) * limit + providers.length} of {totalCount} providers
         </p>
 
         <div className="flex gap-3 items-center">
           <button
-            className="px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium bg-white hover:bg-gray-100 transition disabled:opacity-50 disabled:cursor-not-allowed"
-            onClick={() => setPage((page) => page - 1)}
+            onClick={() => setPage((p) => p - 1)}
             disabled={page === 1}
+            className="px-4 py-2 border rounded-lg"
           >
             ← Previous
           </button>
 
-          <span className="text-sm font-semibold text-gray-700">
+          <span className="text-sm font-semibold">
             Page {page} of {totalPages}
           </span>
 
           <button
-            className="px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium bg-white hover:bg-gray-100 transition disabled:opacity-50 disabled:cursor-not-allowed"
-            onClick={() => setPage((page) => page + 1)}
+            onClick={() => setPage((p) => p + 1)}
             disabled={page === totalPages}
+            className="px-4 py-2 border rounded-lg"
           >
             Next →
           </button>

@@ -140,7 +140,7 @@ const DashSidebar = () => {
   `;
 
   return (
-    <div className="w-56 bg-greenmuted text-gray-700  h-full flex flex-col shadow-xl border  rounded-3xl "> 
+    <div className="w-64 bg-greenmuted text-gray-700  h-full flex flex-col shadow-xl border  rounded-3xl "> 
     <div className="  flex justify-center p-4">
       <img src={logo} alt="Logo" className="h-10 w-auto invert brightness-0" />
     </div>
@@ -154,7 +154,7 @@ const DashSidebar = () => {
           }}
           className={getNavLinkClasses("Dashboard")}
         >
-          <MdSpaceDashboard className="text-lg  " />
+          <MdSpaceDashboard className="text-xl  " />
          <span className = "text-lg"> Dashboard</span>
         </label>
         {role === "Super Admin" && (
@@ -165,7 +165,7 @@ const DashSidebar = () => {
     }}
     className={getNavLinkClasses("Create User")}
   >
-    <RiUserSharedLine className="text-lg" />
+    <RiUserSharedLine className="text-xl" />
    <span className = "text-lg">Create User</span> 
   </label>
 )}
@@ -179,7 +179,7 @@ const DashSidebar = () => {
           }}
           className={getNavLinkClasses("Provider")}
         >
-          <IoIosMan className="text-lg" />
+          <IoIosMan className="text-xl" />
          <span className = "text-lg">Provider</span> 
         </label>
 
@@ -191,7 +191,7 @@ const DashSidebar = () => {
           }}
           className={getNavLinkClasses("Parent")}
         >
-          <RiParentFill className="text-lg" />
+          <RiParentFill className="text-xl" />
           <span className = "text-lg">Parent</span>
         </label>
 
@@ -213,7 +213,7 @@ const DashSidebar = () => {
           }}
           className={getNavLinkClasses("Plans and Features")}
         >
-          <TbReportSearch className="text-lg" />
+          <TbReportSearch className="text-xl" />
          <span className = "text-lg">Plans and Features</span>
         </label>
          {role === "Super Admin" && (
@@ -224,7 +224,7 @@ const DashSidebar = () => {
           }}
           className={getNavLinkClasses("Role")}
         >
-         <TbLockAccess className="text-lg" />
+         <TbLockAccess className="text-xl" />
           <span className = "text-lg"> Roles and access</span>
         </label>
         )} 
@@ -241,7 +241,7 @@ const DashSidebar = () => {
             `}
           >
             <div className="flex items-center gap-2">
-              <TbArticle className="text-lg" />
+              <TbArticle className="text-xl" />
               <span className='text-lg'>Content </span>
             </div>
             {(isArticleOpen || active === "Add Category" || active === "Approve Articles") ? (
@@ -284,7 +284,7 @@ const DashSidebar = () => {
             `}
           >
             <div className="flex items-center gap-2">
-              <MdRateReview className="text-lg" />
+              <MdRateReview className="text-xl" />
               <span className="text-lg">Assessment</span>
             </div>
             {(isAssessmentOpen || active === "Add Assessment" || active === "Provider Assessments") ? (
@@ -321,7 +321,7 @@ const DashSidebar = () => {
           }}
           className={getNavLinkClasses("Master Data")}
         >
-          <RiParentFill className="text-lg" />
+          <RiParentFill className="text-xl" />
           <span className = "text-lg">Master Data</span>
         </label> 
               
@@ -331,7 +331,7 @@ const DashSidebar = () => {
       {/* Logout Button */}
       <div className="p-2 border-t border-gray-200 mb-2">
         <button
-          className="flex items-center justify-center gap-2 bg-peach text-white w-full py-2 rounded-lg shadow hover:bg-lighthov hover:text-black transition font-semibold"
+          className="flex items-center justify-center gap-2 bg-peach text-white w-full py-2 rounded-lg shadow hover:bg-yellow hover:text-black transition font-semibold"
           onClick={handleLogout}
         >
           <CgLogOut className="text-xl" />

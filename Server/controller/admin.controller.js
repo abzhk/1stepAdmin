@@ -11,7 +11,7 @@ import { errorHandler } from '../utils/error.js';
 
 export const createAdmin = async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const { username, email, password,profilePicture } = req.body;
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -31,6 +31,7 @@ export const createAdmin = async (req, res) => {
       email,
       password: hashedPassword,
       role: adminRole._id,
+      profilePicture
     });
 
     await adminUser.save();
@@ -90,6 +91,7 @@ export const login = async (req, res,next) => {
         role: user.role.role,
         permissions: user.role.permissions,
         isSuperAdmin: user.role.isSuperAdmin,
+        profilePicture: user.profilePicture,
       },
     });
   } catch (error) {

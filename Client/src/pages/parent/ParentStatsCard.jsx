@@ -110,7 +110,7 @@ if (statsError) {
       <div className="max-w-7xl mx-auto space-y-6">
         
         <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-50 rounded-full blur-3xl opacity-60 -mt-16 -mr-16"></div>
+          <div className="absolute top-0 right-0 w-64 h-64  rounded-full blur-3xl opacity-60 -mt-16 -mr-16"></div>
           <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-3 mb-1">
@@ -131,13 +131,13 @@ if (statsError) {
           
           {/* Left side*/}
           <div className="lg:col-span-5">
-            <div className="h-full bg-white rounded-3xl p-8 border border-gray-100 shadow-sm flex flex-col justify-center">
-              <div className="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-6">
+            <div className="h-full bg-darkgreen rounded-3xl p-8 border border-gray-100 shadow-sm flex flex-col justify-center">
+              <div className="w-14 h-14 rounded-2xl bg-white text-yellow flex items-center justify-center mb-6">
                 <FiBookOpen className="w-8 h-8" />
               </div>
-              <h3 className="text-gray-500 font-bold uppercase tracking-wider text-sm">Course Progress</h3>
+              <h3 className="text-white font-bold uppercase tracking-wider text-sm">Course Progress</h3>
               <div className="flex items-baseline gap-2 mt-2 mb-8">
-                <span className="text-6xl font-black text-gray-900">{stats?.avgCourseProgress ?? 0}%</span>
+                <span className="text-6xl font-black text-white">{stats?.avgCourseProgress ?? 0}%</span>
                 <span className="text-lg text-gray-400">average</span>
               </div>
               
@@ -148,7 +148,7 @@ if (statsError) {
                     style={{ width: `${Math.min(100, stats?.avgCourseProgress ?? 0)}%` }}
                   ></div>
                 </div>
-                <div className="flex justify-between text-sm font-bold text-gray-600 px-1">
+                <div className="flex justify-between text-sm font-bold text-yellow px-1">
                   <span>{stats?.completedCourses ?? 0} Completed</span>
                   <span>{stats?.totalCourses ?? 0} Total Courses</span>
                 </div>
@@ -160,7 +160,7 @@ if (statsError) {
           <div className="lg:col-span-7 grid grid-cols-1 md:grid-cols-2 gap-4">
             
             <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm hover:translate-y-[-4px] transition-transform">
-              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-4">
+              <div className="w-10 h-10 rounded-xl bg-gray-100 text-emerald-600 flex items-center justify-center mb-4">
                 <FiCalendar className="w-5 h-5" />
               </div>
               <p className="text-3xl font-bold text-gray-900">{stats?.totalBookings ?? 0}</p>
@@ -169,7 +169,7 @@ if (statsError) {
 
 
             <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm hover:translate-y-[-4px] transition-transform">
-              <div className="w-10 h-10 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center mb-4">
+              <div className="w-10 h-10 rounded-xl bg-gray-100 text-violet-600 flex items-center justify-center mb-4">
                 <FiAward className="w-5 h-5" />
               </div>
               <p className="text-3xl font-bold text-gray-900">{stats?.totalAssessmentsAttempted ?? 0}</p>
@@ -178,7 +178,7 @@ if (statsError) {
 
 
             <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm hover:translate-y-[-4px] transition-transform">
-              <div className="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center mb-4">
+              <div className="w-10 h-10 rounded-xl bg-gray-100 text-rose-600 flex items-center justify-center mb-4">
                 <FiHeart className="w-5 h-5" />
               </div>
               <p className="text-3xl font-bold text-gray-900">{stats?.likedResources ?? 0}</p>
@@ -187,7 +187,7 @@ if (statsError) {
 
 
             <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm hover:translate-y-[-4px] transition-transform">
-              <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center mb-4">
+              <div className="w-10 h-10 rounded-xl bg-gray-100 text-amber-600 flex items-center justify-center mb-4">
                 <FiActivity className="w-5 h-5" />
               </div>
               <p className="text-lg font-bold text-gray-900 truncate">

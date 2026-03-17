@@ -5,7 +5,7 @@ import Login from './pages/Login.jsx';
 // import Landing from './pages/Landing.jsx';
 // import DashboardNavbar from './pages/Dashboard/DashboardNavbar.jsx';
 import MainDashboard from './pages/Dashboard/MainDashboard.jsx';
-import Layout from './pages/Dashboard/Layout.jsx';
+import Layout from './Components/Layout.jsx';
 import Categories from './pages/Categories/AddCategories.jsx'
 import ViewCategories from './pages/Categories/ViewCategories.jsx';
 import ViewArticle from './pages/Article/ViewArticle.jsx';

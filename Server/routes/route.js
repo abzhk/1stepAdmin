@@ -16,7 +16,7 @@ import accessRoutes from './access.route.js';
 import userRoute from './user.route.js';
 import moduleRoute from './module.route.js';
 import masterRoute from './masterData.route.js';
-
+import subscriptionRoute from "./subscription.route.js"
 
 const router = express.Router(); 
 
@@ -54,6 +54,8 @@ router.use("/users", userRoute);
 router.use("/module",moduleRoute);
 //service typrs
 router.use("/services",masterRoute)
+//subscriptiob
+router.use("/subscription",subscriptionRoute)
 
 
 export default router;

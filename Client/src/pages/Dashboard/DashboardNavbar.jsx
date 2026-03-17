@@ -4,6 +4,7 @@ import { Bell, Settings, Info, Mail, ChevronDown, CheckCircle, AlertCircle } fro
 import ProfileImage from '../../assets/profile.jpeg';
 import NavSearch from '../../utils/navbarSearch.jsx';
 import { useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const DashboardNavbar = ({ searchTerm, setSearchTerm }) => {
   const navigate = useNavigate();
@@ -11,6 +12,8 @@ const DashboardNavbar = ({ searchTerm, setSearchTerm }) => {
   // States for both dropdowns
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const { user } = useSelector((state) => state.auth);
+  
   
   const profileRef = useRef(null);
   const notifRef = useRef(null);
@@ -113,7 +116,7 @@ const pageTitle = getPageTitle();
             >
               <div className="relative">
                 <img
-                  src={ProfileImage}
+                  src={user?.profilePicture || ProfileImage}
                   alt="Profile"
                   className="w-10 h-10 rounded-full object-cover border-2 border-gray-300 group-hover:border-[#fbbf24] transition-all"
                 />
@@ -135,6 +138,10 @@ const pageTitle = getPageTitle();
                 <Link to="/contact" className="flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-[#fbbf24]">
                   <Mail size={18} />
                   <span className="text-sm font-medium">Contact Us</span>
+                </Link>
+                <Link to="/contact" className="flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-[#fbbf24]">
+                  <Mail size={18} />
+                  <span className="text-sm font-medium">LogOut</span>
                 </Link>
               </div>
             )}
