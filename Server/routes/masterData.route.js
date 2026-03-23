@@ -13,9 +13,9 @@ const router = express.Router();
 router.get("/types", getAllTypes); // get all available types
 router.get("/:type", getOptionsByType); // get options by type
 
-router.post("/create-service",verifyAdminToken, createOption);
+router.post("/",verifyAdminToken, createOption);
 
 // UPDATE
-router.put("/:id", updateOption);
+router.put("/:id",verifyAdminToken, updateOption);
 
 export default router;

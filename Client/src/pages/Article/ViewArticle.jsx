@@ -3,7 +3,7 @@ import RejectArticle from "./RejectArticle";
 import dateFormatUtils from "../../utils/dateFormatUtils";
 import { useNavigate } from "react-router-dom";
 import { GrView } from "react-icons/gr";
-import {api} from "../../utils/api.js"
+import { api } from "../../utils/api.js";
 import toast from "react-hot-toast";
 
 const ViewArticle = () => {
@@ -15,8 +15,11 @@ const ViewArticle = () => {
   const [error, setError] = useState("");
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [selectedArticleId, setSelectedArticleId] = useState(null);
-  const navigate = useNavigate();
 
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [selectedArticle, setSelectedArticle] = useState(null);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchArticles = async () => {
@@ -31,15 +34,12 @@ const ViewArticle = () => {
         if (search) params.append("search", search);
 
         const data = await api(
-          `/api/article/pendingarticle?${params.toString()}`,
+          `/api/article/pendingarticle?${params.toString()}`
         );
-
-        console.log("pending articles response:", data);
 
         setArticles(data.articles || []);
         setTotalPages(data.totalPages || 1);
       } catch (err) {
-        console.error(err);
         setError(err.message || "Something went wrong");
       } finally {
         setLoading(false);
@@ -71,44 +71,35 @@ const ViewArticle = () => {
         method: "PUT",
       });
 
-      if (!data.success) {
-        //alert(data.message || "Failed to approve article");
-        return;
-      }
+      if (!data.success) return;
+
       toast.success("Article approved successfully");
-
       setArticles((prev) => prev.filter((a) => a._id !== articleId));
-
-      console.log("Article approved:", data.article);
     } catch (err) {
-      console.error("Error approving article:", err);
-      // alert("Something went wrong while approving.");
       toast.error(err.message || "Something went wrong while approving.");
     }
   };
 
   const handleReject = async (reason) => {
     try {
-      const data = await api(`/api/article/admin/${selectedArticleId}/reject`, {
-        method: "PUT",
-        body: JSON.stringify({ reason }),
-      });
+      const data = await api(
+        `/api/article/admin/${selectedArticleId}/reject`,
+        {
+          method: "PUT",
+          body: JSON.stringify({ reason }),
+        }
+      );
 
-      if (!data.success) {
-        alert(data.message || "Failed to reject article");
-        return;
-      }
+      if (!data.success) return;
+
       toast.success("Article rejected successfully");
-
-      setArticles((prev) => prev.filter((a) => a._id !== selectedArticleId));
-
-      console.log("Article rejected:", data.article);
+      setArticles((prev) =>
+        prev.filter((a) => a._id !== selectedArticleId)
+      );
 
       setShowRejectModal(false);
       setSelectedArticleId(null);
     } catch (err) {
-      console.error("Error rejecting article:", err);
-      //
       toast.error(err.message || "Something went wrong while rejecting.");
     }
   };
@@ -130,113 +121,83 @@ const ViewArticle = () => {
           <GrView className="text-darkgreen" /> List View
         </button>
       </div>
+
       <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 sm:text-4xl">
-              Latest Articles
-            </h1>
-          </div>
-
-          {/* <div className="w-full sm:w-64">
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => {
-                setPage(1);
-                setSearch(e.target.value);
-              }}
-              placeholder="Search by title or provider..."
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div> */}
-        </div>
-
+        <h1 className="text-3xl font-bold text-gray-900 mb-8">
+          Latest Articles
+        </h1>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {articles.map((article) => {
             const categoryName = article.categoryId?.name;
-            const providerName =
-            article.providerName
+            const providerName = article.providerName;
 
             return (
               <div
                 key={article._id}
-                className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 flex flex-col"
+                className="bg-white rounded-lg shadow-md overflow-hidden relative"
               >
-              
+                <button
+                  onClick={() => {
+                    setSelectedArticle(article);
+                    setShowViewModal(true);
+                  }}
+                  className="absolute top-2 right-2 bg-white p-2 rounded-full shadow hover:bg-gray-100 z-10"
+                >
+                  <GrView className="text-gray-700 text-lg" />
+                </button>
+
+
                 <div className="h-48 bg-gray-200 overflow-hidden">
                   {article.featuredImage ? (
                     <img
                       src={article.featuredImage}
                       alt={article.title}
-                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                      className="w-full h-full object-cover hover:scale-105 transition-transform"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm">
+                    <div className="w-full h-full flex items-center justify-center text-gray-400">
                       No image
                     </div>
                   )}
                 </div>
 
-                
                 <div className="p-6 flex flex-col flex-grow">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full font-medium">
+                  <div className="flex justify-between mb-3">
+                    <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
                       {categoryName}
                     </span>
                     <span className="text-sm text-gray-500">
-                      {article.readTime} min read
+                      {article.readTime} min
                     </span>
                   </div>
 
-                  <h3 className="text-xl font-semibold text-gray-900 mb-3 line-clamp-2 min-h-[3.5rem]">
+                  <h3 className="text-lg font-semibold mb-3 line-clamp-2">
                     {article.title}
                   </h3>
 
-                  {article.tags && article.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mb-4">
-                      {article.tags.map((tag, index) => (
-                        <span
-                          key={index}
-                          className="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-
-                  <div className="mt-auto pt-4 border-t border-gray-100">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center space-x-2">
-                        <span className="text-sm text-gray-600">
-                          {providerName}
-                        </span>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-xs text-gray-500">
-                          {dateFormatUtils(article.createdAt)}
-                        </div>
-                        {/* <div className="text-xs text-gray-500">
-                          {article.views || 0} views
-                        </div> */}
-                      </div>
+                  <div className="mt-auto pt-4 border-t">
+                    <div className="flex justify-between mb-3 text-sm">
+                      <span>{providerName}</span>
+                      <span>
+                        {dateFormatUtils(article.createdAt)}
+                      </span>
                     </div>
 
                     <div className="flex gap-2">
                       <button
-                        className="flex-1 bg-button text-white py-2 px-3 rounded-lg text-sm font-medium transition-colors duration-200"
                         onClick={() => handleApprove(article._id)}
+                        className="flex-1 bg-button text-white py-2 rounded"
                       >
                         Approve
                       </button>
+
                       <button
-                        className="flex-1 bg-primary text-white py-2 px-3 rounded-lg text-sm font-medium transition-colors duration-200"
                         onClick={() => {
                           setSelectedArticleId(article._id);
                           setShowRejectModal(true);
                         }}
+                        className="flex-1 bg-primary text-white py-2 rounded"
                       >
                         Reject
                       </button>
@@ -246,50 +207,73 @@ const ViewArticle = () => {
               </div>
             );
           })}
-
-          {articles.length === 0 && !loading && !error && (
-            <p className="text-gray-500">No pending articles found.</p>
-          )}
         </div>
 
+
         {totalPages > 1 && (
-          <div className="flex justify-center items-center gap-4 mt-10">
+          <div className="flex justify-center gap-4 mt-10">
             <button
               disabled={page === 1}
               onClick={() => setPage((p) => p - 1)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium ${
-                page === 1
-                  ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                  : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
-              }`}
+              className="px-4 py-2 border rounded"
             >
               Previous
             </button>
-            <span className="text-sm text-gray-600">
-              Page{" "}
-              <span className="font-semibold">
-                {page} / {totalPages}
-              </span>
+
+            <span>
+              {page} / {totalPages}
             </span>
+
             <button
               disabled={page === totalPages}
               onClick={() => setPage((p) => p + 1)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium ${
-                page === totalPages
-                  ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                  : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
-              }`}
+              className="px-4 py-2 border rounded"
             >
               Next
             </button>
           </div>
         )}
       </div>
+
+
       <RejectArticle
         isOpen={showRejectModal}
         onClose={() => setShowRejectModal(false)}
         onSubmit={(reason) => handleReject(reason)}
       />
+
+      {showViewModal && selectedArticle && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black/20">
+          <div className="bg-white max-w-2xl w-full p-6 rounded-xl max-h-[80vh] overflow-y-auto">
+
+            <h2 className="text-2xl font-bold mb-4">
+              {selectedArticle.title}
+            </h2>
+
+            {selectedArticle.featuredImage && (
+              <img
+                src={selectedArticle.featuredImage}
+                alt=""
+                className="w-full h-60 object-cover rounded mb-4"
+              />
+            )}
+
+            <p className="text-gray-700 whitespace-pre-line">
+              {selectedArticle.content}
+            </p>
+
+            <div className="flex justify-end mt-6">
+              <button
+                onClick={() => setShowViewModal(false)}
+                className="px-4 py-2 bg-gray-800 text-white rounded"
+              >
+                Close
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
     </div>
   );
 };

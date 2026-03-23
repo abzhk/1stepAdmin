@@ -17,6 +17,7 @@ import userRoute from './user.route.js';
 import moduleRoute from './module.route.js';
 import masterRoute from './masterData.route.js';
 import subscriptionRoute from "./subscription.route.js"
+import invitedRoute from "./centre.route.js"
 
 const router = express.Router(); 
 
@@ -56,6 +57,9 @@ router.use("/module",moduleRoute);
 router.use("/services",masterRoute)
 //subscriptiob
 router.use("/subscription",subscriptionRoute)
+//invite provider
+router.use("/invite",invitedRoute)
+
 
 
 export default router;

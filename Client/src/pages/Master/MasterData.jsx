@@ -38,7 +38,7 @@ const MasterData = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    await api("/api/services/create-service", {
+    await api("/api/services", {
       method: "POST",
       
       body: JSON.stringify({
@@ -63,12 +63,8 @@ const MasterData = () => {
   };
 
   return (
-    <div className="min-h-screen bg-offwhite p-8">
+    <div className="min-h-screen bg-offwhite">
       <div className="max-w-6xl mx-auto">
-
-        <h2 className="text-2xl font-bold text-gray-800 mb-6">
-          Service Management
-        </h2>
 
 
         <div className="bg-white p-6 rounded-2xl shadow-md mb-8">

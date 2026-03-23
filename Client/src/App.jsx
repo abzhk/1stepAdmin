@@ -35,6 +35,8 @@ import UserReport from './pages/Reports/UserReport.jsx';
 import ReportDashboard from './pages/Reports/ReportDashboard.jsx';
 import CenterReport from './pages/Reports/CenterReport.jsx';
 import AddArticle from './pages/Article/AddArticle.jsx';
+import TagArticle from "./pages/Master/TagArticle.jsx"
+import MasterPage from "./pages/Master/Master.jsx";
 
 const App = () => {
 
@@ -106,6 +108,8 @@ const App = () => {
       <Route path="/center-report" element={<CenterReport />} />
       <Route path="/add-article" element={<AddArticle />} />
       <Route path="/add-article/:id" element={<AddArticle />} />
+      <Route path="/tag" element={<TagArticle/>}/>
+      <Route path="/master" element={<MasterPage />} />
     </Route>
     </Routes>
      <Toaster

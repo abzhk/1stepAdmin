@@ -43,6 +43,7 @@ const masterDataSchema = new mongoose.Schema(
         // Generic
         "specialization",
         "condition",
+        "articleTag"
       ],
       index: true,
     },

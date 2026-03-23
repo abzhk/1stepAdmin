@@ -66,7 +66,7 @@ const DashSidebar = () => {
       setActive("Add Assessment");
     } else if (path.startsWith("/providerassessment")) {
       setActive("Provider Assessments");
-    } else if (path.startsWith("/master-data")) {
+    } else if (path.startsWith("/master")) {
       setActive("Master Data");
     } else {
       setActive("");
@@ -317,7 +317,7 @@ const DashSidebar = () => {
            <label
           onClick={() => {
             setActive("Master Data");
-            navigate("/master-data");
+            navigate("/master");
           }}
           className={getNavLinkClasses("Master Data")}
         >

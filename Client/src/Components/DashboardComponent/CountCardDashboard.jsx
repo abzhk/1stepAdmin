@@ -13,10 +13,12 @@ const CountCardDashboard = () => {
   const [stats, setStats] = useState(null);
   // const [activeFilter, setActiveFilter] = useState("Today");
   const[subscription,setSubscription] =useState()
+  const [sessionCount, setSessionCount] = useState(0);
 
   useEffect(() => {
     fetchStats();
     fetchsubscription();
+    fetchSessionCount();
   }, []);
 
   const fetchStats = async () => {
@@ -38,6 +40,15 @@ const CountCardDashboard = () => {
        console.error("Subscription count fetch error:", err);
     }
   }
+
+  const fetchSessionCount = async () => {
+  try {
+    const data = await api(`/api/booking/sessions/count`);
+    setSessionCount(data.totalSessions);
+  } catch (err) {
+    console.error("Session count fetch error:", err);
+  }
+};
 
   const statCards = [
     {
@@ -76,7 +87,7 @@ const CountCardDashboard = () => {
     {
       icon: FaBookOpen,
       label: "Total Session",
-      value: stats?.lessonsCount || 0,
+      value: sessionCount || 0,
       badge: "On Track",
       note: "Steady session flow",
       iconBg: "bg-[#eef1eb]",

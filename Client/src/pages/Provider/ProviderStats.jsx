@@ -4,6 +4,7 @@ import { AiFillEye } from "react-icons/ai";
 import "react-circular-progressbar/dist/styles.css";
 import { useParams } from "react-router-dom";
 import {api} from "../../utils/api.js"
+import InvitedProviders from "./InvitedProviders.jsx";
 
 const MONTHS = [
   { value: 1, label: "Jan" },
@@ -336,7 +337,7 @@ function ProviderStats() {
         </div>
       </div>
 
-      <div className="mb-8 mt-8 bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+      <div className="mb-8 mt-8 bg-white rounded-3xl shadow-lg p-6 border border-gray-100">
         <h2 className="text-xl font-bold text-gray-900 mb-4 border-b pb-2">
           Recent Appointments
         </h2>
@@ -353,18 +354,18 @@ function ProviderStats() {
 
         <div className="overflow-x-auto rounded-xl shadow-inner bg-gray-50 border border-gray-100">
           <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-[#ddedec] border-b-2 border-gray-200">
+            <thead className="bg-darkgreen border-b-2 border-gray-200">
               <tr>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-sm font-semibold text-white uppercase tracking-wider">
                   Patient
                 </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-sm font-semibold text-white uppercase tracking-wider">
                   Services
                 </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-sm font-semibold text-white uppercase tracking-wider">
                   Date / Slot
                 </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-sm font-semibold text-white uppercase tracking-wider">
                   Status
                 </th>
               </tr>
@@ -438,6 +439,8 @@ function ProviderStats() {
           </table>
         </div>
       </div>
+
+      <InvitedProviders/>
 
       <p className="mt-10 mb-3 font-bold text-black">Article</p>
 

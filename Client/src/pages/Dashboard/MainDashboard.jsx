@@ -8,6 +8,7 @@ import StatisticsCard from "../../Components/DashboardComponent/StatisticsCard.j
 import CardCountDashboard from "../../Components/DashboardComponent/CountCardDashboard.jsx";
 import BarGraph from "../../Components/DashboardComponent/BarGraph.jsx";
 import SystemAlert from "../../Components/DashboardComponent/SystemAlert.jsx";
+import PlanCard from "../../Components/DashboardComponent/PlanCard.jsx";
 
 const MainDashboard = () => {
   const navigate = useNavigate();
@@ -66,22 +67,15 @@ const MainDashboard = () => {
 
   return (
     <div className="min-h-screen p-4 bg-offwhite">
-      {/* <div className="flex items-center justify-between mb-12">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-800">
-          Welcome Back 
-        </h1>
-        <p className="text-gray-500 text-sm mt-2">
-          Here's what's happening today.
-        </p>
-      </div>
-      </div> */}
       <CardCountDashboard />
 
-      <div className="grid grid-cols-1 lg:grid-cols-1 gap-6 mt-6">
-        {/* LEFT SIDE */}
-        <div className="space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+        <div className="lg:col-span-2 space-y-6">
           <StatisticsCard />
+        </div>
+
+        <div className="lg:col-span-1">
+          <PlanCard />
         </div>
       </div>
 
@@ -114,76 +108,6 @@ const MainDashboard = () => {
         </div>
         <div className="space-y-6">
           <SystemAlert />
-        </div>
-      </div>
-
-      {/* center table */}
-      <div className="p-4 bg-white rounded-3xl shadow-md w-full mt-4">
-        <p className="text-lg font-semibold text-gray-800 mb-4">Centre List</p>
-
-        <div className="overflow-x-auto">
-          <table className="min-w-full border border-gray-200 rounded-lg overflow-hidden">
-            <thead className="bg-darkgreen rounded-md">
-              <tr>
-                <th className="text-left px-4 py-3 text-sm font-semibold text-white border-b">
-                  Centre Name
-                </th>
-                <th className="text-left px-4 py-3 text-sm font-semibold text-white border-b">
-                  Address
-                </th>
-                <th className="text-left px-4 py-3 text-sm font-semibold text-white border-b">
-                  Location
-                </th>
-                <th className="text-left px-4 py-3 text-sm font-semibold text-white border-b">
-                  No of Providers
-                </th>
-                <th className="text-left px-4 py-3 text-sm font-semibold text-white border-b">
-                  Action
-                </th>
-              </tr>
-            </thead>
-
-            <tbody>
-              <tr className="bg-gray-100 hover:bg-gray-50 ">
-                <td className="px-4 py-3 text-sm text-gray-600">Arun Centre</td>
-                <td className="px-4 py-3 text-sm text-gray-600">
-                  MG Road, Chennai
-                </td>
-                <td className="px-4 py-3 text-sm text-gray-600">Tamil Nadu</td>
-                <td className="px-4 py-3 text-sm text-gray-600">12</td>
-                <td className="px-4 py-3 text-sm text-gray-600">
-                  <button className="px-3 py-1 bg-darkgreen text-white rounded-lg hover:opacity-90">
-                    View
-                  </button>
-                </td>
-              </tr>
-
-              <tr className="bg-gray-100 hover:bg-gray-50 ">
-                <td className="px-4 py-3 text-sm text-gray-600">
-                  Karthick Centre
-                </td>
-                <td className="px-4 py-3 text-sm text-gray-600">
-                  Anna Nagar, Chennaii
-                </td>
-                <td className="px-4 py-3 text-sm text-gray-600">Tamil Nadu</td>
-                <td className="px-4 py-3 text-sm text-gray-600">8</td>
-                <td className="px-4 py-3 text-sm text-gray-600">
-                  <button className="px-3 py-1 bg-darkgreen text-white rounded-lg hover:opacity-90">
-                    View
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <div className="flex justify-end items center mt-2">
-            <button className="bg-yellow hover:bg-darkgreen rounded-lg h-10 w-20 gap-1 hover:text-white">
-              prev
-            </button>
-            <span className="gap-1">page 1 of 1</span>
-            <button className="bg-yellow hover:bg-darkgreen rounded-lg h-10 w-20 gap-1  hover:text-white">
-              Next
-            </button>
-          </div>
         </div>
       </div>
     </div>

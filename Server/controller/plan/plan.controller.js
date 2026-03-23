@@ -357,3 +357,41 @@ export const deletePlan = async (req, res) => {
     });
   }
 };
+
+
+export const getFeaturedPlan = async (req, res) => {
+  try {
+    const { user_type } = req.query;
+
+    const query = {
+      is_featured: true,
+      is_active: true,
+    };
+
+    if (user_type) {
+      query.user_type = user_type;
+    }
+
+    const plan = await Plan.findOne(query)
+      .sort({ version_number: -1 }); 
+
+    if (!plan) {
+      return res.status(404).json({
+        success: false,
+        message: "No featured plan found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      plan,
+    });
+  } catch (error) {
+    console.error("GET FEATURED PLAN ERROR:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch featured plan",
+      error: error.message,
+    });
+  }
+};

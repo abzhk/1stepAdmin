@@ -159,7 +159,8 @@ export const getArticleById = async (req, res) => {
 
     const article = await Article.findById(id)
       .populate("providerId", "fullName profilePicture")
-      .populate("categoryId", "name slug icon color");
+      .populate("categoryId", "name slug icon color")
+      .populate("tags", "label");
 
     if (!article) {
       return res.status(404).json({ message: "Article not found" });
@@ -182,7 +183,8 @@ export const getArticleById = async (req, res) => {
     res.status(200).json({ success: true, article });
   } catch (error) {
     console.error("Get article error:", error);
-    res.status(500).json({ message: "Error fetching article" });
+    res.status(500).json({  message: error.message, });
+    
   }
 };
 
@@ -598,9 +600,8 @@ export const getAllArticlesAdmin = async (req, res) => {
 };
 
 // Approve article
-export const approveArticle = async (req, res) => {
+export const approveArticle = async (req, res,next) => {
   try {
-    console.log('Admin User:', req.user);
     const { id } = req.params;
 
     const article = await Article.findById(id);
@@ -634,7 +635,7 @@ export const approveArticle = async (req, res) => {
 };
 
 // Reject article
-export const rejectArticle = async (req, res) => {
+export const rejectArticle = async (req, res,next) => {
   try {
     const { id } = req.params;
     const { reason } = req.body;

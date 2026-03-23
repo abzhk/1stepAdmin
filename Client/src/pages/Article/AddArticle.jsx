@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { api } from "../../utils/api.js";
 import toast from "react-hot-toast";
-import { useNavigate ,useParams} from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { storage } from "../../firebase.js";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { useSelector } from "react-redux";
+import Editor from "../../utils/Editor.jsx";
 
 const AddArticle = () => {
   const navigate = useNavigate();
@@ -13,7 +14,10 @@ const AddArticle = () => {
   const [categories, setCategories] = useState([]);
   const role = useSelector((state) => state.auth.user?.role);
   console.log(role);
-  
+  const [tags, setTags] = useState([]);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [selectedTags, setSelectedTags] = useState([]);
+
   const [formData, setFormData] = useState({
     title: "",
     excerpt: "",
@@ -28,6 +32,30 @@ const AddArticle = () => {
   const [imageFile, setImageFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    const fetchTags = async () => {
+      try {
+        const res = await api("/api/services/articleTag?format=raw");
+        setTags(res.data || []);
+      } catch (err) {
+        console.error(err);
+        toast.error("Failed to load tags");
+      }
+    };
+
+    fetchTags();
+  }, []);
+
+  const handleTagSelect = (tag) => {
+    const exists = selectedTags.find((t) => t._id === tag._id);
+
+    if (exists) {
+      setSelectedTags(selectedTags.filter((t) => t._id !== tag._id));
+    } else {
+      setSelectedTags([...selectedTags, tag]);
+    }
+  };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -85,80 +113,82 @@ const AddArticle = () => {
   }, []);
 
   const handleChange = (e) => {
-  const { name, value, type, checked } = e.target;
+    const { name, value, type, checked } = e.target;
 
-  setFormData({
-    ...formData,
-    [name]: type === "checkbox" ? checked : value,
-  });
-};
-
- const handleSubmit = async (e) => {
-  e.preventDefault();
-
-  try {
-    setLoading(true);
-
-   const payload = {
-  ...formData,
-  tags: formData.tags
-    ? formData.tags.split(",").map((t) => t.trim())
-    : [],
-};
-
-    const endpoint = id
-      ? `/api/article/admin/update/${id}`
-      : `/api/article/create`;
-
-    const method = id ? "PUT" : "POST";
-
-    const data = await api(endpoint, {
-      method,
-      body: JSON.stringify(payload),
+    setFormData({
+      ...formData,
+      [name]: type === "checkbox" ? checked : value,
     });
+  };
+  const tagInputValue = selectedTags
+    .map((t) => t.articleTag || t.label)
+    .join(", ");
 
-    if (!data.success) {
-      toast.error(data.message || "Operation failed");
-      return;
-    }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-    toast.success(id ? "Article updated" : "Article created");
-
-    navigate("/list-view-article");
-    window.location.reload();
-  } catch (err) {
-    console.error(err);
-    toast.error("Something went wrong");
-  } finally {
-    setLoading(false);
-  }
-};
-  useEffect(() => {
-  if (!id) return;
-
-  const fetchArticle = async () => {
     try {
-      const data = await api(`/api/article/${id}`);
+      setLoading(true);
 
-      const article = data.article;
+      const payload = {
+        ...formData,
+        tags: selectedTags.map((t) => t._id),
+      };
 
-      setFormData({
-        title: article.title,
-        excerpt: article.excerpt,
-        content: article.content,
-        featuredImage: article.featuredImage,
-        categoryId: article.categoryId?._id || "",
-        tags: article.tags?.join(", "),
-         featured: article.featured || false,
+      const endpoint = id
+        ? `/api/article/admin/update/${id}`
+        : `/api/article/create`;
+
+      const method = id ? "PUT" : "POST";
+
+      const data = await api(endpoint, {
+        method,
+        body: JSON.stringify(payload),
       });
+
+      if (!data.success) {
+        toast.error(data.message || "Operation failed");
+        return;
+      }
+
+      toast.success(id ? "Article updated" : "Article created");
+
+      navigate("/list-view-article");
+      window.location.reload();
     } catch (err) {
       console.error(err);
-      toast.error("Failed to load article");
+      toast.error("Something went wrong");
+    } finally {
+      setLoading(false);
     }
   };
+  useEffect(() => {
+    if (!id) return;
 
-  fetchArticle();
-}, [id]);
+    const fetchArticle = async () => {
+      try {
+        const data = await api(`/api/article/${id}`);
+
+        const article = data.article;
+
+        setFormData({
+          title: article.title,
+          excerpt: article.excerpt,
+          content: article.content,
+          featuredImage: article.featuredImage,
+          categoryId: article.categoryId?._id || "",
+          featured: article.featured || false,
+        });
+
+        setSelectedTags(article.tags || []);
+      } catch (err) {
+        console.error(err);
+        toast.error("Failed to load article");
+      }
+    };
+
+    fetchArticle();
+  }, [id]);
 
   return (
     <div className="min-h-screen bg-offwhite py-8 px-4 sm:px-6 lg:px-8">
@@ -173,9 +203,9 @@ const AddArticle = () => {
       <div className="max-w-5xl mx-auto">
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
           <div className="px-8 py-6 bg-darkgreen">
-           <h2 className="text-xl font-semibold text-white">
-  {id ? "Edit Article" : "Create New Article"}
-</h2>
+            <h2 className="text-xl font-semibold text-white">
+              {id ? "Edit Article" : "Create New Article"}
+            </h2>
           </div>
 
           <form onSubmit={handleSubmit} className="p-8">
@@ -246,44 +276,68 @@ const AddArticle = () => {
                   )}
                 </div>
 
-                <div>
+                <div className="relative">
                   <label className="block text-sm font-medium mb-1">Tags</label>
+
                   <input
-                    name="tags"
-                    value={formData.tags}
-                    onChange={handleChange}
-                    placeholder="therapy, kids"
-                    className="w-full  bg-offwhite border rounded-lg px-3 py-2 focus:ring-2 focus:ring-darkgreen outline-none"
+                    value={tagInputValue}
+                    readOnly
+                    onFocus={() => setShowDropdown(true)}
+                    onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
+                    placeholder="Select tags"
+                    className="w-full bg-offwhite border rounded-lg px-3 py-2 cursor-pointer focus:ring-2 focus:ring-darkgreen outline-none"
                   />
+
+                  {showDropdown && (
+                    <div className="absolute w-full bg-white border rounded-lg mt-1 max-h-40 overflow-y-auto shadow z-10">
+                      {tags.map((tag) => {
+                        const selected = selectedTags.some(
+                          (t) => t._id === tag._id,
+                        );
+
+                        return (
+                          <div
+                            key={tag._id}
+                            onClick={() => handleTagSelect(tag)}
+                            className={`px-3 py-2 cursor-pointer text-sm ${
+                              selected
+                                ? "bg-offwhite text-black"
+                                : "hover:bg-gray-100"
+                            }`}
+                          >
+                            {tag.label}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               </div>
 
-
               <div className="flex items-center gap-3 mt-2">
-  <input
-    type="checkbox"
-    name="featured"
-    checked={formData.featured}
-    onChange={handleChange}
-    className="w-4 h-4 accent-darkgreen"
-  />
+                <input
+                  type="checkbox"
+                  name="featured"
+                  checked={formData.featured}
+                  onChange={handleChange}
+                  className="w-4 h-4 accent-darkgreen"
+                />
 
-  <label className="text-sm font-medium text-gray-700">
-    Mark as Featured Article
-  </label>
-</div>
+                <label className="text-sm font-medium text-gray-700">
+                  Mark as Featured Article
+                </label>
+              </div>
 
               <div>
                 <label className="block text-sm font-medium mb-1">
                   Content
                 </label>
-                <textarea
-                  name="content"
+
+                <Editor
                   value={formData.content}
-                  onChange={handleChange}
-                  required
-                  rows="10"
-                  className="w-full  bg-offwhite border rounded-lg px-3 py-2 focus:ring-2 focus:ring-darkgreen outline-none"
+                  onChange={(value) =>
+                    setFormData({ ...formData, content: value })
+                  }
                 />
               </div>
 
@@ -292,15 +346,15 @@ const AddArticle = () => {
                 disabled={loading || uploading}
                 className="w-full bg-darkgreen text-white py-3 rounded-lg font-medium hover:opacity-90 transition"
               >
-               {loading
-  ? id
-    ? "Updating..."
-    : "Creating..."
-  : uploading
-  ? "Uploading Image..."
-  : id
-  ? "Update Article"
-  : "Create Article"}
+                {loading
+                  ? id
+                    ? "Updating..."
+                    : "Creating..."
+                  : uploading
+                    ? "Uploading Image..."
+                    : id
+                      ? "Update Article"
+                      : "Create Article"}
               </button>
             </div>
           </form>

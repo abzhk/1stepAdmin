@@ -33,10 +33,12 @@ const articleSchema = new mongoose.Schema(
       ref: "Category",
       required: true,
     },
-    tags: {
-      type: [String],
-      default: [],
-    },
+    tags: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "MasterData",
+      },
+    ],
     providerId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "provider",
@@ -73,7 +75,7 @@ const articleSchema = new mongoose.Schema(
     },
    authorType: {
     type: String,
-    enum: [ "Admin", "Super Admin"],
+    enum: [ "Admin", "Super Admin","Provider"],
     default: "Admin",
    },
     publishedAt: {
