@@ -14,13 +14,14 @@ const ListViewArticle = () => {
   const navigate = useNavigate();
   const [deleteId, setDeleteId] = useState(null);
 const [showDeleteModal, setShowDeleteModal] = useState(false);
+const [status, setStatus] = useState("all");
 
   const fetchArticles = async () => {
   try {
     setLoading(true);
     setError("");
 
-    const data = await api(`/api/article/all?page=${page}&limit=10`);
+    const data = await api(`/api/article/all?page=${page}&limit=10&status=${status}`);
 
     setArticles(data.articles || []);
     setTotalPages(data.totalPages || 1);
@@ -31,10 +32,6 @@ const [showDeleteModal, setShowDeleteModal] = useState(false);
     setLoading(false);
   }
 };
-
-useEffect(() => {
-  fetchArticles();
-}, [page]);
 
   const handleToggleFeatured = async (id) => {
     try {
@@ -65,6 +62,10 @@ useEffect(() => {
   }
 };
 
+useEffect(() => {
+  fetchArticles();
+}, [page, status]);
+
   return (
     <div className="min-h-screen bg-secondary p-6">
       <button
@@ -76,9 +77,29 @@ useEffect(() => {
         Back
       </button>
       <div className="max-w-7xl mx-auto bg-white rounded-xl shadow">
-        <div className="p-6 border-b">
+        <div className="flex justify-between items-center">
+        <div className="p-4 ">
           <h1 className="text-2xl font-bold text-gray-800">Articles List</h1>
         </div>
+      <div className="flex items-center gap-2 p-4">
+  
+
+  <select
+    value={status}
+    onChange={(e) => {
+      setStatus(e.target.value);
+      setPage(1);
+    }}
+    className="px-3 py-2 border rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-darkgreen"
+  >
+    <option value="all">All</option>
+    <option value="approved">Approved</option>
+    <option value="pending">Pending</option>
+    <option value="rejected">Rejected</option>
+  </select>
+</div>
+</div>
+       
 
         {loading && (
           <div className="p-6 text-center text-gray-500">
@@ -89,13 +110,14 @@ useEffect(() => {
         {error && <div className="p-6 text-center text-red-500">{error}</div>}
 
         {!loading && !error && (
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-sm text-left">
-              <thead className="bg-gray-100 text-gray-600 uppercase text-xs">
+          <div className="overflow-x-auto p-4 ">
+            <table className="min-w-full text-sm text-left ">
+              <thead className="bg-offwhite text-gray-600 uppercase text-xs">
                 <tr>
                   <th className="px-6 py-3">Image</th>
                   <th className="px-6 py-3">Title</th>
                   <th className="px-6 py-3">Provider</th>
+                  <th className="px-6 py-3">Position</th>
                   <th className="px-6 py-3">Category</th>
                   <th className="px-6 py-3">Read</th>
                   <th className="px-6 py-3">Created</th>
@@ -106,7 +128,7 @@ useEffect(() => {
 
               <tbody className="divide-y">
                 {articles.map((article) => (
-                  <tr key={article._id} className="hover:bg-gray-50">
+                  <tr key={article._id} className="hover:bg-gray-50 border-0">
                     <td className="px-6 py-3">
                       {article.featuredImage ? (
                         <img
@@ -121,13 +143,19 @@ useEffect(() => {
                       )}
                     </td>
 
-                    <td className="px-6 py-3 font-medium text-gray-800 max-w-xs truncate">
-                      {article.title}
-                    </td>
+                    <td className="px-6 py-3 font-medium text-gray-800">
+  {article.title.length > 20
+    ? article.title.substring(0, 20) + "..."
+    : article.title}
+</td>
 
                     <td className="px-6 py-3">
                       {article.providerId?.fullName || "—"}
                     </td>
+                     <td className="px-6 py-3">
+                      {article.position|| "—"}
+                    </td>
+
 
                     <td className="px-6 py-3">
                       {article.categoryId?.name || "—"}
@@ -239,7 +267,37 @@ Delete
       </div>
     </div>
   </div>
+  
 )}
+<div className="flex justify-end items-center gap-3 p-4">
+  <button
+    disabled={page === 1}
+    onClick={() => setPage((p) => p - 1)}
+    className={`h-10 w-20 rounded-xl text-white ${
+      page === 1
+        ? "bg-gray-300 cursor-not-allowed"
+        : "bg-darkgreen hover:bg-green-700"
+    }`}
+  >
+    Prev
+  </button>
+
+  <span className="text-sm font-medium">
+    {page} of {totalPages}
+  </span>
+
+  <button
+    disabled={page === totalPages}
+    onClick={() => setPage((p) => p + 1)}
+    className={`h-10 w-20 rounded-xl text-white ${
+      page === totalPages
+        ? "bg-gray-300 cursor-not-allowed"
+        : "bg-darkgreen hover:bg-green-700"
+    }`}
+  >
+    Next
+  </button>
+</div>
     </div>
   );
 };

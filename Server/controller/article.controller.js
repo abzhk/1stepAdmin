@@ -22,7 +22,10 @@ export const createArticle = async (req, res) => {
       categoryId,
       tags,
       readTime,
-      featured
+      featured,
+      position,
+       metaTitle,
+  metaDescription,
     } = req.body;
 
   // Validation
@@ -47,6 +50,22 @@ export const createArticle = async (req, res) => {
         message: "This category is not currently active",
       });
     }
+
+    if (position) {
+  if (position < 1 || position > 10) {
+    return res.status(400).json({
+      message: "Position must be between 1 and 10",
+    });
+  }
+
+  const existing = await Article.findOne({ position });
+
+  if (existing) {
+    return res.status(400).json({
+      message: `Position ${position} already assigned`,
+    });
+  }
+}
 
     let providerId = null;
     let providerName = "Admin";
@@ -90,6 +109,9 @@ export const createArticle = async (req, res) => {
       status,
       authorType,
       featured: featured || false,
+        position: position || null,
+         metaTitle: metaTitle ,
+  metaDescription: metaDescription ,
       publishedAt: status === "approved" ? new Date() : undefined,
     });
 
@@ -928,16 +950,22 @@ export const toggleArticleCategoryStatus = async (req, res) => {
 
 export const getAllArticles = async (req, res) => {
   try {
-    const { page = 1, limit = 10 } = req.query;
+    const { page = 1, limit = 10, status } = req.query;
 
-    const articles = await Article.find({})
+    const filter = {};
+
+    if (status && status !== "all") {
+      filter.status = status;
+    }
+
+    const articles = await Article.find(filter)
       .populate("providerId", "fullName email profilePicture")
       .populate("categoryId", "name slug icon color")
       .sort({ createdAt: -1 })
       .limit(Number(limit))
       .skip((page - 1) * limit);
 
-    const total = await Article.countDocuments();
+    const total = await Article.countDocuments(filter);
 
     res.status(200).json({
       success: true,
@@ -1027,7 +1055,10 @@ export const updateArticleAdmin = async (req, res) => {
       featuredImage,
       categoryId,
       tags,
+      position,
       readTime,
+       metaTitle,
+  metaDescription,
     } = req.body;
 
     if (!title || !content || !excerpt || !featuredImage || !categoryId) {
@@ -1035,6 +1066,31 @@ export const updateArticleAdmin = async (req, res) => {
         message: "All required fields must be provided",
       });
     }
+    if (position !== undefined) {
+  // Allow null (to remove position)
+  if (position !== null) {
+    if (position < 1 || position > 10) {
+      return res.status(400).json({
+        message: "Position must be between 1 and 10",
+      });
+    }
+
+    // Check duplicate (exclude current article)
+    const existing = await Article.findOne({
+      position,
+      _id: { $ne: id },
+    });
+
+    if (existing) {
+      return res.status(400).json({
+        message: `Position ${position} already assigned`,
+      });
+    }
+  }
+
+  // Assign position (can be null)
+  article.position = position;
+}
 
     const category = await Category.findById(categoryId);
 
@@ -1053,6 +1109,8 @@ export const updateArticleAdmin = async (req, res) => {
     article.tags = tags || [];
     article.readTime =
       readTime || Math.ceil(content.split(" ").length / 200);
+      if (metaTitle !== undefined) article.metaTitle = metaTitle;
+if (metaDescription !== undefined) article.metaDescription = metaDescription;
 
     await article.save();
 

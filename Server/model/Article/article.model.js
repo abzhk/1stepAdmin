@@ -69,10 +69,29 @@ const articleSchema = new mongoose.Schema(
       type: Number,
       default: 5,
     },
+    position:{
+      type:Number,
+      min :1,
+      max :10,
+      default:null,
+      unique:true,
+    },
     featured: {
     type: Boolean,
     default: false,
     },
+
+    metaTitle: {
+  type: String,
+  trim: true,
+  maxlength: 60,
+},
+
+metaDescription: {
+  type: String,
+  trim: true,
+  maxlength: 160,
+},
    authorType: {
     type: String,
     enum: [ "Admin", "Super Admin","Provider"],

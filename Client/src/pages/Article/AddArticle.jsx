@@ -26,6 +26,9 @@ const AddArticle = () => {
     categoryId: "",
     tags: "",
     featured: false,
+    position: "",
+    metaTitle: "",
+    metaDescription: "",
   });
 
   const [loading, setLoading] = useState(false);
@@ -177,7 +180,11 @@ const AddArticle = () => {
           content: article.content,
           featuredImage: article.featuredImage,
           categoryId: article.categoryId?._id || "",
+          tags: article.tags,
           featured: article.featured || false,
+          position: article.position || "",
+          metaTitle: article.metaTitle || "",
+  metaDescription: article.metaDescription || "",
         });
 
         setSelectedTags(article.tags || []);
@@ -221,7 +228,7 @@ const AddArticle = () => {
                 />
               </div>
 
-              <div className="grid md:grid-cols-2 gap-6">
+              <div className=" gap-6">
                 <div>
                   <label className="block text-sm font-medium mb-1">
                     Excerpt
@@ -238,79 +245,126 @@ const AddArticle = () => {
 
                 <div>
                   <label className="block text-sm font-medium mb-1">
-                    Category
+                    Meta Title 
                   </label>
-                  <select
-                    name="categoryId"
-                    value={formData.categoryId}
+                  <input
+                    name="metaTitle"
+                    value={formData.metaTitle}
                     onChange={handleChange}
-                    required
-                    className="w-full  bg-offwhite border rounded-lg px-3 py-2 focus:ring-2 focus:ring-darkgreen outline-none"
-                  >
-                    <option value="">Select Category</option>
-
-                    {categories.map((cat) => (
-                      <option key={cat._id} value={cat._id}>
-                        {cat.name}
-                      </option>
-                    ))}
-                  </select>
+                    className="w-full bg-offwhite border rounded-lg px-3 py-2"
+                  />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium mb-1">
-                    Featured Image
+                    Meta Description 
                   </label>
-
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="w-full border rounded-lg px-3 py-2 bg-offwhite"
+                  <textarea
+                    name="metaDescription"
+                    value={formData.metaDescription}
+                    onChange={handleChange}
+                    rows="3"
+                    className="w-full bg-offwhite border rounded-lg px-3 py-2"
                   />
-
-                  {uploading && (
-                    <p className="text-sm text-gray-500">
-                      Uploading... {progress.toFixed(0)}%
-                    </p>
-                  )}
                 </div>
 
-                <div className="relative">
-                  <label className="block text-sm font-medium mb-1">Tags</label>
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Category
+                    </label>
+                    <select
+                      name="categoryId"
+                      value={formData.categoryId}
+                      onChange={handleChange}
+                      required
+                      className="w-full  bg-offwhite border rounded-lg px-3 py-2 focus:ring-2 focus:ring-darkgreen outline-none"
+                    >
+                      <option value="">Select Category</option>
 
-                  <input
-                    value={tagInputValue}
-                    readOnly
-                    onFocus={() => setShowDropdown(true)}
-                    onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
-                    placeholder="Select tags"
-                    className="w-full bg-offwhite border rounded-lg px-3 py-2 cursor-pointer focus:ring-2 focus:ring-darkgreen outline-none"
-                  />
+                      {categories.map((cat) => (
+                        <option key={cat._id} value={cat._id}>
+                          {cat.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
 
-                  {showDropdown && (
-                    <div className="absolute w-full bg-white border rounded-lg mt-1 max-h-40 overflow-y-auto shadow z-10">
-                      {tags.map((tag) => {
-                        const selected = selectedTags.some(
-                          (t) => t._id === tag._id,
-                        );
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Position (1–10)
+                    </label>
 
-                        return (
-                          <div
-                            key={tag._id}
-                            onClick={() => handleTagSelect(tag)}
-                            className={`px-3 py-2 cursor-pointer text-sm ${
-                              selected
-                                ? "bg-offwhite text-black"
-                                : "hover:bg-gray-100"
-                            }`}
-                          >
-                            {tag.label}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
+                    <input
+                      type="number"
+                      name="position"
+                      min="1"
+                      max="10"
+                      value={formData.position || ""}
+                      onChange={handleChange}
+                      className="w-full bg-offwhite border rounded-lg px-3 py-2"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Featured Image
+                    </label>
+
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="w-full border rounded-lg px-3 py-2 bg-offwhite"
+                    />
+
+                    {uploading && (
+                      <p className="text-sm text-gray-500">
+                        Uploading... {progress.toFixed(0)}%
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="relative">
+                    <label className="block text-sm font-medium mb-1">
+                      Tags
+                    </label>
+
+                    <input
+                      value={tagInputValue}
+                      readOnly
+                      onFocus={() => setShowDropdown(true)}
+                      onBlur={() =>
+                        setTimeout(() => setShowDropdown(false), 200)
+                      }
+                      placeholder="Select tags"
+                      className="w-full bg-offwhite border rounded-lg px-3 py-2 cursor-pointer focus:ring-2 focus:ring-darkgreen outline-none"
+                    />
+
+                    {showDropdown && (
+                      <div className="absolute w-full bg-white border rounded-lg mt-1 max-h-40 overflow-y-auto shadow z-10">
+                        {tags.map((tag) => {
+                          const selected = selectedTags.some(
+                            (t) => t._id === tag._id,
+                          );
+
+                          return (
+                            <div
+                              key={tag._id}
+                              onClick={() => handleTagSelect(tag)}
+                              className={`px-3 py-2 cursor-pointer text-sm ${
+                                selected
+                                  ? "bg-offwhite text-black"
+                                  : "hover:bg-gray-100"
+                              }`}
+                            >
+                              {tag.label}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -336,7 +390,10 @@ const AddArticle = () => {
                 <Editor
                   value={formData.content}
                   onChange={(value) =>
-                    setFormData({ ...formData, content: value })
+                    setFormData((prev) => ({
+                      ...prev,
+                      content: value,
+                    }))
                   }
                 />
               </div>
