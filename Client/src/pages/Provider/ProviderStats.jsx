@@ -35,6 +35,7 @@ function ProviderStats() {
   const [month, setMonth] = useState(now.getMonth() + 1);
   const [year, setYear] = useState(now.getFullYear());
   const [useMonthlyStats, setUseMonthlyStats] = useState(false);
+  const [providerType, setProviderType] = useState("");
 
   // bookings pagination constants
   const limit = 8;
@@ -89,6 +90,24 @@ function ProviderStats() {
 
     fetchStats();
   }, [id, month, year]);
+
+
+  useEffect(() => {
+  if (!id) return;
+
+  const fetchProvider = async () => {
+    try {
+      const data = await api(`/api/provider/providersbyid/${id}`);
+      setProviderType(data.provider.providerType);
+      console.log(data);
+      
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  fetchProvider();
+}, [id]);
 
   useEffect(() => {
     if (!id) return;
@@ -336,7 +355,7 @@ function ProviderStats() {
           </div>
         </div>
       </div>
-
+{providerType === "individual" && (
       <div className="mb-8 mt-8 bg-white rounded-3xl shadow-lg p-6 border border-gray-100">
         <h2 className="text-xl font-bold text-gray-900 mb-4 border-b pb-2">
           Recent Appointments
@@ -438,9 +457,12 @@ function ProviderStats() {
             </tbody>
           </table>
         </div>
+       
       </div>
+        )}
+           
 
-      <InvitedProviders/>
+     {providerType === "centre" && <InvitedProviders />}
 
       <p className="mt-10 mb-3 font-bold text-black">Article</p>
 

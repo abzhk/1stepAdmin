@@ -36,7 +36,7 @@ import ReportDashboard from './pages/Reports/ReportDashboard.jsx';
 import CenterReport from './pages/Reports/CenterReport.jsx';
 import AddArticle from './pages/Article/AddArticle.jsx';
 import TagArticle from "./pages/Master/TagArticle.jsx"
-import MasterPage from "./pages/Master/Master.jsx";
+import MasterPage from "./pages/Master/MasterTab.jsx";
 
 const App = () => {
 

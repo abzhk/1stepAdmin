@@ -51,7 +51,7 @@ const ViewArticle = () => {
 
   if (loading && articles.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-offwhite">
         <p className="text-gray-600 text-lg">Loading articles...</p>
       </div>
     );
@@ -59,7 +59,7 @@ const ViewArticle = () => {
 
   if (error && articles.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-offwhite">
         <p className="text-red-500 text-lg">{error}</p>
       </div>
     );

@@ -199,14 +199,14 @@ const AddArticle = () => {
 
   return (
     <div className="min-h-screen bg-offwhite py-8 px-4 sm:px-6 lg:px-8">
-      <button
-        type="button"
-        onClick={() => navigate("/viewarticle")}
-        className="flex gap-2 items-center mb-6 text-darkgreen hover:text-green-700"
-      >
-        <IoIosArrowRoundBack size={22} />
-        Back
-      </button>
+     <button
+  type="button"
+  onClick={() => navigate(id ? "/list-view-article" : "/viewarticle")}
+  className="flex gap-2 items-center mb-6 text-darkgreen hover:text-green-700"
+>
+  <IoIosArrowRoundBack size={22} />
+  Back
+</button>
       <div className="max-w-5xl mx-auto">
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
           <div className="px-8 py-6 bg-darkgreen">
