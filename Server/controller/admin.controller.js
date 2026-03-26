@@ -141,12 +141,12 @@ export const deleteProvider = async (req, res,next) => {
 };
 export const logoutAdmin = async (req, res,next) => {
   try {
-    res.clearCookie("token", {
-      httpOnly: true,
-      secure: false,
-      sameSite: "lax",
-      path:'/',
-    });
+   res.clearCookie("token", {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "none",
+  path: "/",
+});
 
     return res.status(200).json({
       success: true,
