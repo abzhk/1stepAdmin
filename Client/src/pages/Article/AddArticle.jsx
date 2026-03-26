@@ -115,14 +115,21 @@ const AddArticle = () => {
     fetchCategories();
   }, []);
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+ const handleChange = (e) => {
+  const { name, value, type, checked } = e.target;
 
-    setFormData({
-      ...formData,
-      [name]: type === "checkbox" ? checked : value,
-    });
-  };
+  setFormData({
+    ...formData,
+    [name]:
+      name === "position"
+        ? value === ""
+          ? ""
+          : Number(value)
+        : type === "checkbox"
+        ? checked
+        : value,
+  });
+};
   const tagInputValue = selectedTags
     .map((t) => t.articleTag || t.label)
     .join(", ");
@@ -135,6 +142,8 @@ const AddArticle = () => {
 
       const payload = {
         ...formData,
+         position:
+    formData.position === "" ? null : Number(formData.position),
         tags: selectedTags.map((t) => t._id),
       };
 
@@ -160,11 +169,14 @@ const AddArticle = () => {
       window.location.reload();
     } catch (err) {
       console.error(err);
-      toast.error("Something went wrong");
+       toast.error(
+    err?.message || "Something went wrong"
+  );
     } finally {
       setLoading(false);
     }
   };
+
   useEffect(() => {
     if (!id) return;
 
