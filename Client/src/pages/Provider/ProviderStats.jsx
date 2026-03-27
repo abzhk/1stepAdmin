@@ -5,6 +5,8 @@ import "react-circular-progressbar/dist/styles.css";
 import { useParams } from "react-router-dom";
 import {api} from "../../utils/api.js"
 import InvitedProviders from "./InvitedProviders.jsx";
+import { IoIosArrowRoundBack } from "react-icons/io";
+import { useNavigate } from "react-router-dom";
 
 const MONTHS = [
   { value: 1, label: "Jan" },
@@ -23,7 +25,7 @@ const MONTHS = [
 
 function ProviderStats() {
   const { id } = useParams();
-
+  const navigate =useNavigate();
   const [stats, setStats] = useState();
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -234,6 +236,14 @@ function ProviderStats() {
 
   return (
     <div className="p-6 bg-secondary min-h-screen">
+       <button
+        type="button"
+        onClick={() => navigate("/allproviders")}
+        className="flex gap-2 items-center mb-6 text-darkgreen hover:text-green-700"
+      >
+        <IoIosArrowRoundBack size={22} />
+        Back
+      </button>
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
         <div>
           <h1 className="text-xl font-bold mb-1 text-primary">WELCOME BACK</h1>

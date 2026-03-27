@@ -220,3 +220,22 @@ export const bulkToggleActive = async (req, res) => {
     });
   }
 };
+//all data without isactive
+export const getAllOptionsByTypeAdmin = async (req, res) => {
+  try {
+    const { type } = req.params;
+
+    const data = await MasterData.find({ type }).sort({ order: 1 });
+
+    res.status(200).json({
+      success: true,
+      data,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch admin options",
+      error: error.message,
+    });
+  }
+};

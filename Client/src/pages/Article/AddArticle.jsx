@@ -13,7 +13,6 @@ const AddArticle = () => {
   const { id } = useParams();
   const [categories, setCategories] = useState([]);
   const role = useSelector((state) => state.auth.user?.role);
-  console.log(role);
   const [tags, setTags] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [selectedTags, setSelectedTags] = useState([]);
@@ -104,7 +103,7 @@ const AddArticle = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const data = await api("/api/category/getallcategories");
+        const data = await api("/api/category/active");
         setCategories(data.categories || []);
       } catch (err) {
         console.error(err);

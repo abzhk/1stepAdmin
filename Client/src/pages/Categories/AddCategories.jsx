@@ -101,9 +101,13 @@ const data = await api('/api/category/addcategory',{
             <div>
               <label className="text-sm font-medium">Category Name *</label>
               <input
-                {...register("name", {
-                  required: "Category name is required",
-                })}
+               {...register("name", {
+  required: "Category name is required",
+  pattern: {
+    value: /^[A-Za-z\s]+$/,
+    message: "Only letters allowed (no numbers)",
+  },
+})}
                 className="block w-full mt-2 rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-100"
                 placeholder="Enter category name"
               />

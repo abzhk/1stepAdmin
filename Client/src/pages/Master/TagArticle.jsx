@@ -17,17 +17,17 @@ const TagArticle = () => {
     fetchTags();
   }, []);
 
-  // 🔄 Fetch Tags
+
   const fetchTags = async () => {
     try {
-      const res = await api("/api/services/articleTag?format=raw");
+      const res = await api("/api/services/admin/articleTag");
       setTags(res.data || []);
     } catch (error) {
       console.error("Fetch failed:", error);
     }
   };
 
-  // ✏️ Handle Input Change
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
@@ -37,18 +37,18 @@ const TagArticle = () => {
     });
   };
 
-  // ✏️ Handle Edit
+
   const handleEdit = (tag) => {
     setFormData({
       code: tag.code,
-      ddescription: tag.description ,
+      description: tag.description ,
       label: tag.label,
       isActive: tag.isActive,
     });
     setEditId(tag._id);
   };
 
-  // ❌ Cancel
+
   const handleCancel = () => {
     setEditId(null);
     setFormData({
@@ -59,7 +59,6 @@ const TagArticle = () => {
     });
   };
 
-  // ➕ CREATE + ✏️ UPDATE
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -73,20 +72,18 @@ const TagArticle = () => {
       };
 
       if (editId) {
-        // UPDATE
         await api(`/api/services/${editId}`, {
           method: "PUT",
           body: JSON.stringify(payload),
         });
       } else {
-        // CREATE
         await api("/api/services", {
           method: "POST",
           body: JSON.stringify(payload),
         });
       }
 
-      // Reset
+
       setFormData({
         code: "",
         description: "",

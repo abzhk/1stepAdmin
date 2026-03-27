@@ -4,6 +4,7 @@ import {
   getOptionsByType,
   createOption,
     updateOption,
+    getAllOptionsByTypeAdmin
 } from "../controller/masterController/masterData.controller.js";
 import { verifyToken } from "../utils/verifyUser.js";
 import { verifyAdminToken } from "../middlewares/authMiddleware.js";
@@ -17,5 +18,6 @@ router.post("/",verifyAdminToken, createOption);
 
 // UPDATE
 router.put("/:id",verifyAdminToken, updateOption);
+router.get("/admin/:type", getAllOptionsByTypeAdmin);
 
 export default router;

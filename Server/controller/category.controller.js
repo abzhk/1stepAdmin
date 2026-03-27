@@ -439,3 +439,17 @@ export const getCategoryById = async (req, res) => {
   }
 };
 
+
+export const getActiveCategories = async (req, res) => {
+  try {
+    const categories = await Category.find({ isActive: true })
+      .sort({ order: 1 });
+
+    res.status(200).json({
+      success: true,
+      categories,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching categories" });
+  }
+};

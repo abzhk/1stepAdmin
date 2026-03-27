@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import{api} from "../../utils/api.js";
 import toast from "react-hot-toast";
+import { IoIosArrowRoundBack } from "react-icons/io";
 
 function EditProvider() {
   const { id } = useParams();
@@ -91,6 +92,14 @@ function EditProvider() {
 
   return (
     <div className="min-h-screen bg-offwhite p-8">
+       <button
+        type="button"
+        onClick={() => navigate("/allproviders")}
+        className="flex gap-2 items-center mb-6 text-darkgreen hover:text-green-700"
+      >
+        <IoIosArrowRoundBack size={22} />
+        Back
+      </button>
       <div className="max-w-6xl mx-auto">
 
         {/* <div className="flex items-center justify-between mb-6">

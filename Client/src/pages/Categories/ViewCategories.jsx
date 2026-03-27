@@ -65,22 +65,12 @@ useEffect(() => {
   
   const handleToggleStatus = async (id) => {
   try {
-    const res = await fetch(
-      `http://localhost:3001/api/article/admin/categories/${id}/status`,
+   const data = await api(
+      `/api/article/admin/categories/${id}/status`,
       {
         method: "PUT",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
       }
     );
-
-    if (!res.ok) {
-      throw new Error("Failed to toggle status");
-    }
-
-    const data = await res.json();
 
     setCategories((prev) =>
       prev.map((cat) =>
