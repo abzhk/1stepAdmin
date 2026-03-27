@@ -150,7 +150,7 @@ export const createCategory = async (req, res, next) => {
 };
 
 // Update category (Admin only)
-export const updateCategory = async (req, res,next) => {
+export const updateCategory = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { name, description, icon, color, order, isActive } = req.body;
@@ -162,27 +162,45 @@ export const updateCategory = async (req, res,next) => {
         message: "Category not found",
       });
     }
-
-    // If name is being changed, check for duplicates
-    if (name && name !== category.name) {
-      const existingCategory = await Category.findOne({
-        name: { $regex: new RegExp(`^${name}$`, "i") },
-        _id: { $ne: id },
-      });
-
-      if (existingCategory) {
+    if (name !== undefined) {
+      if (!name.trim()) {
         return res.status(400).json({
-          message: "Category name already exists",
+          message: "Name is required",
         });
       }
 
-      // Update articles with old category name to new name
-      await Article.updateMany({ category: category.name }, { category: name });
+      // Check duplicate only if changed
+      if (name !== category.name) {
+        const existingCategory = await Category.findOne({
+          name: { $regex: new RegExp(`^${name}$`, "i") },
+          _id: { $ne: id },
+        });
+
+        if (existingCategory) {
+          return res.status(400).json({
+            message: "Category name already exists",
+          });
+        }
+
+        // Update related articles
+        await Article.updateMany(
+          { category: category.name },
+          { category: name }
+        );
+      }
+
+      category.name = name.trim();
+    }
+    if (description !== undefined) {
+      if (!description.trim()) {
+        return res.status(400).json({
+          message: "Description is required",
+        });
+      }
+
+      category.description = description.trim();
     }
 
-    // Update fields
-    if (name) category.name = name;
-    if (description) category.description = description;
     if (icon !== undefined) category.icon = icon;
     if (color !== undefined) category.color = color;
     if (order !== undefined) category.order = order;

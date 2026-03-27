@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import {api} from "../../utils/api.js";
+import toast from "react-hot-toast";
 
 const AddCategory = ({ isOpen, onClose, onSave }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -67,7 +68,7 @@ const data = await api('/api/category/addcategory',{
       onClose();
     } catch (err) {
       console.error("Failed to create category:", err);
-      setErrorMsg(err.message || "Error creating category");
+      toast.error( "Duplicate order ID");
     } finally {
       setIsLoading(false);
     }
@@ -141,6 +142,7 @@ const data = await api('/api/category/addcategory',{
               <label className="text-sm font-medium">Order</label>
               <input
                 type="number"
+                min="0"
                 {...register("order")}
                 className="block w-full mt-2 rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-100"
                 placeholder="Display order"

@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import {api} from "../../utils/api.js";
+import toast from "react-hot-toast";
 
 const EditCategory = ({ isOpen, onClose, categoryId, onUpdated }) => {
   const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState("");
+  const [error, setError] = useState("");
 
   const { register, handleSubmit, reset } = useForm();
 
@@ -25,7 +26,7 @@ const EditCategory = ({ isOpen, onClose, categoryId, onUpdated }) => {
           order: data.category.order,
         });
       } catch (err) {
-        setErrorMsg(err.message);
+        setError(err.message);
       } finally {
         setLoading(false);
       }
@@ -53,7 +54,7 @@ const EditCategory = ({ isOpen, onClose, categoryId, onUpdated }) => {
       if (onUpdated) onUpdated();
       onClose();
     } catch (err) {
-      setErrorMsg(err.message);
+      toast.error(err.message);
     } finally {
       setLoading(false);
     }
@@ -68,8 +69,8 @@ const EditCategory = ({ isOpen, onClose, categoryId, onUpdated }) => {
       <div className="relative bg-white rounded-xl p-6 max-w-3xl w-full z-10">
         <h2 className="text-xl font-semibold mb-4">Edit Category</h2>
 
-        {errorMsg && (
-          <p className="text-red-500 mb-4 bg-red-100 p-2 rounded">{errorMsg}</p>
+        {error && (
+          <p className="text-red-500 mb-4 bg-red-100 p-2 rounded">{error}</p>
         )}
 
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -92,7 +93,7 @@ const EditCategory = ({ isOpen, onClose, categoryId, onUpdated }) => {
 
             <div>
               <label>Order</label>
-              <input type="number" {...register("order")} className="w-full border p-2 rounded" />
+              <input type="number" min="0" {...register("order")} className="w-full border p-2 rounded" />
             </div>
 
             <div className="col-span-2">

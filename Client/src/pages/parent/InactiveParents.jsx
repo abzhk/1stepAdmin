@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import {api} from "../../utils/api.js"
+import { IoIosArrowRoundBack } from "react-icons/io";
+import { useNavigate } from "react-router-dom";
 
 
 const InacticeParents = () => {
   const [parents, setParents] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const  navigate= useNavigate();
 
 
   const getInactiveParents = async () => {
@@ -74,6 +77,14 @@ const InacticeParents = () => {
 
   return (
     <div className="p-6 min-h-screen bg-offwhite">
+       <button
+        type="button"
+        onClick={() => navigate("/view-parent")}
+        className="flex gap-2 items-center mb-6 text-darkgreen hover:text-green-700"
+      >
+        <IoIosArrowRoundBack size={22} />
+        Back
+      </button>
       <h1 className="text-2xl font-bold mb-6 text-gray-800">
         Inactive Parents
       </h1>

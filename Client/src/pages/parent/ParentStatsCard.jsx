@@ -4,10 +4,12 @@ import { useParams } from "react-router-dom";
 import dateFormatUtils from "../../utils/dateFormatUtils";
 import ParentBookings from "./ParentBookings.jsx";
 import {api} from "../../utils/api.js"
+import { IoIosArrowRoundBack } from "react-icons/io";
+import { useNavigate } from "react-router-dom";
 
 const ParentStatsCards = () => {
   const { userId } = useParams();
-
+  const navigate=useNavigate();
   const [parent, setParent] = useState(null);
   const [parentLoading, setParentLoading] = useState(false);
   const [parentError, setParentError] = useState("");
@@ -107,6 +109,14 @@ if (statsError) {
 
   return (
     <div className="min-h-screen bg-secondary p-4 md:p-8 font-sans text-gray-800">
+       <button
+        type="button"
+        onClick={() => navigate("/view-parent")}
+        className="flex gap-2 items-center mb-6 text-darkgreen hover:text-green-700"
+      >
+        <IoIosArrowRoundBack size={22} />
+        Back
+      </button>
       <div className="max-w-7xl mx-auto space-y-6">
         
         <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 relative overflow-hidden">

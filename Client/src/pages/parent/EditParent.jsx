@@ -77,7 +77,27 @@ const data = await api(
   };
 
   return (
-    <div className="p-6 mt-6 max-w-xl mx-auto bg-white rounded-xl shadow">
+
+<div className="p-6 mt-2 max-w-xl mx-auto">
+     <div className=" flex justify-end gap-3 mt-6 ">
+          <button
+            type="submit"
+            disabled={loading}
+            className="px-6 py-2 bg-button text-white rounded-xl"
+          >
+            {loading ? "Saving..." : "Update"}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => navigate(-1)}
+            className="px-6 py-2 bg-gray-200 rounded-xl"
+          >
+            Cancel
+          </button>
+        </div>
+    <div className="p-6 mt-4 bg-white rounded-xl shadow">
+      
       <h2 className="text-2xl font-bold mb-6">Edit Parent</h2>
 
       {error && (
@@ -92,6 +112,7 @@ const data = await api(
           className="w-full border rounded-lg p-2"
           placeholder="Full Name"
           value={formData.fullName}
+          required
           onChange={(e) =>
             setFormData({ ...formData, fullName: e.target.value })
           }
@@ -109,6 +130,7 @@ const data = await api(
         <input
           className="w-full border rounded-lg p-2"
           placeholder="Phone Number"
+          maxLength={10}
           value={formData.phoneNumber}
           onChange={(e) =>
             setFormData({ ...formData, phoneNumber: e.target.value })
@@ -124,24 +146,9 @@ const data = await api(
           }
         />
 
-        <div className="flex gap-3">
-          <button
-            type="submit"
-            disabled={loading}
-            className="px-6 py-2 bg-button text-white rounded-xl"
-          >
-            {loading ? "Saving..." : "Update"}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => navigate(-1)}
-            className="px-6 py-2 bg-gray-200 rounded-xl"
-          >
-            Cancel
-          </button>
-        </div>
+       
       </form>
+    </div>
     </div>
   );
 }

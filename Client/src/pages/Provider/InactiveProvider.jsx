@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
 import {api} from "../../utils/api.js";
+import { IoIosArrowRoundBack } from "react-icons/io";
+import { useNavigate } from "react-router-dom";
 
 const InactiveProvider = () => {
   const [providers, setProviders] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const navigate =useNavigate();
 
 
   const getInactiveProviders = async () => {
@@ -80,6 +83,14 @@ const InactiveProvider = () => {
 
   return (
     <div className="p-6 min-h-screen bg-offwhite">
+       <button
+        type="button"
+        onClick={() => navigate("/allproviders")}
+        className="flex gap-2 items-center mb-6 text-darkgreen hover:text-green-700"
+      >
+        <IoIosArrowRoundBack size={22} />
+        Back
+      </button>
       <h1 className="text-2xl font-bold mb-6 text-gray-800">
         Inactive Providers
       </h1>

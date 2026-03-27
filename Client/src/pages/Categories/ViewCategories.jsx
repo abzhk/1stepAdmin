@@ -24,25 +24,24 @@ const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const totalPages = Math.max(1, Math.ceil(categories.length / PAGE_SIZE));
 
 
+const fetchCategories = async () => {
+  try {
+    setLoading(true);
+    setError("");
+
+    const data = await api(`/api/category/getallcategories`);
+
+    setCategories(data.categories || []);
+    setTotalCount(data.total || 0);
+  } catch (err) {
+    console.error(err);
+    setError("Failed to load categories");
+  } finally {
+    setLoading(false);
+  }
+};
+
 useEffect(() => {
-  const fetchCategories = async () => {
-    try {
-      setLoading(true);
-      setError("");
-
-      const data = await api(`/api/category/getallcategories`);
-
-      setCategories(data.categories || []);
-      setTotalCount(data.total || 0);
-
-    } catch (err) {
-      console.error(err);
-      setError("Failed to load categories");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   fetchCategories();
 }, []);
 
@@ -55,8 +54,9 @@ useEffect(() => {
   const handleOpen = () => setIsModalOpen(true);
   const handleClose = () => setIsModalOpen(false);
 
-  const handleSaveCategory = () => {
-  };
+const handleSaveCategory = () => {
+  fetchCategories(); 
+};
 
   const goToPage = (page) => {
     const p = Math.min(Math.max(1, page), totalPages);
