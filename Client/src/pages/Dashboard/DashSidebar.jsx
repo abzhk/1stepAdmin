@@ -66,6 +66,9 @@ const DashSidebar = () => {
       setActive("Add Assessment");
     } else if (path.startsWith("/providerassessment")) {
       setActive("Provider Assessments");
+    }else if(path.startsWith("/centre")||
+    path.startsWith("/upcoming-session")){
+      setActive("Centre");
     } else if (path.startsWith("/master")) {
       setActive("Master Data");
     } else {
@@ -193,6 +196,17 @@ const DashSidebar = () => {
         >
           <RiParentFill className="text-xl" />
           <span className = "text-lg">Parent</span>
+        </label>
+
+         <label
+          onClick={() => {
+            setActive("Centre");
+            navigate("/centre");
+          }}
+          className={getNavLinkClasses("Centre")}
+        >
+          <RiParentFill className="text-xl" />
+          <span className = "text-lg">Centre</span>
         </label>
 
         {/* Reports */}

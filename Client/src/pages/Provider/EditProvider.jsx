@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import{api} from "../../utils/api.js";
+import { api } from "../../utils/api.js";
 import toast from "react-hot-toast";
 
 function EditProvider() {
@@ -23,16 +23,13 @@ function EditProvider() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-
   useEffect(() => {
     const fetchProvider = async () => {
       try {
         setLoading(true);
         setError("");
 
-        const data = await api(
-          `/api/provider/providersbyid/${id}`
-        );
+        const data = await api(`/api/provider/providersbyid/${id}`);
 
         setFormData({
           fullName: data.provider.fullName || "",
@@ -56,20 +53,19 @@ function EditProvider() {
     fetchProvider();
   }, [id]);
 
- 
   const handleChange = (e) => {
-  const { name, value } = e.target;
+    const { name, value } = e.target;
 
-  if (name === "phone") {
-    const onlyNumbers = value.replace(/\D/g, ""); 
-    if (onlyNumbers.length <= 10) {
-      setFormData({ ...formData, phone: onlyNumbers });
+    if (name === "phone") {
+      const onlyNumbers = value.replace(/\D/g, "");
+      if (onlyNumbers.length <= 10) {
+        setFormData({ ...formData, phone: onlyNumbers });
+      }
+      return;
     }
-    return;
-  }
 
-  setFormData({ ...formData, [name]: value });
-};
+    setFormData({ ...formData, [name]: value });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -78,19 +74,16 @@ function EditProvider() {
       setLoading(true);
       setError("");
 
-      const data = await api(
-        `/api/admin/providers/${id}`,
-        {
-          method: "PUT",
-          body: JSON.stringify(formData),
-        }
-      );
-       if (!data.success) {
-      throw new Error(data.message || "Update failed");
-    }
-    toast.success("Provider updated successfully");
+      const data = await api(`/api/admin/providers/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(formData),
+      });
+      if (!data.success) {
+        throw new Error(data.message || "Update failed");
+      }
+      toast.success("Provider updated successfully");
 
-       navigate("/allproviders");
+      navigate("/allproviders");
     } catch (err) {
       setError(err.message);
       toast.error(err.message || "Something went wrong");
@@ -102,7 +95,6 @@ function EditProvider() {
   return (
     <div className="min-h-screen bg-offwhite p-8">
       <div className="max-w-6xl mx-auto">
-
         {/* <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-semibold text-gray-900">
             Edit Provider
@@ -116,149 +108,159 @@ function EditProvider() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
-<div className=" rounded-2xl p-4">
-<div className="flex justify-end gap-3 mb-2">
-            <button
-              type="button"
-              onClick={() => navigate("/allproviders")}
-              className="rounded-xl bg-white px-5 py-2 text-darkgreen"
-            >
-              Cancel
-            </button>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="rounded-xl bg-button px-6 py-2 text-white"
-            >
-              {loading ? "Updating..." : "Update"}
-            </button>
-          </div>
-
-          <div className="rounded-2xl  bg-white p-6 shadow-sm">
-            <h2 className="mb-4 text-lg font-semibold text-gray-800">
-              Basic Information
-            </h2>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <label>Full Name
-              <input
-                name="fullName"
-                value={formData.fullName}
-                onChange={handleChange}
-                placeholder="Full Name"
-                required
-                className="w-full rounded-xl border border-gray-200 bg-offwhite px-4 py-2 focus:border-lightbutton focus:ring-lightbutton outline-none"
-              />
-</label>
-<label>Email
-              <input
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="Email Address"
-                className="w-full rounded-xl  border border-gray-200  bg-offwhite px-4 py-2 focus:border-lightbutton focus:ring-lightbutton outline-none"
-              />
-              </label>
-<label>Phone
-              <input
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                placeholder="Phone Number"
-                className="w-full rounded-xl border border-gray-200 bg-offwhite px-4 py-2 focus:border-lightbutton focus:ring-lightbutton outline-none"
-              />
-              </label>
-<label>Provider Type
-              <select
-                name="providerType"
-                value={formData.providerType}
-                onChange={handleChange}
-                className="w-full rounded-xl border border-gray-200 bg-offwhite px-4 py-2 bg-white focus:border-lightbutton focus:ring-lightbutton outline-none"
+          <div className=" rounded-2xl p-4">
+            <div className="flex justify-end gap-3 mb-2">
+              <button
+                type="button"
+                onClick={() => navigate("/allproviders")}
+                className="rounded-xl bg-white px-5 py-2 text-darkgreen"
               >
-                <option value="individual">Individual</option>
-                <option value="centre">Centre</option>
-              </select>
-              </label>
+                Cancel
+              </button>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="rounded-xl bg-button px-6 py-2 text-white"
+              >
+                {loading ? "Updating..." : "Update"}
+              </button>
             </div>
-          </div>
 
+            <div className="rounded-2xl  bg-white p-6 shadow-sm">
+              <h2 className="mb-4 text-lg font-semibold text-gray-800">
+                Basic Information
+              </h2>
 
-          <div className="rounded-2xl  bg-white p-6 shadow-sm mt-4">
-            <h2 className="mb-4 text-lg font-semibold text-gray-800">
-              Professional Details
-            </h2>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <label>Qualification
-              <input
-                name="qualification"
-                value={formData.qualification}
-                onChange={handleChange}
-                placeholder="Qualification"
-                className="w-full rounded-xl border border-gray-200 bg-offwhite px-4 py-2 focus:border-lightbutton focus:ring-lightbutton outline-none"
-              />
-              </label>
-<label>Experience
-              <input
-                name="experience"
-                value={formData.experience}
-                onChange={handleChange}
-                placeholder="Experience"
-                className="w-full rounded-xl border border-gray-200 bg-offwhite px-4 py-2 focus:border-lightbutton focus:ring-lightbutton outline-none"
-              />
-              </label>
-<label>License
-              <input
-                name="license"
-                value={formData.license}
-                onChange={handleChange}
-                placeholder="License Number"
-                className="w-full rounded-xl border border-gray-200  bg-offwhite px-4 py-2 focus:border-lightbutton focus:ring-lightbutton outline-none"
-              />
-              </label>
-<label>Consultation Fee
-              <input
-                name="regularPrice"
-                type="number"
-                value={formData.regularPrice}
-                onChange={handleChange}
-                placeholder="Consultation Fee"
-                className="w-full rounded-xl border border-gray-200 bg-offwhite px-4 py-2 focus:border-lightbutton focus:ring-lightbutton outline-none"
-              />
-              </label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <label>
+                  Full Name
+                  <input
+                    name="fullName"
+                    value={formData.fullName}
+                    onChange={handleChange}
+                    placeholder="Full Name"
+                    required
+                    pattern="^[A-Za-z\s]+$"
+                    title="Only alphabets are allowed"
+                    className="w-full rounded-xl border border-gray-200 bg-offwhite px-4 py-2 focus:border-lightbutton focus:ring-lightbutton outline-none"
+                  />
+                </label>
+                <label>
+                  Email
+                  <input
+                    name="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    placeholder="Email Address"
+                    className="w-full rounded-xl  border border-gray-200  bg-offwhite px-4 py-2 focus:border-lightbutton focus:ring-lightbutton outline-none"
+                  />
+                </label>
+                <label>
+                  Phone
+                  <input
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    placeholder="Phone Number"
+                    className="w-full rounded-xl border border-gray-200 bg-offwhite px-4 py-2 focus:border-lightbutton focus:ring-lightbutton outline-none"
+                  />
+                </label>
+                <label>
+                  Provider Type
+                  <select
+                    name="providerType"
+                    value={formData.providerType}
+                    onChange={handleChange}
+                    className="w-full rounded-xl border border-gray-200 bg-offwhite px-4 py-2 bg-white focus:border-lightbutton focus:ring-lightbutton outline-none"
+                  >
+                    <option value="individual">Individual</option>
+                    <option value="centre">Centre</option>
+                  </select>
+                </label>
+              </div>
             </div>
-            <div className="grid grid-cols-1  gap-4 mt-4">
-<label>Teraphy type
-            <input
-              value={formData.therapytype.join(", ")}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  therapytype: e.target.value
-                    .split(",")
-                    .map((t) => t.trim())
-                    .filter(Boolean),
-                })
-              }
-              placeholder="Therapy Types"
-              className="mt-4 w-full rounded-xl border border-gray-200 bg-offwhite px-4 py-2 focus:border-lightbutton focus:ring-lightbutton outline-none"
-            />
-            </label>
-<label>Description
-            <textarea
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              placeholder="Provider Description"
-              className=" w-full h-28 rounded-xl border border-gray-200 bg-offwhite px-4 py-2 focus:border-lightbutton focus:ring-lightbutton outline-none"
-            />
-            </label>
+
+            <div className="rounded-2xl  bg-white p-6 shadow-sm mt-4">
+              <h2 className="mb-4 text-lg font-semibold text-gray-800">
+                Professional Details
+              </h2>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <label>
+                  Qualification
+                  <input
+                    name="qualification"
+                    value={formData.qualification}
+                    onChange={handleChange}
+                    placeholder="Qualification"
+                    className="w-full rounded-xl border border-gray-200 bg-offwhite px-4 py-2 focus:border-lightbutton focus:ring-lightbutton outline-none"
+                  />
+                </label>
+                <label>
+                  Experience
+                  <input
+                    name="experience"
+                    value={formData.experience}
+                    onChange={handleChange}
+                    placeholder="Experience"
+                    className="w-full rounded-xl border border-gray-200 bg-offwhite px-4 py-2 focus:border-lightbutton focus:ring-lightbutton outline-none"
+                  />
+                </label>
+                <label>
+                  License
+                  <input
+                    name="license"
+                    value={formData.license}
+                    onChange={handleChange}
+                    placeholder="License Number"
+                    className="w-full rounded-xl border border-gray-200  bg-offwhite px-4 py-2 focus:border-lightbutton focus:ring-lightbutton outline-none"
+                  />
+                </label>
+                <label>
+                  Consultation Fee
+                  <input
+                    name="regularPrice"
+                    type="number"
+                    value={formData.regularPrice}
+                    onChange={handleChange}
+                    min="0"
+                    placeholder="Consultation Fee"
+                    className="w-full rounded-xl border border-gray-200 bg-offwhite px-4 py-2 focus:border-lightbutton focus:ring-lightbutton outline-none"
+                  />
+                </label>
+              </div>
+              <div className="grid grid-cols-1  gap-4 mt-4">
+                <label>
+                  Teraphy type
+                  <input
+                    value={formData.therapytype.join(", ")}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        therapytype: e.target.value
+                          .split(",")
+                          .map((t) => t.trim())
+                          .filter(Boolean),
+                      })
+                    }
+                    placeholder="Therapy Types"
+                    className="mt-4 w-full rounded-xl border border-gray-200 bg-offwhite px-4 py-2 focus:border-lightbutton focus:ring-lightbutton outline-none"
+                  />
+                </label>
+                <label>
+                  Description
+                  <textarea
+                    name="description"
+                    value={formData.description}
+                    onChange={handleChange}
+                    placeholder="Provider Description"
+                    className=" w-full h-28 rounded-xl border border-gray-200 bg-offwhite px-4 py-2 focus:border-lightbutton focus:ring-lightbutton outline-none"
+                  />
+                </label>
+              </div>
             </div>
-          </div>
-
-
           </div>
         </form>
       </div>

@@ -35,6 +35,10 @@ import AddArticle from "./pages/Article/AddArticle.jsx";
 import TagArticle from "./pages/Master/TagArticle.jsx";
 import MasterPage from "./pages/Master/MasterTab.jsx";
 import { api } from "./utils/api.js";
+import CentreDashBoard from "./pages/Centre/CentreDashBoard.jsx";
+import CentreList from "./pages/Centre/CentreList.jsx";
+import CentreDetail from "./pages/Centre/CentreDetails.jsx";
+import UpcomingSession from "./pages/Centre/UpcomingSession.jsx"
 
 const App = () => {
   const dispatch = useDispatch();
@@ -104,6 +108,10 @@ const App = () => {
           <Route path="/add-article/:id" element={<AddArticle />} />
           <Route path="/tag" element={<TagArticle />} />
           <Route path="/master" element={<MasterPage />} />
+          <Route path="/centre" element={<CentreDashBoard/>}/>
+          <Route path="/centre-list" element ={<CentreList/>}/>
+          <Route path ="/centre-detail" element ={<CentreDetail/>}/>
+          <Route path ="/upcoming-session" element={<UpcomingSession/>}/>
         </Route>
       </Routes>
       <Toaster position="top-right" toastOptions={{ duration: 3000 }} />

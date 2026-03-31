@@ -130,7 +130,7 @@ function ViewProvider() {
         </div>
 
         <div className="flex">
-          <select
+          {/* <select
             value={providerType}
             onChange={(e) => {
               setProviderType(e.target.value);
@@ -141,7 +141,7 @@ function ViewProvider() {
             <option value="">All</option>
             <option value="individual">Individual</option>
             <option value="centre">Centre</option>
-          </select>
+          </select> */}
 
           <button
             onClick={() => navigate("/inactive-providers")}

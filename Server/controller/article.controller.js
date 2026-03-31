@@ -29,7 +29,9 @@ export const createArticle = async (req, res) => {
     } = req.body;
 
   // Validation
-    if (!title || !content || !excerpt || !featuredImage || !categoryId) {
+    if (!title || !content || !excerpt ||!Array.isArray(featuredImage) ||
+  featuredImage.length === 0 ||
+  featuredImage.some((img) => !img) || !categoryId) {
       return res.status(400).json({
         message: "All required fields must be provided",
       });
@@ -99,7 +101,9 @@ export const createArticle = async (req, res) => {
       title,
       content,
       excerpt,
-      featuredImage,
+      featuredImage: Array.isArray(featuredImage)
+  ? featuredImage
+  : [featuredImage],
       category: category.name,
       categoryId: category._id,
       tags: tags || [],

@@ -24,7 +24,7 @@ const articleSchema = new mongoose.Schema(
       maxlength: 300,
     },
     featuredImage: {
-      type: String,
+      type: [String],
       required: true,
     },
     category: { type: String, required: true },
