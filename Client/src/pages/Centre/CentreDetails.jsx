@@ -1,45 +1,36 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { AiFillEye } from "react-icons/ai";
+import { api } from "../../utils/api";
 
 const CentreDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const centre = {
-    id,
-    name: "Step Therapy Centre",
-    totalProviders: 6,
-    totalSessions: 40,
-  };
+  const [centre, setCentre] = useState(null);
+  const [providers, setProviders] = useState([]);
+  const [totalProviders, setTotalProviders] = useState(0);
+  const [totalSessions, setTotalSessions] = useState(0);
 
-  const providers = [
-    {
-      id: "p1",
-      name: "Dr. Karthick",
-      email: "Karthick@gmail.com",
-      phone: "+91 9965765678",
-      sessions: 10,
-      status: "Active",
-    },
-    {
-      id: "p2",
-      name: "Dr. Jeba Singh",
-      email: "jebasingh@gmail.com",
-      phone: "+91 9977659808",
-      sessions: 8,
-      status: "Active",
-    },
-    {
-      id: "p3",
-      name: "Dr. Ravi",
-      email: "Ravi@gmail.com",
-      phone: "+91 8787676565",
-      sessions: 5,
-      status: "Inactive",
-    },
-  ];
+  useEffect(() => {
+    const fetchDetails = async () => {
+      try {
+        const res = await api(`/api/provider/centre-details/${id}`);
+
+        setCentre(res.centre);
+        setProviders(res.providers || []);
+        setTotalProviders(res.totalProviders || 0);
+        setTotalSessions(res.totalSessions || 0);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchDetails();
+  }, [id]);
+
+  if (!centre) return <div className="p-6">Loading...</div>;
 
   return (
     <div className="p-6 bg-offwhite min-h-screen">
@@ -52,29 +43,27 @@ const CentreDetails = () => {
         Back
       </button>
 
-
       <h1 className="text-2xl font-bold text-green-900 mb-6">
-        {centre.name}
+        {centre.fullName}
       </h1>
 
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+      {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
 
         <div className="bg-white p-6 rounded-2xl shadow">
           <p className="text-gray-500 text-sm">Total Providers</p>
           <h2 className="text-3xl font-bold text-green-900 mt-2">
-            {centre.totalProviders}
+            {totalProviders}
           </h2>
         </div>
 
         <div className="bg-white p-6 rounded-2xl shadow">
           <p className="text-gray-500 text-sm">Total Sessions</p>
           <h2 className="text-3xl font-bold text-green-900 mt-2">
-            {centre.totalSessions}
+            {}
           </h2>
         </div>
 
-      </div>
+      </div> */}
 
       <div className="bg-white rounded-2xl shadow overflow-hidden">
 
@@ -99,7 +88,7 @@ const CentreDetails = () => {
 
           <tbody>
             {providers.map((p) => (
-              <tr key={p.id} className="border-t hover:bg-gray-50">
+              <tr key={p._id} className="border-t hover:bg-gray-50">
 
                 <td className="p-3">{p.name}</td>
                 <td className="p-3">{p.email}</td>
@@ -120,9 +109,7 @@ const CentreDetails = () => {
 
                 <td className="p-3 text-right">
                   <button
-                    onClick={() =>
-                      navigate(`/provider/${p.id}`)
-                    }
+                    onClick={() => navigate(`/provider/${p._id}`)}
                     className="p-2 bg-gray-100 rounded-lg hover:bg-gray-200"
                   >
                     <AiFillEye />

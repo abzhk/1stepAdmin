@@ -381,6 +381,7 @@ const AddArticle = () => {
                         type="file"
                         accept="image/*"
                         multiple
+                        disabled={imagePreviews.length >= 3}
                         onChange={handleImageChange}
                         className="w-full border rounded-lg px-3 py-2 bg-offwhite"
                       />

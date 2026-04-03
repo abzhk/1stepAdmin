@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   BarChart,
   Bar,
@@ -8,23 +8,24 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from "recharts";
-
-const appointmentChart = [
-  { month: "Jan", appointments: 92 },
-  { month: "Feb", appointments: 20 },
-  { month: "Mar", appointments: 18 },
-  { month: "Apr", appointments: 25 },
-  { month: "May", appointments: 30 },
-  { month: "Jun", appointments: 40 },
-  { month: "Jul", appointments: 30 },
-  { month: "Aug", appointments: 60 },
-  { month: "Sep", appointments: 30 },
-  { month: "Oct", appointments: 90 },
-  { month: "Nov", appointments: 120 },
-  { month: "Dec", appointments: 150 },
-];
+import { api } from "../../utils/api";
 
 const AppointmentStats = () => {
+  const [chartData, setChartData] = useState([]);
+
+  useEffect(() => {
+    const fetchChart = async () => {
+      try {
+        const res = await api("/api/provider/appointments/monthly");
+        setChartData(res.data || []);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchChart();
+  }, []);
+
   return (
     <>
       <h2 className="text-lg font-semibold mb-4 text-green-900">
@@ -32,13 +33,18 @@ const AppointmentStats = () => {
       </h2>
 
       <ResponsiveContainer width="100%" height={250}>
-        <BarChart data={appointmentChart}>
+        <BarChart data={chartData}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="month" />
           <YAxis />
           <Tooltip />
 
-          <Bar dataKey="appointments" fill="#f2a794" radius={[8, 8, 0, 0]} barSize={15} />
+          <Bar
+            dataKey="appointments"
+            fill="#f2a794"
+            radius={[8, 8, 0, 0]}
+            barSize={15}
+          />
         </BarChart>
       </ResponsiveContainer>
     </>

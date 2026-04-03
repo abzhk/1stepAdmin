@@ -39,6 +39,8 @@ import CentreDashBoard from "./pages/Centre/CentreDashBoard.jsx";
 import CentreList from "./pages/Centre/CentreList.jsx";
 import CentreDetail from "./pages/Centre/CentreDetails.jsx";
 import UpcomingSession from "./pages/Centre/UpcomingSession.jsx"
+import EditCentre from "./pages/Centre/EditCentre.jsx";
+import InactiveCentre from "./pages/Centre/InActiveCentre.jsx";
 
 const App = () => {
   const dispatch = useDispatch();
@@ -49,6 +51,7 @@ const App = () => {
       try {
         const data = await api("/api/admin/verify-token", {
           method: "GET",
+          credentials: "include", 
         });
 
         if (data?.success) {
@@ -110,8 +113,10 @@ const App = () => {
           <Route path="/master" element={<MasterPage />} />
           <Route path="/centre" element={<CentreDashBoard/>}/>
           <Route path="/centre-list" element ={<CentreList/>}/>
-          <Route path ="/centre-detail" element ={<CentreDetail/>}/>
+          <Route path ="/centre-detail/:id" element ={<CentreDetail/>}/>
           <Route path ="/upcoming-session" element={<UpcomingSession/>}/>
+          <Route path ="/edit-centre/:id" element={<EditCentre/>}/>
+          <Route path="/inactive-centre" element={<InactiveCentre/>}/>
         </Route>
       </Routes>
       <Toaster position="top-right" toastOptions={{ duration: 3000 }} />

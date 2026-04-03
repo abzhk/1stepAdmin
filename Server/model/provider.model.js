@@ -141,6 +141,10 @@ const providerSchema = new mongoose.Schema(
         5: { type: Number, default: 0 },
       },
     },
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
   },
   { timestamps: true }
 );
@@ -189,29 +193,45 @@ providerSchema.index(
     name: "user_ref_index",
   }
 );
+
 providerSchema.post("save", async function () {
+
   try {
-    const Stats = (await import("./stats.model.js")).default;
+
+    const Stats = (await import("../model/stats.model.js")).default;
 
     const update = {
+
       $inc: {
+
         totalProviders: 1,
+
       },
+
     };
 
     if (this.providerType === "individual") {
+
       update.$inc.totalIndividualProviders = 1;
+
     }
 
     if (this.providerType === "centre") {
+
       update.$inc.totalCentreProviders = 1;
+
     }
 
     await Stats.updateOne({}, update, { upsert: true });
+
   } catch (err) {
+
     console.error("Failed to increment provider stats:", err);
+
   }
+
 });
+
 const provider = mongoose.model("provider", providerSchema);
 
 export default provider;

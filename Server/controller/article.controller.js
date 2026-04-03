@@ -29,13 +29,16 @@ export const createArticle = async (req, res) => {
     } = req.body;
 
   // Validation
-    if (!title || !content || !excerpt ||!Array.isArray(featuredImage) ||
-  featuredImage.length === 0 ||
-  featuredImage.some((img) => !img) || !categoryId) {
+    if (!title || !content || !excerpt  || !categoryId) {
       return res.status(400).json({
         message: "All required fields must be provided",
       });
     }
+    if (featuredImage && featuredImage.length > 3) {
+  return res.status(400).json({
+    message: "Maximum 3 images allowed",
+  });
+}
 // Check category
     const category = await Category.findById(categoryId);
 
@@ -53,7 +56,7 @@ export const createArticle = async (req, res) => {
       });
     }
 
-    if (position) {
+    if (position !== null && position !== undefined) {
   if (position < 1 || position > 10) {
     return res.status(400).json({
       message: "Position must be between 1 and 10",
@@ -101,9 +104,12 @@ export const createArticle = async (req, res) => {
       title,
       content,
       excerpt,
-      featuredImage: Array.isArray(featuredImage)
-  ? featuredImage
-  : [featuredImage],
+      featuredImage:
+  Array.isArray(featuredImage)
+    ? featuredImage
+    : featuredImage
+    ? [featuredImage]
+    : [],
       category: category.name,
       categoryId: category._id,
       tags: tags || [],

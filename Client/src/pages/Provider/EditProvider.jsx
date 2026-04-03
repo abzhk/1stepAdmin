@@ -22,6 +22,18 @@ function EditProvider() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [therapyOptions, setTherapyOptions] = useState([]);
+
+
+  useEffect(() => {
+  const fetchTherapies = async () => {
+    const data = await api("/api/services/serviceMode")   ;
+    setTherapyOptions(data.data);   
+    console.log("therapy options:", data);
+  };
+
+  fetchTherapies();
+}, []);
 
   useEffect(() => {
     const fetchProvider = async () => {
@@ -43,6 +55,8 @@ function EditProvider() {
           description: data.provider.description || "",
           therapytype: data.provider.therapytype || [],
         });
+        console.log(data);
+        
       } catch (err) {
         setError(err.message);
       } finally {
@@ -232,23 +246,71 @@ function EditProvider() {
                 </label>
               </div>
               <div className="grid grid-cols-1  gap-4 mt-4">
-                <label>
-                  Teraphy type
-                  <input
-                    value={formData.therapytype.join(", ")}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        therapytype: e.target.value
-                          .split(",")
-                          .map((t) => t.trim())
-                          .filter(Boolean),
-                      })
-                    }
-                    placeholder="Therapy Types"
-                    className="mt-4 w-full rounded-xl border border-gray-200 bg-offwhite px-4 py-2 focus:border-lightbutton focus:ring-lightbutton outline-none"
-                  />
-                </label>
+               <div className="border border-gray-200 rounded-xl p-2 bg-offwhite">
+  
+  <div className="flex flex-wrap gap-2 mb-2">
+    {formData.therapytype.map((val) => {
+      const item = therapyOptions.find((t) => t.value === val);
+
+      return (
+        <span
+          key={val}
+          className="flex items-center gap-1 bg-greenmuted text-white px-3 py-1 rounded-full text-sm"
+        >
+         {item ? item.label : val}
+
+          <button
+            type="button"
+            onClick={() => {
+              setFormData({
+                ...formData,
+                therapytype: formData.therapytype.filter(
+                  (v) => v !== val
+                ),
+              });
+            }}
+            className="ml-1 text-red-500 hover:text-red-700"
+          >
+            ×
+          </button>
+        </span>
+      );
+    })}
+  </div>
+
+  {/* Dropdown */}
+  <select
+  onChange={(e) => {
+    const value = e.target.value;
+
+  
+    const selectedItem = therapyOptions.find(
+      (t) => t.value === value
+    );
+
+    const label = selectedItem?.label;
+
+    if (label && !formData.therapytype.includes(label)) {
+      setFormData({
+        ...formData,
+        therapytype: [...formData.therapytype, label],
+      });
+    }
+
+    
+    e.target.value = "";
+  }}
+  className="w-full bg-white rounded-lg px-3 py-2 border border-gray-200"
+>
+  <option value="">Select Therapy</option>
+
+  {therapyOptions.map((item) => (
+    <option key={item.value} value={item.value}>
+      {item.label}
+    </option>
+  ))}
+</select>
+</div>
                 <label>
                   Description
                   <textarea

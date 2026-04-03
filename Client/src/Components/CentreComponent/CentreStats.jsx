@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   LineChart,
   Line,
@@ -7,17 +7,36 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-
-
-const chartData = [
-  { month: "Jan", centres: 2 },
-  { month: "Feb", centres: 5 },
-  { month: "Mar", centres: 8 },
-  { month: "Apr", centres: 6 },
-  { month: "May", centres: 10 },
-];
+import { api } from "../../utils/api";
 
 const CentreStats = () => {
+  const [chartData, setChartData] = useState([]);
+
+  useEffect(() => {
+  const fetchStats = async () => {
+    try {
+      const res = await api("/api/provider/centre-stats");
+
+      const apiData = res.data ? res.data : res;
+
+      const months = [
+        "Jan","Feb","Mar","Apr","May","Jun",
+        "Jul","Aug","Sep","Oct","Nov","Dec"
+      ];
+
+      const fullData = months.map((month) => {
+        const found = apiData.find((m) => m.month === month);
+        return found || { month, centres: 0 };
+      });
+
+      setChartData(fullData);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  fetchStats();
+}, []);
   return (
     <>
       <h2 className="text-lg font-semibold mb-4 text-green-900">

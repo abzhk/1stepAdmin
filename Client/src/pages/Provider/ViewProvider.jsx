@@ -40,7 +40,7 @@ function ViewProvider() {
           params.append("searchTerm", searchTerm.trim());
         }
 
-        const data = await api(`/api/provider/getProviders?${params}`);
+        const data = await api(`/api/provider/individual-list?${params}`);
 
         setProviders(data.providers || []);
         setTotalCount(data.totalCount || 0);

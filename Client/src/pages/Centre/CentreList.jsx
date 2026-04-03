@@ -1,50 +1,94 @@
-import React, { useState } from "react";
+import React,{ useEffect, useState }  from "react";
 import { AiFillEye } from "react-icons/ai";
 import { FiEdit2, FiGrid, FiList } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { IoIosArrowRoundBack } from "react-icons/io";
+import { api } from "../../utils/api";
+
 
 const CentreList = () => {
   const navigate = useNavigate();
 
   const [viewMode, setViewMode] = useState("grid");
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+const [selectedCentre, setSelectedCentre] = useState(null);
 
 
-  const centres = [
-    {
-      _id: "1",
-      name: "Step Therapy Centre",
-      email: "step@gmail.com",
-      phone: "+91 9876543210",
-      totalProviders: 6,
-      totalSessions: 40,
-      isActive: true,
-      image:
-        "",
-    },
-    {
-      _id: "2",
-      name: "Care Rehab Clinic",
-      email: "care@gmail.com",
-      phone: "+91 9876543211",
-      totalProviders: 4,
-      totalSessions: 20,
-      isActive: true,
-      image:
-        "",
-    },
-    {
-      _id: "3",
-      name: "Hope Therapy Hub",
-      email: "hope@gmail.com",
-      phone: "+91 9876543212",
-      totalProviders: 3,
-      totalSessions: 15,
-      isActive: false,
-      image:
-        "",
-    },
-  ];
+  const [centres, setCentres] = useState([]);
+
+  const handleDeleteClick = (centre) => {
+  if (centre.totalProviders > 0) {
+    alert("Cannot delete centre with linked providers");
+    return;
+  }
+
+  setSelectedCentre(centre);
+  setShowDeleteModal(true);
+};
+
+  useEffect(() => {
+  const fetchCentres = async () => {
+    try {
+      const data = await api("/api/provider/centre-list");
+
+      setCentres(data.centres || []);
+
+      console.log("CENTRES:", data.centres);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  fetchCentres();
+}, []);
+
+const confirmDelete = async () => {
+  try {
+    await api(`/api/provider/centre/${selectedCentre._id}`, "DELETE");
+
+    setCentres((prev) =>
+      prev.filter((c) => c._id !== selectedCentre._id)
+    );
+
+    setShowDeleteModal(false);
+    setSelectedCentre(null);
+
+  } catch (err) {
+    console.error(err);
+    alert("Delete failed");
+  }
+};
+
+ const toggleCentreStatus = async (centre) => {
+    if (centre.totalProviders > 0 && centre.isActive) {
+      alert("Remove providers before deactivating centre");
+      return;
+    }
+
+    try {
+      const res = await api("/api/provider/centre/set-active-status", {
+        method: "PUT",
+        body: JSON.stringify({
+          centreId: centre._id,
+          isActive: !centre.isActive,
+        }),
+      });
+
+      if (res.success) {
+        setCentres((prev) =>
+          prev.map((c) =>
+            c._id === centre._id
+              ? { ...c, isActive: !centre.isActive }
+              : c
+          )
+        );
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Failed to update status");
+    }
+  };
+
 
   return (
     <div className="p-4 md:p-8 bg-[#f8f6f2] min-h-screen">
@@ -84,9 +128,12 @@ const CentreList = () => {
           </button>
         </div>
 
-        <button className="px-4 py-2 rounded-xl font-semibold text-white bg-green-900 hover:bg-yellow-400 hover:text-green-900">
-          Inactive Centres
-        </button>
+        <button
+  onClick={() => navigate("/inactive-centre")}
+  className="px-4 py-2 rounded-xl font-semibold text-white bg-green-900"
+>
+  Inactive Centres
+</button>
       </div>
 
 
@@ -103,8 +150,8 @@ const CentreList = () => {
 
                 <div className="h-52 overflow-hidden rounded-xl mb-2">
                   <img
-                    src={centre.image}
-                    alt={centre.name}
+                    src={centre.profilePicture}
+                    alt={centre.fullname}
                     className="w-full h-full object-cover"
                   />
                 </div>
@@ -114,10 +161,10 @@ const CentreList = () => {
 
                   <div className="flex justify-between items-start">
                     <h2 className="font-semibold text-gray-900 text-lg">
-                      {centre.name}
+                      {centre.fullName}
                     </h2>
 
-                    <span
+                    {/* <span
                       className={`text-xs px-3 py-1 rounded-full font-medium ${
                         centre.isActive
                           ? "bg-green-50 text-green-600"
@@ -125,12 +172,26 @@ const CentreList = () => {
                       }`}
                     >
                       {centre.isActive ? "Active" : "Inactive"}
-                    </span>
+                    </span> */}
+
+                    <button
+  onClick={() => toggleCentreStatus(centre)}
+  disabled={centre.totalProviders > 0 && centre.isActive}
+  className={`px-3 py-2 rounded-xl text-sm ${
+    centre.totalProviders > 0 && centre.isActive
+      ? "bg-gray-300 cursor-not-allowed"
+      : centre.isActive
+      ? "bg-red-100 text-red-600"
+      : "bg-green-100 text-green-600"
+  }`}
+>
+  {centre.isActive ? "Deactivate" : "Activate"}
+</button>
                   </div>
 
                   <div className="space-y-2 mt-4 text-sm">
                     <p>
-                      <b>Email:</b> {centre.email}
+                      <b>Email:</b> {centre.user?.email || "-"}
                     </p>
                     <p>
                       <b>Phone:</b> {centre.phone}
@@ -154,12 +215,12 @@ const CentreList = () => {
                   </div>
 
 
-                  <div className="flex gap-2 mt-4">
+                  <div className="flex gap-2 mt-4 ">
                     <button
                       onClick={() =>
-                        navigate(`/centre-detail`)
+                        navigate(`/centre-detail/${centre._id}`)
                       }
-                      className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-peach text-white text-sm w-full"
+                      className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-peach text-white text-sm w-60"
                     >
                       <AiFillEye />
                       View
@@ -167,14 +228,55 @@ const CentreList = () => {
 
                     <button
                       onClick={() =>
-                        navigate(`/centre/edit/${centre._id}`)
-                      }
+    navigate(`/edit-centre/${centre._id}`)
+  }
                       className="w-10 h-10 flex items-center justify-center rounded-xl bg-blue-50 text-blue-600"
                     >
                       <FiEdit2 />
                     </button>
-                  </div>
 
+                    {/* <button
+ onClick={() => handleDeleteClick(centre)}
+  className={`w-10 h-10 flex items-center justify-center rounded-xl ${
+    centre.totalProviders > 0
+      ? "bg-gray-300 cursor-not-allowed"
+      : "bg-red-500 text-white hover:bg-red-600"
+  }`}
+>
+ <MdDelete size={18} />
+</button> */}
+                  </div>
+{showDeleteModal && (
+  <div className="fixed inset-0 bg-white/10 bg-opacity-40 flex items-center justify-center z-50">
+    <div className="bg-white rounded-2xl shadow-xl w-[90%] max-w-md p-6">
+
+      <h2 className="text-lg font-semibold text-gray-800 mb-3">
+        Delete Centre
+      </h2>
+
+      <p className="text-sm text-gray-600 mb-6">
+        Are you sure you want to delete <b>{selectedCentre?.fullName}</b>?
+      </p>
+
+      <div className="flex justify-end gap-3">
+        <button
+          onClick={() => setShowDeleteModal(false)}
+          className="px-4 py-2 rounded-xl bg-gray-200 text-gray-700"
+        >
+          Cancel
+        </button>
+
+        <button
+          onClick={confirmDelete}
+          className="px-4 py-2 rounded-xl bg-red-500 text-white hover:bg-red-600"
+        >
+          Delete
+        </button>
+      </div>
+
+    </div>
+  </div>
+)}
                 </div>
               </div>
             </div>
@@ -206,10 +308,10 @@ const CentreList = () => {
                 >
                   <td className="p-3 flex items-center gap-3">
                     <img
-                      src={centre.image}
+                      src={centre.profilePicture}
                       className="w-10 h-10 rounded-lg object-cover"
                     />
-                    {centre.name}
+                    {centre.fullName}
                   </td>
 
                   <td className="p-3">{centre.email}</td>
@@ -234,7 +336,9 @@ const CentreList = () => {
                       <AiFillEye />
                     </button>
 
-                    <button className="p-2 bg-blue-100 text-blue-600 rounded-lg">
+                    <button  onClick={() =>
+    navigate(`/edit-centre/${centre._id}`)
+  } className="p-2 bg-blue-100 text-blue-600 rounded-lg">
                       <FiEdit2 />
                     </button>
                   </td>

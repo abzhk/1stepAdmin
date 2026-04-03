@@ -24,9 +24,9 @@ const articleSchema = new mongoose.Schema(
       maxlength: 300,
     },
     featuredImage: {
-      type: [String],
-      required: true,
-    },
+  type: [String],
+  default: [],
+},
     category: { type: String, required: true },
     categoryId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -74,7 +74,7 @@ const articleSchema = new mongoose.Schema(
       min :1,
       max :10,
       default:null,
-      unique:true,
+
     },
     featured: {
     type: Boolean,
@@ -84,13 +84,13 @@ const articleSchema = new mongoose.Schema(
     metaTitle: {
   type: String,
   trim: true,
-  maxlength: 60,
+  maxlength: 100,
 },
 
 metaDescription: {
   type: String,
   trim: true,
-  maxlength: 160,
+  maxlength: 300,
 },
    authorType: {
     type: String,
