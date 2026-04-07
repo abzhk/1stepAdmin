@@ -4,6 +4,7 @@ import { FiEdit2, FiGrid, FiList } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { api } from "../../utils/api";
+import toast from "react-hot-toast";
 
 
 const CentreList = () => {
@@ -15,16 +16,6 @@ const [selectedCentre, setSelectedCentre] = useState(null);
 
 
   const [centres, setCentres] = useState([]);
-
-  const handleDeleteClick = (centre) => {
-  if (centre.totalProviders > 0) {
-    alert("Cannot delete centre with linked providers");
-    return;
-  }
-
-  setSelectedCentre(centre);
-  setShowDeleteModal(true);
-};
 
   useEffect(() => {
   const fetchCentres = async () => {
@@ -55,39 +46,48 @@ const confirmDelete = async () => {
 
   } catch (err) {
     console.error(err);
-    alert("Delete failed");
+    toast.error("Failed to delete centre");
   }
 };
 
- const toggleCentreStatus = async (centre) => {
-    if (centre.totalProviders > 0 && centre.isActive) {
-      alert("Remove providers before deactivating centre");
-      return;
-    }
+const toggleCentreStatus = async (centre) => {
+  if (centre.totalProviders > 0 && centre.isActive) {
+    alert("Remove providers before deactivating centre");
+    return;
+  }
 
-    try {
-      const res = await api("/api/provider/centre/set-active-status", {
-        method: "PUT",
-        body: JSON.stringify({
-          centreId: centre._id,
-          isActive: !centre.isActive,
-        }),
-      });
+  try {
 
-      if (res.success) {
+    const res = await api("/api/provider/centre/set-active-status", {
+      method: "PUT",
+      body: JSON.stringify({
+        centreId: centre._id,
+        isActive: !centre.isActive,
+      }),
+    });
+
+    if (res.success) {
+toast.success(`Centre ${!centre.isActive ? "activated" : "deactivated"}`);
+      if (centre.isActive) {
+        setCentres((prev) =>
+          prev.filter((c) => c._id !== centre._id)
+        );
+      } else {
+
         setCentres((prev) =>
           prev.map((c) =>
             c._id === centre._id
-              ? { ...c, isActive: !centre.isActive }
+              ? { ...c, isActive: true }
               : c
           )
         );
       }
-    } catch (err) {
-      console.error(err);
-      alert("Failed to update status");
     }
-  };
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to update status");
+  }
+};
 
 
   return (

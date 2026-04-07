@@ -1580,7 +1580,6 @@ export const deleteCentre = async (req, res, next) => {
       });
     }
 
-
     const hasProviders = await Invitation.exists({
       centreId: id,
       status: "accepted",
@@ -1592,11 +1591,17 @@ export const deleteCentre = async (req, res, next) => {
         message: "Centre has linked providers, cannot delete",
       });
     }
-    await Provider.deleteOne({ _id: id });
+
+    const userId = new mongoose.Types.ObjectId(centre.userRef);
+
+    await Promise.all([
+      Provider.deleteOne({ _id: id }),
+      User.deleteOne({ _id: userId }),
+    ]);
 
     return res.status(200).json({
       success: true,
-      message: "Centre deleted successfully",
+      message: "Centre and user deleted successfully",
     });
 
   } catch (error) {
@@ -1607,7 +1612,7 @@ export const deleteCentre = async (req, res, next) => {
 export const setCentreActiveStatus = async (req, res, next) => {
   try {
     const { centreId, isActive } = req.body;
-console.log("API HIT");
+
     if (!centreId) {
       return res.status(400).json({
         success: false,

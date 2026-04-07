@@ -194,42 +194,55 @@ providerSchema.index(
   }
 );
 
-providerSchema.post("save", async function () {
+providerSchema.post("save", async function (doc) {
+
+  if (!doc.isNew) return;  
 
   try {
-
     const Stats = (await import("../model/stats.model.js")).default;
 
     const update = {
-
-      $inc: {
-
-        totalProviders: 1,
-
-      },
-
+      $inc: { totalProviders: 1 },
     };
 
-    if (this.providerType === "individual") {
-
+    if (doc.providerType === "individual") {
       update.$inc.totalIndividualProviders = 1;
-
     }
 
-    if (this.providerType === "centre") {
-
+    if (doc.providerType === "centre") {
       update.$inc.totalCentreProviders = 1;
-
     }
 
     await Stats.updateOne({}, update, { upsert: true });
 
   } catch (err) {
-
     console.error("Failed to increment provider stats:", err);
-
   }
+});
 
+providerSchema.post("findOneAndDelete", async function (doc) {
+  if (!doc) return;
+
+  try {
+    const Stats = (await import("../model/stats.model.js")).default;
+
+    const update = {
+      $inc: { totalProviders: -1 },
+    };
+
+    if (doc.providerType === "individual") {
+      update.$inc.totalIndividualProviders = -1;
+    }
+
+    if (doc.providerType === "centre") {
+      update.$inc.totalCentreProviders = -1;
+    }
+
+    await Stats.updateOne({}, update);
+
+  } catch (err) {
+    console.error("Failed to decrement provider stats:", err);
+  }
 });
 
 const provider = mongoose.model("provider", providerSchema);

@@ -38,13 +38,11 @@ router.get("/individual-list", getIndividualProviders);
 router.get("/centre-session", getAllCentreDashboardStats);
 
 router.get("/appointments/monthly", getMonthlyAppointments);
-router.delete("/centre/:id", deleteCentre);
+//delete centre
+router.delete("/centre/:id",verifyAdminToken, deleteCentre);
 
-router.put(
-  "/centre/set-active-status",
-  setCentreActiveStatus
-);
-
+router.put("/centre/set-active-status",verifyAdminToken,setCentreActiveStatus);
+//inactive centres list
 router.get("/centre/inactive-list", getInactiveCentres);
 
 router.get("/centre/:id", getCentreById);

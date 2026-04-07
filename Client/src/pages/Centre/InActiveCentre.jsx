@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { api } from "../../utils/api";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 const InActiveCentre = () => {
   const [centres, setCentres] = useState([]);
   const navigate = useNavigate();
-
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedCentreId, setSelectedCentreId] = useState(null);
 
   useEffect(() => {
     const fetchInactive = async () => {
@@ -22,62 +24,60 @@ const InActiveCentre = () => {
   }, []);
 
   const handleActivate = async (centre) => {
-  try {
-    const res = await api("/api/provider/centre/set-active-status", {
-      method: "PUT",
-      body: JSON.stringify({
-        centreId: centre._id,
-        isActive: true,
-      }),
-    });
-
-    if (res.success) {
-      setCentres((prev) =>
-        prev.filter((c) => c._id !== centre._id)
-      );
-    }
-  } catch (err) {
-    console.error(err);
-    alert("Activation failed");
-  }
-};
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this centre?")) return;
-
     try {
-      const res = await api(`/api/provider/centre/${id}`, "DELETE");
+      const res = await api("/api/provider/centre/set-active-status", {
+        method: "PUT",
+        body: JSON.stringify({
+          centreId: centre._id,
+          isActive: true,
+        }),
+      });
 
       if (res.success) {
-        setCentres((prev) => prev.filter((c) => c._id !== id));
+        setCentres((prev) => prev.filter((c) => c._id !== centre._id));
       }
     } catch (err) {
       console.error(err);
-      alert("Delete failed");
+      toast.error("Failed to activate centre");
+    }
+  };
+
+  const confirmDelete = async () => {
+    try {
+      const res = await api(
+        `/api/provider/centre/${selectedCentreId}`,
+        "DELETE",
+      );
+
+      if (res.success) {
+        setCentres((prev) => prev.filter((c) => c._id !== selectedCentreId));
+
+        toast.success("Centre deleted successfully"); 
+        setShowDeleteModal(false);
+        setSelectedCentreId(null);
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to delete centre");
     }
   };
 
   return (
     <div className="p-6 bg-[#f8f6f2] min-h-screen">
-      
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-green-900">
-          Inactive Centres
-        </h1>
-
-       
+        <h1 className="text-2xl font-bold text-green-900">Inactive Centres</h1>
       </div>
-       <button
-          onClick={() => navigate("/centre-list")}
-          className="px-4 py-2  text-darkgreen rounded-xl"
-        >
-          ← Back
-        </button>
+      <button
+        onClick={() => navigate("/centre-list")}
+        className="px-4 py-2  text-darkgreen rounded-xl"
+      >
+        ← Back
+      </button>
 
       {/* Table */}
       <div className="bg-white rounded-xl shadow overflow-hidden">
         <table className="w-full text-sm">
-          
           <thead className="bg-gray-100 text-gray-600 uppercase text-xs">
             <tr>
               <th className="p-3 text-left">Centre Name</th>
@@ -97,22 +97,16 @@ const InActiveCentre = () => {
             ) : (
               centres.map((c) => (
                 <tr key={c._id} className="border-t hover:bg-gray-50">
-                  
                   <td className="p-3 font-medium text-green-900">
                     {c.fullName}
                   </td>
 
-                  <td className="p-3 text-gray-700">
-                    {c.email || "-"}
-                  </td>
+                  <td className="p-3 text-gray-700">{c.email || "-"}</td>
 
-                  <td className="p-3 text-gray-700">
-                    {c.phone || "-"}
-                  </td>
+                  <td className="p-3 text-gray-700">{c.phone || "-"}</td>
 
                   {/* Actions */}
                   <td className="p-3 flex gap-2">
-                    
                     {/* Activate */}
                     <button
                       onClick={() => handleActivate(c)}
@@ -123,20 +117,51 @@ const InActiveCentre = () => {
 
                     {/* Delete */}
                     <button
-                      onClick={() => handleDelete(c._id)}
+                      onClick={() => {
+                        setSelectedCentreId(c._id);
+                        setShowDeleteModal(true);
+                      }}
                       className="px-3 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600"
                     >
                       Delete
                     </button>
-
                   </td>
                 </tr>
               ))
             )}
           </tbody>
-
         </table>
       </div>
+
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl shadow-xl w-[90%] max-w-md p-6">
+            <h2 className="text-lg font-semibold text-gray-800 mb-3">
+              Delete Centre
+            </h2>
+
+            <p className="text-sm text-gray-600 mb-6">
+              Are you sure you want to delete this centre?
+            </p>
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="px-4 py-2 rounded-xl bg-gray-200 text-gray-700"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={confirmDelete}
+                className="px-4 py-2 rounded-xl bg-red-500 text-white hover:bg-red-600"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

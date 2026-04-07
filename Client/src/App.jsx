@@ -41,6 +41,7 @@ import CentreDetail from "./pages/Centre/CentreDetails.jsx";
 import UpcomingSession from "./pages/Centre/UpcomingSession.jsx"
 import EditCentre from "./pages/Centre/EditCentre.jsx";
 import InactiveCentre from "./pages/Centre/InActiveCentre.jsx";
+import AdminVerificationPanel from "./pages/VerificationPanel/AdminVerificationPanel.jsx";
 
 const App = () => {
   const dispatch = useDispatch();
@@ -117,6 +118,7 @@ const App = () => {
           <Route path ="/upcoming-session" element={<UpcomingSession/>}/>
           <Route path ="/edit-centre/:id" element={<EditCentre/>}/>
           <Route path="/inactive-centre" element={<InactiveCentre/>}/>
+          <Route path="/admin-verify" element={<AdminVerificationPanel/>} />
         </Route>
       </Routes>
       <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
