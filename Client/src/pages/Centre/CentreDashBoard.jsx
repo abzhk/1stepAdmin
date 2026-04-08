@@ -5,6 +5,7 @@ import CentreStats from "../../Components/CentreComponent/CentreStats";
 import Appointmentstats from "../../Components/CentreComponent/Appointmentstats";
 import { api } from "../../utils/api";
 import { useEffect, useState } from "react";
+import CentreCard from "./CentreCard";
 
 const CentreDashBoard = () => {
   const navigate = useNavigate();
@@ -24,7 +25,7 @@ const CentreDashBoard = () => {
         setTotalCentres(data.totalCentres || 0);
         setTotalProviders(data.totalProviders);
 
-        console.log("API DATA:", data);
+        console.log("centre-list:", data);
       } catch (err) {
         console.error(err);
       }
@@ -52,75 +53,7 @@ const CentreDashBoard = () => {
   return (
     <div className="p-6 bg-offwhite min-h-screen">
       {/* TOP CARDS */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Centres */}
-        <div className="relative bg-white rounded-4xl p-5 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-gray-100 overflow-hidden">
-          <div className="absolute -top-8 -right-8 w-28 h-28 bg-green-100 rounded-full"></div>
-
-          <div className="relative flex justify-between items-start">
-            <p className="text-gray-500 text-sm">Centres</p>
-            <FaHospital className="text-green-700 text-xl z-10" />
-          </div>
-
-          <p className="text-3xl font-bold text-green-900 mt-3">
-            {totalCentres}
-          </p>
-
-          <span className="mt-3 inline-block px-3 py-1 text-lg rounded-full bg-green-200 text-darkgreen">
-            Active
-          </span>
-        </div>
-
-        {/* Providers */}
-        <div className="relative bg-white rounded-4xl p-5 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-gray-100 overflow-hidden">
-          <div className="absolute -top-8 -right-8 w-28 h-28 bg-orange-100 rounded-full"></div>
-
-          <div className="relative flex justify-between items-start">
-            <p className="text-gray-500 text-sm">Providers</p>
-            <FaUserMd className="text-orange-600 text-xl z-10" />
-          </div>
-
-          <p className="text-3xl font-bold text-green-900 mt-3">
-            {totalProviders}
-          </p>
-
-          <span className="mt-3 inline-block px-3 py-1 text-lg rounded-full bg-orange-200 text-darkgreen">
-            Active
-          </span>
-        </div>
-
-        {/* Sessions */}
-        <div className="relative bg-white rounded-4xl p-5 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-gray-100 overflow-hidden">
-          <div className="absolute -top-8 -right-8 w-28 h-28 bg-yellow-100 rounded-full"></div>
-
-          <div className="relative flex justify-between items-start">
-            <p className="text-gray-500 text-sm">Sessions</p>
-            <FaCalendarCheck className="text-yellow-600 text-xl z-10" />
-          </div>
-
-          <p className="text-3xl font-bold text-green-900 mt-3">
-            {stats.total||"-"}
-          </p>
-
-          <span className="mt-3 inline-block px-3 py-1 text-lg rounded-full bg-yellow-100 text-darkgreen">
-            On Track
-          </span>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-10">
-        {/* Centres Graph */}
-        <div className="bg-white p-6 rounded-2xl shadow">
-          <CentreStats />
-          {/* chart here */}
-        </div>
-
-        {/* Appointments Graph */}
-        <div className="bg-white p-6 rounded-2xl shadow">
-          <Appointmentstats />
-          {/* chart here */}
-        </div>
-      </div>
+      <CentreCard/>
 
       {/* CENTRE TABLE */}
 

@@ -5,6 +5,8 @@ import {createAdmin,login,deleteProvider,
     getParentsAndProviders,
     deleteParent,updateParent,
     verifyAdminSession,
+    getAdminProfile,
+    updateAdminProfile,
 } from '../controller/admin.controller.js';
 import { verifyAdminToken } from '../middlewares/authMiddleware.js';
 import { verifyAdminOrSuperAdmin,verifySuperAdminAccess } from '../rolevalidation/roleAccessMiddleware.js';
@@ -19,6 +21,8 @@ router.post('/create-admin',createAdmin)
 router.post('/login-admin',login)
 router.post("/admin/logout", logoutAdmin);
 router.get("/verify-token",  verifyAdminSession);
+router.get("/profile", verifyAdminToken, getAdminProfile);
+router.put("/update-profile", updateAdminProfile);
 
 
 //delete provider

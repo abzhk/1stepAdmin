@@ -18,7 +18,6 @@ const SystemAlert = () => {
 
      const expiredRes = await api("/api/subscription/expired?days=0");
 
-      console.log("expiredRes:", expiredRes);
 
       const generatedAlerts = [];
 

@@ -3,7 +3,7 @@ import toast from "react-hot-toast";
 import { api } from "../../utils/api.js";
 import { storage } from "../../firebase.js";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { FaCamera,FaUser } from "react-icons/fa";
+import { FaCamera, FaUser } from "react-icons/fa";
 
 const CreateAdmin = () => {
   const fileInputRef = useRef(null);
@@ -48,8 +48,7 @@ const CreateAdmin = () => {
           (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
         setProgress(prog);
       },
-      (error) => {
-        console.error(error);
+      () => {
         toast.error("Image upload failed");
         setUploading(false);
       },
@@ -59,7 +58,6 @@ const CreateAdmin = () => {
             ...prev,
             profilePicture: downloadURL,
           }));
-
           toast.success("Image uploaded");
           setUploading(false);
         });
@@ -105,54 +103,46 @@ const CreateAdmin = () => {
   };
 
   return (
-    <div className="w-full min-h-screen bg-offwhite flex justify-center items-center">
-      <div className="w-full max-w-3xl bg-offwhite rounded-2xl p-10">
+    <div className="min-h-screen bg-Offwhite p-6 flex items-center justify-center">
+      <div className="w-full ">
 
-        <form
-          onSubmit={handleSubmit}
-          className="grid grid-cols-1 md:grid-cols-2 gap-8 p-6 shadow bg-white rounded-2xl"
-        >
+        {/* CARD */}
+         <div className="w-full relative overflow-hidden rounded-3xl bg-white p-6 shadow-xl shadow-[#8fa797]/10">
+      <div className=" w-full bg-offwhite p-6 shadow-xl shadow-[#8fa797]/10">
+      <div className="w-full bg-white rounded-2xl">
 
-          {/* ROLE */}
-          <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-gray-600 mb-2">
-              Role
-            </label>
+          {/* HEADER */}
+          <div className="relative flex flex-col items-center pb-8">
+            <div className="absolute inset-x-0 top-0 h-36 bg-gradient-to-r from-[#2d4a36] to-[#426b50] rounded-t-2xl" />
 
-            <select
-              disabled
-              className="w-full border border-gray-200 bg-gray-100 rounded-xl px-4 py-3 text-gray-500 cursor-not-allowed"
-            >
-              <option>Admin</option>
-            </select>
-          </div>
-
-
-          {/* AVATAR UPLOAD */}
-          <div className="md:col-span-2 flex flex-col items-center gap-3">
-
+            {/* AVATAR */}
             <div
               onClick={() => fileInputRef.current.click()}
-              className="relative w-28 h-28 rounded-full bg-gray-100 flex items-center justify-center cursor-pointer overflow-hidden border"
+              className="relative z-10 mt-16 h-32 w-32 cursor-pointer"
             >
+              <div className="h-full w-full rounded-full border-4 border-white overflow-hidden shadow-lg flex items-center justify-center bg-gray-100">
+                {imagePreview ? (
+                  <img
+                    src={imagePreview}
+                    alt="preview"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <FaUser className="text-gray-400 text-3xl" />
+                )}
+              </div>
 
-              {imagePreview ? (
-                <img
-                  src={imagePreview}
-                  alt="preview"
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <FaUser className="text-gray-400 text-2xl" />
-              )}
-
-              <div className="absolute bottom-0 right-4 bg-darkgreen text-white p-2 rounded-full shadow">
-                <FaCamera size={12} />
+              {/* CAMERA ICON */}
+              <div className="absolute bottom-1 right-1 bg-yellow-400 text-[#2d4a36] p-2 rounded-full shadow">
+                <FaCamera size={14} />
               </div>
             </div>
 
-            <p className="text-xs text-gray-500">
-              Click avatar to upload profile picture
+            <h2 className="mt-4 text-2xl font-bold text-[#2d4a36]">
+              Create Admin
+            </h2>
+            <p className="text-sm text-gray-500">
+              Add a new administrator account
             </p>
 
             <input
@@ -164,90 +154,101 @@ const CreateAdmin = () => {
             />
 
             {uploading && (
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-500 mt-2">
                 Uploading... {progress.toFixed(0)}%
               </p>
             )}
           </div>
 
+          {/* FORM */}
+          <div className="px-6 pb-10 pt-4 md:px-12">
+            <form onSubmit={handleSubmit}>
 
-          {/* USERNAME */}
-          <div>
-            <label className="block text-sm font-medium text-gray-600 mb-2">
-              Username
-            </label>
-
-            <input
-              type="text"
-              name="username"
-              value={formData.username}
-              onChange={handleChange}
-              placeholder="Enter username"
-              className="w-full border border-gray-200 bg-offwhite rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/40"
-            />
-          </div>
-
-
-          {/* EMAIL */}
-          <div>
-            <label className="block text-sm font-medium text-gray-600 mb-2">
-              Email 
-            </label>
-
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="Enter email"
-              className="w-full border border-gray-200 bg-offwhite rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/40"
-            />
-          </div>
-
-
-          {/* PASSWORD */}
-          <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-gray-600 mb-2">
-              Password
-            </label>
-
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="Enter password"
-              className="w-full border border-gray-200 bg-offwhite rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/40"
-            />
-          </div>
-
-
-          {/* ERROR */}
-          {error && (
-            <div className="md:col-span-2">
-              <div className="bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-lg">
-                {error}
+              {/* ROLE */}
+              <div className="mb-6">
+                <label className="block text-sm font-bold text-[#2d4a36] mb-2">
+                  Role
+                </label>
+                <input
+                  value="Admin"
+                  disabled
+                  className="w-full rounded-xl border-2 border-gray-200 bg-gray-100 p-3 text-gray-500"
+                />
               </div>
-            </div>
-          )}
 
+              {/* GRID */}
+              <div className="grid md:grid-cols-2 gap-6">
 
-          {/* SUBMIT */}
-          <div className="md:col-span-2 flex justify-end">
-            <button
-              type="submit"
-              disabled={loading || uploading}
-              className="bg-peach text-white font-medium px-10 py-3 rounded-xl shadow-md hover:shadow-lg transition disabled:opacity-60"
-            >
-              {loading
-                ? "Creating..."
-                : uploading
-                ? "Uploading Image..."
-                : "Create Admin"}
-            </button>
+                {/* USERNAME */}
+                <div>
+                  <label className="block text-sm font-bold text-[#2d4a36] mb-2">
+                    Username
+                  </label>
+                  <input
+                    type="text"
+                    name="username"
+                    value={formData.username}
+                    onChange={handleChange}
+                    className="w-full rounded-xl border-2 border-maincolor-sageGreen p-3 focus:ring-2 focus:ring-yellow-300"
+                  />
+                </div>
+
+                {/* EMAIL */}
+                <div>
+                  <label className="block text-sm font-bold text-[#2d4a36] mb-2">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className="w-full rounded-xl border-2 border-maincolor-sageGreen p-3 focus:ring-2 focus:ring-yellow-300"
+                  />
+                </div>
+
+                {/* PASSWORD */}
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-bold text-[#2d4a36] mb-2">
+                    Password
+                  </label>
+                  <input
+                    type="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    className="w-full rounded-xl border-2 border-maincolor-sageGreen p-3 focus:ring-2 focus:ring-yellow-300"
+                  />
+                </div>
+              </div>
+
+              {/* ERROR */}
+              {error && (
+                <div className="mt-4 bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-lg">
+                  {error}
+                </div>
+              )}
+
+              {/* BUTTON */}
+              <div className="mt-8 flex justify-end">
+                <button
+                  type="submit"
+                  disabled={loading || uploading}
+                  className="bg-[#2d4a36] text-white font-bold px-8 py-3 rounded-xl shadow-lg hover:scale-105 transition disabled:opacity-60"
+                >
+                  {loading
+                    ? "Creating..."
+                    : uploading
+                    ? "Uploading Image..."
+                    : "Create Admin"}
+                </button>
+              </div>
+
+            </form>
           </div>
-
-        </form>
+        </div>
+      </div>
+      </div>
       </div>
     </div>
   );

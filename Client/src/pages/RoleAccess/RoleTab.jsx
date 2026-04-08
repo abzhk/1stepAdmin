@@ -7,67 +7,56 @@ import CreateModule from "./CreateModule";
 const RoleTab = () => {
   const [activeTab, setActiveTab] = useState("view");
 
+  const tabs = [
+    { key: "view", label: "View Role & Access" },
+    { key: "create", label: "Create Role" },
+    { key: "RolebyAccess", label: "Parent & Provider View" },
+    { key: "createmodule", label: "Create Module" },
+  ];
+
   return (
-    <div className="p-4 md:p-6 ">
-      <div className="flex gap-6 mb-6">
+    <div className="flex min-h-screen w-full flex-col">
 
-        <button
-          onClick={() => setActiveTab("view")}
-          className={`pb-2 text-sm font-medium transition ${
-            activeTab === "view"
-              ? "border-b-2 border-green-600 text-green-600"
-              : "text-gray-500 hover:text-gray-700"
-          }`}
-        >
-          View Role & Access
-        </button>
+      <div className="sticky top-0 z-30 w-full pt-4 pb-2 px-4 backdrop-blur-sm">
+        <div className="mx-auto max-w-fit rounded-full bg-white p-2 shadow-sm ">
+          <nav className="flex items-center space-x-1">
 
+            {tabs.map((tab) => {
+              const isActive = activeTab === tab.key;
 
-         <button
-          onClick={() => setActiveTab("create")}
-          className={`pb-2 text-sm font-medium transition ${
-            activeTab === "create"
-              ? "border-b-2 border-green-600 text-green-600"
-              : "text-gray-500 hover:text-gray-700"
-          }`}
-        >
-          create role with permission
-        </button>
+              return (
+                <button
+                  key={tab.key}
+                  onClick={() => setActiveTab(tab.key)}
+                  className={`
+                    relative px-6 py-2.5 rounded-full text-sm font-semibold 
+                    transition-all duration-300 ease-in-out whitespace-nowrap
+                    ${isActive
+                      ? "bg-darkgreen text-yellow shadow-md scale-100"
+                      : "bg-transparent text-greenmuted hover:bg-offwhite hover:text-softpeach"
+                    }
+                  `}
+                >
+                  {tab.label}
+                </button>
+              );
+            })}
 
-
-
-          <button
-          onClick={() => setActiveTab("RolebyAccess")}
-          className={`pb-2 text-sm font-medium transition ${
-            activeTab === "RolebyAccess"
-              ? "border-b-2 border-green-600 text-green-600"
-              : "text-gray-500 hover:text-gray-700"
-          }`}
-        >
-          parent and provide role view
-        </button>
-
-
-
-         <button
-          onClick={() => setActiveTab("createmodule")}
-          className={`pb-2 text-sm font-medium transition ${
-            activeTab === "createmodule"
-              ? "border-b-2 border-green-600 text-green-600"
-              : "text-gray-500 hover:text-gray-700"
-          }`}
-        >
-          Create Module
-        </button>
+          </nav>
+        </div>
       </div>
 
-      {/* {activeTab === "create" && <CreateRole />} */}
-      {activeTab === "view" && <ViewRole />}
-      {/* {activeTab === "permission" && <PermissionView />}
-      {activeTab === "createpermission" && <CreatePermission />} */}
-      {activeTab === "create" && <Createrole />}
-      {activeTab === "RolebyAccess" && <RolebyAccessView />}
-      {activeTab === "createmodule" && <CreateModule/>}
+
+      <div className="w-full mx-auto px-4 mt-1 pb-20">
+        <div className="">
+
+          {activeTab === "view" && <ViewRole />}
+          {activeTab === "create" && <Createrole />}
+          {activeTab === "RolebyAccess" && <RolebyAccessView />}
+          {activeTab === "createmodule" && <CreateModule />}
+
+        </div>
+      </div>
     </div>
   );
 };

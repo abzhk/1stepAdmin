@@ -187,6 +187,87 @@ export const verifyAdminSession = async (req, res) => {
   }
 };
 
+//get admin 
+export const getAdminProfile = async (req, res) => {
+  try {
+    const token = req.cookies.token;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    const user = await User.findById(decoded.id).populate("role");
+
+    if (!user) {
+      return res.status(404).json({ success: false });
+    }
+
+    res.status(200).json({
+      success: true,
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        role: user.role.role,
+        profilePicture: user.profilePicture,
+      },
+    });
+  } catch (err) {
+    res.status(401).json({ success: false });
+  }
+};
+//update admin profile
+export const updateAdminProfile = async (req, res) => {
+  try {
+    const token = req.cookies.token;
+
+    if (!token) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    const { username, profilePicture } = req.body;
+
+    if (!username || username.trim() === "") {
+      return res.status(400).json({
+        success: false,
+        message: "Username is required",
+      });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      decoded.id,
+      {
+        username: username.trim(),
+        profilePicture,
+      },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      user: {
+        id: updatedUser._id,
+        username: updatedUser.username,
+        email: updatedUser.email,
+        profilePicture: updatedUser.profilePicture,
+      },
+    });
+  } catch (err) {
+    console.error("Update profile error:", err);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to update profile",
+    });
+  }
+};
+
 
 //updateprovider details byadmin
 export const updateProvider = async (req, res,next) => {

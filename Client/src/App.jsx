@@ -3,8 +3,8 @@ import { Route, Routes, Navigate } from "react-router-dom";
 import Login from "./pages/Login.jsx";
 import MainDashboard from "./pages/Dashboard/MainDashboard.jsx";
 import Layout from "./Components/Layout.jsx";
-import Categories from "./pages/Categories/AddCategories.jsx";
-import ViewCategories from "./pages/Categories/ViewCategories.jsx";
+import Categories from "./pages/ArticleCategories/AddCategories.jsx";
+import ViewCategories from "./pages/ArticleCategories/ViewCategories.jsx";
 import ViewArticle from "./pages/Article/ViewArticle.jsx";
 import AddAssessmentCategory from "./pages/Assessment/AddAssessmentCategory.jsx";
 import ProviderAssessment from "./pages/Assessment/ProviderAssessment.jsx";
@@ -16,7 +16,7 @@ import EditProvider from "./pages/Provider/EditProvider.jsx";
 import EditParent from "./pages/parent/EditParent.jsx";
 import PrivateRoute from "./pages/PrivateRoute.jsx";
 import CreateAdmin from "./pages/CreateUser/CreateAdmin.jsx";
-import UserTab from "./pages/CreateUser/UserTab.jsx";
+// import UserTab from "./pages/CreateUser/UserTab.jsx";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import { setUser, logout } from "./redux/slice/authSlice.js";
@@ -42,6 +42,9 @@ import UpcomingSession from "./pages/Centre/UpcomingSession.jsx"
 import EditCentre from "./pages/Centre/EditCentre.jsx";
 import InactiveCentre from "./pages/Centre/InActiveCentre.jsx";
 import AdminVerificationPanel from "./pages/VerificationPanel/AdminVerificationPanel.jsx";
+import AdminProfile from "./pages/Settings/AdminProfile.jsx";
+import ProfileSettings from "./pages/Settings/ProfileSettings.jsx";
+import Help from "./pages/HelpDesk/Help.jsx";
 
 const App = () => {
   const dispatch = useDispatch();
@@ -61,6 +64,7 @@ const App = () => {
           dispatch(logout());
         }
       } catch (error) {
+        console.error("Error restoring session:", error);
         dispatch(logout());
       }
     };
@@ -96,7 +100,7 @@ const App = () => {
           <Route path="/providers/edit/:id" element={<EditProvider />} />
           <Route path="/parent/edit/:parentId" element={<EditParent />} />
           <Route path="/create-admin" element={<CreateAdmin />} />
-          <Route path="/create-admin-role" element={<UserTab />} />
+          {/* <Route path="/create-admin-role" element={<UserTab />} /> */}
           <Route path="/create-Role" element={<RoleTab />} />
           <Route path="/view-plans" element={<Plans />} />
           <Route path="/add-plans" element={<Addplans />} />
@@ -119,6 +123,9 @@ const App = () => {
           <Route path ="/edit-centre/:id" element={<EditCentre/>}/>
           <Route path="/inactive-centre" element={<InactiveCentre/>}/>
           <Route path="/admin-verify" element={<AdminVerificationPanel/>} />
+          <Route path="/admin-profile" element={<AdminProfile/>} />
+          <Route path="/profile-settings" element={<ProfileSettings/>} />
+          <Route path="/help" element={<Help/>} />
         </Route>
       </Routes>
       <Toaster position="top-right" toastOptions={{ duration: 3000 }} />

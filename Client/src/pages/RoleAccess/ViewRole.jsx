@@ -1,33 +1,24 @@
 import React, { useState, useEffect } from "react";
-import { FiEdit2, FiTrash2 } from "react-icons/fi";
+import { FiEdit2, FiChevronDown, FiChevronUp } from "react-icons/fi";
 import CreateRP from "./CreateRoleandPermission";
 import { api } from "../../utils/api.js";
 
 const ViewRole = () => {
   const [roles, setRoles] = useState([]);
-  const [loading, setLoading] = useState();
-  const [error, setError] = useState();
+  const [expandedRow, setExpandedRow] = useState(null);
   const [editingRole, setEditingRole] = useState(null);
 
   useEffect(() => {
     const fetchRoles = async () => {
-      try {
-        setLoading(true);
-        setError("");
-
-        const data = await api(`/api/role/all`);
-
-
-        setRoles(data.roles || []);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
+      const data = await api(`/api/role/all`);
+      setRoles(data.roles || []);
     };
-
     fetchRoles();
   }, []);
+
+  const toggleRow = (id) => {
+    setExpandedRow(expandedRow === id ? null : id);
+  };
 
   const handleEdit = (id) => {
     const roleToEdit = roles.find((r) => r._id === id);
@@ -35,93 +26,96 @@ const ViewRole = () => {
   };
 
   return (
-    <div className="bg-secondary p-4">
+    <div className="bg-secondary p-6">
       <div className="bg-white rounded-2xl shadow-sm p-6">
-        <h2 className="text-xl font-semibold text-gray-800 mb-6">View Roles</h2>
+        <h2 className="text-xl font-semibold text-gray-800 mb-6">
+          Role Management
+        </h2>
 
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="bg-gray-100 text-left text-sm text-gray-600">
-                <th className="px-4 py-3 rounded-l-lg">Role Name</th>
-                <th className="px-4 py-3">Permissions</th>
-                <th className="px-4 py-3 rounded-r-lg text-center">Actions</th>
-              </tr>
-            </thead>
-
-            <tbody className="text-sm text-gray-700">
-              {roles.map((role) => (
-                <tr
-                  key={role._id}
-                  className="border-b last:border-none hover:bg-gray-50 align-top"
+        <div className="space-y-4">
+          {roles.map((role) => (
+            <div
+              key={role._id}
+              className="border rounded-xl overflow-hidden"
+            >
+              {/* HEADER */}
+              <div className="flex justify-between items-center px-5 py-4 bg-offwhite hover:bg-white transition">
+                <div
+                  className="flex items-center gap-3 cursor-pointer w-full"
+                  onClick={() => toggleRow(role._id)}
                 >
-                  <td className="px-4 py-4 font-semibold">{role.role}</td>
+                  <span className="font-semibold text-gray-800">
+                    {role.role}
+                  </span>
 
-                  <td className="px-4 py-4">
-                    <div className="space-y-3">
-                      {role.permissions.map((perm) => (
-                        <div
-                          key={perm.module}
-                          className="grid grid-cols-[160px_1fr] items-start"
-                        >
-                          <span className="font-medium capitalize text-gray-800">
-                            {perm.module}
-                          </span>
+                  {expandedRow === role._id ? (
+                    <FiChevronUp />
+                  ) : (
+                    <FiChevronDown />
+                  )}
+                </div>
 
-                          <div className="flex flex-wrap gap-2">
-                            {perm.actions.map((action) => (
-                              <span
-                                key={action}
-                                className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-700"
-                              >
-                                {action}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </td>
-
-                  <td className="px-4 py-4">
-                    <div className="">
-                      <button
-                        onClick={() => handleEdit(role._id)}
-                        className="p-2 rounded-lg text-blue-600 hover:bg-blue-50"
-                      >
-                        <FiEdit2 size={16} />
-                      </button>
-
-                      {/* <button className="p-2 rounded-lg text-red-600 hover:bg-red-50">
-                        <FiTrash2 size={16} />
-                      </button> */}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {editingRole && (
-            <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-              <div className="bg-white rounded-xl w-full max-w-6xl max-h-[90vh] overflow-y-auto">
-                <CreateRP
-                  mode="edit"
-                  roleData={editingRole}
-                  onClose={() => setEditingRole(null)}
-                  onSuccess={() => {
-                    setEditingRole(null);
-                    window.location.reload();
-                  }}
-                />
+                <button
+                  onClick={() => handleEdit(role._id)}
+                  className="p-2 rounded-lg text-blue-600 hover:bg-blue-50"
+                >
+                  <FiEdit2 size={16} />
+                </button>
               </div>
-            </div>
-          )}
 
-          {roles.length === 0 && (
-            <p className="text-center text-gray-500 py-6">No roles found</p>
-          )}
+              {/* EXPANDED PERMISSIONS */}
+              {expandedRow === role._id && (
+                <div className="p-5 border-t bg-white">
+                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[300px] overflow-y-auto pr-2 ">
+                    {role.permissions.map((perm) => (
+                      <div
+                        key={perm.module}
+                        className="border-greenmuted/20  rounded-3xl p-4 bg-darkgreen hover:shadow-sm transition"
+                      >
+                        <h4 className="font-semibold text-white mb-3 capitalize">
+                          {perm.module}
+                        </h4>
+
+                        <div className="flex flex-wrap gap-2">
+                          {perm.actions.map((action) => (
+                            <span
+                              key={action}
+                              className="px-2 py-1 text-xs rounded-full bg-yellow text-black"
+                            >
+                              {action}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
         </div>
+
+        {roles.length === 0 && (
+          <p className="text-center text-gray-500 py-6">No roles found</p>
+        )}
       </div>
+
+      {/* EDIT MODAL */}
+      {editingRole && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl w-full max-w-6xl max-h-[90vh] overflow-y-auto">
+            <CreateRP
+              mode="edit"
+              roleData={editingRole}
+              onClose={() => setEditingRole(null)}
+              onSuccess={() => {
+                setEditingRole(null);
+                window.location.reload();
+              }}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
