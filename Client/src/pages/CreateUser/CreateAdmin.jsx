@@ -132,7 +132,7 @@ const CreateAdmin = () => {
                 )}
               </div>
 
-              {/* CAMERA ICON */}
+              {/*ICON */}
               <div className="absolute bottom-1 right-1 bg-yellow-400 text-[#2d4a36] p-2 rounded-full shadow">
                 <FaCamera size={14} />
               </div>
@@ -141,7 +141,7 @@ const CreateAdmin = () => {
             <h2 className="mt-4 text-2xl font-bold text-[#2d4a36]">
               Create Admin
             </h2>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-greenmuted">
               Add a new administrator account
             </p>
 
@@ -166,13 +166,13 @@ const CreateAdmin = () => {
 
               {/* ROLE */}
               <div className="mb-6">
-                <label className="block text-sm font-bold text-[#2d4a36] mb-2">
+                <label className="mb-2 block text-sm font-bold tracking-wide text-[#2d4a36]">
                   Role
                 </label>
                 <input
                   value="Admin"
                   disabled
-                  className="w-full rounded-xl border-2 border-gray-200 bg-gray-100 p-3 text-gray-500"
+                  className="w-full rounded-xl border-2 border-greenmuted bg-gray-200 p-3 text-gray-500"
                 />
               </div>
 
@@ -181,7 +181,7 @@ const CreateAdmin = () => {
 
                 {/* USERNAME */}
                 <div>
-                  <label className="block text-sm font-bold text-[#2d4a36] mb-2">
+                  <label className="mb-2 block text-sm font-bold tracking-wide text-[#2d4a36]">
                     Username
                   </label>
                   <input
@@ -189,13 +189,13 @@ const CreateAdmin = () => {
                     name="username"
                     value={formData.username}
                     onChange={handleChange}
-                    className="w-full rounded-xl border-2 border-maincolor-sageGreen p-3 focus:ring-2 focus:ring-yellow-300"
+                    className="w-full rounded-xl border-2 border-greenmuted p-3 focus:outline-none focus:ring-2 focus:ring-yellow"
                   />
                 </div>
 
                 {/* EMAIL */}
                 <div>
-                  <label className="block text-sm font-bold text-[#2d4a36] mb-2">
+                  <label className="mb-2 block text-sm font-bold tracking-wide text-[#2d4a36]">
                     Email
                   </label>
                   <input
@@ -203,13 +203,13 @@ const CreateAdmin = () => {
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    className="w-full rounded-xl border-2 border-maincolor-sageGreen p-3 focus:ring-2 focus:ring-yellow-300"
+                    className="w-full rounded-xl border-2 border-greenmuted p-3 focus:outline-none focus:ring-2 focus:ring-yellow"
                   />
                 </div>
 
                 {/* PASSWORD */}
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-bold text-[#2d4a36] mb-2">
+                  <label className="mb-2 block text-sm font-bold tracking-wide text-[#2d4a36]">
                     Password
                   </label>
                   <input
@@ -217,7 +217,7 @@ const CreateAdmin = () => {
                     name="password"
                     value={formData.password}
                     onChange={handleChange}
-                    className="w-full rounded-xl border-2 border-maincolor-sageGreen p-3 focus:ring-2 focus:ring-yellow-300"
+                    className="w-full rounded-xl border-2 border-greenmuted p-3 focus:outline-none focus:ring-2 focus:ring-yellow"
                   />
                 </div>
               </div>
@@ -234,7 +234,7 @@ const CreateAdmin = () => {
                 <button
                   type="submit"
                   disabled={loading || uploading}
-                  className="bg-[#2d4a36] text-white font-bold px-8 py-3 rounded-xl shadow-lg hover:scale-105 transition disabled:opacity-60"
+                  className="bg-[#2d4a36]  text-white font-bold px-8 py-3 rounded-xl shadow-lg hover:scale-105 transition disabled:opacity-60"
                 >
                   {loading
                     ? "Creating..."

@@ -90,9 +90,9 @@ const handleEdit = (id) => {
 
 
   return (
-    <div className="p-6 bg-secondary min-h-screen">
+    <div className="p-6 bg-offwhite min-h-screen">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-800">
+        <h2 className="text-xl font-semibold text-[#2d4a36] tracking-tight">
           No of Categories: {totalCount}
         </h2>
         <button
@@ -103,28 +103,28 @@ const handleEdit = (id) => {
         </button>
       </div>
 
-      <div className="flex-1 bg-white p-6 rounded-2xl shadow-sm border border-secondary overflow-x-auto">
-        <table className="w-full table-auto">
+      <div className="flex-1 bg-white p-8 rounded-2xl shadow-sm  overflow-x-auto">
+        <table className="w-full table-auto shadow-sm rounded-2xl">
           <thead>
-            <tr className="bg-gray-100 text-left">
-              <th className="p-3">S.No</th>
-              <th className="p-3">Category Name</th>
-               <th className="p-3">Icon</th>
-              <th className="p-3">Color</th>
-              <th className="p-3">Order</th>
+            <tr className="bg-offwhite  text-left">
+              <th className="px-4 sm:px-6 py-4 text-left text-xs font-semibold text-[#8fa797] uppercase tracking-wider">S.No</th>
+              <th className="px-4 sm:px-6 py-4 text-left text-xs font-semibold text-[#8fa797] uppercase tracking-wider">Category Name</th>
+               <th className="px-4 sm:px-6 py-4 text-left text-xs font-semibold text-[#8fa797] uppercase tracking-wider">Icon</th>
+              <th className="px-4 sm:px-6 py-4 text-left text-xs font-semibold text-[#8fa797] uppercase tracking-wider">Color</th>
+              <th className="px-4 sm:px-6 py-4 text-left text-xs font-semibold text-[#8fa797] uppercase tracking-wider">Order</th>
               {/* <th className="p-3">Article Count</th> */}
-              <th className="p-3">Actions</th>
+              <th className="px-4 sm:px-6 py-4 text-left text-xs font-semibold text-[#8fa797] uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
 
           <tbody className="divide-y divide-gray-100">
             {visibleCategories.map((item, index) => (
-              <tr key={item._id} className="hover:bg-gray-50 transition">
-                <td className="p-3 font-bold">{(currentPage - 1) * PAGE_SIZE + index + 1}</td>
-                <td className="p-3">{item.name}</td>
-                <td className="p-3">{item.icon}</td>
-                <td className="p-3">{item.color}</td>
-                <td className="p-3">{item.order}</td>
+              <tr key={item._id} className="hover:bg-[#F6F4F0]/50 transition-colors group">
+                <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm font-bold text-[#2d4a36]">{(currentPage - 1) * PAGE_SIZE + index + 1}</td>
+                <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm font-bold text-[#2d4a36]">{item.name}</td>
+                <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm font-bold text-[#2d4a36]">{item.icon}</td>
+                <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm font-bold text-[#2d4a36]">{item.color}</td>
+                <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm font-bold text-[#2d4a36]">{item.order}</td>
                 {/* <td className="p-3">{item.articleCount}</td> */}
 
                 <td className="p-3 flex gap-2">

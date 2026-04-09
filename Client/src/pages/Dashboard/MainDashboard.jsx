@@ -8,7 +8,7 @@ import StatisticsCard from "../../Components/DashboardComponent/StatisticsCard.j
 import CardCountDashboard from "../../Components/DashboardComponent/CountCardDashboard.jsx";
 import BarGraph from "../../Components/DashboardComponent/BarGraph.jsx";
 import SystemAlert from "../../Components/DashboardComponent/SystemAlert.jsx";
-import PlanCard from "../../Components/DashboardComponent/PlanCard.jsx";
+import HelpDeskCard from "../../Components/DashboardComponent/HelpDeskCard.jsx";
 
 const MainDashboard = () => {
   const navigate = useNavigate();
@@ -29,38 +29,38 @@ const MainDashboard = () => {
   const quickActions = [
     {
       icon: TbCategoryPlus,
-      label: "Add Category",
-      color: "bg-purple-100 text-purple-600",
+      label: "Add Article Category",
+      color: "bg-purple-50 text-purple-600",
       onClick: () => navigate("/viewcat"),
     },
     {
       icon: MdArticle,
       label: "Article",
-      color: "bg-indigo-100 text-indigo-600",
+      color: "bg-indigo-50 text-indigo-600",
       onClick: () => navigate("/viewarticle"),
     },
     {
       icon: MdRateReview,
       label: "Add Assessment",
-      color: "bg-green-100 text-green-600",
+      color: "bg-green-50 text-green-600 border border-greenmuted/20",
       onClick: () => navigate("/addassessment"),
     },
     {
       icon: TbReportSearch,
       label: "Reports",
-      color: "bg-orange-100 text-orange-600",
+      color: "bg-orange-50 text-orange-600  border border-greenmuted/20",
       onClick: () => navigate("/reportdashboard"),
     },
     {
       icon: FaUsers,
       label: "Roles & Access",
-      color: "bg-pink-100 text-pink-600",
+      color: "bg-pink-50 text-pink-600  border border-greenmuted/20",
       onClick: () => navigate("/create-Role"),
     },
     {
       icon: FaCog,
       label: "Master Data",
-      color: "bg-gray-100 text-gray-600",
+      color: "bg-gray-100 text-gray-600  border border-greenmuted/20",
       onClick: () => navigate("/master-data"),
     },
   ];
@@ -75,14 +75,14 @@ const MainDashboard = () => {
         </div>
 
         <div className="lg:col-span-1">
-          <PlanCard />
+          <HelpDeskCard />
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
         {/* Quick Actions */}
         <div className="bg-white rounded-4xl shadow-sm border border-gray-200 p-5">
-          <h3 className="text-lg font-semibold mb-5">Quick Actions</h3>
+          <h3 className="text-lg font-bold text-[#2d4a36] mb-5">Quick Actions</h3>
 
           <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
             {quickActions.map((action, index) => (
@@ -90,7 +90,7 @@ const MainDashboard = () => {
                 key={index}
                 onClick={action.onClick}
                 className="flex flex-col items-center justify-center p-5 rounded-2xl 
-                             bg-gray-50 hover:bg-white 
+                             bg-offwhite hover:bg-white 
                              border border-transparent hover:border-gray-200
                              transition-all duration-200 group"
               >
@@ -99,13 +99,15 @@ const MainDashboard = () => {
                 >
                   <action.icon className="text-xl" />
                 </div>
-                <span className="text-sm font-medium text-gray-700 text-center">
+                <span className="text-sm font-semibold text-greenmuted text-center">
                   {action.label}
                 </span>
               </button>
             ))}
           </div>
         </div>
+
+        {/* system Alert */}
         <div className="space-y-6">
           <SystemAlert />
         </div>

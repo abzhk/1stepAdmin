@@ -1,0 +1,97 @@
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { FiArrowRight } from "react-icons/fi";
+
+// STATUS BADGE
+const StatusBadge = ({ status }) => {
+  const styles = {
+    Open: "bg-red-50 text-red-500",
+    "In Progress": "bg-yellow-50 text-yellow-600",
+    Resolved: "bg-green-50 text-green-600",
+  };
+
+  return (
+    <span className={`px-2 py-0.5 text-[10px] rounded-full ${styles[status]}`}>
+      {status}
+    </span>
+  );
+};
+
+// MOCK DATA
+const mockMessages = [
+  { id: 1, name: "Ram", subject: "Login Issue", message: "Unable to login since yesterday", status: "Open", date: "10 Apr" },
+  { id: 2, name: "Mary", subject: "Payment Failed", message: "Payment is not going through", status: "In Progress", date: "09 Apr" },
+  { id: 3, name: "Alex", subject: "Account Locked", message: "Account locked issue", status: "Resolved", date: "08 Apr" },
+  { id: 4, name: "Priya", subject: "App Crash", message: "Dashboard crashes when opening", status: "Open", date: "07 Apr" },
+  { id: 5, name: "Rahul", subject: "Subscription Issue", message: "Subscription not updated", status: "In Progress", date: "06 Apr" },
+  { id: 6, name: "John", subject: "Profile Error", message: "Unable to update profile", status: "Resolved", date: "05 Apr" },
+];
+
+const HelpDeskCard = () => {
+  const navigate = useNavigate();
+
+  return (
+    <div className="h-[380px] bg-white rounded-3xl shadow-md p-6 flex flex-col">
+
+      {/* HEADER */}
+      <div className="flex justify-between items-center mb-5">
+        <h3 className="text-lg font-bold tracking-wide text-[#2d4a36]">
+          Help Desk Activity
+        </h3>
+
+        <span className="text-xs px-3 py-1 rounded-full bg-gray-100 text-gray-600">
+          {mockMessages.length}
+        </span>
+      </div>
+
+      {/* LIST */}
+      <div className="flex-1 overflow-y-auto space-y-2 pr-1 scrollbar-hide">
+        {mockMessages.map((item) => (
+          <div
+            key={item.id}
+            className="flex justify-between items-center p-3 rounded-xl hover:bg-offwhite transition group"
+          >
+            
+            {/* LEFT */}
+            <div className="flex gap-3 items-center">
+              
+              {/* Avatar */}
+              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#2d4a36] to-[#426b50] text-white flex items-center justify-center text-sm font-semibold shadow-sm">
+                {item.name.charAt(0)}
+              </div>
+
+              {/* Text */}
+              <div>
+                <p className="text-sm font-medium text-gray-800 group-hover:text-black">
+                  {item.subject}
+                </p>
+
+                <p className="text-xs text-gray-400 line-clamp-1">
+                  {item.message}
+                </p>
+              </div>
+            </div>
+
+            {/* RIGHT */}
+            <div className="text-right">
+              <StatusBadge status={item.status} />
+              <p className="text-[10px] text-gray-400 mt-1">{item.date}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* FOOTER */}
+      <div className="pt-4 flex justify-end">
+        <button
+          onClick={() => navigate("/all-complaints")}
+          className="bg-gradient-to-r from-[#2d4a36] to-[#426b50] text-white p-3 rounded-full hover:scale-105 transition shadow-md"
+        >
+          <FiArrowRight />
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default HelpDeskCard;

@@ -146,11 +146,11 @@ const AdminProfile = () => {
             className="hidden"
           />
 
-          <h2 className="mt-4 text-2xl font-bold">
+          <h2 className="mt-4 text-2xl font-bold text-[#2d4a36]">
             {form.username || "Admin"}
           </h2>
 
-          <p className="text-sm text-mainColor-sageGreen">
+          <p className="text-sm text-[#2d4a36]">
             Manage your profile information
           </p>
         </div>
@@ -168,7 +168,7 @@ const AdminProfile = () => {
 
             {/* USERNAME */}
             <div>
-              <label className="text-sm font-semibold">Username</label>
+              <label className="text-sm font-bold tracking-wide text-[#2d4a36]">Username</label>
               <input
                 type="text"
                 disabled={!edit}
@@ -182,7 +182,7 @@ const AdminProfile = () => {
 
             {/* EMAIL */}
             <div>
-              <label className="text-sm font-semibold">Email</label>
+              <label className="text-sm font-bold tracking-wide text-[#2d4a36]">Email</label>
               <input
                 type="email"
                 value={form.email}
@@ -193,7 +193,7 @@ const AdminProfile = () => {
 
             {/* ROLE */}
             <div>
-              <label className="text-sm font-semibold">Role</label>
+              <label className="text-sm font-bold tracking-wide text-[#2d4a36]">Role</label>
               <div className="mt-2 p-3 rounded-xl bg-softpeach/70  text-white font-semibold">
                 {user.role}
               </div>

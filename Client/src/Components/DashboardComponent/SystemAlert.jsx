@@ -57,15 +57,15 @@ const SystemAlert = () => {
 
   const alertConfig = {
     critical: {
-      icon: <RiErrorWarningFill className="text-red-500 text-5xl" />,
+      icon: <RiErrorWarningFill className="text-red-500 text-5xl h-10 w-10" />,
       bar: "bg-red-500",
     },
     warning: {
-      icon: <AiFillWarning className="text-yellow-400 text-5xl" />,
+      icon: <AiFillWarning className="text-yellow-400 text-5xl h-10 w-10" />,
       bar: "bg-yellow-400",
     },
     info: {
-      icon: <MdInfo className="text-blue-500 text-5xl" />,
+      icon: <MdInfo className="text-blue-500 text-5xl h-10 w-10" />,
       bar: "bg-blue-400",
     },
   };
@@ -76,23 +76,23 @@ const SystemAlert = () => {
         
         {/* Header */}
         <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
-          <h3 className="text-lg font-semibold text-gray-800">
+          <h3 className="text-lg font-bold text-[#2d4a36]">
             System Alert
           </h3>
 
-          {/* Legend */}
-          <div className="flex items-center gap-6 text-sm font-medium text-gray-700">
+          {/*Warnings*/}
+          <div className="flex items-center gap-6 text-sm font-medium text-greenmuted">
             <div className="flex items-center gap-2">
               <RiErrorWarningFill className="text-red-500 text-3xl" />
               <span>critical</span>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 text-sm font-medium text-greenmuted">
               <AiFillWarning className="text-yellow-400 text-3xl" />
               <span>warning</span>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 text-sm font-medium text-greenmuted">
               <MdInfo className="text-blue-500 text-3xl" />
               <span>info</span>
             </div>
@@ -116,7 +116,7 @@ const SystemAlert = () => {
               return (
                 <div
                   key={index}
-                  className="flex items-center bg-gray-100 rounded-xl overflow-hidden"
+                  className="flex items-center bg-offwhite rounded-xl overflow-hidden"
                 >
 
                   <div className={`w-2 h-full ${config.bar}`} />
@@ -125,7 +125,7 @@ const SystemAlert = () => {
                   <div className="px-5">{config.icon}</div>
 
 
-                  <p className="text-md text-gray-800 font-medium pr-4">
+                  <p className="text-md font-medium text-greenmuted  pr-4">
                     {alert.message}
                   </p>
                 </div>

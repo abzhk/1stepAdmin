@@ -1,12 +1,14 @@
 import React, { useState } from "react";
+import {  useNavigate } from "react-router-dom";
 
-// 🔷 STATUS BADGE
+//  STATUS BADGE
 const StatusBadge = ({ status }) => {
   const styles = {
     Open: "bg-peach text-darkgreen",
     "In Progress": "bg-yellow text-darkgreen",
     Resolved: "bg-greenmuted text-darkgreen",
   };
+
 
   return (
     <span className={`px-3 py-1 text-xs rounded-full font-medium ${styles[status]}`}>
@@ -15,7 +17,7 @@ const StatusBadge = ({ status }) => {
   );
 };
 
-// 🔷 IMAGE MODAL
+//  IMAGE MODAL
 const ImageModal = ({ src, onClose }) => {
   if (!src) return null;
 
@@ -33,7 +35,7 @@ const ImageModal = ({ src, onClose }) => {
   );
 };
 
-// 🔷 MOCK DATA
+//  MOCK DATA
 const mockTickets = [
   {
     id: "1Step-2026-001",
@@ -98,9 +100,11 @@ const mockTickets = [
 ];
 
 // MAIN COMPONENT
-export default function Helpdesk() {
+const Help = () => {
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [filter, setFilter] = useState("All");
+
+    const navigate = useNavigate();
 
   const filteredTickets =
     filter === "All"
@@ -115,7 +119,11 @@ export default function Helpdesk() {
           {/* HEADER */}
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-2xl font-semibold text-darkgreen">Helpdesk</h1>
-           
+            <button onClick={() => navigate("/all-complaints")} className="px-4 py-2 bg-darkgreen text-white rounded-xl">All Complaints</button>
+            {/* <input
+              placeholder="Search..."
+              className="border px-4 py-2 rounded-xl w-64 focus:outline-none"
+            /> */}
           </div>
 
           {/* FILTER */}
@@ -330,3 +338,5 @@ const TicketDetails = ({ ticket, goBack }) => {
     </div>
   );
 };
+
+export default Help;

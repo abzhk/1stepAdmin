@@ -135,19 +135,19 @@ function EditProvider() {
               <button
                 type="submit"
                 disabled={loading}
-                className="rounded-xl bg-button px-6 py-2 text-white"
+                className="rounded-xl bg-darkgreen px-6 py-2 text-white"
               >
                 {loading ? "Updating..." : "Update"}
               </button>
             </div>
 
             <div className="rounded-2xl  bg-white p-6 shadow-sm">
-              <h2 className="mb-4 text-lg font-semibold text-gray-800">
+              <h2 className="mb-4 text-2xl font-bold text-[#2d4a36]">
                 Basic Information
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <label>
+                <label className="mb-2 block text-sm font-bold tracking-wide text-[#2d4a36]">
                   Full Name
                   <input
                     name="fullName"
@@ -157,10 +157,10 @@ function EditProvider() {
                     required
                     pattern="^[A-Za-z\s]+$"
                     title="Only alphabets are allowed"
-                    className="w-full rounded-xl border border-gray-200 bg-offwhite px-4 py-2 focus:border-lightbutton focus:ring-lightbutton outline-none"
+                    className="w-full rounded-xl border-2 border-gray-400 bg-white p-3 text-[#2d4a36] shadow-sm transition-all duration-200 focus:border-[#ffd333] focus:outline-none focus:ring-0"
                   />
                 </label>
-                <label>
+                <label className="mb-2 block text-sm font-bold tracking-wide text-[#2d4a36]">
                   Email
                   <input
                     name="email"
@@ -168,71 +168,71 @@ function EditProvider() {
                     value={formData.email}
                     onChange={handleChange}
                     placeholder="Email Address"
-                    className="w-full rounded-xl  border border-gray-200  bg-offwhite px-4 py-2 focus:border-lightbutton focus:ring-lightbutton outline-none"
+                    className="w-full rounded-xl border-2 border-gray-400 bg-white p-3 text-[#2d4a36] shadow-sm transition-all duration-200 focus:border-[#ffd333] focus:outline-none focus:ring-0"
                   />
                 </label>
-                <label>
+                <label className="mb-2 block text-sm font-bold tracking-wide text-[#2d4a36]">
                   Phone
                   <input
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
                     placeholder="Phone Number"
-                    className="w-full rounded-xl border border-gray-200 bg-offwhite px-4 py-2 focus:border-lightbutton focus:ring-lightbutton outline-none"
+                    className="w-full rounded-xl border-2 border-gray-400 bg-white p-3 text-[#2d4a36] shadow-sm transition-all duration-200 focus:border-[#ffd333] focus:outline-none focus:ring-0"
                   />
                 </label>
-                <label>
+                <label className="mb-2 block text-sm font-bold tracking-wide text-[#2d4a36]">
                   Provider Type
                   <select
                     name="providerType"
                     value={formData.providerType}
                     onChange={handleChange}
-                    className="w-full rounded-xl border border-gray-200 bg-offwhite px-4 py-2 bg-white focus:border-lightbutton focus:ring-lightbutton outline-none"
+                    className="w-full rounded-xl border-2 border-gray-400 bg-white p-3 text-[#2d4a36] shadow-sm transition-all duration-200 focus:border-[#ffd333] focus:outline-none focus:ring-0"
                   >
                     <option value="individual">Individual</option>
                     <option value="centre">Centre</option>
                   </select>
                 </label>
               </div>
-            </div>
+            
 
-            <div className="rounded-2xl  bg-white p-6 shadow-sm mt-4">
-              <h2 className="mb-4 text-lg font-semibold text-gray-800">
+            <div className="rounded-2xl mt-20">
+              <h2 className="mb-4 text-2xl font-bold text-[#2d4a36]">
                 Professional Details
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <label>
+                <label className="mb-2 block text-sm font-bold tracking-wide text-[#2d4a36]">
                   Qualification
                   <input
                     name="qualification"
                     value={formData.qualification}
                     onChange={handleChange}
                     placeholder="Qualification"
-                    className="w-full rounded-xl border border-gray-200 bg-offwhite px-4 py-2 focus:border-lightbutton focus:ring-lightbutton outline-none"
+                    className="w-full rounded-xl border-2 border-gray-400 bg-white p-3 text-[#2d4a36] shadow-sm transition-all duration-200 focus:border-[#ffd333] focus:outline-none focus:ring-0"
                   />
                 </label>
-                <label>
+                <label className="mb-2 block text-sm font-bold tracking-wide text-[#2d4a36]">
                   Experience
                   <input
                     name="experience"
                     value={formData.experience}
                     onChange={handleChange}
                     placeholder="Experience"
-                    className="w-full rounded-xl border border-gray-200 bg-offwhite px-4 py-2 focus:border-lightbutton focus:ring-lightbutton outline-none"
+                    className="w-full rounded-xl border-2 border-gray-400 bg-white p-3 text-[#2d4a36] shadow-sm transition-all duration-200 focus:border-[#ffd333] focus:outline-none focus:ring-0"
                   />
                 </label>
-                <label>
+                <label className="mb-2 block text-sm font-bold tracking-wide text-[#2d4a36]">
                   License
                   <input
                     name="license"
                     value={formData.license}
                     onChange={handleChange}
                     placeholder="License Number"
-                    className="w-full rounded-xl border border-gray-200  bg-offwhite px-4 py-2 focus:border-lightbutton focus:ring-lightbutton outline-none"
+                    className="w-full rounded-xl border-2 border-gray-400 bg-white p-3 text-[#2d4a36] shadow-sm transition-all duration-200 focus:border-[#ffd333] focus:outline-none focus:ring-0"
                   />
                 </label>
-                <label>
+                <label className="mb-2 block text-sm font-bold tracking-wide text-[#2d4a36]">
                   Consultation Fee
                   <input
                     name="regularPrice"
@@ -241,7 +241,7 @@ function EditProvider() {
                     onChange={handleChange}
                     min="0"
                     placeholder="Consultation Fee"
-                    className="w-full rounded-xl border border-gray-200 bg-offwhite px-4 py-2 focus:border-lightbutton focus:ring-lightbutton outline-none"
+                    className="w-full rounded-xl border-2 border-gray-400 bg-white p-3 text-[#2d4a36] shadow-sm transition-all duration-200 focus:border-[#ffd333] focus:outline-none focus:ring-0"
                   />
                 </label>
               </div>
@@ -311,18 +311,19 @@ function EditProvider() {
   ))}
 </select>
 </div>
-                <label>
+                <label className="mb-2 block text-sm font-bold tracking-wide text-[#2d4a36]">
                   Description
                   <textarea
                     name="description"
                     value={formData.description}
                     onChange={handleChange}
                     placeholder="Provider Description"
-                    className=" w-full h-28 rounded-xl border border-gray-200 bg-offwhite px-4 py-2 focus:border-lightbutton focus:ring-lightbutton outline-none"
+                    className="w-full rounded-xl border-2 border-gray-400 bg-white p-3 text-[#2d4a36] shadow-sm transition-all duration-200 focus:border-[#ffd333] focus:outline-none focus:ring-0"
                   />
                 </label>
               </div>
             </div>
+          </div>
           </div>
         </form>
       </div>

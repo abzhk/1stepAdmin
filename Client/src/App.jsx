@@ -45,6 +45,7 @@ import AdminVerificationPanel from "./pages/VerificationPanel/AdminVerificationP
 import AdminProfile from "./pages/Settings/AdminProfile.jsx";
 import ProfileSettings from "./pages/Settings/ProfileSettings.jsx";
 import Help from "./pages/HelpDesk/Help.jsx";
+import AllComplaints from "./pages/HelpDesk/AllComplaints.jsx";
 
 const App = () => {
   const dispatch = useDispatch();
@@ -126,6 +127,7 @@ const App = () => {
           <Route path="/admin-profile" element={<AdminProfile/>} />
           <Route path="/profile-settings" element={<ProfileSettings/>} />
           <Route path="/help" element={<Help/>} />
+          <Route path="/all-complaints" element={<AllComplaints/>} />
         </Route>
       </Routes>
       <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
