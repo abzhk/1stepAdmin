@@ -7,19 +7,31 @@ const Layout = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
   return (
-    <div className="flex flex-col h-screen">
-      <div className="flex flex-1 overflow-hidden w-screen p-0">
-        <DashSidebar />
 
-        <div className="flex-1 overflow-auto bg-offwhite p-6 scrollbar-hide">
-          <DashboardNavbar
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-          />
-          <Outlet context={{ searchTerm }} />
-        </div>
+        <div className="flex flex-col h-screen">
+  <div className="flex flex-1 overflow-hidden w-screen">
+
+    <DashSidebar />
+
+    {/* SCROLL AREA */}
+    <div className="flex-1 overflow-y-auto bg-offwhite scrollbar-hide">
+
+      {/* STICKY NAVBAR */}
+      <div className="sticky top-0 z-50 bg-offwhite px-6 pt-6 pb-3 ">
+        <DashboardNavbar
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+        />
       </div>
+
+      {/* CONTENT */}
+      <div className="px-6 pb-6">
+        <Outlet context={{ searchTerm }} />
+      </div>
+
     </div>
+  </div>
+</div>
   );
 };
 

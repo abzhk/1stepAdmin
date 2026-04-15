@@ -99,7 +99,7 @@ const data = await api(
         </div>
     <div className="p-6 mt-4 bg-white rounded-xl shadow">
       
-      <h2 className="text-2xl font-bold text-[#2d4a36] mb-6">Edit Parent</h2>
+      <h2 className="text-tabheading mb-6">Edit Parent</h2>
 
       {error && (
         <div className="mb-4 text-red-600 bg-red-100 p-3 rounded">
@@ -108,9 +108,9 @@ const data = await api(
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        <label className="mb-2 block text-sm font-bold tracking-wide text-[#2d4a36]">Full Name</label>
+        <label className="mb-2 text-label tracking-wide ">Full Name</label>
         <input
-          className="w-full rounded-xl border-2 border-gray-400 bg-white p-3 text-[#2d4a36] shadow-sm transition-all duration-200 focus:border-[#ffd333] focus:outline-none focus:ring-0"
+          className="w-full rounded-xl border-2 border-gray-300 bg-white p-3 text-[#2d4a36] shadow-sm transition-all duration-200 focus:border-[#ffd333] focus:outline-none focus:ring-0"
           placeholder="Full Name"
           value={formData.fullName}
           required
@@ -118,18 +118,18 @@ const data = await api(
             setFormData({ ...formData, fullName: e.target.value })
           }
         />
-<label className="mb-2 block text-sm font-bold tracking-wide text-[#2d4a36]">Child Name</label>
+<label className="mb-2 text-label tracking-wide ">Child Name</label>
         <input
-          className="w-full rounded-xl border-2 border-gray-400 bg-white p-3 text-[#2d4a36] shadow-sm transition-all duration-200 focus:border-[#ffd333] focus:outline-none focus:ring-0"
+          className="w-full rounded-xl border-2 border-gray-300 bg-white p-3 text-[#2d4a36] shadow-sm transition-all duration-200 focus:border-[#ffd333] focus:outline-none focus:ring-0"
           placeholder="Child Name"
           value={formData.childName}
           onChange={(e) =>
             setFormData({ ...formData, childName: e.target.value })
           }
         />
-<label className="mb-2 block text-sm font-bold tracking-wide text-[#2d4a36]">Phone Number</label>
+<label className="mb-2 text-label tracking-wide ">Phone Number</label>
         <input
-          className="w-full rounded-xl border-2 border-gray-400 bg-white p-3 text-[#2d4a36] shadow-sm transition-all duration-200 focus:border-[#ffd333] focus:outline-none focus:ring-0"
+          className="w-full rounded-xl border-2 border-gray-300 bg-white p-3 text-[#2d4a36] shadow-sm transition-all duration-200 focus:border-[#ffd333] focus:outline-none focus:ring-0"
           placeholder="Phone Number"
           maxLength={10}
           value={formData.phoneNumber}
@@ -137,9 +137,9 @@ const data = await api(
             setFormData({ ...formData, phoneNumber: e.target.value })
           }
         />
-<label className="mb-2 block text-sm font-bold tracking-wide text-[#2d4a36]">Address</label>
+<label className="mb-2 text-label tracking-wide ">Address</label>
         <input
-          className="w-full rounded-xl border-2 border-gray-400 bg-white p-3 text-[#2d4a36] shadow-sm transition-all duration-200 focus:border-[#ffd333] focus:outline-none focus:ring-0"
+          className="w-full rounded-xl border-2 border-gray-300 bg-white p-3 text-[#2d4a36] shadow-sm transition-all duration-200 focus:border-[#ffd333] focus:outline-none focus:ring-0"
           placeholder="Address"
           multiple
           value={formData.address}

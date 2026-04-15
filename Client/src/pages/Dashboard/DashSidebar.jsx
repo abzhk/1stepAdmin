@@ -90,7 +90,7 @@ const DashSidebar = () => {
     try {
       await api("/api/admin/admin/logout", { method: "POST" });
       dispatch(logout());
-      toast.success("Logged out successfully");
+      toast.success("Logged out ");
       navigate("/log");
     } catch (err) {
       console.error(err);

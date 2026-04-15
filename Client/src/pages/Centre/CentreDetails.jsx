@@ -43,7 +43,7 @@ const CentreDetails = () => {
         Back
       </button>
 
-      <h1 className="text-2xl font-bold text-green-900 mb-6">
+      <h1 className="text-2xl font-bold text-green-900 mb-6 uppercase">
         {centre.fullName}
       </h1>
 
@@ -67,28 +67,29 @@ const CentreDetails = () => {
 
       <div className="bg-white rounded-2xl shadow overflow-hidden">
 
-        <div className="p-4 border-b">
-          <h2 className="text-lg font-semibold text-green-900">
+        <div className="p-4 ">
+          <h2 className="text-outerheader">
             Invited Providers
           </h2>
         </div>
+<div className="p-4">
+    <div className="overflow-hidden rounded-b-2xl shadow-md">
+        <table className="w-full rounded-2xl">
 
-        <table className="w-full text-sm">
-
-          <thead className="bg-gray-100 text-gray-600">
+          <thead className="bg-offwhite text-cardfooter uppercase text-left">
             <tr>
               <th className="p-3 text-left">Name</th>
               <th className="p-3 text-left">Email</th>
               <th className="p-3 text-left">Phone</th>
               <th className="p-3 text-left">Sessions</th>
               <th className="p-3 text-left">Status</th>
-              <th className="p-3 text-right">Action</th>
+              {/* <th className="p-3 text-right">Action</th> */}
             </tr>
           </thead>
 
           <tbody>
             {providers.map((p) => (
-              <tr key={p._id} className="border-t hover:bg-gray-50">
+              <tr key={p._id} className=" hover:bg-offwhite text-table-text">
 
                 <td className="p-3">{p.name}</td>
                 <td className="p-3">{p.email}</td>
@@ -107,21 +108,22 @@ const CentreDetails = () => {
                   </span>
                 </td>
 
-                <td className="p-3 text-right">
+                {/* <td className="p-3 text-right">
                   <button
                     onClick={() => navigate(`/provider/${p._id}`)}
                     className="p-2 bg-gray-100 rounded-lg hover:bg-gray-200"
                   >
                     <AiFillEye />
                   </button>
-                </td>
+                </td> */}
 
               </tr>
             ))}
           </tbody>
 
         </table>
-
+        </div>
+</div>
       </div>
 
     </div>

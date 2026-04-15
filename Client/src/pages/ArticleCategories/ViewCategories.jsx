@@ -92,12 +92,12 @@ const handleEdit = (id) => {
   return (
     <div className="p-6 bg-offwhite min-h-screen">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-semibold text-[#2d4a36] tracking-tight">
+        <h2 className="text-outerheader tracking-tight">
           No of Categories: {totalCount}
         </h2>
         <button
           onClick={handleOpen}
-          className="bg-button hover:bg-lighthov text-white px-6 py-2 rounded-xl shadow-md"
+          className="bg-darkgreen hover:bg-lighthov text-white px-6 py-2 rounded-xl shadow-md"
         >
           + Add Category
         </button>
@@ -107,11 +107,11 @@ const handleEdit = (id) => {
         <table className="w-full table-auto shadow-sm rounded-2xl">
           <thead>
             <tr className="bg-offwhite  text-left">
-              <th className="px-4 sm:px-6 py-4 text-left text-xs font-semibold text-[#8fa797] uppercase tracking-wider">S.No</th>
-              <th className="px-4 sm:px-6 py-4 text-left text-xs font-semibold text-[#8fa797] uppercase tracking-wider">Category Name</th>
-               <th className="px-4 sm:px-6 py-4 text-left text-xs font-semibold text-[#8fa797] uppercase tracking-wider">Icon</th>
-              <th className="px-4 sm:px-6 py-4 text-left text-xs font-semibold text-[#8fa797] uppercase tracking-wider">Color</th>
-              <th className="px-4 sm:px-6 py-4 text-left text-xs font-semibold text-[#8fa797] uppercase tracking-wider">Order</th>
+              <th className="px-4 sm:px-6 py-4 text-left text-cardfooter uppercase tracking-wider">S.No</th>
+              <th className="px-4 sm:px-6 py-4 text-left text-cardfooter uppercase tracking-wider">Category Name</th>
+               <th className="px-4 sm:px-6 py-4 text-left text-cardfooter uppercase tracking-wider">Icon</th>
+              <th className="px-4 sm:px-6 py-4 text-left text-cardfooter uppercase tracking-wider">Color</th>
+              <th className="px-4 sm:px-6 py-4 text-left text-cardfooter uppercase tracking-wider">Order</th>
               {/* <th className="p-3">Article Count</th> */}
               <th className="px-4 sm:px-6 py-4 text-left text-xs font-semibold text-[#8fa797] uppercase tracking-wider">Actions</th>
             </tr>
@@ -120,17 +120,17 @@ const handleEdit = (id) => {
           <tbody className="divide-y divide-gray-100">
             {visibleCategories.map((item, index) => (
               <tr key={item._id} className="hover:bg-[#F6F4F0]/50 transition-colors group">
-                <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm font-bold text-[#2d4a36]">{(currentPage - 1) * PAGE_SIZE + index + 1}</td>
-                <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm font-bold text-[#2d4a36]">{item.name}</td>
-                <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm font-bold text-[#2d4a36]">{item.icon}</td>
-                <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm font-bold text-[#2d4a36]">{item.color}</td>
-                <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm font-bold text-[#2d4a36]">{item.order}</td>
+                <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-table-text">{(currentPage - 1) * PAGE_SIZE + index + 1}</td>
+                <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-table-text">{item.name}</td>
+                <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-table-text">{item.icon}</td>
+                <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-table-text">{item.color}</td>
+                <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-table-text">{item.order}</td>
                 {/* <td className="p-3">{item.articleCount}</td> */}
 
                 <td className="p-3 flex gap-2">
                   <button
   onClick={() => handleEdit(item._id)}
-  className="bg-primary text-white px-4 py-2 rounded-lg shadow hover:opacity-90 transition"
+  className="bg-darkgreen text-white px-4 py-2 rounded-lg shadow hover:opacity-90 transition"
 >
   Edit
 </button>
@@ -138,7 +138,7 @@ const handleEdit = (id) => {
                   <button
     onClick={() => handleToggleStatus(item._id)}
     className={`px-4 py-1 rounded-lg text-white text-sm shadow
-      ${item.isActive ? "bg-primary hover:bg-primary" : "bg-red-500 hover:bg-red-600"}
+      ${item.isActive ? "bg-darkgreen hover:bg-darkgreen/80" : "bg-red-500 hover:bg-red-600"}
     `}
   >
     {item.isActive ? "Active" : "Inactive"}

@@ -79,7 +79,7 @@ useEffect(() => {
       <div className="max-w-7xl mx-auto bg-white rounded-xl shadow">
         <div className="flex justify-between items-center">
         <div className="p-4 ">
-          <h1 className="text-2xl font-bold text-gray-800">Articles List</h1>
+          <h1 className="text-tabheading">Articles List</h1>
         </div>
       <div className="flex items-center gap-2 p-4">
   
@@ -112,7 +112,7 @@ useEffect(() => {
         {!loading && !error && (
           <div className="overflow-x-auto p-4 ">
             <table className="min-w-full text-sm text-left ">
-              <thead className="bg-offwhite text-gray-600 uppercase text-xs">
+              <thead className="bg-offwhite text-cardfooter uppercase ">
                 <tr>
                   <th className="px-6 py-3">Image</th>
                   <th className="px-6 py-3">Title</th>
@@ -128,7 +128,7 @@ useEffect(() => {
 
               <tbody className="divide-y">
                 {articles.map((article) => (
-                  <tr key={article._id} className="hover:bg-gray-50 border-0">
+                  <tr key={article._id} className="hover:bg-offwhite border-0 ">
                     <td className="px-6 py-3">
                       {article.featuredImage ? (
                         <img
@@ -149,21 +149,23 @@ useEffect(() => {
     : article.title}
 </td>
 
-                    <td className="px-6 py-3">
+                    <td className="px-6 py-3 text-table-text">
                       {article.providerId?.fullName || "—"}
                     </td>
-                     <td className="px-6 py-3">
+                     <td className="px-6 py-3 text-table-text">
                       {article.position|| "—"}
                     </td>
 
 
-                    <td className="px-6 py-3">
+                    <td className="px-6 py-3 text-table-text">
                       {article.categoryId?.name || "—"}
                     </td>
 
-                    <td className="px-6 py-3">{article.readTime || 0} min</td>
+                    <td className="px-6 py-3 text-table-text">
+                      {article.readTime || 0} min
+                    </td>
 
-                    <td className="px-6 py-3 text-gray-500">
+                    <td className="px-6 py-3 text-table-text">
                       {dateFormatUtils(article.createdAt)}
                     </td>
 

@@ -77,8 +77,9 @@ const InActiveCentre = () => {
 
       {/* Table */}
       <div className="bg-white rounded-xl shadow overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-100 text-gray-600 uppercase text-xs">
+        <div className="p-4  rounded-2xl">
+        <table className="w-full text-sm p-4 rounded-2xl">
+          <thead className="bg-offwhite text-cardfooter uppercase text-xs">
             <tr>
               <th className="p-3 text-left">Centre Name</th>
               <th className="p-3 text-left">Email</th>
@@ -90,13 +91,13 @@ const InActiveCentre = () => {
           <tbody>
             {centres.length === 0 ? (
               <tr>
-                <td colSpan="4" className="text-center p-6 text-gray-400">
+                <td colSpan="4" className="text-center p-6 text-cardfooter uppercase">
                   No inactive centres found
                 </td>
               </tr>
             ) : (
               centres.map((c) => (
-                <tr key={c._id} className="border-t hover:bg-gray-50">
+                <tr key={c._id} className=" hover:bg-offwhite/50 text-table-text">
                   <td className="p-3 font-medium text-green-900">
                     {c.fullName}
                   </td>
@@ -131,6 +132,7 @@ const InActiveCentre = () => {
             )}
           </tbody>
         </table>
+        </div>
       </div>
 
       {showDeleteModal && (

@@ -1,4 +1,4 @@
-import React,{ useEffect, useState }  from "react";
+import React, { useEffect, useState } from "react";
 import { AiFillEye } from "react-icons/ai";
 import { FiEdit2, FiGrid, FiList } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
@@ -6,111 +6,98 @@ import { IoIosArrowRoundBack } from "react-icons/io";
 import { api } from "../../utils/api";
 import toast from "react-hot-toast";
 
-
 const CentreList = () => {
   const navigate = useNavigate();
 
   const [viewMode, setViewMode] = useState("grid");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-const [selectedCentre, setSelectedCentre] = useState(null);
-
-
+  const [selectedCentre, setSelectedCentre] = useState(null);
   const [centres, setCentres] = useState([]);
 
   useEffect(() => {
-  const fetchCentres = async () => {
+    const fetchCentres = async () => {
+      try {
+        const data = await api("/api/provider/centre-list");
+        setCentres(data.centres || []);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchCentres();
+  }, []);
+
+  const confirmDelete = async () => {
     try {
-      const data = await api("/api/provider/centre-list");
-
-      setCentres(data.centres || []);
-
-      console.log("CENTRES:", data.centres);
+      await api(`/api/provider/centre/${selectedCentre._id}`, "DELETE");
+      setCentres((prev) =>
+        prev.filter((c) => c._id !== selectedCentre._id)
+      );
+      setShowDeleteModal(false);
+      setSelectedCentre(null);
     } catch (err) {
       console.error(err);
+      toast.error("Failed to delete centre");
     }
   };
 
-  fetchCentres();
-}, []);
-
-const confirmDelete = async () => {
-  try {
-    await api(`/api/provider/centre/${selectedCentre._id}`, "DELETE");
-
-    setCentres((prev) =>
-      prev.filter((c) => c._id !== selectedCentre._id)
-    );
-
-    setShowDeleteModal(false);
-    setSelectedCentre(null);
-
-  } catch (err) {
-    console.error(err);
-    toast.error("Failed to delete centre");
-  }
-};
-
-const toggleCentreStatus = async (centre) => {
-  if (centre.totalProviders > 0 && centre.isActive) {
-    alert("Remove providers before deactivating centre");
-    return;
-  }
-
-  try {
-
-    const res = await api("/api/provider/centre/set-active-status", {
-      method: "PUT",
-      body: JSON.stringify({
-        centreId: centre._id,
-        isActive: !centre.isActive,
-      }),
-    });
-
-    if (res.success) {
-toast.success(`Centre ${!centre.isActive ? "activated" : "deactivated"}`);
-      if (centre.isActive) {
-        setCentres((prev) =>
-          prev.filter((c) => c._id !== centre._id)
-        );
-      } else {
-
-        setCentres((prev) =>
-          prev.map((c) =>
-            c._id === centre._id
-              ? { ...c, isActive: true }
-              : c
-          )
-        );
-      }
+  const toggleCentreStatus = async (centre) => {
+    if (centre.totalProviders > 0 && centre.isActive) {
+      alert("Remove providers before deactivating centre");
+      return;
     }
-  } catch (err) {
-    console.error(err);
-    toast.error("Failed to update status");
-  }
-};
 
+    try {
+      const res = await api("/api/provider/centre/set-active-status", {
+        method: "PUT",
+        body: JSON.stringify({
+          centreId: centre._id,
+          isActive: !centre.isActive,
+        }),
+      });
+
+      if (res.success) {
+        toast.success(
+          `Centre ${!centre.isActive ? "activated" : "deactivated"}`
+        );
+
+        if (centre.isActive) {
+          setCentres((prev) =>
+            prev.filter((c) => c._id !== centre._id)
+          );
+        } else {
+          setCentres((prev) =>
+            prev.map((c) =>
+              c._id === centre._id ? { ...c, isActive: true } : c
+            )
+          );
+        }
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to update status");
+    }
+  };
 
   return (
-    <div className="p-4 md:p-8 bg-[#f8f6f2] min-h-screen">
- <button
-        type="button"
-        onClick={() => navigate( "/centre" )}
+    <div className="p-4 md:p-8 bg-offwhite min-h-screen">
+      {/* BACK */}
+      <button
+        onClick={() => navigate("/centre")}
         className="flex gap-2 items-center mb-6 text-darkgreen hover:text-green-700"
       >
         <IoIosArrowRoundBack size={22} />
         Back
       </button>
 
+      {/* TOP BAR */}
       <div className="flex items-center justify-between mb-6">
-
-
-        <div className="flex gap-2">
+        <div className="flex gap-2 bg-white px-2 py-2 rounded-xl shadow-sm">
           <button
             onClick={() => setViewMode("grid")}
             className={`p-2 rounded-lg border ${
               viewMode === "grid"
-                ? "bg-green-900 text-white"
-                : "bg-white text-gray-600"
+                ? "bg-green-900 text-white hover:bg-yellow"
+                : "bg-white text-gray-600 "
             }`}
           >
             <FiGrid size={18} />
@@ -120,7 +107,7 @@ toast.success(`Centre ${!centre.isActive ? "activated" : "deactivated"}`);
             onClick={() => setViewMode("list")}
             className={`p-2 rounded-lg border ${
               viewMode === "list"
-                ? "bg-green-900 text-white"
+                ? "bg-green-900 text-white hover:bg-yellow"
                 : "bg-white text-gray-600"
             }`}
           >
@@ -129,166 +116,130 @@ toast.success(`Centre ${!centre.isActive ? "activated" : "deactivated"}`);
         </div>
 
         <button
-  onClick={() => navigate("/inactive-centre")}
-  className="px-4 py-2 rounded-xl font-semibold text-white bg-green-900"
->
-  Inactive Centres
-</button>
+          onClick={() => navigate("/inactive-centre")}
+          className="px-4 py-2 rounded-xl font-semibold text-white bg-green-900"
+        >
+          Inactive Centres
+        </button>
       </div>
 
-
+      {/* GRID VIEW */}
       {viewMode === "grid" ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-10 gap-y-14">
-
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {centres.map((centre) => (
             <div
               key={centre._id}
-              className="bg-white rounded-xl shadow-lg hover:shadow-xl transition flex flex-col justify-between"
+              className="group bg-white/80 backdrop-blur-md border border-gray-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col"
             >
-              <div>
+              {/* IMAGE */}
+              <div className="relative h-52 overflow-hidden">
+                <img
+                  src={centre.profilePicture}
+                  alt={centre.fullName}
+                  className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                />
 
+                <div className="absolute inset-0 " />
 
-                <div className="h-52 overflow-hidden rounded-xl mb-2">
-                  <img
-                    src={centre.profilePicture}
-                    alt={centre.fullname}
-                    className="w-full h-full object-cover"
-                  />
+                <div className="absolute bottom-3 left-3 right-3 flex justify-between items-center">
+                  
+
+                  {/* <span
+                    className={`text-xs px-3 py-1 rounded-full ${
+                      centre.isActive
+                        ? "bg-green-500/20 text-green-100"
+                        : "bg-red-500/20 text-red-100"
+                    }`}
+                  >
+                    {centre.isActive ? "Active" : "Inactive"}
+                  </span> */}
+                </div>
+              </div>
+
+              {/* CONTENT */}
+              <div className="p-4 flex flex-col gap-3">
+                <div className="text-sm text-gray-600 space-y-1">
+
+                  <h2 className="text-darkgreen font-semibold text-lg truncate">
+                    {centre.fullName}
+                  </h2>
+                  <p className="truncate">
+                    <span className="text-cardfooter uppercase">Email:</span>{" "}
+                  <span className="text-cardfooter">
+    {centre.user?.email || "-"}
+  </span>
+                  </p>
+                  {/* <p>
+                    <span className="text-gray-400">Phone:</span>{" "}
+                    {centre.phone}
+                  </p> */}
                 </div>
 
-
-                <div className="p-2">
-
-                  <div className="flex justify-between items-start">
-                    <h2 className="font-semibold text-gray-900 text-lg">
-                      {centre.fullName}
-                    </h2>
-
-                    {/* <span
-                      className={`text-xs px-3 py-1 rounded-full font-medium ${
-                        centre.isActive
-                          ? "bg-green-50 text-green-600"
-                          : "bg-red-50 text-red-600"
-                      }`}
-                    >
-                      {centre.isActive ? "Active" : "Inactive"}
-                    </span> */}
-
-                    <button
-  onClick={() => toggleCentreStatus(centre)}
-  disabled={centre.totalProviders > 0 && centre.isActive}
-  className={`px-3 py-2 rounded-xl text-sm ${
-    centre.totalProviders > 0 && centre.isActive
-      ? "bg-gray-300 cursor-not-allowed"
-      : centre.isActive
-      ? "bg-red-100 text-red-600"
-      : "bg-green-100 text-green-600"
-  }`}
->
-  {centre.isActive ? "Deactivate" : "Activate"}
-</button>
-                  </div>
-
-                  <div className="space-y-2 mt-4 text-sm">
-                    <p>
-                      <b>Email:</b> {centre.user?.email || "-"}
-                    </p>
-                    <p>
-                      <b>Phone:</b> {centre.phone}
+                {/* STATS */}
+                <div className="flex justify-between">
+                  <div>
+                    <p className="text-cardfooter uppercase">Providers</p>
+                    <p className="font-semibold text-darkgreen text-lg">
+                      {centre.totalProviders}
                     </p>
                   </div>
 
-                  <div className="flex justify-between mt-4 text-sm">
-                    <div>
-                      <p className="text-gray-400">Providers</p>
-                      <p className="font-bold text-green-900">
-                        {centre.totalProviders}
-                      </p>
-                    </div>
-
-                    <div>
-                      <p className="text-gray-400">Sessions</p>
-                      <p className="font-bold text-green-900">
-                        {centre.totalSessions}
-                      </p>
-                    </div>
+                  <div>
+                    <p className="text-cardfooter uppercase">Sessions</p>
+                    <p className="font-semibold text-darkgreen text-lg">
+                      {centre.totalSessions}
+                    </p>
                   </div>
+                </div>
 
-
-                  <div className="flex gap-2 mt-4 ">
+                {/* ACTIONS */}
+                <div className="flex justify-between items-center mt-2">
+                  <div className="flex gap-2">
                     <button
                       onClick={() =>
                         navigate(`/centre-detail/${centre._id}`)
                       }
-                      className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-peach text-white text-sm w-60"
+                      className="p-2 rounded-lg bg-softpeach/60 text-darkgreen hover:bg-gray-200"
                     >
-                      <AiFillEye />
-                      View
+                      <AiFillEye/>
                     </button>
 
                     <button
                       onClick={() =>
-    navigate(`/edit-centre/${centre._id}`)
-  }
-                      className="w-10 h-10 flex items-center justify-center rounded-xl bg-blue-50 text-blue-600"
+                        navigate(`/edit-centre/${centre._id}`)
+                      }
+                      className="p-2 rounded-lg bg-yellow/50 text-darkgreen hover:bg-yellow"
                     >
                       <FiEdit2 />
                     </button>
-
-                    {/* <button
- onClick={() => handleDeleteClick(centre)}
-  className={`w-10 h-10 flex items-center justify-center rounded-xl ${
-    centre.totalProviders > 0
-      ? "bg-gray-300 cursor-not-allowed"
-      : "bg-red-500 text-white hover:bg-red-600"
-  }`}
->
- <MdDelete size={18} />
-</button> */}
                   </div>
-{showDeleteModal && (
-  <div className="fixed inset-0 bg-white/10 bg-opacity-40 flex items-center justify-center z-50">
-    <div className="bg-white rounded-2xl shadow-xl w-[90%] max-w-md p-6">
 
-      <h2 className="text-lg font-semibold text-gray-800 mb-3">
-        Delete Centre
-      </h2>
-
-      <p className="text-sm text-gray-600 mb-6">
-        Are you sure you want to delete <b>{selectedCentre?.fullName}</b>?
-      </p>
-
-      <div className="flex justify-end gap-3">
-        <button
-          onClick={() => setShowDeleteModal(false)}
-          className="px-4 py-2 rounded-xl bg-gray-200 text-gray-700"
-        >
-          Cancel
-        </button>
-
-        <button
-          onClick={confirmDelete}
-          className="px-4 py-2 rounded-xl bg-red-500 text-white hover:bg-red-600"
-        >
-          Delete
-        </button>
-      </div>
-
-    </div>
-  </div>
-)}
+                  <button
+                    onClick={() => toggleCentreStatus(centre)}
+                    disabled={
+                      centre.totalProviders > 0 && centre.isActive
+                    }
+                    className={`text-xs px-4 py-1.5 rounded-full ${
+                      centre.totalProviders > 0 && centre.isActive
+                        ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                        : centre.isActive
+                        ? "bg-red-100 text-red-600 hover:bg-red-200"
+                        : "bg-green-100 text-green-600 hover:bg-green-200"
+                    }`}
+                  >
+                    {centre.isActive ? "Deactivate" : "Activate"}
+                  </button>
                 </div>
               </div>
             </div>
           ))}
         </div>
       ) : (
-
-        <div className="bg-white rounded-xl shadow overflow-hidden">
-
+        /* LIST VIEW  */
+        <div className="bg-white p-6 rounded-xl shadow overflow-hidden">
+          <div className="shadow-md rounded-2xl">
           <table className="w-full text-sm">
-
-            <thead className="bg-gray-100 text-gray-700">
+            <thead className="bg-offwhite text-cardfooter uppercase text-left">
               <tr>
                 <th className="p-3 text-left">Centre</th>
                 <th className="p-3 text-left">Email</th>
@@ -304,7 +255,7 @@ toast.success(`Centre ${!centre.isActive ? "activated" : "deactivated"}`);
               {centres.map((centre) => (
                 <tr
                   key={centre._id}
-                  className="border-t hover:bg-gray-50"
+                  className=" hover:bg-offwhite/50"
                 >
                   <td className="p-3 flex items-center gap-3">
                     <img
@@ -336,17 +287,21 @@ toast.success(`Centre ${!centre.isActive ? "activated" : "deactivated"}`);
                       <AiFillEye />
                     </button>
 
-                    <button  onClick={() =>
-    navigate(`/edit-centre/${centre._id}`)
-  } className="p-2 bg-blue-100 text-blue-600 rounded-lg">
+                    <button
+                      onClick={() =>
+                        navigate(`/edit-centre/${centre._id}`)
+                      }
+                      className="p-2 bg-blue-100 text-blue-600 rounded-lg"
+                    >
                       <FiEdit2 />
                     </button>
                   </td>
                 </tr>
               ))}
+              
             </tbody>
-
           </table>
+          </div>
         </div>
       )}
     </div>

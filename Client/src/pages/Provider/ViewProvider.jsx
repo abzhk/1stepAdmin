@@ -203,17 +203,17 @@ function ViewProvider() {
                       </button>
                     </div>
 
-                    <div className="text-sm text-gray-600 mb-2">
-                      <strong>City:</strong>{" "}
+                    <div className="text-cardfooter uppercase mb-2">
+                      <span>City : </span>{" "}
                       {provider.address?.city || "N/A"}
                     </div>
 
-                    <div className="flex flex-wrap gap-1 mb-4">
+                    <div className="flex flex-wrap gap-6  mb-4">
                       {therapies.length > 0 ? (
                         therapies.map((type, i) => (
                           <span
                             key={i}
-                            className="px-2 py-0.5 text-xs rounded-full bg-tag text-darkgreen"
+                            className="  rounded-full bg-tag text-cardfooter"
                           >
                             {type}
                           </span>
@@ -230,7 +230,7 @@ function ViewProvider() {
                         onClick={() =>
                           navigate(`/provider-stats/${provider._id}`)
                         }
-                        className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-button text-white text-sm"
+                        className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-softpeach/60 text-white text-sm"
                       >
                         <AiFillEye />
                         View Details

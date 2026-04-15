@@ -76,7 +76,7 @@ const SystemAlert = () => {
         
         {/* Header */}
         <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
-          <h3 className="text-lg font-bold text-[#2d4a36]">
+          <h3 className="text-subheading">
             System Alert
           </h3>
 

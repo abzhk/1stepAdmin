@@ -45,14 +45,14 @@ const StatisticsCard = () => {
               dataKey="name"
               axisLine={false}
               tickLine={false}
-              tick={{ fill: "#6b7280", fontSize: 12 }}
+              tick={{  fill: "#8fa797",   fontSize: 12, fontWeight: 500  }}
               dy={10}
             />
 
             <YAxis
               axisLine={false}
               tickLine={false}
-              tick={{ fill: "#6b7280", fontSize: 12 }}
+              tick={{ fill: "#8fa797",  fontSize: 12, fontWeight: 500 }}
             />
 
             <Tooltip

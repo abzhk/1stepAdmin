@@ -246,8 +246,8 @@ function ProviderStats() {
       </button>
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
         <div>
-          <h1 className="text-xl font-bold mb-1 text-primary">WELCOME BACK</h1>
-          <p className="text-sm text-gray-700">
+          <h1 className=" mb-1 text-subheading">WELCOME BACK</h1>
+          <p className="text-cardfooter">
             Showing stats for{" "}
             <span className="font-semibold">
               {currentMonthLabel} {year}
@@ -309,7 +309,7 @@ function ProviderStats() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-white h-64 p-8 rounded-2xl text-white flex flex-col justify-between">
           <div className="flex justify-between items-center">
-            <p className="text-darkgreen font-bold">Appointments</p>
+            <p className="text-tabheading">Appointments</p>
             <span className="text-sm text-white font-semibold">
               All time: {allTime.total}
             </span>
@@ -330,35 +330,35 @@ function ProviderStats() {
             </div>
           </div>
 
-          <p className="text-xs text-darkgreen text-center mt-4">
+          <p className="text-cardfooter text-center mt-4">
             {allTime.approved} approved out of {allTime.total} bookings
           </p>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div className="bg-white p-4 rounded-2xl text-white">
-            <p className="text-darkgreen font-bold">Booking</p>
+            <p className="text-subheading">Booking</p>
             <h2 className="text-2xl font-bold text-darkgreen">
               {displayStats.total}
             </h2>
           </div>
 
           <div className="bg-white p-4 rounded-2xl text-white">
-            <p className="text-darkgreen font-bold">Queue</p>
+            <p className="text-subheading">Queue</p>
             <h2 className="text-2xl font-bold text-darkgreen">
               {displayStats.pending}
             </h2>
           </div>
 
           <div className="bg-white p-4 rounded-2xl text-white">
-            <p className="text-darkgreen font-bold">Rejected</p>
+            <p className="text-subheading">Rejected</p>
             <h2 className="text-2xl font-bold text-darkgreen">
               {displayStats.rejected}
             </h2>
           </div>
 
           <div className="bg-white p-4 rounded-2xl text-white">
-            <p className="text-darkgreen font-bold">Approved</p>
+            <p className="text-subheading">Approved</p>
             <h2 className="text-2xl font-bold text-darkgreen">
               {displayStats.approved}
             </h2>
@@ -367,7 +367,7 @@ function ProviderStats() {
       </div>
 {providerType === "individual" && (
       <div className="mb-8 mt-8 bg-white rounded-3xl shadow-lg p-6 border border-gray-100">
-        <h2 className="text-xl font-bold text-gray-900 mb-4 border-b pb-2">
+        <h2 className="text-subheading mb-4 pb-2">
           Recent Appointments
         </h2>
 
@@ -383,18 +383,18 @@ function ProviderStats() {
 
         <div className="overflow-x-auto rounded-xl shadow-inner bg-gray-50 border border-gray-100">
           <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-darkgreen border-b-2 border-gray-200">
+            <thead className="bg-offwhite border-b-2 border-gray-200">
               <tr>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-white uppercase tracking-wider">
+                <th className="px-6 py-3 text-left  text-cardfooter uppercase tracking-wider">
                   Patient
                 </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-white uppercase tracking-wider">
+                <th className="px-6 py-3 text-left  text-cardfooter uppercase tracking-wider">
                   Services
                 </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-white uppercase tracking-wider">
+                <th className="px-6 py-3 text-left  text-cardfooter uppercase tracking-wider">
                   Date / Slot
                 </th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-white uppercase tracking-wider">
+                <th className="px-6 py-3 text-left  text-cardfooter uppercase tracking-wider">
                   Status
                 </th>
               </tr>
@@ -414,9 +414,9 @@ function ProviderStats() {
                 bookings.map((bookingdata) => (
                   <tr
                     key={bookingdata._id}
-                    className="hover:bg-gray-50 transition duration-150 ease-in-out"
+                    className="hover:bg-offwhite/50 transition duration-150 ease-in-out"
                   >
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 flex items-center gap-3">
+                    <td className="px-6 py-4 whitespace-nowrap text-table-text flex items-center gap-3">
                       <img
                         src={
                           bookingdata.patientDetails?.profilePicture ||
@@ -435,13 +435,13 @@ function ProviderStats() {
                       </span>
                     </td>
 
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                    <td className="px-6 py-4 whitespace-nowrap text-table-text">
                       {Array.isArray(bookingdata.service)
                         ? bookingdata.service.join(", ")
                         : bookingdata.service || "-"}
                     </td>
 
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                    <td className="px-6 py-4 whitespace-nowrap text-table-text">
                       {bookingdata.scheduledTime?.slot && ` ${bookingdata.scheduledTime.slot}`}
                     </td>
 

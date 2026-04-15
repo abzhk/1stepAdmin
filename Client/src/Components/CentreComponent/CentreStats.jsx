@@ -39,7 +39,7 @@ const CentreStats = () => {
 }, []);
   return (
     <>
-      <h2 className="text-lg font-semibold mb-4 text-green-900">
+      <h2 className="text-subheading mb-4">
         Centres Registered
       </h2>
 

@@ -58,25 +58,37 @@ const AddArticle = () => {
     }
   };
 
-  const handleImageChange = (e) => {
-    const files = Array.from(e.target.files);
-    if (!files.length) return;
+const handleImageChange = (e) => {
+  const files = Array.from(e.target.files);
+  if (!files.length) return;
 
-    const newPreviews = files.map(file => ({
-      id: Date.now() + Math.random(),
-      file: file,
-      preview: URL.createObjectURL(file),
-      uploading: true,
-      progress: 0,
-      url: null
-    }));
+  const remainingSlots = 3 - imagePreviews.length;
 
-    setImagePreviews(prev => [...prev, ...newPreviews]);
-    
-    newPreviews.forEach(preview => {
-      uploadImage(preview.file, preview.id);
-    });
-  };
+  if (remainingSlots <= 0) {
+    toast.error("Maximum 3 images allowed");
+    return;
+  }
+
+  if (files.length > remainingSlots) {
+    toast.error(`You can only upload ${remainingSlots} more image(s)`);
+    files.splice(remainingSlots); // limit files
+  }
+
+  const newPreviews = files.map(file => ({
+    id: Date.now() + Math.random(),
+    file: file,
+    preview: URL.createObjectURL(file),
+    uploading: true,
+    progress: 0,
+    url: null
+  }));
+
+  setImagePreviews(prev => [...prev, ...newPreviews]);
+
+  newPreviews.forEach(preview => {
+    uploadImage(preview.file, preview.id);
+  });
+};
 
   const uploadImage = (file, previewId) => {
     const fileName = new Date().getTime() + file.name;
@@ -290,7 +302,7 @@ const AddArticle = () => {
           <div className="lg:w-2/3">
             <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
               <div className="px-8 py-6 bg-darkgreen">
-                <h2 className="text-xl font-semibold text-white">
+                <h2 className="text-outerheader  text-white">
                   {id ? "Edit Article" : "Create New Article"}
                 </h2>
               </div>
@@ -298,60 +310,60 @@ const AddArticle = () => {
               <form onSubmit={handleSubmit} className="p-8">
                 <div className="space-y-8">
                   <div className="space-y-2">
-                    <label className="block text-sm font-medium mb-1">Title </label>
+                    <label className=" text-label mb-1">Title </label>
                     <input
                       name="title"
                       value={formData.title}
                       onChange={handleChange}
                       required
-                      className="w-full bg-offwhite border rounded-lg px-3 py-2 focus:ring-2 focus:ring-darkgreen outline-none"
+                      className="w-full border border-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-1">Excerpt </label>
+                    <label className=" text-label mb-1">Excerpt </label>
                     <textarea
                       name="excerpt"
                       value={formData.excerpt}
                       onChange={handleChange}
                       rows="4"
                       required
-                      className="w-full bg-offwhite border rounded-lg px-3 py-2 focus:ring-2 focus:ring-darkgreen outline-none"
+                      className="w-full border border-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow"
                     />
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-medium mb-1">Meta Title</label>
+                      <label className="text-label mb-1">Meta Title</label>
                       <input
                         name="metaTitle"
                         value={formData.metaTitle}
                         onChange={handleChange}
-                        className="w-full bg-offwhite border rounded-lg px-3 py-2"
+                        className="w-full border border-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium mb-1">Meta Description</label>
+                      <label className="text-label mb-1">Meta Description</label>
                       <textarea
                         name="metaDescription"
                         value={formData.metaDescription}
                         onChange={handleChange}
                         rows="3"
-                        className="w-full bg-offwhite border rounded-lg px-3 py-2"
+                        className="w-full border border-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow"
                       />
                     </div>
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-medium mb-1">Category </label>
+                      <label className="text-label mb-1">Category </label>
                       <select
                         name="categoryId"
                         value={formData.categoryId}
                         onChange={handleChange}
                         required
-                        className="w-full bg-offwhite border rounded-lg px-3 py-2 focus:ring-2 focus:ring-darkgreen outline-none"
+                        className="w-full border border-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow"
                       >
                         <option value="">Select Category</option>
                         {categories.map((cat) => (
@@ -363,7 +375,7 @@ const AddArticle = () => {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium mb-1">Position (1–10)</label>
+                      <label className="text-label mb-1">Position (1–10)</label>
                       <input
                         type="number"
                         name="position"
@@ -371,19 +383,19 @@ const AddArticle = () => {
                         max="10"
                         value={formData.position || ""}
                         onChange={handleChange}
-                        className="w-full bg-offwhite border rounded-lg px-3 py-2"
+                        className="w-full border border-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium mb-1">Featured Images</label>
+                      <label className="text-label mb-1">Featured Images</label>
                       <input
                         type="file"
                         accept="image/*"
                         multiple
                         disabled={imagePreviews.length >= 3}
                         onChange={handleImageChange}
-                        className="w-full border rounded-lg px-3 py-2 bg-offwhite"
+                        className="w-full border border-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow "
                       />
                       <p className="text-xs text-gray-500 mt-1">
                         You can select multiple images
@@ -391,7 +403,7 @@ const AddArticle = () => {
                     </div>
 
                     <div className="relative">
-                      <label className="block text-sm font-medium mb-1">Tags</label>
+                      <label className="text-label mb-1">Tags</label>
                       <input
                         value={tagInputValue}
                         readOnly
@@ -400,7 +412,7 @@ const AddArticle = () => {
                           setTimeout(() => setShowDropdown(false), 200)
                         }
                         placeholder="Select tags"
-                        className="w-full bg-offwhite border rounded-lg px-3 py-2 cursor-pointer focus:ring-2 focus:ring-darkgreen outline-none"
+                        className="w-full border border-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow"
                       />
                       {showDropdown && (
                         <div className="absolute w-full bg-white border rounded-lg mt-1 max-h-40 overflow-y-auto shadow z-10">
@@ -414,7 +426,7 @@ const AddArticle = () => {
                                 onClick={() => handleTagSelect(tag)}
                                 className={`px-3 py-2 cursor-pointer text-sm ${
                                   selected
-                                    ? "bg-offwhite text-black"
+                                    ? " text-black"
                                     : "hover:bg-gray-100"
                                 }`}
                               >
@@ -441,7 +453,7 @@ const AddArticle = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-1">Content *</label>
+                    <label className="text-label mb-1">Content *</label>
                     <Editor
                       value={formData.content}
                       onChange={(value) =>
@@ -477,7 +489,7 @@ const AddArticle = () => {
           <div className="lg:w-1/3">
             <div className="bg-white rounded-2xl shadow-xl overflow-hidden sticky top-8">
               <div className="px-6 py-4 bg-darkgreen">
-                <h3 className="text-lg font-semibold text-white">
+                <h3 className="text-outerheader text-white">
                   Image Previews ({imagePreviews.length})
                 </h3>
               </div>
@@ -526,10 +538,10 @@ const AddArticle = () => {
                 ) : (
                   <div className="text-center py-12">
                     <MdCloudUpload className="mx-auto text-5xl text-gray-300 mb-3" />
-                    <p className="text-gray-500 text-sm">
+                    <p className="text-tab-subtext">
                       No images uploaded yet
                     </p>
-                    <p className="text-gray-400 text-xs mt-1">
+                    <p className="text-cardfooter mt-1">
                       Select images to see previews here
                     </p>
                   </div>

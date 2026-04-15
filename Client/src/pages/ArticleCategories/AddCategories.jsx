@@ -184,14 +184,14 @@ const data = await api('/api/category/addcategory',{
               type="button"
               onClick={onClose}
               disabled={isLoading}
-              className="bg-primary px-4 py-2 rounded-lg border hover:bg-primary text-white disabled:opacity-50"
+              className="bg-darkgreen px-4 py-2 rounded-lg border hover:bg-primary text-white disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isLoading}
-              className="px-5 py-2 rounded-lg bg-primary text-white font-medium shadow hover:opacity-95 disabled:opacity-50"
+              className="px-5 py-2 rounded-lg bg-darkgreen text-white font-medium shadow hover:opacity-95 disabled:opacity-50"
             >
               {isLoading ? "Creating..." : "Save Category"}
             </button>

@@ -146,11 +146,11 @@ const AdminProfile = () => {
             className="hidden"
           />
 
-          <h2 className="mt-4 text-2xl font-bold text-[#2d4a36]">
+          <h2 className="mt-4 text-tabheading uppercase">
             {form.username || "Admin"}
           </h2>
 
-          <p className="text-sm text-[#2d4a36]">
+          <p className="text-tab-subtext">
             Manage your profile information
           </p>
         </div>
@@ -159,7 +159,7 @@ const AdminProfile = () => {
         <div className="px-6 md:px-12 pb-10 pt-4">
 
           {/* SECTION TITLE */}
-          <h2 className="mb-6 border-b border-gray-100 pb-2 text-xl font-bold">
+          <h2 className="mb-6 border-b border-gray-100 pb-2 text-tab-subheading">
             Admin Details
           </h2>
 
@@ -168,7 +168,7 @@ const AdminProfile = () => {
 
             {/* USERNAME */}
             <div>
-              <label className="text-sm font-bold tracking-wide text-[#2d4a36]">Username</label>
+              <label className="text-label">Username</label>
               <input
                 type="text"
                 disabled={!edit}
@@ -176,24 +176,24 @@ const AdminProfile = () => {
                 onChange={(e) =>
                   setForm({ ...form, username: e.target.value })
                 }
-                className="w-full mt-2 p-3 rounded-xl border-2 border-maincolor-sageGreen bg-white focus:border-[#ffd333] focus:ring-2 focus:ring-[#ffd333]/50 outline-none"
+                className="w-full mt-2 p-3 rounded-xl border-2 border-greenmuted bg-white focus:border-[#ffd333] focus:ring-2 focus:ring-[#ffd333]/50 outline-none"
               />
             </div>
 
             {/* EMAIL */}
             <div>
-              <label className="text-sm font-bold tracking-wide text-[#2d4a36]">Email</label>
+              <label className="text-label">Email</label>
               <input
                 type="email"
                 value={form.email}
                 disabled
-                className="w-full mt-2 p-3 rounded-xl border bg-gray-100"
+                className="w-full mt-2 p-3 rounded-xl border-2 border-greenmuted bg-gray-100"
               />
             </div>
 
             {/* ROLE */}
             <div>
-              <label className="text-sm font-bold tracking-wide text-[#2d4a36]">Role</label>
+              <label className="text-label">Role</label>
               <div className="mt-2 p-3 rounded-xl bg-softpeach/70  text-white font-semibold">
                 {user.role}
               </div>

@@ -20,7 +20,7 @@ const StatCard = ({ title, value, badge, badgeColor, footer, icon, delay }) => (
 
     <div className="flex justify-between items-start z-10">
       <div>
-        <h3 className="text-sm font-semibold text-[#2d4a36]/70 mb-2">
+        <h3 className="text-cardtitle mb-2">
           {title}
         </h3>
         <span className={`text-xs px-2.5 py-1 rounded-full font-bold ${badgeColor}`}>
@@ -28,18 +28,18 @@ const StatCard = ({ title, value, badge, badgeColor, footer, icon, delay }) => (
         </span>
       </div>
 
-      <div className="p-2.5 bg-green-50 rounded-xl text-green-900">
+      <div className="p-2.5 bg-offwhite rounded-xl text-green-900">
         {icon}
       </div>
     </div>
 
     <div className="z-10">
-      <div className="text-4xl font-bold text-green-900 mb-1 tracking-tight">
+      <div className="text-value mb-1 tracking-tight">
         {value}
       </div>
 
       {footer && (
-        <div className="text-xs font-semibold text-green-700">
+        <div className="text-cardfooter">
           {footer}
         </div>
       )}

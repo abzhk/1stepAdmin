@@ -71,7 +71,7 @@ const ViewAssessment = () => {
   return (
     <div className="w-full bg-secondary mt-8">
       <div className="bg-white rounded-2xl shadow p-6 border border-gray-200">
-        <h2 className="text-2xl font-bold text-gray-800 mb-6">
+        <h2 className="text-subheading mb-6">
           Assessment Categories
         </h2>
 
@@ -93,27 +93,27 @@ const ViewAssessment = () => {
           <>
             <div className="overflow-x-auto">
               <table className="min-w-full rounded-lg">
-                <thead className="bg-gray-100">
+                <thead className="bg-offwhite rounded-2xl">
                   <tr>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 ">
+                    <th className="px-4 py-3 text-left uppercase text-cardfooter ">
                       Sl.NO
                     </th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 ">
+                    <th className="px-4 py-3 text-left uppercase text-cardfooter ">
                       Icon
                     </th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                    <th className="px-4 py-3 text-left uppercase text-cardfooter ">
                       Name
                     </th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                    <th className="px-4 py-3 text-left uppercase text-cardfooter ">
                       Description
                     </th>
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 ">
+                    <th className="px-4 py-3 text-left uppercase text-cardfooter ">
                       Order
                     </th>
                     {/* <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 ">
                       Status
                     </th> */}
-                    <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700 ">
+                    <th className="px-4 py-3 text-center uppercase text-cardfooter ">
                       Actions
                     </th>
                   </tr>
@@ -122,21 +122,21 @@ const ViewAssessment = () => {
                 <tbody>
                   {visibleCategories.map((assessment, index) => (
                     <tr key={assessment._id} className="hover:bg-gray-50">
-                      <td className="px-4 py-3 text-gray-700 font-medium">
+                      <td className="px-4 py-3 text-table-text font-medium">
                         {startIndex + index + 1}
                       </td>
 
                       <td className="px-4 py-3 text-xl">{assessment.icon}</td>
 
-                      <td className="px-4 py-3 text-gray-700 font-medium">
+                      <td className="px-4 py-3 text-table-text font-medium">
                         {assessment.name}
                       </td>
 
-                      <td className="px-4 py-3 text-gray-600 max-w-[300px] truncate">
+                      <td className="px-4 py-3 text-table-text max-w-[300px] truncate">
                         {assessment.description}
                       </td>
 
-                      <td className="px-4 py-3 text-gray-700">
+                      <td className="px-4 py-3 text-table-text">
                         {assessment.order}
                       </td>
                       {/* 
@@ -161,7 +161,7 @@ const ViewAssessment = () => {
                           onClick={() => handleToggle(assessment._id)}
                           className={`px-5 py-2 text-xs rounded-md text-white 
                     ${ assessment.status
-                            ? "bg-primary hover:bg-primary"
+                            ? "bg-peach hover:bg-primary"
                       : "bg-red-500 hover:bg-red-600"}`}
                         >
                           {assessment.status ? "Active" : "Inactive"}

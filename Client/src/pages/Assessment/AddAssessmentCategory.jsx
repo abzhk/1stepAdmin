@@ -60,7 +60,7 @@ const AddAssessmentCategory = () => {
     <div className="min-h-screen bg-secondary w-full px-6 py-8">
       <div className="w-full bg-white shadow-lg rounded-2xl border border-emerald-100 p-6 md:p-8">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-gray-800">Add Category</h2>
+          <h2 className="text-subheading">Add Category</h2>
           <span className="inline-flex items-center rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 border border-emerald-100">
             Assessment Category
           </span>
@@ -78,7 +78,7 @@ const AddAssessmentCategory = () => {
         <form className="space-y-6" onSubmit={handleSubmit}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="text-sm font-medium text-gray-700">
+              <label className="text-label">
                 Category Name
               </label>
               <input
@@ -87,13 +87,13 @@ const AddAssessmentCategory = () => {
                 onChange={handleChange}
                 required
                 className="block w-full mt-2 rounded-lg border border-gray-200 px-4 py-2.5 text-sm 
-                focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-300"
+                focus:outline-none focus:ring-2 focus:ring-yellow focus:border-yellow"
                 placeholder="Eg: Emotional Wellness"
               />
             </div>
 
             <div>
-              <label className="text-sm font-medium text-gray-700">
+              <label className="text-label">
                 Icon (Emoji)
               </label>
               <input
@@ -102,25 +102,25 @@ const AddAssessmentCategory = () => {
                 onChange={handleChange}
                 placeholder="Eg: 😔 or 😴 or ⭐"
                 className="block w-full mt-2 rounded-lg border border-gray-200 px-4 py-2.5 text-sm 
-      focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-300"
+      focus:outline-none focus:ring-2 focus:ring-yellow focus:border-yellow"
               />
             </div>
 
             <div>
-              <label className="text-sm font-medium text-gray-700">Order</label>
+              <label className="text-label">Order</label>
               <input
                 type="number"
                 name="order"
                 value={formData.order}
                 onChange={handleChange}
                 className="block w-full mt-2 rounded-lg border border-gray-200 px-4 py-2.5 text-sm 
-                focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-300"
+                focus:outline-none focus:ring-2 focus:ring-yellow focus:border-yellow"
                 placeholder="Eg: 1"
               />
             </div>
 
             <div>
-              <label className="text-sm font-medium text-gray-700">
+              <label className="text-label">
                 Description
               </label>
               <textarea
@@ -130,7 +130,7 @@ const AddAssessmentCategory = () => {
                 required
                 placeholder="Describe..."
                 className="block w-full mt-2 rounded-lg border border-gray-200 px-4 py-2.5 h-28 text-sm 
-                resize-none focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-300"
+                resize-none focus:outline-none focus:ring-2 focus:ring-yellow focus:border-yellow"
               />
             </div>
           </div>
@@ -138,7 +138,7 @@ const AddAssessmentCategory = () => {
           <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
             <button
               type="button"
-              className="px-4 py-2.5 text-sm rounded-lg border border-gray-200 bg-primary text-white hover:bg-primary transition"
+              className="px-4 py-2.5 text-sm rounded-lg border border-gray-200 bg-softpeach text-white hover:bg-primary transition"
               onClick={() =>
                 setFormData({
                   name: "",
@@ -154,7 +154,7 @@ const AddAssessmentCategory = () => {
             <button
               type="submit"
               disabled={loading}
-              className="px-5 py-2.5 text-sm font-semibold rounded-lg bg-primary text-white hover:bg-primary shadow-sm transition 
+              className="px-5 py-2.5 text-sm font-semibold rounded-lg bg-darkgreen text-white hover:bg-darkgreen/60 shadow-sm transition 
               disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {loading ? "Saving..." : "Save Category"}

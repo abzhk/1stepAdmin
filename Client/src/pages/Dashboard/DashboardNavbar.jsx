@@ -5,6 +5,11 @@ import ProfileImage from '../../assets/profile.jpeg';
 import NavSearch from '../../utils/navbarSearch.jsx';
 import { useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import { logout } from "../../redux/slice/authSlice";
+import toast from "react-hot-toast";
+import { api } from "../../utils/api.js";
+import { CgLogOut } from "react-icons/cg";
 
 const DashboardNavbar = ({ searchTerm, setSearchTerm }) => {
   const navigate = useNavigate();
@@ -13,6 +18,8 @@ const DashboardNavbar = ({ searchTerm, setSearchTerm }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const { user } = useSelector((state) => state.auth);
+  
+  const dispatch = useDispatch();
   
   
   const profileRef = useRef(null);
@@ -57,9 +64,22 @@ const pageTitle = getPageTitle();
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+
+  const handleLogout = async () => {
+      try {
+        await api("/api/admin/admin/logout", { method: "POST" });
+        dispatch(logout());
+        toast.success("Logged out successfully");
+        navigate("/log");
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
   return (
-   <div className="w-full bg-white p-4 rounded-2xl flex justify-between items-center">
-  <h1 className="text-2xl font-semibold text-gray-800 tracking-tight">
+  <div className="bg-offwhite w-full px-6  flex justify-between items-center 
+  rounded-3xl">
+  <h1 className=" text-heading tracking-tight">
     {pageTitle}
   </h1>
 
@@ -117,33 +137,34 @@ const pageTitle = getPageTitle();
             >
               <div className="relative">
                 <img
-                  src={user?.profilePicture || ProfileImage}
-                  alt="Profile"
-                  className="w-10 h-10 rounded-full object-cover border-2 border-gray-300 group-hover:border-[#fbbf24] transition-all"
-                />
+  key={user?.profilePicture}  
+  src={user?.profilePicture || ProfileImage}
+  alt="Profile"
+  className="w-10 h-10 rounded-full object-cover border-2 border-gray-300"
+/>
                 <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
               </div>
               <ChevronDown size={16} className={`text-gray-400 transition-transform ${isProfileOpen ? 'rotate-180' : ''}`} />
             </div>
 
             {isProfileOpen && (
-              <div className="absolute right-0 mt-3 w-48 bg-white rounded-lg shadow-xl py-2 z-50 border border-gray-100">
+              <div className="absolute right-0 mt-3 w-48 bg-white rounded-2xl shadow-xl py-2 z-50 border border-gray-100">
+                <Link to="/admin-profile" className="flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-[#fbbf24]">
+                  <Settings size={18} />
+                  <span className="text-sm font-medium">My Profile</span>
+                </Link>
                 <Link to="/settings" className="flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-[#fbbf24]">
                   <Settings size={18} />
                   <span className="text-sm font-medium">Settings</span>
                 </Link>
-                <Link to="/about" className="flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-[#fbbf24]">
-                  <Info size={18} />
-                  <span className="text-sm font-medium">About Us</span>
-                </Link>
-                <Link to="/contact" className="flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-[#fbbf24]">
-                  <Mail size={18} />
-                  <span className="text-sm font-medium">Contact Us</span>
-                </Link>
-                <Link to="/contact" className="flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-[#fbbf24]">
-                  <Mail size={18} />
-                  <span className="text-sm font-medium">LogOut</span>
-                </Link>
+                
+               <button
+  onClick={handleLogout}
+  className="w-full flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-[#fbbf24]"
+>
+  <CgLogOut size={18} />
+  <span className="text-sm font-medium">Logout</span>
+</button>
               </div>
             )}
           </div>

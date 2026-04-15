@@ -61,35 +61,35 @@ const CentreDashBoard = () => {
         {/* CENTRE TABLE */}
         <div className="lg:col-span-2 bg-white rounded-3xl p-6 shadow-md">
           <div className="flex justify-between mb-6">
-            <h2 className="text-lg font-semibold text-green-900">Centre</h2>
+            <h2 className="text-subheading">Centre</h2>
             <button
               onClick={() => navigate("/centre-list")}
-              className="text-sm px-4 py-2 bg-green-900 text-white rounded-xl"
+              className="text-sm px-4 py-2 bg-darkgreen text-white rounded-xl"
             >
               View All →
             </button>
           </div>
 
           <table className="w-full border-separate border-spacing-y-3">
-            <thead>
-              <tr className="text-gray-400 text-xs uppercase text-left">
-                <th>Centre</th>
-                <th>Invited Provider</th>
-                <th>Email</th>
-                <th>Experience</th>
+            <thead className="bg-offwhite  rounded-2xl">
+              <tr className=" text-cardfooter uppercase text-left">
+                <th className="px-4 py-3">Centre</th>
+                <th className="px-4 py-3">Invited Provider</th>
+                <th className="px-4 py-3">Email</th>
+                <th className="px-4 py-3">Experience</th>
               </tr>
             </thead>
 
             <tbody>
               {centres.slice(0, 4).map((c) => (
-                <tr key={c._id} className="bg-[#faf9f6]">
-                  <td className="py-4 px-4 text-green-900">{c.fullName}</td>
+                <tr key={c._id} className="bg-white hover:bg-offwhite transition-colors duration-200">
+                  <td className="py-4 px-4 text-table-text">{c.fullName}</td>
 
                   
 
-                  <td>{c.totalProviders || "-"}</td>
-                  <td>{c.user?.email || "-"}</td>
-<td>{c.experience || "-"}</td>
+                  <td className="text-table-text">{c.totalProviders || "-"}</td>
+                  <td className="text-table-text">{c.user?.email || "-"}</td>
+                  <td className="text-table-text text-center">{c.experience || "-"}</td>
                   {/* <td>
                     <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs">
                       {c.isActive ? "Active" : "Inactive"}
@@ -103,7 +103,7 @@ const CentreDashBoard = () => {
 
         {/* session */}
         <div className="bg-darkgreen rounded-3xl p-6 shadow-md h-full flex flex-col">
-          <h2 className="text-lg font-semibold text-yellow mb-6">
+          <h2 className="text-subheading text-yellow mb-6">
             Sessions Completed
           </h2>
 
@@ -160,7 +160,7 @@ const CentreDashBoard = () => {
 
       <div className="mt-10 bg-white rounded-3xl p-6 shadow-md">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-lg font-semibold text-green-900">
+          <h2 className="text-subheading">
             Upcoming Sessions
           </h2>
 
@@ -174,13 +174,13 @@ const CentreDashBoard = () => {
 
         <div className="overflow-x-auto">
           <table className="w-full text-left border-separate border-spacing-y-3">
-            <thead>
-              <tr className="text-gray-400 text-xs uppercase tracking-wide">
-                <th>Booking Id</th>
-                <th>Provider</th>
-                <th>Date</th>
-                <th>Time</th>
-                <th>Status</th>
+            <thead className="bg-offwhite">
+              <tr className="text-cardfooter uppercase tracking-wide">
+                <th className="px-4 py-3">Booking Id</th>
+                <th className="px-4 py-3">Provider</th>
+                <th className="px-4 py-3">Date</th>
+                <th className="px-4 py-3">Time</th>
+                <th className="px-4 py-3">Status</th>
               </tr>
             </thead>
 
@@ -195,9 +195,9 @@ const CentreDashBoard = () => {
     upcomingSessions.slice(0, 3).map((s) => (
       <tr
         key={s._id}
-        className="bg-[#faf9f6] rounded-xl shadow-sm hover:shadow-md transition"
+        className="bg-white hover:bg-offwhite rounded-xl  hover:shadow-md transition text-table-text"
       >
-        <td className="py-4 px-4 font-medium text-green-900 ">
+        <td className="py-4 px-4  ">
           {s.bookingId || "-"}
         </td>
 

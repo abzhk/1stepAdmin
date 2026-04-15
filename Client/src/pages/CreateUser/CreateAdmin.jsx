@@ -138,10 +138,10 @@ const CreateAdmin = () => {
               </div>
             </div>
 
-            <h2 className="mt-4 text-2xl font-bold text-[#2d4a36]">
+            <h2 className="mt-4 text-tabheading uppercase">
               Create Admin
             </h2>
-            <p className="text-sm text-greenmuted">
+            <p className="text-tab-subtext">
               Add a new administrator account
             </p>
 
@@ -166,7 +166,7 @@ const CreateAdmin = () => {
 
               {/* ROLE */}
               <div className="mb-6">
-                <label className="mb-2 block text-sm font-bold tracking-wide text-[#2d4a36]">
+                <label className="mb-2 block text-label">
                   Role
                 </label>
                 <input
@@ -181,7 +181,7 @@ const CreateAdmin = () => {
 
                 {/* USERNAME */}
                 <div>
-                  <label className="mb-2 block text-sm font-bold tracking-wide text-[#2d4a36]">
+                  <label className="mb-2 block text-label">
                     Username
                   </label>
                   <input
@@ -195,7 +195,7 @@ const CreateAdmin = () => {
 
                 {/* EMAIL */}
                 <div>
-                  <label className="mb-2 block text-sm font-bold tracking-wide text-[#2d4a36]">
+                  <label className="mb-2 block text-label">
                     Email
                   </label>
                   <input
@@ -209,7 +209,7 @@ const CreateAdmin = () => {
 
                 {/* PASSWORD */}
                 <div className="md:col-span-2">
-                  <label className="mb-2 block text-sm font-bold tracking-wide text-[#2d4a36]">
+                  <label className="mb-2 block text-label">
                     Password
                   </label>
                   <input

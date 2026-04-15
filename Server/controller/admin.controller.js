@@ -71,6 +71,7 @@ export const login = async (req, res,next) => {
         role: user.role.role,
         permissions: user.role.permissions,
         isSuperAdmin: user.role.isSuperAdmin,
+         profilePicture: user.profilePicture, 
       },
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
@@ -180,6 +181,7 @@ export const verifyAdminSession = async (req, res) => {
         username: user.username,
         role: user.role.role,
         permissions: user.role.permissions,
+        profilePicture: user.profilePicture, 
       },
     });
   } catch (error) {

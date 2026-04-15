@@ -65,7 +65,7 @@ const Login = () => {
   return (
     <div className="w-screen h-screen p-2 flex">
       {/* LEFT SIDE */}
-      <div className="w-1/2 bg-primary flex flex-col items-center justify-start rounded-2xl p-8">
+      <div className="w-1/2 bg-darkgreen flex flex-col items-center justify-start rounded-2xl p-8">
         <div className="w-full flex items-center justify-start mb-10">
           <img
             src={doctor}
@@ -73,8 +73,8 @@ const Login = () => {
             className="w-20 h-20 object-cover rounded-full shadow-lg"
           />
           <div className="ml-4 text-white">
-            <h1 className="text-2xl font-bold">OneStep</h1>
-            <p className="text-sm opacity-80">Health at your fingertips</p>
+            <h1 className="text-heading text-white">OneStep</h1>
+            <p className="text-cardfooter">Health at your fingertips</p>
           </div>
         </div>
 
@@ -112,19 +112,19 @@ const Login = () => {
             onSubmit={handleLogin}
             className="flex flex-col bg-gray-50 p-4 h-72 w-96 rounded-3xl shadow-2xl gap-1"
           >
-            <label className="font-semibold">User Name</label>
+            <label className="text-label">User Name</label>
             <div className="relative w-full">
               <FaUser className="absolute left-3 top-6 -translate-y-1/2 text-gray-500" size={18} />
               <input
                 type="text"
                 placeholder="Enter your username"
-                className="w-full border-2 border-gray-300 rounded-lg mb-4 p-2 pl-10 focus:outline-none focus:ring-2 focus:ring-lightbutton"
+                className="w-full border-2 border-gray-300 rounded-lg mb-4 p-2 pl-10 focus:outline-none focus:ring-2 focus:ring-yellow"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
               />
             </div>
 
-            <label className="font-semibold">Password</label>
+            <label className="text-label">Password</label>
             <div className="relative w-full">
               <TbPasswordFingerprint
                 className="absolute left-3 top-6 -translate-y-1/2 text-gray-500"
@@ -133,7 +133,7 @@ const Login = () => {
               <input
                 type="password"
                 placeholder="Enter your password"
-                className="w-full border-2 border-gray-300 rounded-lg mb-4 p-2 pl-10 focus:outline-none focus:ring-2 focus:ring-lightbutton"
+                className="w-full border-2 border-gray-300 rounded-lg mb-4 p-2 pl-10 focus:outline-none focus:ring-2 focus:ring-yellow"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
@@ -148,7 +148,7 @@ const Login = () => {
             <button
               type="submit"
               disabled={loading}
-              className="bg-button text-white px-4 py-2 rounded-lg shadow-lg hover:bg-lighthov transition duration-300 disabled:opacity-60 disabled:cursor-not-allowed"
+              className="bg-peach text-white px-4 py-2 rounded-lg shadow-lg hover:bg-lighthov transition duration-300 disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {loading ? "Logging in..." : "Login"}
             </button>

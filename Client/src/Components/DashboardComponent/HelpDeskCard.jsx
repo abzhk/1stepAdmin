@@ -35,7 +35,7 @@ const HelpDeskCard = () => {
 
       {/* HEADER */}
       <div className="flex justify-between items-center mb-5">
-        <h3 className="text-lg font-bold tracking-wide text-[#2d4a36]">
+        <h3 className="text-subheading tracking-wide">
           Help Desk Activity
         </h3>
 

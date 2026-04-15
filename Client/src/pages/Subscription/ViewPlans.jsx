@@ -63,8 +63,8 @@ setTotalPages(data.totalPages);
       </button>
 
       <div className="overflow-x-auto bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-        <table className="w-full border-collapse">
-          <thead className="bg-gray-100 ">
+        <table className="w-full border-collapse ">
+          <thead className="bg-offwhite text-cardfooter uppercase ">
             <tr>
               <th className="p-3 text-left">Sl.no</th>
               <th className="p-3 text-left">Name</th>
@@ -81,7 +81,7 @@ setTotalPages(data.totalPages);
             {plans.map((plan, index) => (
               <tr
                 key={index}
-                className="border-t hover:bg-gray-100 transition-colors duration-200 cursor-pointer"
+                className=" hover:bg-offwhite/60  text-table-text border-t border-slate-100 transition-colors duration-200 cursor-pointer"
               >
                 <td className="p-3">{(page - 1) * 10 + index + 1}</td>
                 <td className="p-3  uppercase">{plan.plan_name}</td>

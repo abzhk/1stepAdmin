@@ -144,7 +144,7 @@ function ViewParent() {
 
                 <div>
 
-                  <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-2 h-52">
+                  <div className="bg-white rounded-xl  overflow-hidden mb-2 h-52">
                     {parent.userRef?.profilePicture && (
                       <img
                         src={parent.userRef?.profilePicture}
@@ -183,19 +183,19 @@ function ViewParent() {
 
                     <div className="space-y-2 mb-4 text-sm mt-4">
                       <div className="flex gap-2">
-                        <span className="font-semibold">
-                          Client Name:
+                        <span className="text-cardfooter uppercase">
+                          Client Name :
                         </span>
-                        <span>
+                        <span className="text-cardfooter uppercase px-2">
                           {parent.parentDetails?.childName}
                         </span>
                       </div>
 
                       <div className="flex gap-2">
-                        <span className="font-semibold">
+                        <span className="text-cardfooter uppercase">
                           Phone:
                         </span>
-                        <span>
+                        <span className="text-cardfooter">
                           {parent.parentDetails?.phoneNumber}
                         </span>
                       </div>
@@ -208,7 +208,7 @@ function ViewParent() {
                             `/parent-stats-card/${parent.userRef?._id}`
                           )
                         }
-                        className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-button text-white text-sm font-medium shadow hover:bg-lighthov transition w-full"
+                        className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-softpeach/60 text-white text-sm font-medium shadow hover:bg-lighthov transition w-full"
                       >
                         <AiFillEye />
                         View Details

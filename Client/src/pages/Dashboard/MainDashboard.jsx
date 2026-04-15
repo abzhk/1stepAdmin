@@ -82,7 +82,7 @@ const MainDashboard = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
         {/* Quick Actions */}
         <div className="bg-white rounded-4xl shadow-sm border border-gray-200 p-5">
-          <h3 className="text-lg font-bold text-[#2d4a36] mb-5">Quick Actions</h3>
+          <h3 className="text-subheading mb-5">Quick Actions</h3>
 
           <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
             {quickActions.map((action, index) => (
