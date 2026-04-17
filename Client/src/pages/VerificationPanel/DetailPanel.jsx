@@ -5,14 +5,20 @@ import Overview from "../../Components/Verification/Overview";
 import Document from "../../Components/Verification/Document";
 import History from "../../Components/Verification/History";
 import Notes from "../../Components/Verification/Notes";
+import ConfirmModal from "../../Components/Verification/ConfirmModal";
+import MessageModal from "../../Components/Verification/MessageModel";
+import { api } from "../../utils/api";
 
 
 function DocViewerModal({ doc, onClose, onStatusChange }) {
     const activeCls = "bg-[#2d4a36] text-[#F6F4F0] border-transparent";
-    const dotColors = { verified: "bg-[#8fa797]", pending: "bg-[#ffd333]", failed: "bg-[#f2a794]", missing: "bg-[#8fa797]/40" };
+    const dotColors = { verified: "bg-[#8fa797]", pending: "bg-[#ffd333]", failed: "bg-[#f2a794]" };
+    const isPdf =
+  doc.fileRef?.toLowerCase().includes(".pdf") ||
+  doc.name?.toLowerCase().endsWith(".pdf");
     return (
       <Backdrop>
-        <div className="bg-white rounded-2xl shadow-xl border border-[#8fa797]/20 w-full max-w-lg">
+        <div className="bg-white rounded-2xl shadow-xl border border-[#8fa797]/20 w-[98vw] max-w-none">
           <div className="flex items-center justify-between px-5 py-4 border-b border-[#8fa797]/15">
             <div>
               <p className="text-sm font-bold text-[#2d4a36]">{doc.name}</p>
@@ -22,13 +28,26 @@ function DocViewerModal({ doc, onClose, onStatusChange }) {
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
             </button>
           </div>
-          <div className="px-5 py-6">
-            <div className="h-48 bg-[#F6F4F0]/50 rounded-xl flex flex-col items-center justify-center border border-[#8fa797]/20 mb-5">
+          <div className="px-5 py-6 w-full">
+            <div className="h-[500px] bg-[#F6F4F0]/50 rounded-xl flex flex-col items-center justify-center border border-[#8fa797]/20 mb-5">
               <svg className="w-10 h-10 text-[#8fa797]/70 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
-              <p className="text-xs text-[#8fa797]">{doc.name}</p>
-              <p className="text-[10px] text-[#8fa797]/70 mt-1">Preview · {doc.size}</p>
+           <div className="h-[500px] w-full rounded-xl overflow-hidden border border-[#8fa797]/20 mb-5 bg-[#F6F4F0]">
+  {isPdf ? (
+    <iframe
+      src={doc.downloadUrl}
+      title={doc.name}
+      className="w-full h-full"
+    />
+  ) : (
+    <img
+      src={doc.downloadUrl}
+      alt={doc.name}
+      className="w-full h-full object-contain"
+    />
+  )}
+</div>
             </div>
             <p className="text-xs font-semibold text-[#2d4a36]/60 mb-2">Set document status</p>
             <div className="flex gap-2 flex-wrap">
@@ -49,41 +68,11 @@ function DocViewerModal({ doc, onClose, onStatusChange }) {
     );
   }
   
-  function SendMessageModal({ applicant, onClose, onSend }) {
-    const [msg, setMsg]         = useState("");
-    const [channel, setChannel] = useState("email");
-    return (
-      <Backdrop>
-        <div className="bg-white rounded-2xl shadow-xl border border-[#8fa797]/20 w-full max-w-sm p-6">
-          <h3 className="text-sm font-bold text-[#2d4a36] mb-1">Message applicant</h3>
-          <p className="text-xs text-[#8fa797] mb-4">{applicant.name} · {applicant.email}</p>
-          <div className="flex gap-2 mb-3">
-            {["email", "sms"].map(c => (
-              <button key={c} onClick={() => setChannel(c)}
-                className={`flex-1 py-1.5 text-xs font-bold rounded-lg uppercase tracking-wide transition border
-                  ${channel === c ? "bg-[#2d4a36] text-[#F6F4F0] border-[#2d4a36]" : "border-[#8fa797]/30 text-[#2d4a36]/60 hover:bg-[#F6F4F0]"}`}>
-                {c}
-              </button>
-            ))}
-          </div>
-          <textarea value={msg} onChange={e => setMsg(e.target.value)} rows={4}
-            placeholder={channel === "email" ? "Write your message to the applicant…" : "Short SMS (max 160 chars)"}
-            maxLength={channel === "sms" ? 160 : undefined}
-            className="w-full px-3 py-2 text-sm rounded-xl border border-[#8fa797]/30 focus:outline-none focus:ring-2 focus:ring-[#8fa797]/50 resize-none text-[#2d4a36] placeholder:text-[#8fa797]/70 mb-1" />
-          {channel === "sms" && <p className="text-[10px] text-[#8fa797] mb-3">{msg.length}/160</p>}
-          <div className="flex gap-2 mt-2">
-            <button onClick={onClose} className="flex-1 py-2 text-sm font-semibold border border-[#8fa797]/30 rounded-xl text-[#2d4a36]/80 hover:bg-[#F6F4F0] transition">Cancel</button>
-            <button onClick={() => { onSend(channel, msg); onClose(); }} disabled={!msg.trim()}
-              className="flex-1 py-2 text-sm font-bold bg-[#2d4a36] text-[#F6F4F0] rounded-xl hover:bg-[#2d4a36]/90 disabled:opacity-40 transition">Send</button>
-          </div>
-        </div>
-      </Backdrop>
-    );
-  }
+  
   
 
   const FIELD_STATUS_CYCLE = ["verified", "pending", "failed", "missing"];
-const DOC_STATUSES       = ["pending", "verified", "failed", "missing"];
+const DOC_STATUSES       = ["pending", "verified", "failed", ];
 
 function Backdrop({ children }) {
   return (
@@ -202,48 +191,20 @@ function CheckRow({ label, status, onCycle }) {
 }
 
 
-function ConfirmModal({ action, name, reason, setReason, onConfirm, onCancel }) {
-  return (
-    <Backdrop>
-      <div className="bg-white rounded-xl p-5 w-full max-w-sm">
-        <h3 className="text-sm font-bold mb-2 capitalize">
-          {action} confirmation
-        </h3>
 
-        <textarea
-          value={reason}
-          onChange={(e) => setReason(e.target.value)}
-          placeholder="Enter reason..."
-          className="w-full border p-2 rounded mb-3"
-        />
-
-        <div className="flex gap-2">
-          <button onClick={onCancel} className="flex-1 border p-2 rounded">
-            Cancel
-          </button>
-
-          <button onClick={onConfirm} className="flex-1 bg-[#2d4a36] text-white p-2 rounded">
-            Confirm
-          </button>
-        </div>
-      </div>
-    </Backdrop>
-  );
-}
 
   
  return (
   <>
     {confirmAction && (
-      <ConfirmModal
-        action={confirmAction}
-        name={applicant.name}
-        reason={confirmReason}
-        setReason={setConfirmReason}
-        onConfirm={handleConfirm}
-        onCancel={() => setConfirmAction(null)}
-      />
-    )}
+  <ConfirmModal
+    action={confirmAction}
+    reason={confirmReason}
+    setReason={setConfirmReason}
+    onConfirm={handleConfirm}
+    onCancel={() => setConfirmAction(null)}
+  />
+)}
 
     {liveViewingDoc && (
       <DocViewerModal
@@ -255,11 +216,25 @@ function ConfirmModal({ action, name, reason, setReason, onConfirm, onCancel }) 
       />
     )}
 
-    {showMsgModal && (
-      <SendMessageModal
-        applicant={applicant}
-        onClose={() => setShowMsgModal(false)}
-        onSend={() => {}}
+   {showMsgModal && (
+  <MessageModal
+    applicant={applicant}
+    onClose={() => setShowMsgModal(false)}
+      onSend={async (channel, msg) => {
+  try {
+    await api(`/api/claim/admin/${applicant.id}/message`, {
+      method: "POST",
+      body: JSON.stringify({
+        channel,
+        message: msg,
+      }),
+    });
+
+    showToast("Message sent", "success");
+  } catch (err) {
+    showToast("Failed to send message", "error");
+  }
+}}
       />
     )}
 
@@ -391,24 +366,27 @@ function ConfirmModal({ action, name, reason, setReason, onConfirm, onCancel }) 
           {isLocked ? (
             <div className="flex items-center justify-between">
               <p className="text-xs font-medium text-[#8fa797] italic">This claim is <strong className="text-[#2d4a36]">{applicant.overall}</strong>. Reopen to make changes.</p>
-              <button onClick={() => { onDecision(applicant.id, "pending", "Reopened for further review"); showToast("Claim reopened", "info"); }}
+              <button onClick={() => { onDecision(applicant.id,"reopen", "pending", "Reopened for further review"); showToast("Claim reopened", "info"); }}
                 className="px-4 py-2 text-xs font-bold border border-[#8fa797]/30 rounded-xl text-[#2d4a36]/80 hover:bg-[#F6F4F0] transition">
                 Reopen
               </button>
             </div>
           ) : (
             <div className="flex gap-2">
-              <button onClick={() => setConfirmAction("approved")}
+              <button onClick={() => {
+  onDecision(applicant.id, "approve", "");
+  showToast("Claim approved", "success");
+}}
                 className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-bold bg-[#8fa797] text-[#2d4a36] rounded-xl hover:bg-[#8fa797]/80 active:scale-95 transition-all">
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
                 Approve
               </button>
-              <button onClick={() => setConfirmAction("issues")}
+              <button onClick={() => setConfirmAction("request_fix")}
                 className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-bold bg-[#ffd333] text-[#2d4a36] rounded-xl hover:bg-[#ffd333]/80 active:scale-95 transition-all">
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 Request fix
               </button>
-              <button onClick={() => setConfirmAction("rejected")}
+              <button onClick={() => setConfirmAction("reject")}
                 className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-bold bg-[#f2a794] text-[#2d4a36] rounded-xl hover:bg-[#f2a794]/80 active:scale-95 transition-all">
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
                 Reject

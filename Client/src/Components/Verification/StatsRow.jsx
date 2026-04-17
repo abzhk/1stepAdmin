@@ -3,7 +3,7 @@ import React from "react";
 function StatsRow({ data, onFilterClick }) {
   const stats = [
     { label: "Total",    value: data.length,                                             textCls: "text-[#2d4a36]", bgCls: "bg-[#F6F4F0]",    borderCls: "border-[#8fa797]/30", filter: "all" },
-    { label: "Pending",  value: data.filter(d => d.overall === "pending").length,  textCls: "text-[#2d4a36]", bgCls: "bg-[#ffd333]/20", borderCls: "border-[#ffd333]/40", filter: "pending" },
+    { label: "Submitted",  value: data.filter(d => d.overall === "pending").length,  textCls: "text-[#2d4a36]", bgCls: "bg-[#ffd333]/20", borderCls: "border-[#ffd333]/40", filter: "pending" },
     { label: "Issues",   value: data.filter(d => d.overall === "issues").length,   textCls: "text-[#2d4a36]", bgCls: "bg-[#ffd333]/40", borderCls: "border-[#ffd333]/60", filter: "issues" },
     { label: "Approved", value: data.filter(d => d.overall === "approved").length, textCls: "text-[#2d4a36]", bgCls: "bg-[#8fa797]/30", borderCls: "border-[#8fa797]/50", filter: "approved" },
     { label: "Rejected", value: data.filter(d => d.overall === "rejected").length, textCls: "text-[#2d4a36]", bgCls: "bg-[#f2a794]/30", borderCls: "border-[#f2a794]/50", filter: "rejected" },

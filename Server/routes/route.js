@@ -18,6 +18,8 @@ import moduleRoute from './module.route.js';
 import masterRoute from './masterData.route.js';
 import subscriptionRoute from "./subscription.route.js"
 import invitedRoute from "./centre.route.js"
+import claimProfile from "./claimProfile.route.js"
+import notificationRoute from "./notification.route.js"
 
 const router = express.Router(); 
 
@@ -59,6 +61,10 @@ router.use("/services",masterRoute)
 router.use("/subscription",subscriptionRoute)
 //invite provider
 router.use("/invite",invitedRoute)
+//claimprofile
+router.use("/claim", claimProfile)
+//notification
+router.use("/notifications", notificationRoute)
 
 
 

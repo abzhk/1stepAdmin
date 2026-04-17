@@ -2,7 +2,7 @@ import React from "react";
 
 const statusCfg = {
   verified: { label: "Verified", bg: "bg-[#8fa797]/20", text: "text-[#2d4a36]", border: "border-[#8fa797]/50", dot: "bg-[#8fa797]" },
-  pending:  { label: "Pending",  bg: "bg-[#ffd333]/20", text: "text-[#2d4a36]", border: "border-[#ffd333]/50", dot: "bg-[#ffd333]" },
+  pending:  { label: "Submitted",  bg: "bg-[#ffd333]/20", text: "text-[#2d4a36]", border: "border-[#ffd333]/50", dot: "bg-[#ffd333]" },
   failed:   { label: "Failed",   bg: "bg-[#f2a794]/20", text: "text-[#2d4a36]", border: "border-[#f2a794]/50", dot: "bg-[#f2a794]" },
   missing:  { label: "Missing",  bg: "bg-[#F6F4F0]", text: "text-[#8fa797]", border: "border-[#8fa797]/30", dot: "bg-[#8fa797]/50" },
   uploaded: { label: "Uploaded", bg: "bg-[#8fa797]/10", text: "text-[#2d4a36]", border: "border-[#8fa797]/30", dot: "bg-[#8fa797]" },

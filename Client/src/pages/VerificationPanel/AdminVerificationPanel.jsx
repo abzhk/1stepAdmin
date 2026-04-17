@@ -1,122 +1,11 @@
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef,useEffect } from "react";
 import ApplicantList from "../../Components/Verification/ApplicationList";
 import StatsRow from "../../Components/Verification/StatsRow";
 import DetailPanel from "./DetailPanel";
+import {api} from "../../utils/api.js";
+import toast from "react-hot-toast";
 
-//Ui designed by Gokul
-const INITIAL_DATA = [
-  {
-    id: 1,
-    name: "Dr. Priya Sharma",
-    role: "Speech Therapist",
-    city: "Bangalore",
-    phone: "+91 98450 12345",
-    email: "priya.sharma@example.com",
-    initials: "PS",
-    color: "bg-[#8fa797]/30 text-[#2d4a36]",
-    submittedTs: Date.now() - 2 * 60 * 60 * 1000,
-    priority: "high",
-    identity: { aadhaar: "verified", pan: "verified", selfie: "verified", otp: "verified" },
-    qualification: { degree: "BASLP", university: "AIISH, Mysore", year: "2019", certificate: "uploaded", rci: "RCI/SP/2019/04517", rciStatus: "verified" },
-    practice: { clinic: "Hear & Speak Clinic", role: "Owner", address: "12, 3rd Cross, Indiranagar, Bangalore – 560038", type: "In-clinic", photo: "uploaded", proof: "uploaded" },
-    payment: { name: "Dr. Priya Sharma", account: "•••• 4812", ifsc: "HDFC0001204", cheque: "uploaded" },
-    docs: [
-      { id: "d1", name: "aadhaar_front.jpg", type: "Aadhaar", size: "1.2 MB", status: "verified" },
-      { id: "d2", name: "pan_card.jpg", type: "PAN", size: "890 KB", status: "verified" },
-      { id: "d3", name: "degree_cert.pdf", type: "Degree Certificate", size: "2.1 MB", status: "pending" },
-      { id: "d4", name: "clinic_photo.jpg", type: "Clinic Photo", size: "3.4 MB", status: "verified" },
-      { id: "d5", name: "cheque_scan.jpg", type: "Cancelled Cheque", size: "780 KB", status: "pending" },
-    ],
-    notes: [],
-    history: [{ ts: Date.now() - 2 * 60 * 60 * 1000, action: "Claim submitted", by: "Applicant" }],
-    overall: "pending",
-  },
-  {
-    id: 2,
-    name: "Rajan Krishnamurthy",
-    role: "Occupational Therapist",
-    city: "Chennai",
-    phone: "+91 94441 67890",
-    email: "rajan.k@example.com",
-    initials: "RK",
-    color: "bg-[#ffd333]/40 text-[#2d4a36]",
-    submittedTs: Date.now() - 5 * 60 * 60 * 1000,
-    priority: "medium",
-    identity: { aadhaar: "verified", pan: "pending", selfie: "verified", otp: "verified" },
-    qualification: { degree: "BOT", university: "SRM University", year: "2016", certificate: "uploaded", rci: "RCI/OT/2016/07831", rciStatus: "pending" },
-    practice: { clinic: "RehabPlus Centre", role: "Employee", address: "45, Adyar Bridge Rd, Chennai – 600020", type: "Both", photo: "uploaded", proof: "missing" },
-    payment: { name: "Rajan K", account: "•••• 9203", ifsc: "ICIC0002341", cheque: "missing" },
-    docs: [
-      { id: "d6", name: "aadhaar_scan.pdf", type: "Aadhaar", size: "1.8 MB", status: "verified" },
-      { id: "d7", name: "degree_bot.pdf", type: "Degree Certificate", size: "1.6 MB", status: "pending" },
-      { id: "d8", name: "clinic_photo.png", type: "Clinic Photo", size: "2.9 MB", status: "verified" },
-    ],
-    notes: [{ id: "n1", ts: Date.now() - 3 * 60 * 60 * 1000, by: "Admin", text: "PAN card upload is blurry. Requested reupload via email." }],
-    history: [
-      { ts: Date.now() - 5 * 60 * 60 * 1000, action: "Claim submitted", by: "Applicant" },
-      { ts: Date.now() - 3 * 60 * 60 * 1000, action: "Flagged for issues", by: "Admin" },
-    ],
-    overall: "issues",
-  },
-  {
-    id: 3,
-    name: "Dr. Anitha Menon",
-    role: "Physiotherapist",
-    city: "Kochi",
-    phone: "+91 99001 23456",
-    email: "anitha.menon@example.com",
-    initials: "AM",
-    color: "bg-[#f2a794]/40 text-[#2d4a36]",
-    submittedTs: Date.now() - 24 * 60 * 60 * 1000,
-    priority: "low",
-    identity: { aadhaar: "verified", pan: "verified", selfie: "verified", otp: "verified" },
-    qualification: { degree: "BPT", university: "Amrita Institute", year: "2020", certificate: "uploaded", rci: "IAP/PT/2020/11203", rciStatus: "verified" },
-    practice: { clinic: "MG Physio Studio", role: "Owner", address: "8, MG Road, Ernakulam, Kochi – 682016", type: "Online", photo: "uploaded", proof: "uploaded" },
-    payment: { name: "Anitha Menon", account: "•••• 6641", ifsc: "SBIN0007823", cheque: "uploaded" },
-    docs: [
-      { id: "d9",  name: "aadhaar_menon.jpg",  type: "Aadhaar",            size: "1.1 MB", status: "verified" },
-      { id: "d10", name: "pan_menon.jpg",       type: "PAN",                size: "740 KB", status: "verified" },
-      { id: "d11", name: "bpt_cert.pdf",        type: "Degree Certificate",size: "3.2 MB", status: "verified" },
-      { id: "d12", name: "address_proof.pdf",   type: "Address Proof",     size: "900 KB", status: "verified" },
-      { id: "d13", name: "cheque_menon.jpg",    type: "Cancelled Cheque",  size: "680 KB", status: "verified" },
-    ],
-    notes: [],
-    history: [
-      { ts: Date.now() - 24 * 60 * 60 * 1000, action: "Claim submitted", by: "Applicant" },
-      { ts: Date.now() - 20 * 60 * 60 * 1000, action: "Documents verified", by: "Admin" },
-      { ts: Date.now() - 18 * 60 * 60 * 1000, action: "Approved", by: "Admin" },
-    ],
-    overall: "approved",
-  },
-  {
-    id: 4,
-    name: "Suresh Babu",
-    role: "Audiologist",
-    city: "Hyderabad",
-    phone: "+91 91234 56789",
-    email: "suresh.b@example.com",
-    initials: "SB",
-    color: "bg-[#8fa797]/40 text-[#2d4a36]",
-    submittedTs: Date.now() - 72 * 60 * 60 * 1000,
-    priority: "high",
-    identity: { aadhaar: "verified", pan: "verified", selfie: "failed", otp: "verified" },
-    qualification: { degree: "MASLP", university: "JNTU Hyderabad", year: "2018", certificate: "missing", rci: "RCI/AU/2018/03342", rciStatus: "failed" },
-    practice: { clinic: "SoundCare Audiology", role: "Owner", address: "77, Banjara Hills, Hyderabad – 500034", type: "In-clinic", photo: "missing", proof: "missing" },
-    payment: { name: "Suresh B", account: "•••• 1190", ifsc: "AXIS0003421", cheque: "uploaded" },
-    docs: [
-      { id: "d14", name: "aadhaar_suresh.jpg", type: "Aadhaar",          size: "1.4 MB", status: "verified" },
-      { id: "d15", name: "pan_suresh.pdf",     type: "PAN",              size: "800 KB", status: "verified" },
-      { id: "d16", name: "cheque_sb.jpg",      type: "Cancelled Cheque", size: "760 KB", status: "pending" },
-    ],
-    notes: [{ id: "n2", ts: Date.now() - 60 * 60 * 1000, by: "Admin", text: "Selfie failed liveness check. RCI number returned error. Multiple docs missing. Recommend rejection." }],
-    history: [
-      { ts: Date.now() - 72 * 60 * 60 * 1000, action: "Claim submitted",   by: "Applicant" },
-      { ts: Date.now() - 48 * 60 * 60 * 1000, action: "Sent for review",   by: "System" },
-      { ts: Date.now() -      60 * 60 * 1000, action: "Rejected",          by: "Admin" },
-    ],
-    overall: "rejected",
-  },
-];
+
 
 // ── UTILS ─────────────────────────────────────────────────────────────────────
 
@@ -177,12 +66,87 @@ function Toast({ toasts }) {
 
 
 export default function AdminVerificationPanel() {
-  const [data,       setData]       = useState(INITIAL_DATA);
-  const [selectedId, setSelectedId] = useState(1);
+  // const [data,       setData]       = useState(INITIAL_DATA);
+  const [selectedId, setSelectedId] = useState(null);
   const [filter,     setFilter]     = useState("all");
   const [sortBy,     setSortBy]     = useState("newest");
   const [search,     setSearch]     = useState("");
   const [toasts,     setToasts]     = useState([]);
+  const [data, setData] = useState([]);
+  const [selectedDetail, setSelectedDetail] = useState(null);
+const [detailLoading, setDetailLoading] = useState(false);
+
+//fetch claim profiles
+  const fetchClaims = async () => {
+  try {
+    const res = await api("/api/claim/admin/queue");
+    console.log(res);
+
+    setData(
+      res.data.map((claim) => ({
+        id: claim._id,
+        name: claim.userId?.username || "Unknown",
+        email: claim.userId?.email || "",
+        role: "Therapist",
+        city: "-",
+        phone: "-",
+
+        initials:
+          claim.userId?.username
+            ?.split(" ")
+            .map((n) => n[0])
+            .join("")
+            .slice(0, 2)
+            .toUpperCase() || "NA",
+
+        color: "bg-[#8fa797]/30 text-[#2d4a36]",
+
+        submittedTs: new Date(
+          claim.submittedAt || claim.createdAt
+        ).getTime(),
+
+        priority: "medium",
+
+        overall:
+  claim.status === "submitted" || claim.status === "under_review"
+    ? "pending"
+    : claim.status === "fix_requested"
+    ? "issues"
+    : claim.status,
+
+        docs: [],
+        notes: [],
+        history: [],
+      }))
+    );
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+useEffect(() => {
+  fetchClaims();
+}, []);
+
+const fetchClaimDetail = async (claimId) => {
+  try {
+    setDetailLoading(true);
+
+    const res = await api(`/api/claim/admin/${claimId}`);
+
+    setSelectedDetail(res.data);
+  } catch (err) {
+    console.error("Failed to fetch detail:", err);
+  } finally {
+    setDetailLoading(false);
+  }
+};
+
+useEffect(() => {
+  if (selectedId) {
+    fetchClaimDetail(selectedId);
+  }
+}, [selectedId]);
 
   const selected = data.find(a => a.id === selectedId);
 
@@ -192,29 +156,106 @@ export default function AdminVerificationPanel() {
     setTimeout(() => setToasts(p => p.filter(t => t.id !== id)), 3000);
   };
 
-  const handleDecision = (id, decision, reason) => {
-    setData(prev => prev.map(a => {
-      if (a.id !== id) return a;
-      const histEntry  = { ts: Date.now(), action: `${decision.charAt(0).toUpperCase()}${decision.slice(1)}${reason ? ` — "${reason}"` : ""}`, by: "Admin" };
-      const noteEntry  = reason ? [{ id: `n${Date.now()}`, ts: Date.now(), by: "Admin", text: reason }] : [];
-      return { ...a, overall: decision, history: [...a.history, histEntry], notes: [...a.notes, ...noteEntry] };
-    }));
-    const labels = { approved: "Claim approved ✓", issues: "Fix requested", rejected: "Claim rejected", pending: "Claim reopened" };
-    const types  = { approved: "success", issues: "info", rejected: "error", pending: "info" };
-    showToast(labels[decision] || "Status updated", types[decision] || "info");
-  };
+//final approve
+ const handleDecision = async (id, decision, reason) => {
+  try {
+    await api(`/api/claim/admin/${id}/review`, {
+      method: "PATCH",
+      body: JSON.stringify({
+        action: decision,
+        reason,
+      }),
+    });
 
-  const handleDocStatusChange = (appId, docId, newStatus) => {
-    setData(prev => prev.map(a =>
-      a.id !== appId ? a : { ...a, docs: a.docs.map(d => d.id === docId ? { ...d, status: newStatus } : d) }
-    ));
-  };
 
-  const handleNoteAdd = (appId, text) => {
-    setData(prev => prev.map(a =>
-      a.id !== appId ? a : { ...a, notes: [...a.notes, { id: `n${Date.now()}`, ts: Date.now(), by: "Admin", text }] }
-    ));
-  };
+    showToast("Claim updated successfully", "success");
+
+    await fetchClaims();
+
+    if (selectedId === id) {
+      await fetchClaimDetail(id);
+    }
+  } catch (err) {
+    console.error(err);
+    showToast("Failed to update claim", "error");
+  }
+};
+
+const handleDocStatusChange = async (appId, docId, newStatus) => {
+  try {
+    await api(`/api/claim/admin/document/${docId}/status`, {
+      method: "PATCH",
+      body: JSON.stringify({
+        status: newStatus,
+      }),
+    });
+
+    setSelectedDetail((prev) => {
+      if (!prev) return prev;
+
+      const updatedDocs = prev.documents.map((doc) =>
+        doc._id === docId
+          ? { ...doc, docStatus: newStatus }
+          : doc
+      );
+
+      const updatedIdentity = { ...prev.identity };
+
+      const changedDoc = updatedDocs.find(d => d._id === docId);
+
+      if (changedDoc) {
+        const status = newStatus === "verified" ? "verified" : "pending";
+
+        switch (changedDoc.docType) {
+          case "aadhaar_front":
+          case "aadhaar_back":
+            updatedIdentity.aadhaar = status;
+            break;
+
+          case "pan_card":
+            updatedIdentity.pan = status;
+            break;
+
+          case "selfie_liveness":
+            updatedIdentity.selfie = status;
+            break;
+
+          default:
+            break;
+        }
+      }
+
+      return {
+        ...prev,
+        documents: updatedDocs, 
+        identity: updatedIdentity,
+      };
+    });
+
+    showToast("Document status updated", "success");
+  } catch (err) {
+    showToast("Failed to update document", "error");
+  }
+};
+
+// add notes 
+ const handleNoteAdd = async (claimId, text) => {
+  try {
+    await api(`/api/claim/admin/${claimId}/note`, {
+      method: "PATCH",
+      body: JSON.stringify({
+        note: text,
+      }),
+    });
+
+    toast.success("Note saved", "success");
+
+    await fetchClaimDetail(claimId);
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to save note", "error");
+  }
+};
 
   const handleFieldStatusChange = (appId, section, field, newStatus) => {
     setData(prev => prev.map(a =>
@@ -228,7 +269,7 @@ export default function AdminVerificationPanel() {
   };
 
   return (
-    <div className="h-screen bg-[#F6F4F0] flex flex-col font-sans overflow-hidden">
+    <div className="h-screen bg-[#F6F4F0] flex flex-col font-sans overflow-hidden rounded-3xl">
       <Toast toasts={toasts} />
      
       <StatsRow data={data} onFilterClick={f => { setFilter(f); }} />
@@ -254,7 +295,36 @@ export default function AdminVerificationPanel() {
           {selected ? (
             <DetailPanel
               key={selected.id}
-              applicant={selected}
+           applicant={{
+  ...selected,
+  ...(selectedDetail?.claim || {}),
+  city:
+    selectedDetail?.profile?.practice?.address?.city || "-",
+
+
+  qualificationList: selectedDetail?.profile?.qualifications || [],
+
+ practiceList: selectedDetail?.profile?.practice || [],
+
+  identity: selectedDetail?.identity || {},
+  payment: selectedDetail?.payment || {},
+docs: (selectedDetail?.documents || []).map((doc) => ({
+  id: doc._id,
+  name: doc.fileName,
+  type: doc.docType,
+  size: `${(doc.fileSizeBytes / 1024 / 1024).toFixed(2)} MB`,
+  status: doc.docStatus,
+  itemIndex: doc.itemIndex, 
+  fileRef: doc.fileRef,
+  downloadUrl: doc.downloadUrl,
+})),
+ history: (selectedDetail?.auditLogs || []).map((log) => ({
+  id: log._id,
+  action: log.action,
+  by: log.performedBy?.username || "System",
+  ts: log.createdAt,
+})),
+}}
               onDecision={handleDecision}
               onDocStatusChange={handleDocStatusChange}
               onNoteAdd={handleNoteAdd}

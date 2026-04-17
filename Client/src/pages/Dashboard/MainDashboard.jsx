@@ -41,9 +41,9 @@ const MainDashboard = () => {
     },
     {
       icon: MdRateReview,
-      label: "Add Assessment",
+      label: "Claim Profile",
       color: "bg-green-50 text-green-600 border border-greenmuted/20",
-      onClick: () => navigate("/addassessment"),
+      onClick: () => navigate("/admin-verify"),
     },
     {
       icon: TbReportSearch,

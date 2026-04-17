@@ -59,6 +59,22 @@ function CheckRow({ label, status, onCycle }) {
     </div>
   );
 }
+
+
+const getDocStatus = (type, index = 0) => {
+  const doc = applicant.docs.find(
+    (d) => d.type === type && d.itemIndex === index
+  );
+
+  if (!doc) return "missing";
+
+  if (doc.status === "verified") return "verified";
+  if (doc.status === "pending") return "pending";
+  if (doc.status === "failed") return "failed";
+
+  return "missing";
+};
+
   return (
     <div>
 
@@ -71,50 +87,159 @@ function CheckRow({ label, status, onCycle }) {
               </CollapsibleSection>
 
              
-              <CollapsibleSection title="Qualification & Registration" icon="🎓"
-                open={expandedSections.qualification} onToggle={() => toggleSection("qualification")}>
-                <KVRow label="Degree"     value={applicant.qualification.degree} />
-                <KVRow label="University" value={applicant.qualification.university} />
-                <KVRow label="Year"       value={applicant.qualification.year} />
-                <CheckRow label="Degree certificate"
-                  status={applicant.qualification.certificate === "uploaded" ? "uploaded" : "missing"}
-                  onCycle={!isLocked ? () => cycleField("qualification","certificate") : null} />
-                <div className="flex items-center justify-between py-2 last:border-0 border-b border-[#8fa797]/15">
-                  <span className="text-xs text-[#2d4a36]/80">
-                    Reg. No. <span className="font-mono text-[10px] text-[#8fa797] ml-1">{applicant.qualification.rci}</span>
-                  </span>
-                  <div className="flex items-center gap-1.5">
-                    <StatusBadge status={applicant.qualification.rciStatus} small />
-                    {!isLocked && <CycleBtn onClick={() => cycleField("qualification","rciStatus")} />}
-                  </div>
-                </div>
-              </CollapsibleSection>
+             <CollapsibleSection
+  title="Qualification & Registration"
+  icon="🎓"
+  open={expandedSections.qualification}
+  onToggle={() => toggleSection("qualification")}
+>
+  {(applicant.qualificationList || []).length === 0 ? (
+    <p className="text-xs text-[#8fa797]">No qualifications found</p>
+  ) : (
+    applicant.qualificationList.map((q, index) => (
+      <div
+        key={index}
+        className="mb-3 pb-2 border-b border-[#8fa797]/15 last:border-0"
+      >
+        {/* 🔹 Optional heading */}
+        <p className="text-[11px] font-bold text-[#2d4a36]/70 mb-1">
+          Qualification {index + 1}
+        </p>
+
+        <KVRow label="Degree" value={q.degree || "-"} />
+        <KVRow label="University" value={q.university || "-"} />
+        <KVRow label="Year" value={q.yearOfCompletion || "-"} />
+
+        <CheckRow
+          label="Degree certificate"
+          status={getDocStatus("degree_certificate", index)}
+          onCycle={
+            !isLocked
+              ? () => cycleField("qualification", "certificate")
+              : null
+          }
+        />
+
+        <div className="flex items-center justify-between py-2">
+          <span className="text-xs text-[#2d4a36]/80">
+            Reg. No.
+            <span className="font-mono text-[10px] text-[#8fa797] ml-1">
+              {q.registrationNumber?.masked || "-"}
+            </span>
+          </span>
+
+          <div className="flex items-center gap-1.5">
+            <StatusBadge
+              status={q.registrationVerified ? "verified" : "pending"}
+              small
+            />
+          </div>
+        </div>
+      </div>
+    ))
+  )}
+</CollapsibleSection>
 
          
-              <CollapsibleSection title="Practice Details" icon="🏥"
-                open={expandedSections.practice} onToggle={() => toggleSection("practice")}>
-                <div className="py-2 border-b border-[#8fa797]/15">
-                  <p className="text-xs font-bold text-[#2d4a36]/90">{applicant.practice.clinic}</p>
-                  <p className="text-[11px] text-[#8fa797] mt-0.5">{applicant.practice.address}</p>
-                  <div className="flex gap-2 mt-1.5">
-                    <span className="px-2 py-0.5 bg-[#F6F4F0] rounded text-[10px] text-[#2d4a36]/60 font-semibold">{applicant.practice.role}</span>
-                    <span className="px-2 py-0.5 bg-[#F6F4F0] rounded text-[10px] text-[#2d4a36]/60 font-semibold">{applicant.practice.type}</span>
-                  </div>
-                </div>
-                <CheckRow label="Clinic photo"  status={applicant.practice.photo === "uploaded" ? "uploaded" : "missing"} onCycle={!isLocked ? () => cycleField("practice","photo") : null} />
-                <CheckRow label="Address proof" status={applicant.practice.proof === "uploaded" ? "uploaded" : "missing"} onCycle={!isLocked ? () => cycleField("practice","proof") : null} />
-              </CollapsibleSection>
+             <CollapsibleSection
+  title="Practice Details"
+  icon="🏥"
+  open={expandedSections.practice}
+  onToggle={() => toggleSection("practice")}
+>
+  {(applicant.practiceList || []).length === 0 ? (
+    <p className="text-xs text-[#8fa797]">No practice details</p>
+  ) : (
+    applicant.practiceList.map((p, index) => (
+      <div
+        key={index}
+        className="mb-3 pb-2 border-b border-[#8fa797]/15 last:border-0"
+      >
+        {/* Optional heading */}
+        <p className="text-[11px] font-bold text-[#2d4a36]/70 mb-1">
+          Practice {index + 1}
+        </p>
+
+        {/* Clinic */}
+        <p className="text-xs font-bold text-[#2d4a36]/90">
+          {p.clinicName || "-"}
+        </p>
+
+        {/* Address */}
+        <p className="text-[11px] text-[#8fa797] mt-0.5">
+          {p.address?.line1 || "-"}, {p.address?.city || ""}
+        </p>
+
+        {/* Tags */}
+        <div className="flex gap-2 mt-1.5">
+          <span className="px-2 py-0.5 bg-[#F6F4F0] rounded text-[10px]">
+            {p.role || "-"}
+          </span>
+
+          <span className="px-2 py-0.5 bg-[#F6F4F0] rounded text-[10px]">
+            {p.consultationType || "-"}
+          </span>
+        </div>
+
+        {/* Optional verification rows */}
+        <CheckRow
+          label="Clinic photo"
+          status={getDocStatus("clinic_photo", index)}
+          onCycle={
+            !isLocked ? () => cycleField("practice", "photo") : null
+          }
+        />
+
+        <CheckRow
+          label="Address proof"
+          status={getDocStatus("address_proof", index)}
+          onCycle={
+            !isLocked ? () => cycleField("practice", "proof") : null
+          }
+        />
+      </div>
+    ))
+  )}
+</CollapsibleSection>
 
              
-              <CollapsibleSection title="Payment Details" icon="💳"
-                open={expandedSections.payment} onToggle={() => toggleSection("payment")}>
-                <KVRow label="Account holder" value={applicant.payment.name} />
-                <KVRow label="Account no."    value={applicant.payment.account} mono />
-                <KVRow label="IFSC"           value={applicant.payment.ifsc}    mono />
-                <CheckRow label="Cancelled cheque"
-                  status={applicant.payment.cheque === "uploaded" ? "uploaded" : "missing"}
-                  onCycle={!isLocked ? () => cycleField("payment","cheque") : null} />
-              </CollapsibleSection>
+             <CollapsibleSection
+  title="Payment Details"
+  icon="💳"
+  open={expandedSections.payment}
+  onToggle={() => toggleSection("payment")}
+>
+  <KVRow
+    label="Account Holder"
+    value={applicant.payment?.accountHolderName || "-"}
+  />
+
+  <KVRow
+    label="Account Number"
+    value={
+  applicant.payment?.accountNumberMasked
+    ? applicant.payment.accountNumberMasked
+    : "-"
+}
+    mono
+  />
+
+  <KVRow
+    label="IFSC"
+    value={applicant.payment?.ifscCode || "-"}
+    mono
+  />
+
+  {/* <KVRow
+    label="Bank"
+    value={applicant.payment?.bankName || "-"}
+  /> */}
+
+  <KVRow
+    label="Verified"
+    value={applicant.payment?.isVerified ? "Yes" : "No"}
+  />
+</CollapsibleSection>
 
     </div>
   )

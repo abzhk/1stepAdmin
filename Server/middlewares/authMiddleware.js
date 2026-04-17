@@ -29,12 +29,15 @@ export const verifyAdminToken = async (req, res, next) => {
       });
     }
 
-    req.user = {
-      id: user._id,
-      username: user.username,
-      role: user.role.role,
-      permissions: user.role.permissions,
-    };
+   req.user = {
+  id: user._id,
+  username: user.username,
+  role: user.role.role,
+  permissions: user.role.permissions,
+  isAdmin:
+    user.role.role === "Admin" ||
+    user.role.role === "Super Admin",
+};
 
     next();
   } catch (error) {

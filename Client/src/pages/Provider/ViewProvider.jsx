@@ -129,7 +129,7 @@ function ViewProvider() {
           </button>
         </div>
 
-        <div className="flex">
+        <div className="flex gap-2">
           {/* <select
             value={providerType}
             onChange={(e) => {
@@ -143,6 +143,9 @@ function ViewProvider() {
             <option value="centre">Centre</option>
           </select> */}
 
+<button  onClick={() => navigate("/admin-verify")} className="px-4 py-2 rounded-xl text-white font-semibold shadow transition bg-darkgreen hover:bg-yellow hover:text-darkgreen">
+            Claim Profile
+          </button>
           <button
             onClick={() => navigate("/inactive-providers")}
             className="px-4 py-2 rounded-xl text-white font-semibold shadow transition bg-darkgreen hover:bg-yellow hover:text-darkgreen"

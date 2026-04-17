@@ -1,5 +1,4 @@
-
-    import React from "react";
+import React from "react";
 import StatusBadge from "./StatusBadge";
 
 const Document = ({
@@ -45,7 +44,10 @@ const Document = ({
               <StatusBadge status={doc.status} small />
 
               <button
-                onClick={() => setViewingDoc(doc)}
+               onClick={() => {
+  setViewingDoc(doc);
+}}
+                
                 className="p-1.5 hover:bg-white rounded-lg transition"
               >
                 👁️
