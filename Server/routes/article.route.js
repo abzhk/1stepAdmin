@@ -15,7 +15,7 @@ import {verifyAdminToken} from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
-router.get('/pendingarticle',getPendingArticles)
+router.get('/pendingarticle',verifyAdminToken,getPendingArticles)
 
 router.put("/admin/:id/approve",verifyAdminToken ,approveArticle);
 
@@ -25,7 +25,7 @@ router.get("/providerarticle/:providerId",getArticleByProvider);
 
 router.put("/admin/categories/:id/status",verifyAdminToken,toggleArticleCategoryStatus);
 //get all articles
-router.get("/all", getAllArticles);
+router.get("/all",verifyAdminToken, getAllArticles);
 //create
 router.post("/create",verifyAdminToken,createArticle)
 //featured

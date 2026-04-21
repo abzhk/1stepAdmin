@@ -157,13 +157,14 @@ useEffect(() => {
   };
 
 //final approve
- const handleDecision = async (id, decision, reason) => {
+ const handleDecision = async (id, decision, reason,category) => {
   try {
     await api(`/api/claim/admin/${id}/review`, {
       method: "PATCH",
       body: JSON.stringify({
         action: decision,
         reason,
+        category,
       }),
     });
 
@@ -204,7 +205,7 @@ const handleDocStatusChange = async (appId, docId, newStatus) => {
       const changedDoc = updatedDocs.find(d => d._id === docId);
 
       if (changedDoc) {
-        const status = newStatus === "verified" ? "verified" : "pending";
+        const status = newStatus === "accepted" ? "verified" : "pending";
 
         switch (changedDoc.docType) {
           case "aadhaar_front":

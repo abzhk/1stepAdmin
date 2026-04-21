@@ -30,19 +30,19 @@ router.patch("/:id/profile",    saveProfileStep);   // PATCH  /server/claim/:id/
 router.patch("/:id/submit",     submitClaim);       // PATCH  /server/claim/:id/submit
 
 // ─── Admin routes ─────────────────────────────────────────────────────────────
-router.get("/admin/queue",               getAdminClaimQueue); // GET    /server/claim/admin/queue
+router.get("/admin/queue",  verifyAdminToken,             getAdminClaimQueue); // GET    /server/claim/admin/queue
 router.patch("/admin/:id/under-review",  markUnderReview);   // PATCH  /server/claim/admin/:id/under-review
 router.patch("/admin/:id/approve",       approveClaim);      // PATCH  /server/claim/admin/:id/approve
 router.patch("/admin/:id/reject",        rejectClaim);       // PATCH  /server/claim/admin/:id/reject
 
-router.get("/admin/:id", getAdminClaimDetail);
+router.get("/admin/:id",verifyAdminToken, getAdminClaimDetail);
 
-router.patch("/admin/document/:docId/status", updateDocumentStatus);
+router.patch("/admin/document/:docId/status",verifyAdminToken, updateDocumentStatus);
 //final review
-router.patch("/admin/:id/review", reviewClaimFinal);
+router.patch("/admin/:id/review", verifyAdminToken,reviewClaimFinal);
 //note
-router.patch("/admin/:id/note", addAdminNote);
+router.patch("/admin/:id/note",verifyAdminToken, addAdminNote);
 //mail
-router.post("/admin/:id/message", sendMessageToApplicant);
+router.post("/admin/:id/message",verifyAdminToken, sendMessageToApplicant);
 
 export default router;

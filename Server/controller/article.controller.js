@@ -2,17 +2,11 @@ import Article from "../model/Article/article.model.js";
 import Provider from "../model/provider.model.js";
 import Category from "../model/Article/category.model.js";
 import { errorHandler } from "../utils/error.js";
+import { FeaturedArticles } from "../utils/article.utils.js";
 
 // Create new article
 export const createArticle = async (req, res) => {
   try {
-// Allow only admin or superadmin
-    if (req.user.role !== "Admin" && req.user.role !== "Super Admin") {
-      return res.status(403).json({
-        success: false,
-        message: "Only admin or superadmin can create articles",
-      });
-    }
 
     const {
       title,
@@ -34,11 +28,7 @@ export const createArticle = async (req, res) => {
         message: "All required fields must be provided",
       });
     }
-    if (featuredImage && featuredImage.length > 3) {
-  return res.status(400).json({
-    message: "Maximum 3 images allowed",
-  });
-}
+  
 // Check category
     const category = await Category.findById(categoryId);
 
@@ -92,12 +82,9 @@ export const createArticle = async (req, res) => {
 
     const authorType = req.user.role;
 
-    if (featured) {
-      await Article.updateMany(
-        { featured: true },
-        { $set: { featured: false } }
-      );
-    }
+   if (featured) {
+  await FeaturedArticles(Article);
+}
 
  // Create article
     const article = new Article({
@@ -1014,10 +1001,7 @@ export const toggleFeaturedArticle = async (req, res) => {
       });
     }
 
-    await Article.updateMany(
-      { featured: true },
-      { $set: { featured: false } }
-    );
+    await FeaturedArticles(Article);
 
 
     article.featured = true;

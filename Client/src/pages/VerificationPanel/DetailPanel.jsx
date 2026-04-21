@@ -12,7 +12,7 @@ import { api } from "../../utils/api";
 
 function DocViewerModal({ doc, onClose, onStatusChange }) {
     const activeCls = "bg-[#2d4a36] text-[#F6F4F0] border-transparent";
-    const dotColors = { verified: "bg-[#8fa797]", pending: "bg-[#ffd333]", failed: "bg-[#f2a794]" };
+    const dotColors = { accepted: "bg-[#8fa797]", pending: "bg-[#ffd333]", rejected: "bg-[#f2a794]" };
     const isPdf =
   doc.fileRef?.toLowerCase().includes(".pdf") ||
   doc.name?.toLowerCase().endsWith(".pdf");
@@ -72,7 +72,7 @@ function DocViewerModal({ doc, onClose, onStatusChange }) {
   
 
   const FIELD_STATUS_CYCLE = ["verified", "pending", "failed", "missing"];
-const DOC_STATUSES       = ["pending", "verified", "failed", ];
+const DOC_STATUSES       = ["pending", "accepted", "rejected" ];
 
 function Backdrop({ children }) {
   return (
@@ -121,9 +121,10 @@ const DetailPanel = ({ applicant, onDecision, onDocStatusChange, onNoteAdd, onFi
   const [showMsgModal,     setShowMsgModal]     = useState(false);
   const [expandedSections, setExpandedSections] = useState({ identity: true, qualification: true, practice: true, payment: true });
   const noteRef = useRef(null);
+  const [confirmCategory, setConfirmCategory] = useState("");
 
   const totalDocs    = applicant.docs.length;
-  const verifiedDocs = applicant.docs.filter(d => d.status === "verified").length;
+  const verifiedDocs = applicant.docs.filter(d => d.status === "accepted").length;
   const progress     = totalDocs > 0 ? Math.round((verifiedDocs / totalDocs) * 100) : 0;
 
   const isLocked = applicant.overall === "approved" || applicant.overall === "rejected";
@@ -135,10 +136,11 @@ const DetailPanel = ({ applicant, onDecision, onDocStatusChange, onNoteAdd, onFi
   };
 
   const handleConfirm = () => {
-    onDecision(applicant.id, confirmAction, confirmReason);
-    setConfirmAction(null);
-    setConfirmReason("");
-  };
+  onDecision(applicant.id, confirmAction, confirmReason, confirmCategory);
+  setConfirmAction(null);
+  setConfirmReason("");
+  setConfirmCategory("");
+};
 
   const handleNoteSubmit = () => {
     if (!note.trim()) return;
@@ -201,6 +203,8 @@ function CheckRow({ label, status, onCycle }) {
     action={confirmAction}
     reason={confirmReason}
     setReason={setConfirmReason}
+    category={confirmCategory}           
+  setCategory={setConfirmCategory}
     onConfirm={handleConfirm}
     onCancel={() => setConfirmAction(null)}
   />
@@ -384,7 +388,7 @@ function CheckRow({ label, status, onCycle }) {
               <button onClick={() => setConfirmAction("request_fix")}
                 className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-bold bg-[#ffd333] text-[#2d4a36] rounded-xl hover:bg-[#ffd333]/80 active:scale-95 transition-all">
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                Request fix
+                Re Submit
               </button>
               <button onClick={() => setConfirmAction("reject")}
                 className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-bold bg-[#f2a794] text-[#2d4a36] rounded-xl hover:bg-[#f2a794]/80 active:scale-95 transition-all">

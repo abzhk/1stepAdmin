@@ -213,11 +213,8 @@ export const submitClaim = async (req, res, next) => {
 // Admin: paginated review queue
 export const getAdminClaimQueue = async (req, res, next) => {
   try {
-    if (!req.user.isAdmin && !req.user.role?.isSuperAdmin) {
-      return next(errorHandler(403, "Admin access required"));
-    }
 
-    const status = req.query.status || "submitted";
+    const status = req.query.status || "submitted"; 
     const page   = Math.max(1, parseInt(req.query.page)  || 1);
     const limit  = Math.min(50, parseInt(req.query.limit) || 20);
     const skip   = (page - 1) * limit;
@@ -255,9 +252,9 @@ if (req.query.status && req.query.status !== "all") {
 // Admin: mark as under review
 export const markUnderReview = async (req, res, next) => {
   try {
-    if (!req.user.isAdmin && !req.user.role?.isSuperAdmin) {
-      return next(errorHandler(403, "Admin access required"));
-    }
+    if (!req.user.isAdmin) {
+  return next(errorHandler(403, "Admin access required"));
+}
 
     const claim = await TherapistClaimRequest.findById(req.params.id);
     if (!claim) return next(errorHandler(404, "Claim not found"));
@@ -297,9 +294,9 @@ export const markUnderReview = async (req, res, next) => {
 // ─── PATCH /server/claim/admin/:id/approve ──────────────────────────────────
 export const approveClaim = async (req, res, next) => {
   try {
-    if (!req.user.isAdmin && !req.user.role?.isSuperAdmin) {
-      return next(errorHandler(403, "Admin access required"));
-    }
+    if (!req.user.isAdmin) {
+  return next(errorHandler(403, "Admin access required"));
+}
 
     const claim = await TherapistClaimRequest.findById(req.params.id);
     if (!claim) return next(errorHandler(404, "Claim not found"));
@@ -341,9 +338,9 @@ export const approveClaim = async (req, res, next) => {
 // ─── PATCH /server/claim/admin/:id/reject ───────────────────────────────────
 export const rejectClaim = async (req, res, next) => {
   try {
-    if (!req.user.isAdmin && !req.user.role?.isSuperAdmin) {
-      return next(errorHandler(403, "Admin access required"));
-    }
+    if (!req.user.isAdmin) {
+  return next(errorHandler(403, "Admin access required"));
+}
 
     const { rejectionReason, rejectionCategory, adminNotes } = req.body;
     if (!rejectionReason) {
@@ -451,7 +448,7 @@ export const updateDocumentStatus = async (req, res, next) => {
     const { docId } = req.params;
     const { status, rejectionReason } = req.body;
 
-    const allowedStatuses = ["pending", "verified", "failed"];
+    const allowedStatuses = ["pending", "accepted",  "rejected"];
 
     if (!allowedStatuses.includes(status)) {
       return next(errorHandler(400, "Invalid document status"));
@@ -463,7 +460,7 @@ export const updateDocumentStatus = async (req, res, next) => {
         $set: {
           docStatus: status,
           docRejectionReason:
-            status === "failed" ? rejectionReason || null : null,
+            status === "rejected" ? rejectionReason || null : null,
           reviewedAt: new Date(),
         },
       },
@@ -487,9 +484,7 @@ export const updateDocumentStatus = async (req, res, next) => {
 //final review by Admin
 export const reviewClaimFinal = async (req, res, next) => {
   try {
-    if (!req.user.isAdmin && !req.user.role?.isSuperAdmin) {
-      return next(errorHandler(403, "Admin access required"));
-    }
+  
 
     const { id } = req.params;
     const { action, reason, category } = req.body;
@@ -537,7 +532,7 @@ export const reviewClaimFinal = async (req, res, next) => {
   const unverifiedDocs = await TherapistDocument.countDocuments({
     claimId: id,
     isActive: true,
-    docStatus: { $ne: "verified" },
+    docStatus: { $ne: "accepted" },
   });
 
   if (unverifiedDocs > 0) {
@@ -562,7 +557,7 @@ export const reviewClaimFinal = async (req, res, next) => {
       claim.status = "fix_requested";
       claim.isLocked = false;
       claim.rejectionReason = reason.trim();
-      claim.rejectionCategory = category || "fix_required";
+      claim.rejectionCategory = category || "incomplete_profile";
     }
 
 
@@ -631,9 +626,6 @@ export const reviewClaimFinal = async (req, res, next) => {
 
 export const addAdminNote = async (req, res, next) => {
   try {
-    if (!req.user.isAdmin && !req.user.role?.isSuperAdmin) {
-      return next(errorHandler(403, "Admin access required"));
-    }
 
     const { id } = req.params;
     const { note } = req.body;

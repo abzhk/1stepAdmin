@@ -38,7 +38,7 @@ const [status, setStatus] = useState("all");
       const data = await api(`/api/article/featured/${id}`, {
         method: "PUT",
       });
-
+  await fetchArticles();
       setArticles((prev) =>
         prev.map((a) => (a._id === id ? { ...a, featured: data.featured } : a)),
       );
