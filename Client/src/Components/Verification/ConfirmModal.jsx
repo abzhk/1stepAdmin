@@ -15,7 +15,7 @@ const ConfirmModal = ({
 
         {action === "reject" && (
   <div className="mt-3">
-    <label className="text-xs font-semibold">Rejection Category</label>
+    <label className="text-label ">Rejection Category</label>
 
     <select
       value={category}
@@ -32,7 +32,7 @@ const ConfirmModal = ({
     </select>
   </div>
 )}
-        <h3 className="text-sm font-bold mb-3 capitalize">
+        <h3 className="text-label mt-2 mb-2 capitalize">
           {action} Confirmation
         </h3>
 
@@ -42,20 +42,24 @@ const ConfirmModal = ({
           value={reason}
           onChange={(e) => setReason(e.target.value)}
           placeholder="Enter reason..."
-          className="w-full border p-2 rounded mb-4 outline-none"
-        />
+           className="w-full resize-none rounded-lg border border-gray-300 bg-gray-50 
+                 px-3 py-2 text-sm text-gray-800 
+                 placeholder-gray-400
+                 focus:outline-none focus:ring-2 focus:ring-yellow focus:border-yellow
+                 transition-all duration-200"
+    />
 
         <div className="flex gap-2">
           <button
             onClick={onCancel}
-            className="flex-1 border p-2 rounded"
+            className="flex-1 border p-2 rounded-2xl"
           >
             Cancel
           </button>
 
           <button
             onClick={onConfirm}
-            className="flex-1 bg-[#2d4a36] text-white p-2 rounded"
+            className="flex-1 bg-[#2d4a36] text-white p-2 rounded-2xl"
           >
             Confirm
           </button>

@@ -9,19 +9,19 @@ import { Booking, BookedSlots } from "../model/booking.model.js";
 import { errorHandler } from '../utils/error.js';
 
 
-export const createAdmin = async (req, res) => {
+export const createAdmin = async (req, res,next) => {
   try {
     const { username, email, password,profilePicture } = req.body;
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ message: "User already exists" });
+      return next(errorHandler(400 , "User already exists" ));
     }
 
 
     const adminRole = await Role.findOne({ role: "Admin" });
     if (!adminRole) {
-      return res.status(500).json({ message: "Admin role not found" });
+      return next(errorHandler(500, "Admin role not found" ));
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -43,7 +43,7 @@ export const createAdmin = async (req, res) => {
 
   } catch (error) {
     console.error("Create admin error:", error);
-    res.status(500).json({ message: "Internal server error" });
+    return next(errorHandler(500, "Internal server error"));
   }
 };
 export const login = async (req, res,next) => {
@@ -97,7 +97,7 @@ export const login = async (req, res,next) => {
     });
   } catch (error) {
     console.error("Login error:", error);
-     next(errorHandler(500, "Login failed"));
+    return next(errorHandler(500, "Login failed"));
   }
 };
 
@@ -107,20 +107,14 @@ export const deleteProvider = async (req, res,next) => {
     const { providerId } = req.params;   
 
     if (!mongoose.Types.ObjectId.isValid(providerId)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid user id",
-      });
-    }
+  return next(errorHandler(400, "Invalid user id"));
+}
 
     const providerDoc = await Provider.findOne({ userRef: providerId });
 
     if (!providerDoc) {
-      return res.status(404).json({
-        success: false,
-        message: "Provider not found",
-      });
-    }
+  return next(errorHandler(404, "Provider not found"));
+}
 
     await Booking.deleteMany({ provider: providerDoc._id });
 
@@ -137,7 +131,7 @@ export const deleteProvider = async (req, res,next) => {
   } catch (error) {
     console.error(error);
 
-    next(errorHandler(500, "Failed to delete provider"));
+   return next(errorHandler(500, "Failed to delete provider"));
   }
 };
 export const logoutAdmin = async (req, res,next) => {
@@ -154,25 +148,25 @@ export const logoutAdmin = async (req, res,next) => {
       message: "Logout successful",
     });
   } catch (error) {
-   next(errorHandler(500, "Logout failed"));
+   return next(errorHandler(500, "Logout failed"));
   }
 };
 
-export const verifyAdminSession = async (req, res) => {
+export const verifyAdminSession = async (req, res,next) => {
   try {
     const token = req.cookies.token; 
 
     if (!token) {
-      return res.status(401).json({ success: false });
-    }
+  return next(errorHandler(401, "Unauthorized"));
+}
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     const user = await User.findById(decoded.id).populate("role");
 
     if (!user) {
-      return res.status(401).json({ success: false });
-    }
+  return next(errorHandler(401, "User not found"));
+}
 
     return res.status(200).json({
       success: true,
@@ -190,16 +184,16 @@ export const verifyAdminSession = async (req, res) => {
 };
 
 //get admin 
-export const getAdminProfile = async (req, res) => {
+export const getAdminProfile = async (req, res,next) => {
   try {
     const token = req.cookies.token;
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     const user = await User.findById(decoded.id).populate("role");
 
-    if (!user) {
-      return res.status(404).json({ success: false });
-    }
+   if (!user) {
+  return next(errorHandler(401, "User not found"));
+}
 
     res.status(200).json({
       success: true,
@@ -216,23 +210,20 @@ export const getAdminProfile = async (req, res) => {
   }
 };
 //update admin profile
-export const updateAdminProfile = async (req, res) => {
+export const updateAdminProfile = async (req, res,next) => {
   try {
     const token = req.cookies.token;
 
-    if (!token) {
-      return res.status(401).json({ success: false, message: "Unauthorized" });
-    }
+   if (!token) {
+  return next(errorHandler(401, "Unauthorized"));
+}
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     const { username, profilePicture } = req.body;
 
     if (!username || username.trim() === "") {
-      return res.status(400).json({
-        success: false,
-        message: "Username is required",
-      });
+      return next(errorHandler(400, "Username is required"));
     }
 
     const updatedUser = await User.findByIdAndUpdate(
@@ -245,10 +236,7 @@ export const updateAdminProfile = async (req, res) => {
     );
 
     if (!updatedUser) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found",
-      });
+     return next(errorHandler(404, "User not found"));
     }
 
     return res.status(200).json({
@@ -263,10 +251,7 @@ export const updateAdminProfile = async (req, res) => {
   } catch (err) {
     console.error("Update profile error:", err);
 
-    return res.status(500).json({
-      success: false,
-      message: "Failed to update profile",
-    });
+    return next(errorHandler(500, "Failed to update profile"));
   }
 };
 
@@ -283,10 +268,7 @@ export const updateProvider = async (req, res,next) => {
     const providerDoc = await Provider.findById(providerId);
 
     if (!providerDoc) {
-      return res.status(404).json({
-        success: false,
-        message: "Provider not found",
-      });
+     return next(errorHandler(404, "Provider not found"));
     }
 
  
@@ -297,10 +279,7 @@ export const updateProvider = async (req, res,next) => {
       });
 
       if (existingEmail) {
-        return res.status(400).json({
-          success: false,
-          message: "Email already in use by another provider",
-        });
+        return next(errorHandler(400, "Email already in use by another provider"));
       }
     }
 
@@ -327,7 +306,7 @@ export const updateProvider = async (req, res,next) => {
 };
 
 //fetch both parent and provider
-export const getParentsAndProviders = async (req, res) => {
+export const getParentsAndProviders = async (req, res,next) => {
   try {
 
      const { limit = 4, startIndex = 0 } = req.query;
@@ -355,31 +334,22 @@ export const getParentsAndProviders = async (req, res) => {
     });
   } catch (error) {
     console.error("Fetch Parents & Providers Error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to fetch parents and providers",
-    });
+    next(errorHandler(500, "Failed to fetch parents and providers"));
   }
 };
 //delete parent
-export const deleteParent = async (req, res) => {
+export const deleteParent = async (req, res,next) => {
   try {
     const { userRef } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(userRef)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid userRef ID",
-      });
+     return next(errorHandler(400, "Invalid userRef ID"));
     }
 
     const parentDoc = await Parent.findOne({ userRef });
 
     if (!parentDoc) {
-      return res.status(404).json({
-        success: false,
-        message: "Parent not found",
-      });
+     return next(errorHandler(404, "Parent not found"));
     }
     await Booking.deleteMany({ patient: userRef });
 
@@ -392,11 +362,7 @@ export const deleteParent = async (req, res) => {
     });
   } catch (error) {
     console.error("Delete parent error:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Failed to delete parent",
-      error: error.message,
-    });
+    return next(errorHandler(500, "Failed to delete parent"));
   }
 };
 
@@ -413,10 +379,7 @@ export const updateParent = async (req, res ,next) => {
     const parentDoc = await Parent.findOne({ userRef });
 
     if (!parentDoc) {
-      return res.status(404).json({
-        success: false,
-        message: "Parent not found",
-      });
+      return next(errorHandler(404, "Parent not found"));
     }
 
     const updatedParent = await Parent.findOneAndUpdate(

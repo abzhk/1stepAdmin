@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { api } from "../../utils/api";
 import { useNavigate } from "react-router-dom";
 
-const EditCentre = () => {
+const CentreEdit = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -197,4 +197,4 @@ const EditCentre = () => {
   );
 };
 
-export default EditCentre;
+export default CentreEdit;

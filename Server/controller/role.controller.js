@@ -1,7 +1,8 @@
 import Role from "../model/role.model.js";
+import { errorHandler } from "../utils/error.js";
 import { enforceBasePermissions } from "../utils/rolepermission.js";
 
-export const createRole = async (req, res) => {
+export const createRole = async (req, res ,next) => {
   try {
     const {
       role,
@@ -12,16 +13,16 @@ export const createRole = async (req, res) => {
     } = req.body;
 
     if (!role) {
-      return res.status(400).json({ message: "Role name is required" });
+      return next(errorHandler(400, "Role name is required" ));
     }
 
     if (!Array.isArray(permissions)) {
-      return res.status(400).json({ message: "Permissions must be an array" });
+      return next(errorHandler (400, "Permissions must be an array" ));
     }
 
     const exists = await Role.findOne({ role });
     if (exists) {
-      return res.status(409).json({ message: "Role already exists" });
+      return next(errorHandler (409, "Role already exists" ));
     }
 
     const normalizedPermissions = isSuperAdmin
@@ -42,18 +43,25 @@ export const createRole = async (req, res) => {
     });
   } catch (error) {
     console.error("Create role error:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Failed to create role",
-    });
+     return next(errorHandler(500, "Failed to create role"));
   }
 };
 
 
-export const getRoles = async (req, res) => {
-  const roles = await Role.find();
-  res.json({ success: true, roles });
-}; 
+export const getRoles = async (req, res, next) => {
+  try {
+    const roles = await Role.find();
+
+    return res.status(200).json({
+      success: true,
+      roles,
+    });
+
+  } catch (error) {
+    console.error("Get roles error:", error);
+    return next(errorHandler(500, "Failed to fetch roles"));
+  }
+};
 
 
 export const updateRole = async (req, res) => {
@@ -68,20 +76,18 @@ export const updateRole = async (req, res) => {
     const existingRole = await Role.findOne({ role });
 
     if (!existingRole) {
-      return res.status(404).json({ message: "Role not found" });
+      return next(errorHandler (404, "Role not found" ));
     }
 
     if (existingRole.isSuperAdmin) {
-      return res.status(403).json({
-        message: "Super admin role cannot be modified",
-      });
+      return next(errorHandler(403,"Super admin role cannot be modified",)) 
+
     }
 
 
     if (permissions && !Array.isArray(permissions)) {
-      return res.status(400).json({
-        message: "Permissions must be an array",
-      });
+      return next(errorHandler(400, "Permissions must be an array",))
+
     }
 
     if (description !== undefined) existingRole.description = description;
@@ -98,9 +104,6 @@ export const updateRole = async (req, res) => {
     });
   } catch (error) {
     console.error("Update role error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to update role",
-    });
+     return next(errorHandler(500, "Failed to update role"));
   }
 };

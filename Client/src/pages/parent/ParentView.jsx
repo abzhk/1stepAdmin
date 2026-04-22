@@ -5,7 +5,7 @@ import { useNavigate, useOutletContext } from "react-router-dom";
 import { api } from "../../utils/api.js";
 import toast from "react-hot-toast";
 
-function ViewParent() {
+function ParentView() {
   const navigate = useNavigate();
 
   const [parents, setParents] = useState([]);
@@ -355,4 +355,4 @@ function ViewParent() {
   );
 }
 
-export default ViewParent;
+export default ParentView;

@@ -61,29 +61,44 @@ function CheckRow({ label, status, onCycle }) {
 }
 
 
-const getDocStatus = (type, index = 0) => {
-  const doc = applicant.docs.find(
-    (d) => d.type === type && d.itemIndex === index
-  );
+const getDocStatus = (type) => {
+  const docs = applicant.docs.filter((d) => d.type === type);
 
-  if (!doc) return "missing";
+  if (docs.length === 0) return "missing";
 
-  if (doc.status === "verified") return "verified";
-  if (doc.status === "pending") return "pending";
-  if (doc.status === "failed") return "failed";
+  if (docs.every(d => d.status === "accepted")) return "verified";
+  if (docs.some(d => d.status === "rejected")) return "failed";
 
-  return "missing";
+  return "pending";
 };
 
+const getCombinedStatus = (types) => {
+  const statuses = types.map(t => getDocStatus(t));
+
+  if (statuses.every(s => s === "verified")) return "verified";
+  if (statuses.some(s => s === "failed")) return "failed";
+  return "pending";
+};
   return (
     <div>
 
 <CollapsibleSection title="Identity Verification" icon="🪪"
                 open={expandedSections.identity} onToggle={() => toggleSection("identity")}>
-                <CheckRow label="Aadhaar"     status={applicant.identity.aadhaar} onCycle={!isLocked ? () => cycleField("identity","aadhaar") : null} />
-                <CheckRow label="PAN Card"    status={applicant.identity.pan}     onCycle={!isLocked ? () => cycleField("identity","pan")     : null} />
-                <CheckRow label="Live selfie" status={applicant.identity.selfie}  onCycle={!isLocked ? () => cycleField("identity","selfie")  : null} />
-                <CheckRow label="Mobile OTP"  status={applicant.identity.otp}     onCycle={!isLocked ? () => cycleField("identity","otp")     : null} />
+              <CheckRow
+  label="Aadhaar"
+  status={getCombinedStatus(["aadhaar_front", "aadhaar_back"])}
+/>
+
+<CheckRow
+  label="PAN Card"
+  status={getDocStatus("pan_card")}
+/>
+
+<CheckRow
+  label="Live selfie"
+  status={getDocStatus("selfie_liveness")}
+/>
+<CheckRow label="RCI Certificate"  status={getDocStatus("rci_certificate")} />
               </CollapsibleSection>
 
              
@@ -101,7 +116,7 @@ const getDocStatus = (type, index = 0) => {
         key={index}
         className="mb-3 pb-2 border-b border-[#8fa797]/15 last:border-0"
       >
-        {/* 🔹 Optional heading */}
+        {/*  Optional heading */}
         <p className="text-[11px] font-bold text-[#2d4a36]/70 mb-1">
           Qualification {index + 1}
         </p>

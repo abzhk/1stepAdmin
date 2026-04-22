@@ -146,7 +146,7 @@ const toggleDefaultModule = (module) => {
 
     
 
-    alert(mode === "edit" ? "Role updated" : "Role created");
+    toast.success(mode === "edit" ? "Role updated" : "Role created");
 
     onSuccess?.();
     if (mode === "create") resetForm();

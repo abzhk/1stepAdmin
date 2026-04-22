@@ -3,7 +3,7 @@ import {api} from "../../utils/api.js";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 
-const InactiveProvider = () => {
+const ProviderInactive = () => {
   const [providers, setProviders] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -155,4 +155,4 @@ const InactiveProvider = () => {
   );
 };
 
-export default InactiveProvider;
+export default ProviderInactive;

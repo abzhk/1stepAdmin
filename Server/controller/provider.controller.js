@@ -1215,8 +1215,9 @@ export const getIndividualProviders = async (req, res, next) => {
       totalCount: activeProviders.length,
     });
   } catch (error) {
-    next(error);
-  }
+  console.error(error);
+  next(errorHandler(500, "Failed to fetch providers"));
+}
 };
 
 export const getAllCentreDashboardStats = async (req, res, next) => {
@@ -1334,12 +1335,13 @@ export const getAllCentreDashboardStats = async (req, res, next) => {
       upcoming,
     });
   } catch (error) {
-    next(error);
+    console.log(error);
+     return next(errorHandler(500, "Failed to fetch dashboard stats"));
   }
 };
 
 
-export const getMonthlyAppointments = async (req, res) => {
+export const getMonthlyAppointments = async (req, res,next) => {
   try {
 
     const acceptedProviders = await Invitation.find({
@@ -1395,6 +1397,7 @@ export const getMonthlyAppointments = async (req, res) => {
     });
   } catch (err) {
     console.error(err);
+    return next(errorHandler(500,"Failed to fetch monthly report"))
   }
 };
 
@@ -1408,18 +1411,16 @@ export const getCentreById = async (req, res, next) => {
     });
 
     if (!centre) {
-      return res.status(404).json({
-        success: false,
-        message: "Centre not found",
-      });
-    }
+  return next(errorHandler(404, "Centre not found"));
+}
 
     res.status(200).json({
       success: true,
       centre,
     });
   } catch (error) {
-    next(error);
+    console.log(error);
+    return next(errorHandler(500,"cannot find centre"))
   }
 };
 
@@ -1428,12 +1429,9 @@ export const getCentreFullDetails = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid centre id",
-      });
-    }
+   if (!mongoose.Types.ObjectId.isValid(id)) {
+  return next(errorHandler(400, "Invalid centre id"));
+}
 
     const centre = await Provider.findOne({
       _id: id,
@@ -1441,11 +1439,8 @@ export const getCentreFullDetails = async (req, res, next) => {
     }).lean();
 
     if (!centre) {
-      return res.status(404).json({
-        success: false,
-        message: "Centre not found",
-      });
-    }
+  return next(errorHandler(404, "Centre not found"));
+}
 
 
     const invitations = await Invitation.find({
@@ -1495,7 +1490,7 @@ export const getCentreFullDetails = async (req, res, next) => {
       providers: providerDetails,
     });
   } catch (error) {
-    next(error);
+   return next(errorHandler(500,"cannot find centre details"))
   }
 };
 

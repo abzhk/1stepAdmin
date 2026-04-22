@@ -6,6 +6,7 @@ import Invitation from "../model/Centre/invitation.model.js";
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 import moment from "moment";
+import { errorHandler } from "../utils/error.js";
 dotenv.config();
 
 const transporter = nodemailer.createTransport({
@@ -1600,16 +1601,13 @@ export const getCentreSpecificProviderBookings = async (req, res, next) => {
 };
 
 
-export const getAllInvtedProviders = async (req, res) => {
+export const getAllInvtedProviders = async (req, res,next) => {
   try {
     const { centreId } = req.params;
     const { status = "all" } = req.query;
 
     if (!mongoose.Types.ObjectId.isValid(centreId)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid centreId",
-      });
+      return next(errorHandler(400, "Invalid centreId"));
     }
 
     const matchStage = {
@@ -1697,9 +1695,6 @@ export const getAllInvtedProviders = async (req, res) => {
     });
   } catch (error) {
     console.error("getCentreInvitedProviders error:", error);
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+     return next(errorHandler(500, "Failed to fetch invited providers"));
   }
 };

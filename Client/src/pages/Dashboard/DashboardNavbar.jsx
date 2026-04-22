@@ -41,7 +41,8 @@ const DashboardNavbar = ({ searchTerm, setSearchTerm }) => {
   if (path.startsWith("/master-data")) return "Master Data";
   if (path.startsWith("/report")) return "Reports";
   if (path.startsWith("/create-admin")) return "Create Admin";
-   if (path.startsWith("/centre")||path.startsWith("/upcoming-session")) return "Centre";
+  if (path.startsWith("/centre")||path.startsWith("/upcoming-session")||path.startsWith("/edit-centre")) return "Centre";
+  if (path.startsWith("/admin-verify")) return "Claim Profile";
   return "Dashboard";
 };
 

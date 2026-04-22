@@ -3,7 +3,7 @@ import { api } from "../../utils/api";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
-const InActiveCentre = () => {
+const CentreInActive = () => {
   const [centres, setCentres] = useState([]);
   const navigate = useNavigate();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -168,4 +168,4 @@ const InActiveCentre = () => {
   );
 };
 
-export default InActiveCentre;
+export default CentreInActive;

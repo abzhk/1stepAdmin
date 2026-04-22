@@ -5,7 +5,7 @@ import { IoIosArrowRoundBack } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 
 
-const InacticeParents = () => {
+const ParentInactive = () => {
   const [parents, setParents] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -147,4 +147,4 @@ const InacticeParents = () => {
   );
 };
 
-export default InacticeParents;
+export default ParentInactive;

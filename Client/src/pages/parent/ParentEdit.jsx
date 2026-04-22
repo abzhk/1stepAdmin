@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import {api} from "../../utils/api.js"
 import toast from "react-hot-toast";
 
-function EditParent() {
+function ParentEdit() {
   const { parentId } = useParams();
   const navigate = useNavigate();
 
@@ -155,4 +155,4 @@ const data = await api(
   );
 }
 
-export default EditParent;
+export default ParentEdit;

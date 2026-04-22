@@ -22,7 +22,7 @@ export const getAllCategories = async (req, res,next) => {
     });
   } catch (error) {
     console.error("Get categories error:", error);
-   next(error)
+   return next(errorHandler(500, "Error fetching categories"));
   }
 };
 

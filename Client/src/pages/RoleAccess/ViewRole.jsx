@@ -2,19 +2,21 @@ import React, { useState, useEffect } from "react";
 import { FiEdit2, FiChevronDown, FiChevronUp } from "react-icons/fi";
 import CreateRP from "./CreateRoleandPermission";
 import { api } from "../../utils/api.js";
+import toast from "react-hot-toast";
 
 const ViewRole = () => {
   const [roles, setRoles] = useState([]);
   const [expandedRow, setExpandedRow] = useState(null);
   const [editingRole, setEditingRole] = useState(null);
 
-  useEffect(() => {
-    const fetchRoles = async () => {
-      const data = await api(`/api/role/all`);
-      setRoles(data.roles || []);
-    };
-    fetchRoles();
-  }, []);
+  const fetchRoles = async () => {
+  const data = await api(`/api/role/all`);
+  setRoles(data.roles || []);
+};
+
+useEffect(() => {
+  fetchRoles();
+}, []);
 
   const toggleRow = (id) => {
     setExpandedRow(expandedRow === id ? null : id);
@@ -109,9 +111,9 @@ const ViewRole = () => {
               roleData={editingRole}
               onClose={() => setEditingRole(null)}
               onSuccess={() => {
-                setEditingRole(null);
-                window.location.reload();
-              }}
+  setEditingRole(null);
+  fetchRoles();
+}}
             />
           </div>
         </div>

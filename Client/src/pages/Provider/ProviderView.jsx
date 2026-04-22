@@ -5,7 +5,7 @@ import { useNavigate, useOutletContext } from "react-router-dom";
 import { api } from "../../utils/api.js";
 import toast from "react-hot-toast";
 
-function ViewProvider() {
+function ProviderView() {
   const navigate = useNavigate();
 
   const [providers, setProviders] = useState([]);
@@ -362,4 +362,4 @@ function ViewProvider() {
   );
 }
 
-export default ViewProvider;
+export default ProviderView;

@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { api } from "../../utils/api";
 import dateFormatUtils from "../../utils/dateFormatUtils";
+import { useNavigate } from "react-router-dom";
+import { IoIosArrowRoundBack } from "react-icons/io";
 
 const statusColors = {
   pending: "bg-yellow-100 text-yellow-700",
@@ -15,6 +17,7 @@ const CenterReport = () => {
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
   const [total, setTotal] = useState(0);
+  const navigate= useNavigate()
 
   const fetchAppointments = async (pageNumber = 1) => {
     try {
@@ -40,6 +43,13 @@ const CenterReport = () => {
 
   return (
     <div className="p-8 bg-offwhite min-h-screen">
+      <button
+              onClick={() => navigate("/reportdashboard")}
+              className="flex gap-2 items-center mb-6 text-darkgreen hover:text-green-700"
+            >
+              <IoIosArrowRoundBack size={22} />
+              Back
+            </button>
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
 
 

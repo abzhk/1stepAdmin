@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { api } from "../../utils/api.js";
 import toast from "react-hot-toast";
 
-function EditProvider() {
+function ProviderEdit() {
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -331,4 +331,4 @@ function EditProvider() {
   );
 }
 
-export default EditProvider;
+export default ProviderEdit;

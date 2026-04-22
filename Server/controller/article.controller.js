@@ -5,7 +5,7 @@ import { errorHandler } from "../utils/error.js";
 import { FeaturedArticles } from "../utils/article.utils.js";
 
 // Create new article
-export const createArticle = async (req, res) => {
+export const createArticle = async (req, res,next) => {
   try {
 
     const {
@@ -24,9 +24,7 @@ export const createArticle = async (req, res) => {
 
   // Validation
     if (!title || !content || !excerpt  || !categoryId) {
-      return res.status(400).json({
-        message: "All required fields must be provided",
-      });
+      return next(errorHandler(400, "All required fields must be provided"))
     }
   
 // Check category
@@ -40,25 +38,18 @@ export const createArticle = async (req, res) => {
     }
 
     if (!category.isActive) {
-      return res.status(400).json({
-        success: false,
-        message: "This category is not currently active",
-      });
+      return next(errorHandler(400, "This category is not currently active"));
     }
 
     if (position !== null && position !== undefined) {
   if (position < 1 || position > 10) {
-    return res.status(400).json({
-      message: "Position must be between 1 and 10",
-    });
+    return next(errorHandler (400, "Position must be between 1 and 10"))
   }
 
   const existing = await Article.findOne({ position });
 
   if (existing) {
-    return res.status(400).json({
-      message: `Position ${position} already assigned`,
-    });
+    return next(errorHandler(400, `Position ${position} already assigned`));
   }
 }
 
@@ -70,9 +61,7 @@ export const createArticle = async (req, res) => {
  // Verify provider is verified
     if (provider) {
       if (!provider.verified) {
-        return res.status(403).json({
-          message: "Only verified providers can create articles",
-        });
+        return next(errorHandler(403, "Only verified providers can create articles"));
       }
 
       providerId = provider._id;
@@ -126,20 +115,16 @@ export const createArticle = async (req, res) => {
   } catch (error) {
     console.error("Create article error:", error);
 
-    return res.status(500).json({
-      success: false,
-      message: "Error creating article",
-      error: error.message,
-    });
+    return next(errorHandler(500, "Error creating article"));
   }
 };
 
 // Get all articles by provider
-export const getProviderArticles = async (req, res) => {
+export const getProviderArticles = async (req, res,next) => {
   try {
     const provider = await Provider.findOne({ userRef: req.user.id });
     if (!provider) {
-      return res.status(404).json({ message: "Provider not found" });
+      return next(errorHandler(404, "Provider not found"));
     }
 
     const { status, page = 1, limit = 10 } = req.query;
@@ -167,12 +152,12 @@ export const getProviderArticles = async (req, res) => {
     });
   } catch (error) {
     console.error("Get provider articles error:", error);
-    res.status(500).json({ message: "Error fetching articles" });
+    return next(errorHandler(500, "Error fetching articles"));
   }
 };
 
 // Get single article by ID (for editing)
-export const getArticleById = async (req, res) => {
+export const getArticleById = async (req, res,next) => {
   try {
     const { id } = req.params;
 
@@ -182,7 +167,7 @@ export const getArticleById = async (req, res) => {
       .populate("tags", "label");
 
     if (!article) {
-      return res.status(404).json({ message: "Article not found" });
+      return next(errorHandler(404, "Article not found"));
     }
 
     // Check if user is the owner or admin
@@ -193,9 +178,7 @@ export const getArticleById = async (req, res) => {
     ) {
       // If not owner, check if admin (you'll need to implement admin check)
       if (!req.user.isAdmin) {
-        return res
-          .status(403)
-          .json({ message: "Not authorized to view this article" });
+       return next(errorHandler(403, "Not authorized to view this article"));
       }
     }
 
