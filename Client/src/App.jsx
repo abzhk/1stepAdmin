@@ -11,9 +11,9 @@ import ProviderAssessment from "./pages/Assessment/ProviderAssessment.jsx";
 import ViewProvider from "./pages/Provider/ProviderView.jsx";
 import ProviderStats from "./pages/Provider/ProviderStats.jsx";
 import ViewParent from "./pages/Parent/ParentView.jsx";
-import ParentStats from "./pages/parent/ParentStatsCard.jsx";
+import ParentStats from "./pages/Parent/ParentStatsCard.jsx";
 import EditProvider from "./pages/Provider/ProviderEdit.jsx";
-import EditParent from "./pages/parent/ParentEdit.jsx";
+import EditParent from "./pages/Parent/ParentEdit.jsx";
 import PrivateRoute from "./pages/PrivateRoute.jsx";
 import CreateAdmin from "./pages/CreateUser/CreateAdmin.jsx";
 // import UserTab from "./pages/CreateUser/UserTab.jsx";
@@ -24,7 +24,7 @@ import RoleTab from "./pages/RoleAccess/RoleTab.jsx";
 import Plans from "./pages/Subscription/ViewPlans.jsx";
 import Addplans from "./pages/Subscription/Addplans.jsx";
 import { Toaster } from "react-hot-toast";
-import InactiveParents from "./pages/parent/ParentInactive.jsx";
+import InactiveParents from "./pages/Parent/ParentInactive.jsx";
 import InactiveProviders from "./pages/Provider/ProviderInactive.jsx";
 import ListViewArticle from "./pages/Article/ListViewArticle.jsx";
 import MasterData from "./pages/Master/MasterData.jsx";
@@ -122,7 +122,7 @@ const App = () => {
           <Route path="/create-Role" element={<PermissionRoute module={MODULES.SETTINGS} action={ACTIONS.CREATE}>
   <RoleTab />
 </PermissionRoute>} />
-          <Route path="/view-plans" element={ <PermissionRoute module={MODULES.PLANS} action={ACTIONS.  READ}><Plans />    </PermissionRoute>
+          <Route path="/view-plans" element={ <PermissionRoute module={MODULES.PLANS} action={ACTIONS.READ}><Plans />    </PermissionRoute>
 } />
           <Route
   path="/add-plans"

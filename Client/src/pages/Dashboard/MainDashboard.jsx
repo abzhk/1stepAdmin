@@ -61,7 +61,7 @@ const MainDashboard = () => {
       icon: FaCog,
       label: "Master Data",
       color: "bg-gray-100 text-gray-600  border border-greenmuted/20",
-      onClick: () => navigate("/master-data"),
+      onClick: () => navigate("/master"),
     },
   ];
 
