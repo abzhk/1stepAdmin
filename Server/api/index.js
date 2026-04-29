@@ -55,7 +55,6 @@ app.get("/api", (req, res) => {
 
 
 app.use((req, res, next) => {
-  // console.log("PATH RECEIVED:", req.originalUrl);
   next();
 });
 

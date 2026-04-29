@@ -11,7 +11,7 @@ import { errorHandler } from '../utils/error.js';
 
 export const createAdmin = async (req, res,next) => {
   try {
-    const { username, email, password,profilePicture } = req.body;
+    const { username, email, password,profilePicture, role } = req.body;
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -19,9 +19,10 @@ export const createAdmin = async (req, res,next) => {
     }
 
 
-    const adminRole = await Role.findOne({ role: "Admin" });
-    if (!adminRole) {
-      return next(errorHandler(500, "Admin role not found" ));
+      const selectedRole = await Role.findOne({ role });
+
+    if (!selectedRole) {
+      return next(errorHandler(400, "Invalid role selected"));
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -30,7 +31,7 @@ export const createAdmin = async (req, res,next) => {
       username,
       email,
       password: hashedPassword,
-      role: adminRole._id,
+      role: selectedRole._id,
       profilePicture
     });
 
@@ -38,7 +39,7 @@ export const createAdmin = async (req, res,next) => {
 
     res.status(201).json({
       success: true,
-      message: "Admin created successfully",
+      message: `${role} created successfully`,
     });
 
   } catch (error) {
@@ -401,5 +402,23 @@ export const updateParent = async (req, res ,next) => {
   } catch (error) {
     console.error("Update parent error:", error);
     return next(errorHandler(500, "Failed to update parent"));
+  }
+};
+
+
+//fetch role based admin profile
+export const getAdminRoles = async (req, res, next) => {
+  try {
+    const roles = await Role.find({
+      role: { $nin: ["Provider", "Centre", "Parent"] }
+    }).select("role");
+
+    res.status(200).json({
+      success: true,
+      roles
+    });
+
+  } catch (error) {
+    next(errorHandler(500, "Failed to fetch roles"));
   }
 };

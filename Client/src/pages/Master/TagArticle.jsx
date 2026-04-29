@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { api } from "../../utils/api";
 import dateFormatUtils from "../../utils/dateFormatUtils";
+import PermissionGuard from "../../Components/PermissionGuard.jsx"; 
+import { MODULES, ACTIONS } from "../../constants/permission.js"
 
 const TagArticle = () => {
   const [tags, setTags] = useState([]);
@@ -100,11 +102,11 @@ const TagArticle = () => {
 
   return (
     <div className="min-h-screen bg-offwhite">
-      <div className="max-w-6xl mx-auto">
-
-        {/* FORM */}
-        <div className="bg-white p-6 rounded-2xl shadow-md mb-8">
-          <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4">
+      <div className=" mx-auto">
+<PermissionGuard module={MODULES.MASTER_DATA} action={ACTIONS.CREATE} >
+          {/* FORM */}
+          <div className="bg-white p-6 rounded-2xl shadow-md mb-8">
+            <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4">
 
 
             {/* Label */}
@@ -181,7 +183,9 @@ const TagArticle = () => {
             </div>
 
           </form>
+          
         </div>
+        </PermissionGuard>
 
         {/* TABLE */}
         <div className="bg-white p-6 rounded-2xl shadow-md">
@@ -192,7 +196,7 @@ const TagArticle = () => {
           <div className="overflow-x-auto">
             <table className="w-full border-collapse">
               <thead>
-                <tr className="bg-gray-200 text-left text-sm">
+                <tr className="bg-offwhite text-left text-sm">
                   <th className="p-3">Sl.no</th>
                   <th className="p-3">Tag Name</th>
                   <th className="p-3">Code</th>
@@ -233,7 +237,7 @@ const TagArticle = () => {
                     <td className="p-3">
                       <button
                         onClick={() => handleEdit(tag)}
-                        className="text-blue-600 hover:underline"
+                        className="bg-darkgreen px-4 py-2 text-white hover:bg-yellow transition rounded-lg"
                       >
                         Edit
                       </button>

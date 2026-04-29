@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import {api} from "../../utils/api.js";
 import dateFormatUtils from "../../utils/dateFormatUtils.js";
+import PermissionGuard from "../../Components/PermissionGuard";
+import { MODULES, ACTIONS } from "../../constants/permission.js";
 
 const MasterData = () => {
   const [services, setServices] = useState([]);
@@ -64,8 +66,12 @@ const MasterData = () => {
 
   return (
     <div className="min-h-screen bg-offwhite">
-      <div className="max-w-6xl mx-auto">
-
+      <div className=" mx-auto">
+<PermissionGuard 
+          module={MODULES.MASTER_DATA} 
+          action={ACTIONS.CREATE}
+          
+        >
 
         <div className="bg-white p-6 rounded-2xl shadow-md mb-8">
           <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4">
@@ -129,6 +135,7 @@ const MasterData = () => {
 
           </form>
         </div>
+        </PermissionGuard>
 
         <div className="bg-white p-6 rounded-2xl shadow-md">
           <h3 className="text-lg font-semibold mb-4">
@@ -138,7 +145,7 @@ const MasterData = () => {
           <div className="overflow-x-auto">
             <table className="w-full border-collapse">
               <thead>
-                <tr className="bg-gray-200 text-left text-sm">
+                <tr className="bg-offwhite text-left text-sm">
                   <th className="p-3">Sl.no</th>
                   <th className="p-3">Service</th>
                   <th className="p-3">Code</th>

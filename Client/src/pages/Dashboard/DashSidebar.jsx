@@ -1,17 +1,17 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { CgLogOut } from "react-icons/cg";
-import {  MdRateReview } from "react-icons/md";
+import { MdRateReview } from "react-icons/md";
 import {
   TbReportSearch,
   TbCategoryPlus,
   TbLogs,
   TbArticle,
-  TbLockAccess
+  TbLockAccess,
 } from "react-icons/tb";
 import { PiUsersThreeDuotone } from "react-icons/pi";
 import { HiUserAdd } from "react-icons/hi";
-import{ LayoutDashboard} from'lucide-react';
+import { LayoutDashboard } from "lucide-react";
 import { RiParentFill, RiMastercardFill } from "react-icons/ri";
 import { IoIosMan } from "react-icons/io";
 import { IoSettingsOutline } from "react-icons/io5";
@@ -21,6 +21,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../../redux/slice/authSlice";
 import toast from "react-hot-toast";
 import { api } from "../../utils/api.js";
+import { MODULES, ACTIONS } from "../../constants/permission.js";
 
 const DashSidebar = () => {
   const navigate = useNavigate();
@@ -28,7 +29,22 @@ const DashSidebar = () => {
   const dispatch = useDispatch();
 
   const role = useSelector((state) => state.auth.user?.role);
+  const permissions = useSelector(
+    (state) => state.auth.user?.permissions || [],
+  );
 
+  const hasModuleAccess = (moduleName) => {
+    if (role === "Super Admin") return true;
+
+    return permissions.some((p) => p.module === moduleName);
+  };
+
+  const canAccess = (module, action) => {
+    if (role === "Super Admin") return true;
+
+    const perm = permissions.find((p) => p.module === module);
+    return perm?.actions.includes(action);
+  };
   const [active, setActive] = useState("");
   const [hoverMenu, setHoverMenu] = useState(null);
   const timeoutRef = useRef(null);
@@ -44,36 +60,26 @@ const DashSidebar = () => {
     const path = location.pathname;
 
     if (path.startsWith("/dashboard")) setActive("Dashboard");
-
     else if (path.startsWith("/create-admin")) setActive("User");
-
     else if (
       path.startsWith("/allproviders") ||
       path.startsWith("/view-parent") ||
       path.startsWith("/centre")
-    ) setActive("User");
-
+    )
+      setActive("User");
     else if (path.startsWith("/create-Role")) setActive("Settings");
-
     else if (path.startsWith("/add-plans")) setActive("Plans");
-
     else if (path.startsWith("/viewcat")) setActive("Add Category");
-
     else if (path.startsWith("/viewarticle")) setActive("Approve Articles");
-
     else if (path.startsWith("/addassessment")) setActive("Add Assessment");
     else if (path.startsWith("/help")) setActive("Help desk");
-
     else if (path.startsWith("/providerassessment"))
       setActive("Provider Assessments");
-
     else if (path.startsWith("/master")) setActive("Master Data");
-
     else setActive("");
   }, [location.pathname]);
 
-  const isActive = (name) =>
-    active === name || parentMap[active] === name;
+  const isActive = (name) => active === name || parentMap[active] === name;
 
   const openMenu = (menu) => {
     clearTimeout(timeoutRef.current);
@@ -97,7 +103,6 @@ const DashSidebar = () => {
     }
   };
 
-
   const iconBtn = (name, icon, onClick) => {
     const activeState = isActive(name);
 
@@ -106,7 +111,7 @@ const DashSidebar = () => {
         <button
           onClick={onClick}
           style={{
-            backgroundColor: activeState ? "#14532d" : "transparent", 
+            backgroundColor: activeState ? "#14532d" : "transparent",
           }}
           className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 ${
             activeState
@@ -124,33 +129,29 @@ const DashSidebar = () => {
         </button>
 
         {/* Tooltip */}
-       <div className="absolute left-full top-0 ml-7 invisible opacity-0 -translate-x-5 group-hover:visible group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 ease-out z-50 w-auto pointer-events-none group-hover:pointer-events-auto">
-                                    <div className="absolute -left-5 top-0 w-5 h-full bg-transparent" />
-                                    <div className="bg-slate-800 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-xl whitespace-nowrap mt-2">
-                                        {name}
-                                    </div>
-                                    </div>
+        <div className="absolute left-full top-0 ml-7 invisible opacity-0 -translate-x-5 group-hover:visible group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 ease-out z-50 w-auto pointer-events-none group-hover:pointer-events-auto">
+          <div className="absolute -left-5 top-0 w-5 h-full bg-transparent" />
+          <div className="bg-slate-800 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-xl whitespace-nowrap mt-2">
+            {name}
+          </div>
+        </div>
       </div>
     );
   };
 
   return (
     <aside className="w-24 bg-greenmuted h-screen flex flex-col items-center justify-between py-6 shadow-xl rounded-l-xl">
-
       {/* TOP */}
       <div className="flex flex-col items-center gap-6">
-
         {/* LOGO */}
         <img src={logo} className="h-14 text-yellow   " />
 
         {/* NAV */}
         <nav className="flex flex-col gap-2 items-center">
-
           {iconBtn("Dashboard", <LayoutDashboard />, () => {
             setActive("Dashboard");
             navigate("/dashboard");
           })}
-
 
           {/* USER MENU */}
           <div
@@ -158,33 +159,46 @@ const DashSidebar = () => {
             onMouseEnter={() => openMenu("user")}
             onMouseLeave={closeMenu}
           >
-            {iconBtn("User", < PiUsersThreeDuotone />, () => {})}
+            {iconBtn("User", <PiUsersThreeDuotone />, () => {})}
 
             {hoverMenu === "user" && (
               <div className="absolute left-full top-0 ml-6 w-56 bg-white shadow-xl rounded-xl p-4 z-50">
-                <div onClick={() => navigate("/allproviders")} className="p-2 hover:bg-darkgreen  hover:text-white rounded-2xl flex gap-2 cursor-pointer">
+                <div
+                  onClick={() => navigate("/allproviders")}
+                  className="p-2 hover:bg-darkgreen  hover:text-white rounded-2xl flex gap-2 cursor-pointer"
+                >
                   <IoIosMan /> Provider
                 </div>
-                <div onClick={() => navigate("/view-parent")} className="p-2 hover:bg-darkgreen  hover:text-white rounded-2xl flex gap-2 cursor-pointer">
+                <div
+                  onClick={() => navigate("/view-parent")}
+                  className="p-2 hover:bg-darkgreen  hover:text-white rounded-2xl flex gap-2 cursor-pointer"
+                >
                   <RiParentFill /> Parent
                 </div>
-                <div onClick={() => navigate("/centre")} className="p-2 hover:bg-darkgreen  hover:text-white rounded-2xl flex gap-2 cursor-pointer">
+                <div
+                  onClick={() => navigate("/centre")}
+                  className="p-2 hover:bg-darkgreen  hover:text-white rounded-2xl flex gap-2 cursor-pointer"
+                >
                   <RiParentFill /> Centre
                 </div>
-                 {role === "Super Admin" && (
-                 <div onClick={() => navigate("/create-admin")} className="p-2 hover:bg-darkgreen  hover:text-white rounded-2xl flex gap-2 cursor-pointer">
-                  <HiUserAdd />Create User
-                </div>
-                  )}
+                {role === "Super Admin" && (
+                  <div
+                    onClick={() => navigate("/create-admin")}
+                    className="p-2 hover:bg-darkgreen  hover:text-white rounded-2xl flex gap-2 cursor-pointer"
+                  >
+                    <HiUserAdd />
+                    Create User
+                  </div>
+                )}
               </div>
             )}
           </div>
 
-          {iconBtn("Plans", <TbReportSearch />, () => navigate("/add-plans"))}
-
-        
+          {hasModuleAccess(MODULES.PLANS) &&
+            iconBtn("Plans", <TbReportSearch />, () => navigate("/add-plans"))}
 
           {/* CONTENT MENU */}
+          {hasModuleAccess(MODULES.ARTICLES) && (
           <div
             className="relative group"
             onMouseEnter={() => openMenu("content")}
@@ -194,87 +208,96 @@ const DashSidebar = () => {
 
             {hoverMenu === "content" && (
               <div className="absolute left-full top-0 ml-6 w-56 bg-white shadow-xl rounded-xl p-4 z-50">
-                <div onClick={() => navigate("/viewcat")} className="p-2 hover:bg-darkgreen  hover:text-white rounded-2xl flex gap-2 cursor-pointer">
+                <div
+                  onClick={() => navigate("/viewcat")}
+                  className="p-2 hover:bg-darkgreen  hover:text-white rounded-2xl flex gap-2 cursor-pointer"
+                >
                   <TbCategoryPlus /> Categories
                 </div>
-                <div onClick={() => navigate("/viewarticle")} className="p-2 hover:bg-darkgreen  hover:text-white rounded-2xl flex gap-2 cursor-pointer">
+                <div
+                  onClick={() => navigate("/viewarticle")}
+                  className="p-2 hover:bg-darkgreen  hover:text-white rounded-2xl flex gap-2 cursor-pointer"
+                >
                   <TbLogs /> Articles
                 </div>
               </div>
             )}
           </div>
+          )}
 
           {/* ASSESSMENT MENU */}
-          <div
-            className="relative group"
-            onMouseEnter={() => openMenu("assessment")}
-            onMouseLeave={closeMenu}
-          >
-            {iconBtn("Assessment", <MdRateReview />, () => {})}
+          {hasModuleAccess(MODULES.ASSESSMENT) && (
+            <div
+              className="relative group"
+              onMouseEnter={() => openMenu("assessment")}
+              onMouseLeave={closeMenu}
+            >
+              {iconBtn("Assessment", <MdRateReview />, () => {})}
 
-            {hoverMenu === "assessment" && (
-              <div className="absolute left-full top-0 ml-6 w-56 bg-white shadow-xl rounded-xl p-4 z-50">
-                <div onClick={() => navigate("/addassessment")} className="p-2 hover:bg-darkgreen  hover:text-white rounded-2xl cursor-pointer">
-                  Add Assessment
+              {hoverMenu === "assessment" && (
+                <div className="absolute left-full top-0 ml-6 w-56 bg-white shadow-xl rounded-xl p-4 z-50">
+                  <div
+                    onClick={() => navigate("/addassessment")}
+                    className="p-2 hover:bg-darkgreen hover:text-white rounded-2xl cursor-pointer"
+                  >
+                    Add Assessment
+                  </div>
+                  <div
+                    onClick={() => navigate("/providerassessment")}
+                    className="p-2 hover:bg-darkgreen hover:text-white rounded-2xl cursor-pointer"
+                  >
+                    Provider Assessments
+                  </div>
                 </div>
-                <div onClick={() => navigate("/providerassessment")} className="p-2 hover:bg-darkgreen  hover:text-white rounded-2xl cursor-pointer">
-                  Provider Assessments
-                </div>
-              </div>
+              )}
+            </div>
+          )}
+
+          {hasModuleAccess(MODULES.MASTER_DATA) &&
+            iconBtn("Master Data", <RiMastercardFill />, () =>
+              navigate("/master"),
             )}
-          </div>
 
-          {iconBtn("Master Data", < RiMastercardFill />, () => navigate("/master"))}
-
-
- 
-
-           {iconBtn("Help desk", <SiHelpdesk />, () => {
+          {iconBtn("Help desk", <SiHelpdesk />, () => {
             setActive("Help desk");
             navigate("/help");
           })}
 
+          {/* SETTINGS MENU */}
+          <div
+            className="relative group"
+            onMouseEnter={() => openMenu("settings")}
+            onMouseLeave={closeMenu}
+          >
+            {iconBtn("Settings", <IoSettingsOutline />, () => {})}
 
-{/* SETTINGS MENU */}
-<div
-  className="relative group"
-  onMouseEnter={() => openMenu("settings")}
-  onMouseLeave={closeMenu}
->
-  {iconBtn("Settings", <IoSettingsOutline />, () => {})}
+            {hoverMenu === "settings" && (
+              <div className="absolute left-full top-0 ml-6 w-56 bg-white shadow-xl rounded-xl p-4 z-50">
+                <div
+                  onClick={() => navigate("/admin-profile")}
+                  className="p-2 hover:bg-darkgreen  hover:text-white rounded-2xl flex gap-2 cursor-pointer"
+                >
+                  <IoIosMan /> Profile
+                </div>
 
-  {hoverMenu === "settings" && (
-    <div className="absolute left-full top-0 ml-6 w-56 bg-white shadow-xl rounded-xl p-4 z-50">
+                <div
+                  onClick={() => navigate("/profile-settings")}
+                  className="p-2 hover:bg-darkgreen  hover:text-white rounded-2xl flex gap-2 cursor-pointer"
+                >
+                  <IoSettingsOutline /> Profile Settings
+                </div>
 
-      <div
-        onClick={() => navigate("/admin-profile")}
-        className="p-2 hover:bg-darkgreen  hover:text-white rounded-2xl flex gap-2 cursor-pointer"
-      >
-        <IoIosMan /> Profile
-      </div>
-
-      <div
-        onClick={() => navigate("/profile-settings")}
-        className="p-2 hover:bg-darkgreen  hover:text-white rounded-2xl flex gap-2 cursor-pointer"
-      >
-        <IoSettingsOutline /> Profile Settings
-      </div>
-
-      {role === "Super Admin" && (
-        <div
-          onClick={() => navigate("/create-Role")}
-          className="p-2 hover:bg-darkgreen  hover:text-white rounded-2xl flex gap-2 cursor-pointer"
-        >
-          <TbLockAccess /> Roles & Access
-        </div>
-      )}
-
-    </div>
-  )}
-</div>
-
-
-
+                {role === "Super Admin" && (
+                  <div
+                    onClick={() => navigate("/create-Role")}
+                    className="p-2 hover:bg-darkgreen  hover:text-white rounded-2xl flex gap-2 cursor-pointer"
+                  >
+                    <TbLockAccess /> Roles & Access
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </nav>
       </div>
 
@@ -285,7 +308,6 @@ const DashSidebar = () => {
       >
         <CgLogOut size={24} />
       </button>
-
     </aside>
   );
 };

@@ -103,10 +103,10 @@ const EditCategory = ({ isOpen, onClose, categoryId, onUpdated }) => {
           </div>
 
           <div className="flex justify-end mt-6 gap-3">
-            <button type="button" onClick={onClose} className="bg-gray-400 text-white px-4 py-2 rounded">
+            <button type="button" onClick={onClose} className="bg-gray-500 text-white px-4 py-2 rounded-lg">
               Cancel
             </button>
-            <button type="submit" disabled={loading} className="bg-primary text-white px-4 py-2 rounded">
+            <button type="submit" disabled={loading} className="bg-darkgreen text-white px-4 py-2 rounded-lg">
               {loading ? "Updating..." : "Update Category"}
             </button>
           </div>

@@ -1019,7 +1019,9 @@ export const updateArticleAdmin = async (req, res) => {
       });
     }
 
-    if (article.authorType !== "Admin" && article.authorType !== "Super Admin") {
+    if (
+  !["Admin", "Super Admin", "content_admin"].includes(article.authorType)
+) {
   return res.status(403).json({
     message: "Only admin-created articles can be edit",
   });

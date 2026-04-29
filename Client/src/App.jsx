@@ -46,6 +46,8 @@ import AdminProfile from "./pages/Settings/AdminProfile.jsx";
 import ProfileSettings from "./pages/Settings/ProfileSettings.jsx";
 import Help from "./pages/HelpDesk/Help.jsx";
 import AllComplaints from "./pages/HelpDesk/AllComplaints.jsx";
+import PermissionRoute from "./pages/PermissionRoute.jsx";
+import { MODULES, ACTIONS } from "./constants/permission.js";
 
 const App = () => {
   const dispatch = useDispatch();
@@ -90,8 +92,22 @@ const App = () => {
         >
           <Route path="/dashboard" element={<MainDashboard />} />
           <Route path="/categories" element={<Categories />} />
-          <Route path="/viewcat" element={<ViewCategories />} />
-          <Route path="/viewarticle" element={<ViewArticle />} />
+         <Route
+  path="/viewcat"
+  element={
+    <PermissionRoute module={MODULES.ARTICLES} action={ACTIONS.READ}>
+      <ViewCategories />
+    </PermissionRoute>
+  }
+/>
+          <Route
+  path="/viewarticle"
+  element={
+    <PermissionRoute module={MODULES.ARTICLES} action={ACTIONS.READ}>
+      <ViewArticle />
+    </PermissionRoute>
+  }
+/>
           <Route path="/addassessment" element={<AddAssessmentCategory />} />
           <Route path="/providerassessment" element={<ProviderAssessment />} />
           <Route path="/allproviders" element={<ViewProvider />} />
@@ -100,11 +116,22 @@ const App = () => {
           <Route path="/parent-stats-card/:userId" element={<ParentStats />} />
           <Route path="/providers/edit/:id" element={<EditProvider />} />
           <Route path="/parent/edit/:parentId" element={<EditParent />} />
-          <Route path="/create-admin" element={<CreateAdmin />} />
+          
+                    <Route path="/create-admin" element={<CreateAdmin />} />
           {/* <Route path="/create-admin-role" element={<UserTab />} /> */}
-          <Route path="/create-Role" element={<RoleTab />} />
-          <Route path="/view-plans" element={<Plans />} />
-          <Route path="/add-plans" element={<Addplans />} />
+          <Route path="/create-Role" element={<PermissionRoute module={MODULES.SETTINGS} action={ACTIONS.CREATE}>
+  <RoleTab />
+</PermissionRoute>} />
+          <Route path="/view-plans" element={ <PermissionRoute module={MODULES.PLANS} action={ACTIONS.  READ}><Plans />    </PermissionRoute>
+} />
+          <Route
+  path="/add-plans"
+  element={
+    <PermissionRoute module={MODULES.PLANS} action={ACTIONS.CREATE}>
+      <Addplans />
+    </PermissionRoute>
+  }
+/>
           <Route path="/addplans/:id" element={<Addplans />} />
           <Route path="/inactive-parents" element={<InactiveParents />} />
           <Route path="/inactive-providers" element={<InactiveProviders />} />
@@ -113,10 +140,33 @@ const App = () => {
           <Route path="/report" element={<UserReport />} />
           <Route path="/reportdashboard" element={<ReportDashboard />} />
           <Route path="/center-report" element={<CenterReport />} />
-          <Route path="/add-article" element={<AddArticle />} />
-          <Route path="/add-article/:id" element={<AddArticle />} />
-          <Route path="/tag" element={<TagArticle />} />
-          <Route path="/master" element={<MasterPage />} />
+          <Route
+  path="/add-article"
+  element={
+    <PermissionRoute module={MODULES.ARTICLES} action={ACTIONS.CREATE}>
+      <AddArticle />
+    </PermissionRoute>
+  }
+/>
+          <Route
+  path="/add-article/:id"
+  element={
+    <PermissionRoute module={MODULES.ARTICLES} action={ACTIONS.CREATE}>
+      <AddArticle />
+    </PermissionRoute>
+  }
+/>
+          <Route path="/tag" element={ <PermissionRoute module={MODULES.MASTER_DATA} action={ACTIONS.READ}>
+      <TagArticle />
+    </PermissionRoute>} />
+         <Route
+  path="/master"
+  element={
+    <PermissionRoute module={MODULES.MASTER_DATA} action={ACTIONS.READ}>
+      <MasterPage />
+    </PermissionRoute>
+  }
+/>
           <Route path="/centre" element={<CentreDashBoard/>}/>
           <Route path="/centre-list" element ={<CentreList/>}/>
           <Route path ="/centre-detail/:id" element ={<CentreDetail/>}/>

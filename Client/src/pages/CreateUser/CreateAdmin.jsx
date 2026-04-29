@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef,useEffect } from "react";
 import toast from "react-hot-toast";
 import { api } from "../../utils/api.js";
 import { storage } from "../../firebase.js";
@@ -13,6 +13,7 @@ const CreateAdmin = () => {
     email: "",
     password: "",
     profilePicture: "",
+      role: "",  
   });
 
   const [loading, setLoading] = useState(false);
@@ -20,6 +21,7 @@ const CreateAdmin = () => {
   const [progress, setProgress] = useState(0);
   const [imagePreview, setImagePreview] = useState(null);
   const [error, setError] = useState("");
+  const [roles, setRoles] = useState([]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -92,6 +94,7 @@ const CreateAdmin = () => {
         email: "",
         password: "",
         profilePicture: "",
+          role: "",  
       });
 
       setImagePreview(null);
@@ -101,6 +104,21 @@ const CreateAdmin = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+  const fetchRoles = async () => {
+    try {
+      const res = await api("/api/admin/getroles");
+      if (res.success) {
+        setRoles(res.roles);
+      }
+    } catch (err) {
+      toast.error("Failed to load roles");
+    }
+  };
+
+  fetchRoles();
+}, []);
 
   return (
     <div className="min-h-screen bg-Offwhite p-6 flex items-center justify-center">
@@ -165,16 +183,26 @@ const CreateAdmin = () => {
             <form onSubmit={handleSubmit}>
 
               {/* ROLE */}
-              <div className="mb-6">
-                <label className="mb-2 block text-label">
-                  Role
-                </label>
-                <input
-                  value="Admin"
-                  disabled
-                  className="w-full rounded-xl border-2 border-greenmuted bg-gray-200 p-3 text-gray-500"
-                />
-              </div>
+             <div className="mb-6">
+  <label className="mb-2 block text-label">
+    Role
+  </label>
+
+  <select
+    name="role"
+    value={formData.role}
+    onChange={handleChange}
+    className="w-full rounded-xl border-2 border-greenmuted p-3"
+  >
+    <option value="">Select Role</option>
+
+    {roles.map((r) => (
+      <option key={r._id} value={r.role}>
+        {r.role}
+      </option>
+    ))}
+  </select>
+</div>
 
               {/* GRID */}
               <div className="grid md:grid-cols-2 gap-6">

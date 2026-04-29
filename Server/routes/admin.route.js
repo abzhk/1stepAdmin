@@ -7,10 +7,13 @@ import {createAdmin,login,deleteProvider,
     verifyAdminSession,
     getAdminProfile,
     updateAdminProfile,
+    getAdminRoles,
 } from '../controller/admin.controller.js';
 import { verifyAdminToken } from '../middlewares/authMiddleware.js';
 import { verifyAdminOrSuperAdmin,verifySuperAdminAccess } from '../rolevalidation/roleAccessMiddleware.js';
-console.log("Admin route loaded");
+import { canAccess } from "../middlewares/permission.middleware.js";
+import { MODULES, ACTIONS } from "../constants/permissions.js";
+
 
 const router = express.Router();
 router.get("/", (req, res) => {
@@ -35,5 +38,7 @@ router.get("/parents-providers/list",verifyAdminOrSuperAdmin, getParentsAndProvi
 router.delete("/parent/user/:userRef", deleteParent);
 //update parent detail
 router.put("/parent/user/:userRef",  updateParent);
+
+router.get("/getroles", verifyAdminToken, getAdminRoles);
 
 export default router;  

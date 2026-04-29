@@ -94,7 +94,7 @@ metaDescription: {
 },
    authorType: {
     type: String,
-    enum: [ "Admin", "Super Admin","Provider"],
+    enum: [ "Admin", "Super Admin","Provider","content_admin"],
     default: "Admin",
    },
     publishedAt: {

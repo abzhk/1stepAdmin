@@ -7,14 +7,16 @@ import { createPlan ,
         getFeaturedPlan
 } from "../controller/plan/plan.controller.js";
 import {verifyAdminToken} from '../middlewares/authMiddleware.js';
+import { canAccess } from "../middlewares/permission.middleware.js";
+import { MODULES, ACTIONS } from "../constants/permissions.js";
 
 const router  = express.Router();
-router.post("/create", verifyAdminToken ,createPlan);
-router.get("/get",verifyAdminToken, getPlans);
-router.get("/featured", getFeaturedPlan);
-router.get("/:id",verifyAdminToken, getPlanById);
-router.put("/update/:id",verifyAdminToken, updatePlan);
-router.delete("/delete/:id", deletePlan);
+router.post("/create", verifyAdminToken, canAccess(MODULES.PLANS, ACTIONS.CREATE) ,createPlan);
+router.get("/get",verifyAdminToken, canAccess(MODULES.PLANS, ACTIONS.READ), getPlans);
+router.get("/featured", verifyAdminToken, canAccess(MODULES.PLANS, ACTIONS.READ), getFeaturedPlan);
+router.get("/:id",verifyAdminToken, canAccess(MODULES.PLANS, ACTIONS.READ), getPlanById);
+router.put("/update/:id",verifyAdminToken, canAccess(MODULES.PLANS, ACTIONS.UPDATE), updatePlan);
+router.delete("/delete/:id", verifyAdminToken, canAccess(MODULES.PLANS, ACTIONS.DELETE), deletePlan);
 
 
 export default router;

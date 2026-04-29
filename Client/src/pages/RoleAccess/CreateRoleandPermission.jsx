@@ -179,14 +179,16 @@ useEffect(() => {
   setRoleName(roleData.userRef.username);
   setDescription(roleData.userRef.email);
   setIsSuperAdmin(roleData.userRef.role.isSuperAdmin || false);
-  setDefaultModules(roleData.userRef.role.defaultModules || []);
 
-  const perms = buildPermissions(
+  const mergedPermissions = buildPermissions(
     roleData.userRef.role.permissions,
     roleData.userRef.permissionsOverride
   );
 
-  setPermissions(perms);
+  setPermissions(mergedPermissions);
+
+  setDefaultModules(Object.keys(mergedPermissions));
+
 }, [mode, roleData]);
 
 

@@ -64,7 +64,7 @@ export const getRoles = async (req, res, next) => {
 };
 
 
-export const updateRole = async (req, res) => {
+export const updateRole = async (req, res,next) => {
   try {
     const { role } = req.params; 
     const {
@@ -107,3 +107,4 @@ export const updateRole = async (req, res) => {
      return next(errorHandler(500, "Failed to update role"));
   }
 };
+

@@ -180,7 +180,7 @@ useEffect(() => {
                     <td>
                       <button
   onClick={() => navigate(`/add-article/${article._id}`)}
-  className="text-white bg-blue-500 px-2 py-1 rounded mr-2 hover:bg-blue-600"
+  className="text-white bg-darkgreen px-3 py-1 rounded-lg mr-2 hover:bg-yellow transition"
 >
 Edit
 </button>
@@ -190,7 +190,7 @@ Edit
     setDeleteId(article._id);
     setShowDeleteModal(true);
   }}
-  className="text-white bg-red-500 px-2 py-1 rounded hover:bg-red-600"
+  className="text-white bg-red-500 px-3 py-1 rounded-lg hover:bg-red-600"
 >
 Delete
 </button>
