@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import ViewAssessmentCategories from "./ViewAssessment";
 import {api} from "../../utils/api.js"
+import PermissionGuard from "../../Components/PermissionGuard.jsx";
+import { MODULES, ACTIONS } from "../../constants/permission.js";
 
 const AddAssessmentCategory = () => {
   const [formData, setFormData] = useState({
@@ -57,6 +59,7 @@ const AddAssessmentCategory = () => {
   };
 
   return (
+   
     <div className="min-h-screen bg-secondary w-full px-6 py-8">
       <div className="w-full bg-white shadow-lg rounded-2xl border border-emerald-100 p-6 md:p-8">
         <div className="flex items-center justify-between mb-6">
@@ -75,6 +78,7 @@ const AddAssessmentCategory = () => {
             {success}
           </p>
         )}
+         <PermissionGuard module={MODULES.ASSESSMENT} action={ACTIONS.CREATE}>
         <form className="space-y-6" onSubmit={handleSubmit}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -161,9 +165,13 @@ const AddAssessmentCategory = () => {
             </button>
           </div>
         </form>
+        </PermissionGuard>
       </div>
-      <ViewAssessmentCategories />
+     <PermissionGuard module={MODULES.ASSESSMENT} action={ACTIONS.READ}>
+  <ViewAssessmentCategories />
+</PermissionGuard>
     </div>
+
   );
 };
 

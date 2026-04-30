@@ -3,6 +3,9 @@ import AddCategory from "./AddCategories";
 import { useEffect } from "react";
 import EditCategory from "./EditCategories";
 import {api} from "../../utils/api.js";
+import PermissionGuard from "../../Components/PermissionGuard.jsx";
+import { MODULES, ACTIONS } from "../../constants/permission.js"
+import toast from "react-hot-toast";  
 
 
 const ViewCategories = () => {
@@ -95,12 +98,14 @@ const handleEdit = (id) => {
         <h2 className="text-outerheader tracking-tight">
           No of Categories: {totalCount}
         </h2>
+        <PermissionGuard module={MODULES.ARTICLES} action={ACTIONS.CREATE}>
         <button
           onClick={handleOpen}
           className="bg-darkgreen hover:bg-lighthov text-white px-6 py-2 rounded-xl shadow-md"
         >
           + Add Category
         </button>
+        </PermissionGuard>
       </div>
 
       <div className="flex-1 bg-white p-8 rounded-2xl shadow-sm  overflow-x-auto">
@@ -113,7 +118,9 @@ const handleEdit = (id) => {
               <th className="px-4 sm:px-6 py-4 text-left text-cardfooter uppercase tracking-wider">Color</th>
               <th className="px-4 sm:px-6 py-4 text-left text-cardfooter uppercase tracking-wider">Order</th>
               {/* <th className="p-3">Article Count</th> */}
+              <PermissionGuard module={MODULES.ARTICLES} action={ACTIONS.UPDATE}>
               <th className="px-4 sm:px-6 py-4 text-left text-xs font-semibold text-[#8fa797] uppercase tracking-wider">Actions</th>
+              </PermissionGuard>
             </tr>
           </thead>
 
@@ -128,13 +135,16 @@ const handleEdit = (id) => {
                 {/* <td className="p-3">{item.articleCount}</td> */}
 
                 <td className="p-3 flex gap-2">
+                  <PermissionGuard module={MODULES.ARTICLES} action={ACTIONS.UPDATE}>
                   <button
   onClick={() => handleEdit(item._id)}
   className="bg-darkgreen text-white px-4 py-2 rounded-lg shadow hover:opacity-90 transition"
 >
   Edit
 </button>
+</PermissionGuard>
 
+                  <PermissionGuard module={MODULES.ARTICLES} action={ACTIONS.UPDATE}>
                   <button
     onClick={() => handleToggleStatus(item._id)}
     className={`px-4 py-1 rounded-lg text-white text-sm shadow
@@ -143,6 +153,7 @@ const handleEdit = (id) => {
   >
     {item.isActive ? "Active" : "Inactive"}
   </button>
+</PermissionGuard>
                 </td>
               </tr>
             ))}
@@ -180,7 +191,7 @@ const handleEdit = (id) => {
               <button
                 key={pageNum}
                 onClick={() => goToPage(pageNum)}
-                className={`px-3 py-1 rounded-md border ${isActive ? "bg-primary text-white" : "hover:bg-gray-100"}`}
+                className={`px-3 py-1 rounded-md border ${isActive ? "bg-darkgreen text-white" : "hover:bg-gray-100"}`}
                 aria-current={isActive ? "page" : undefined}
               >
                 {pageNum}

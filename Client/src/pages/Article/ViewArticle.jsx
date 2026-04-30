@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 import { GrView } from "react-icons/gr";
 import { api } from "../../utils/api.js";
 import toast from "react-hot-toast";
+import PermissionGuard from "../../Components/PermissionGuard.jsx";
+import { MODULES, ACTIONS } from "../../constants/permission.js"
 
 const ViewArticle = () => {
   const [articles, setArticles] = useState([]);
@@ -107,12 +109,14 @@ const ViewArticle = () => {
   return (
     <div className="min-h-screen bg-secondary py-8 px-4 sm:px-6 lg:px-8">
       <div className="flex justify-end gap-3 mb-4">
-        <button
-          onClick={() => navigate("/add-article")}
-          className="px-4 py-2 bg-darkgreen text-white rounded-lg"
-        >
-          Add Article
+        <PermissionGuard module={MODULES.ARTICLES} action={ACTIONS.CREATE}>
+          <button
+            onClick={() => navigate("/add-article")}
+            className="px-4 py-2 bg-darkgreen text-white rounded-lg"
+          >
+            Add Article
         </button>
+        </PermissionGuard>
 
         <button
           onClick={() => navigate("/list-view-article")}
@@ -185,13 +189,15 @@ const ViewArticle = () => {
                     </div>
 
                     <div className="flex gap-2">
+                      <PermissionGuard module={MODULES.ARTICLES} action={ACTIONS.UPDATE}>
                       <button
                         onClick={() => handleApprove(article._id)}
                         className="flex-1 bg-button text-white py-2 rounded"
                       >
                         Approve
                       </button>
-
+                      </PermissionGuard>
+<PermissionGuard module={MODULES.ARTICLES} action={ACTIONS.UPDATE}>
                       <button
                         onClick={() => {
                           setSelectedArticleId(article._id);
@@ -201,6 +207,7 @@ const ViewArticle = () => {
                       >
                         Reject
                       </button>
+                      </PermissionGuard>
                     </div>
                   </div>
                 </div>

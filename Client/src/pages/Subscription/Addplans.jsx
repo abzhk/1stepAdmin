@@ -19,6 +19,8 @@ import { useParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useLocation } from "react-router-dom";
 import{api} from "../../utils/api.js"
+import PermissionGuard from "../../Components/PermissionGuard.jsx";
+import {MODULES, ACTIONS} from "../../constants/permission.js"
 
 
 const Addplans = () => {
@@ -317,10 +319,25 @@ const isVersionMode = !!id && mode === "version";
   }
 
   return (
+    <div>
+    {/* TOP BAR */}
+<div className="max-w-7xl mx-auto flex justify-end mt-6">
+  <PermissionGuard module={MODULES.PLANS} action={ACTIONS.READ}>
+    <button
+      onClick={handleView}
+      className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#f2a794] text-[#2d4a36]"
+    >
+      <GrView />
+      List View
+    </button>
+  </PermissionGuard>
+</div>
     <div className="min-h-screen bg-[#F6F4F0] p-6 md:p-12 font-sans text-slate-800 flex items-center justify-center">
+      
       <div className="max-w-7xl w-full grid grid-cols-1 lg:grid-cols-12 gap-8">
         <div className="lg:col-span-7 flex flex-col">
           <div className="mb-8 pl-2">
+            <PermissionGuard module={MODULES.PLANS} action={ACTIONS.CREATE}>
             <div className="flex items-center space-x-2 sm:space-x-4">
               {[1, 2, 3, 4, 5].map((s) => (
                 <div key={s} className="flex items-center">
@@ -350,9 +367,11 @@ const isVersionMode = !!id && mode === "version";
               {step === 4 && "Limits"}
               {step === 5 && "Review"}
             </div>
+            </PermissionGuard>
           </div>
-
+<PermissionGuard module={MODULES.PLANS} action={ACTIONS.CREATE}>
           <div className="bg-white rounded-3xl shadow-xl border border-[#8fa797]/20 flex-1 flex flex-col min-h-[550px]">
+          
             <form onSubmit={handleFormSubmit} className="flex-1 flex flex-col">
               <div className="p-8 flex-1 overflow-y-auto">
                 {step === 1 && (
@@ -990,17 +1009,21 @@ const isVersionMode = !!id && mode === "version";
                 )}
               </div>
             </form>
+           
           </div>
+           </PermissionGuard>
         </div>
 
         <div className="lg:col-span-5 hidden lg:block">
-          <button
+          {/* <button
             onClick={handleView}
             className="ml-auto flex items-center gap-2 px-4 py-2 bg-yellow border rounded-lg bg-peach text-darkgreen"
           >
             <GrView className="text-darkgreen" />
             List View
-          </button>
+          </button> */}
+
+          <PermissionGuard module={MODULES.PLANS} action={ACTIONS.CREATE}>
           <div className="sticky top-8">
             <h3 className="text-xs font-bold uppercase tracking-widest text-[#8fa797] mb-4 ml-1">
               Live Preview
@@ -1065,8 +1088,10 @@ const isVersionMode = !!id && mode === "version";
               </button>
             </div>
           </div>
+          </PermissionGuard>
         </div>
       </div>
+    </div>
     </div>
   );
 };

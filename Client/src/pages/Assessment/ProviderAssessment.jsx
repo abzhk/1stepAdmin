@@ -3,6 +3,8 @@ import dateFormatUtils from "../../utils/dateFormatUtils";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 import {api} from '../../utils/api.js'
+import PermissionGuard from "../../Components/PermissionGuard.jsx";
+import { MODULES, ACTIONS } from "../../constants/permission.js"
 
 function ProviderAssessment() {
   const [assessments, setAssessments] = useState([]);
@@ -31,6 +33,7 @@ const data = await api(`/api/assessment/admin/allassessments`);
   }, []);
 
   return (
+      <PermissionGuard module={MODULES.ASSESSMENT} action={ACTIONS.READ}>
     <div className="min-h-screen bg-secondary p-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6">
         <div>
@@ -164,6 +167,7 @@ const data = await api(`/api/assessment/admin/allassessments`);
         </div>
       )}
     </div>
+    </PermissionGuard>
   );
 }
 

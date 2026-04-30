@@ -6,6 +6,8 @@ import { IoIosArrowRoundBack } from "react-icons/io";
 import { formatDecimal } from "../../utils/formatdecimal.js";
 import { TfiReload } from "react-icons/tfi";
 import{api} from "../../utils/api.js";
+import PermissionGuard from "../../Components/PermissionGuard.jsx";
+import { MODULES, ACTIONS } from "../../constants/permission.js"
 
 
 const ViewPlans = () => {
@@ -74,7 +76,9 @@ setTotalPages(data.totalPages);
               <th className="p-3 text-left">Price</th>
               <th className="p-3 text-left">Final Price</th>
               <th className="p-3 text-left">Active plans</th>
+              <PermissionGuard module={MODULES.PLANS} action={ACTIONS.UPDATE}>
               <th className="p-3 text-left">Action</th>
+              </PermissionGuard>
             </tr>
           </thead>
           <tbody>
@@ -94,19 +98,22 @@ setTotalPages(data.totalPages);
                   {plan.is_active ? "Active" : "Inactive"}
                 </td>
                 <td className="p-3">
+                  <PermissionGuard module={MODULES.PLANS} action={ACTIONS.UPDATE}>
                   <button
                     onClick={() => navigate(`/addplans/${plan._id}`)}
                     className="p-2 rounded-lg text-blue-600 hover:bg-blue-50"
                   >
                     <FiEdit2 size={16} />
                   </button>
-
+                  </PermissionGuard>
+<PermissionGuard module={MODULES.PLANS} action={ACTIONS.UPDATE}>
                   <button
     onClick={() => navigate(`/addplans/${plan._id}?mode=version`)}
     className="p-2 rounded-lg text-darkgreen hover:bg-green-50"
   >
     <TfiReload size={16} />
   </button>
+  </PermissionGuard>
                 </td>
               </tr>
             ))}

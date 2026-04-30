@@ -6,6 +6,8 @@ import { api } from "../../utils/api";
 import toast from "react-hot-toast";
 import { storage } from "../../firebase";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import PermissionGuard from "../../Components/PermissionGuard.jsx";
+import { MODULES, ACTIONS } from "../../constants/permission.js";
 
 const AdminProfile = () => {
   const fileInputRef = useRef(null);
@@ -205,19 +207,23 @@ const AdminProfile = () => {
           <div className="mt-10 flex justify-end gap-4 border-t  border-gray-100 pt-6">
 
             {!edit ? (
-              <button
-                onClick={() => setEdit(true)}
-                className="flex items-center gap-2 rounded-xl px-6 py-3 bg-[#2d4a36] text-white shadow-lg hover:scale-105 transition"
-              >
-                <FaUserEdit /> Edit
-              </button>
+             <PermissionGuard module={MODULES.SETTINGS} action={ACTIONS.UPDATE}>
+  <button
+    onClick={() => setEdit(true)}
+    className="flex items-center gap-2 rounded-xl px-6 py-3 bg-[#2d4a36] text-white"
+  >
+    <FaUserEdit /> Edit
+  </button>
+</PermissionGuard>
             ) : (
+              <PermissionGuard module={MODULES.SETTINGS} action={ACTIONS.UPDATE}>
               <button
                 onClick={handleUpdate}
                 className="flex items-center gap-2 rounded-xl px-6 py-3 bg-[#2d4a36] text-white shadow-lg hover:scale-105 transition"
               >
                 <IoSaveOutline /> Save Changes
               </button>
+              </PermissionGuard>
             )}
 
           </div>

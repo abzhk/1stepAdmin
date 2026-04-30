@@ -4,6 +4,9 @@ import { useNavigate } from "react-router-dom";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { api } from "../../utils/api.js";
 import toast from "react-hot-toast";
+import PermissionGuard from "../../Components/PermissionGuard.jsx";
+import { MODULES, ACTIONS } from "../../constants/permission.js"
+
 
 const ListViewArticle = () => {
   const [articles, setArticles] = useState([]);
@@ -178,13 +181,15 @@ useEffect(() => {
                       />
                     </td>
                     <td>
+                      <PermissionGuard module={MODULES.ARTICLES} action={ACTIONS.UPDATE}>
                       <button
   onClick={() => navigate(`/add-article/${article._id}`)}
   className="text-white bg-darkgreen px-3 py-1 rounded-lg mr-2 hover:bg-yellow transition"
 >
 Edit
 </button>
-
+</PermissionGuard>
+<PermissionGuard module={MODULES.ARTICLES} action={ACTIONS.DELETE}>
 <button
   onClick={() => {
     setDeleteId(article._id);
@@ -194,6 +199,7 @@ Edit
 >
 Delete
 </button>
+</PermissionGuard>
                     </td>
                   </tr>
                 ))}

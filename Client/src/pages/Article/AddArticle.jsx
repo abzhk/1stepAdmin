@@ -223,7 +223,7 @@ const handleImageChange = (e) => {
       toast.success(id ? "Article updated" : "Article created");
 
       navigate("/list-view-article");
-      window.location.reload();
+
     } catch (err) {
       console.error(err);
       toast.error(err?.message || "Something went wrong");

@@ -25,7 +25,12 @@ router.post('/login-admin',login)
 router.post("/admin/logout", logoutAdmin);
 router.get("/verify-token",  verifyAdminSession);
 router.get("/profile", verifyAdminToken, getAdminProfile);
-router.put("/update-profile", updateAdminProfile);
+router.put(
+  "/update-profile",
+  verifyAdminToken,
+  canAccess(MODULES.SETTINGS, ACTIONS.UPDATE),
+  updateAdminProfile
+);
 
 
 //delete provider
