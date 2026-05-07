@@ -48,6 +48,9 @@ import Help from "./pages/HelpDesk/Help.jsx";
 import AllComplaints from "./pages/HelpDesk/AllComplaints.jsx";
 import PermissionRoute from "./pages/PermissionRoute.jsx";
 import { MODULES, ACTIONS } from "./constants/permission.js";
+import Asssessmentquestionary from "./pages/Assessment/AssessmentCreation.jsx"
+import AssessmentList from "./pages/Assessment/AssessmentList.jsx";
+import AssessmentQuestions from "./pages/Assessment/AssessmentQuestion.jsx";
 
 const App = () => {
   const dispatch = useDispatch();
@@ -236,6 +239,10 @@ const App = () => {
           <Route path="/profile-settings" element={<ProfileSettings />} />
           <Route path="/help" element={<Help />} />
           <Route path="/all-complaints" element={<AllComplaints />} />
+          <Route path="/create-assessment" element={<Asssessmentquestionary />}/>
+          <Route path="/create-assessment/:id" element={<Asssessmentquestionary />} />
+           <Route path="/assessment-list" element={ <PermissionRoute module={MODULES.ASSESSMENT} action={ACTIONS.READ}><AssessmentList /> </PermissionRoute> }/>
+           <Route path="/questions/:id" element={<AssessmentQuestions />}/>
         </Route>
       </Routes>
       <Toaster position="top-right" toastOptions={{ duration: 3000 }} />

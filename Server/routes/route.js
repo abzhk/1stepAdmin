@@ -20,6 +20,7 @@ import subscriptionRoute from "./subscription.route.js"
 import invitedRoute from "./centre.route.js"
 import claimProfile from "./claimProfile.route.js"
 import notificationRoute from "./notification.route.js"
+import assessmentquestionsRoute from "./assessmentquestion.route.js"
 
 const router = express.Router(); 
 
@@ -65,6 +66,8 @@ router.use("/invite",invitedRoute)
 router.use("/claim", claimProfile)
 //notification
 router.use("/notifications", notificationRoute)
+//assessment questions
+router.use("/assessmentquestions", assessmentquestionsRoute)
 
 
 

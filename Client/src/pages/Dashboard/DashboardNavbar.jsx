@@ -37,7 +37,7 @@ const DashboardNavbar = ({ searchTerm, setSearchTerm }) => {
   if (path.startsWith("/create-Role")) return "Roles";
   if (path.startsWith("/reports")) return "Reports";
   if (path.startsWith("/viewcat") ||path.startsWith("/viewarticle")||path.startsWith("/add-article")) return "Article";
-  if (path.startsWith("/addassessment") ||path.startsWith("/providerassessment")) return "Assessment";
+  if (path.startsWith("/addassessment") ||path.startsWith("/providerassessment")||path.startsWith("/assessment-list")) return "Assessment";
   if (path.startsWith("/master-data")) return "Master Data";
   if (path.startsWith("/report")) return "Reports";
   if (path.startsWith("/create-admin")) return "Create Admin";

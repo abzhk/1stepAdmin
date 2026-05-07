@@ -248,6 +248,12 @@ const DashSidebar = () => {
                   >
                     Provider Assessments
                   </div>
+                  <div
+                    onClick={() => navigate("/assessment-list")}
+                    className="p-2 hover:bg-darkgreen hover:text-white rounded-2xl cursor-pointer"
+                  >
+                   Add Assessment & Questinary
+                  </div>
                 </div>
               )}
             </div>

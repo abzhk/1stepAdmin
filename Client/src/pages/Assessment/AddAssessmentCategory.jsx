@@ -3,6 +3,7 @@ import ViewAssessmentCategories from "./ViewAssessment";
 import {api} from "../../utils/api.js"
 import PermissionGuard from "../../Components/PermissionGuard.jsx";
 import { MODULES, ACTIONS } from "../../constants/permission.js";
+import { useNavigate } from "react-router-dom";
 
 const AddAssessmentCategory = () => {
   const [formData, setFormData] = useState({
@@ -11,6 +12,7 @@ const AddAssessmentCategory = () => {
     order: 0,
     description: "",
   });
+  const navigate= useNavigate();
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -61,6 +63,14 @@ const AddAssessmentCategory = () => {
   return (
    
     <div className="min-h-screen bg-secondary w-full px-6 py-8">
+     <div className="flex justify-end mb-4">
+  <button
+    onClick={() => navigate("/assessment-list")}
+    className="px-4 py-2 bg-darkgreen text-white rounded-lg"
+  >
+    Assessment List
+  </button>
+</div>
       <div className="w-full bg-white shadow-lg rounded-2xl border border-emerald-100 p-6 md:p-8">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-subheading">Add Category</h2>
