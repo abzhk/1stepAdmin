@@ -11,10 +11,12 @@ import {
    updateQuestion,
    deleteQuestion,
     publishAssessmentVersion,
+    bulkImportQuestions,
 } from "../controller/Assessment/assessment.controller.js";
 import { verifyAdminToken } from "../middlewares/authMiddleware.js";
 import { canAccess } from "../middlewares/permission.middleware.js";
 import { MODULES, ACTIONS } from "../constants/permissions.js";
+import { upload } from "../middlewares/upload.js";
 
 
 const router = express.Router();
@@ -53,6 +55,10 @@ router.get("/assessment/:id/questions", verifyAdminToken, canAccess(MODULES.ASSE
 
 router.put("/edit-assessment/:id", verifyAdminToken, canAccess(MODULES.ASSESSMENT, ACTIONS.UPDATE), updateQuestion);
 router.delete("/assessment/questions/:id", verifyAdminToken, canAccess(MODULES.ASSESSMENT, ACTIONS.DELETE), deleteQuestion);
+
+
+//bulk-upload questions
+router.post("/bulk-import",upload.single("file"),bulkImportQuestions);
 
 
 export default router;

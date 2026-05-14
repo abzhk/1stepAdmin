@@ -13,7 +13,7 @@ const AssessmentList = () => {
   const { id } = useParams();
   const assessmentId = id; 
   const [page, setPage] = useState(1);
-const [limit] = useState(5);
+const [limit] = useState(10);
 const [totalPages, setTotalPages] = useState(1);
 
  const fetchAssessments = async () => {
@@ -151,7 +151,9 @@ const handleDelete = async (id) => {
           </div>
         )}
       </div>
-    <div className="flex justify-end items-center gap-4 mt-6">
+   
+      </div>
+       <div className="flex justify-end items-center gap-4 mt-6">
 
   <button
     disabled={page === 1}
@@ -175,14 +177,13 @@ const handleDelete = async (id) => {
     className={`px-4 py-2 rounded-2xl text-white ${
       page === totalPages
         ? "bg-gray-400 cursor-not-allowed"
-        : "bg-darkgreen hover:bg-green-600"
+        : "bg-darkgreen hover:bg-DARKGREEN"
     }`}
   >
     Next
   </button>
 
 </div>
-      </div>
     </div>
   );
 }

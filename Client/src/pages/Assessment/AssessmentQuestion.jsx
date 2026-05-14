@@ -109,9 +109,7 @@ const AssessmentQuestions = () => {
         assessmentId: id,
         order: nextOrder,
         type: form.type,
-        questionText: {
-          en: form.questionText,
-        },
+        questionText: form.questionText,
       };
 
   

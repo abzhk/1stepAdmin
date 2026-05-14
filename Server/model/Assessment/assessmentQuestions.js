@@ -14,8 +14,8 @@ const questionSchema = new mongoose.Schema(
     },
 
     questionText: {
-      en: { type: String, required: true },
-      // optional multi-language
+       type: String,
+        required: true ,
     },
 
     type: {
