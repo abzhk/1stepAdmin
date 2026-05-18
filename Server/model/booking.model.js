@@ -11,7 +11,6 @@ const bookingSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "provider",
       required: true,
-      index: true,
     },
     bookingId: {
       type: String,
@@ -44,17 +43,32 @@ const bookingSchema = new mongoose.Schema(
     sessionType: {
       type: Array,
       required: true,
-      index: true,
     },
     status: {
       type: String,
-      enum: ["pending", "approved", "rejected", "completed", 'expired'],
+      enum: ["pending", "approved", "rejected", "completed", "expired", "cancelled", "rescheduled"],
       default: "pending",
-      index: true,
     },
-    createdAt: {
+    // createdAt is provided by timestamps: true
+    completedAt: {
       type: Date,
-      default: Date.now,
+      default: null,
+    },
+    sessionLink: {
+      url: { type: String, default: null },
+      platform: { type: String, default: null },
+      sharedAt: { type: Date, default: null },
+      sharedBy: { type: mongoose.Schema.Types.ObjectId, ref: "provider" },
+    },
+    providerSnapshot: {
+      fullName: String,
+      profilePicture: String,
+      therapytype: Array,
+    },
+    patientSnapshot: {
+      patientName: String,
+      profilePicture: String,
+      username: String,
     },
   },
   { timestamps: true }
@@ -96,14 +110,20 @@ bookedSlotSchema.index(
   { "bookedSlots.expireAt": 1 },
   { expireAfterSeconds: 0 }
 );
+
 bookingSchema.post("save", async function () {
   try {
-    const Stats = (await import("./stats.js")).default;
+
+    const Stats = (await import("../models/Admin/stats.model.js")).default;
+
     await Stats.updateOne({}, { $inc: { totalBookings: 1 } });
+
   } catch (err) {
+
     console.error("Failed to increment Stats.totalBookings:", err);
   }
 });
+
 const BookedSlots = mongoose.model("BookedSlots", bookedSlotSchema);
 
 const Booking = mongoose.model("Booking", bookingSchema);

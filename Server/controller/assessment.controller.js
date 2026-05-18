@@ -2,15 +2,16 @@ import assessmentCategory from "../model/Assessment/assessmentCategory.js";
 import providerAssessment from "../model/Assessment/providerAssessment.js";
 import assessmentResponse from "../model/Assessment/assessmentResponse.js";
 import mongoose from "mongoose";
+import { errorHandler } from "../utils/error.js";
 
 //Assessment Category Controllers
-export const createCategory = async (req, res) => {
+export const createCategory = async (req, res,next) => {
   try {
     const { name, description, icon, order } = req.body;
 
     const existingCategory = await assessmentCategory.findOne({ name });
     if (existingCategory) {
-      return res.status(400).json({ message: "Category already exists" });
+      return next(errorHandler(400, "Category already exists"));
     }
 
     const category = new assessmentCategory({
@@ -23,22 +24,22 @@ export const createCategory = async (req, res) => {
     await category.save();
     res.status(201).json({ success: true, data: category });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return next(errorHandler(500, "Error creating category"));
   }
 };
 
-export const getCategories = async (req, res) => {
+export const getCategories = async (req, res,next) => {
   try {
     const categories = await assessmentCategory
       .find({ status: true })
       .sort({ order: 1 });
     res.status(200).json({ success: true, data: categories });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return next(errorHandler(500, "Error fetching categories"));
   }
 };
 
-export const updateCategory = async (req, res) => {
+export const updateCategory = async (req, res ,next) => {
   try {
     const { id } = req.params;
     const { name, description, icon, status, order } = req.body;
@@ -51,17 +52,17 @@ export const updateCategory = async (req, res) => {
 
     res.status(200).json({ success: true, data: category });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return next(errorHandler(500, "Error updating category"));
   }
 };
 
-export const deleteCategory = async (req, res) => {
+export const deleteCategory = async (req, res, next) => {
   try {
     const { id } = req.params;
     await assessmentCategory.findByIdAndUpdate(id, { status: false });
     res.status(200).json({ success: true, message: "Category deleted" });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    next(error);
   }
 };
 
@@ -96,7 +97,7 @@ export const createProviderAssessment = async (req, res) => {
 
     res.status(201).json({ success: true, data: newAssessment });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    next(error);
   }
 };
 
@@ -111,7 +112,7 @@ export const getProviderAssessments = async (req, res) => {
 
     res.status(200).json({ success: true, data: assessments });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    next(error);
   }
 };
 

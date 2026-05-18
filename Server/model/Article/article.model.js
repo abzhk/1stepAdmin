@@ -24,27 +24,27 @@ const articleSchema = new mongoose.Schema(
       maxlength: 300,
     },
     featuredImage: {
-      type: String,
-      required: true,
-    },
+  type: [String],
+  default: [],
+},
     category: { type: String, required: true },
     categoryId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Category",
       required: true,
     },
-    tags: {
-      type: [String],
-      default: [],
-    },
+    tags: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "MasterData",
+      },
+    ],
     providerId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "provider",
-      required: true,
     },
     providerName: {
       type: String,
-      required: true,
     },
     status: {
       type: String,
@@ -69,6 +69,34 @@ const articleSchema = new mongoose.Schema(
       type: Number,
       default: 5,
     },
+    position:{
+      type:Number,
+      min :1,
+      max :10,
+      default:null,
+
+    },
+    featured: {
+    type: Boolean,
+    default: false,
+    },
+
+    metaTitle: {
+  type: String,
+  trim: true,
+  maxlength: 100,
+},
+
+metaDescription: {
+  type: String,
+  trim: true,
+  maxlength: 300,
+},
+   authorType: {
+    type: String,
+    enum: [ "Admin", "Super Admin","Provider","content_admin"],
+    default: "Admin",
+   },
     publishedAt: {
       type: Date,
     },

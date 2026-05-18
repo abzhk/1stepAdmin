@@ -619,3 +619,34 @@ export const getAllRecentBookings = async (req, res) => {
     res.status(500).json({ success: false, error: error.message });
   }
 };
+
+export const getSessionCount = async (req, res) => {
+  try {
+    const { providerId, patientId } = req.query;
+
+    const filter = {
+      status: "completed",
+    };
+
+    if (providerId) {
+      filter.provider = providerId;
+    }
+
+    if (patientId) {
+      filter.patient = patientId;
+    }
+
+    const totalSessions = await Booking.countDocuments(filter);
+
+    res.status(200).json({
+      success: true,
+      totalSessions,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch session count",
+      error: error.message,
+    });
+  }
+};

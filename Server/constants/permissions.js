@@ -12,6 +12,10 @@ export const MODULES = {
   BILLING: "billing",
   RESOURCE_LIBRARY: "resource_library",
   SETTINGS: "settings",
+  COURSES: "courses",
+  ARTICLES: "article",
+  MASTER_DATA: "master_data",
+  PLANS: "plans"
 };
 
 export const ACTIONS = {
@@ -26,6 +30,7 @@ export const ROLES = {
   PARENT: "parent",
   PROVIDER: "provider",
   ADMIN: "admin",
-  SUPER_ADMIN: "super_admin",
+  SUPER_ADMIN: "Super Admin",
+  ARTICLE_ADMIN:"content_admin",
 };
 

@@ -7,7 +7,7 @@ import Category from "../model/Article/category.model.js";
 // ============================================
 
 // Get all categories (Public)
-export const getAllCategories = async (req, res) => {
+export const getAllCategories = async (req, res,next) => {
   try {
     // const { includeInactive } = req.query;
 
@@ -22,9 +22,7 @@ export const getAllCategories = async (req, res) => {
     });
   } catch (error) {
     console.error("Get categories error:", error);
-    res.status(500).json({
-      message: "Error fetching categories",
-    });
+   return next(errorHandler(500, "Error fetching categories"));
   }
 };
 
@@ -108,7 +106,7 @@ export const getCategoryBySlug = async (req, res) => {
 // ============================================
 
 // Create new category (Admin only)
-export const createCategory = async (req, res) => {
+export const createCategory = async (req, res, next) => {
   try {
     const { name, description, icon, color, order } = req.body;
 
@@ -147,15 +145,12 @@ export const createCategory = async (req, res) => {
     });
   } catch (error) {
     console.error("Create category error:", error);
-    res.status(500).json({
-      message: "Error creating category",
-      error: error.message,
-    });
+    next(error); 
   }
 };
 
 // Update category (Admin only)
-export const updateCategory = async (req, res) => {
+export const updateCategory = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { name, description, icon, color, order, isActive } = req.body;
@@ -167,27 +162,45 @@ export const updateCategory = async (req, res) => {
         message: "Category not found",
       });
     }
-
-    // If name is being changed, check for duplicates
-    if (name && name !== category.name) {
-      const existingCategory = await Category.findOne({
-        name: { $regex: new RegExp(`^${name}$`, "i") },
-        _id: { $ne: id },
-      });
-
-      if (existingCategory) {
+    if (name !== undefined) {
+      if (!name.trim()) {
         return res.status(400).json({
-          message: "Category name already exists",
+          message: "Name is required",
         });
       }
 
-      // Update articles with old category name to new name
-      await Article.updateMany({ category: category.name }, { category: name });
+      // Check duplicate only if changed
+      if (name !== category.name) {
+        const existingCategory = await Category.findOne({
+          name: { $regex: new RegExp(`^${name}$`, "i") },
+          _id: { $ne: id },
+        });
+
+        if (existingCategory) {
+          return res.status(400).json({
+            message: "Category name already exists",
+          });
+        }
+
+        // Update related articles
+        await Article.updateMany(
+          { category: category.name },
+          { category: name }
+        );
+      }
+
+      category.name = name.trim();
+    }
+    if (description !== undefined) {
+      if (!description.trim()) {
+        return res.status(400).json({
+          message: "Description is required",
+        });
+      }
+
+      category.description = description.trim();
     }
 
-    // Update fields
-    if (name) category.name = name;
-    if (description) category.description = description;
     if (icon !== undefined) category.icon = icon;
     if (color !== undefined) category.color = color;
     if (order !== undefined) category.order = order;
@@ -202,10 +215,7 @@ export const updateCategory = async (req, res) => {
     });
   } catch (error) {
     console.error("Update category error:", error);
-    res.status(500).json({
-      message: "Error updating category",
-      error: error.message,
-    });
+    next(error);
   }
 };
 
@@ -249,7 +259,7 @@ export const deleteCategory = async (req, res) => {
 };
 
 // Toggle category active status (Admin only)
-export const toggleCategoryStatus = async (req, res) => {
+export const toggleCategoryStatus = async (req, res,next) => {
   try {
     const { id } = req.params;
 
@@ -273,9 +283,7 @@ export const toggleCategoryStatus = async (req, res) => {
     });
   } catch (error) {
     console.error("Toggle category status error:", error);
-    res.status(500).json({
-      message: "Error toggling category status",
-    });
+    next(error);
   }
 };
 
@@ -449,3 +457,17 @@ export const getCategoryById = async (req, res) => {
   }
 };
 
+
+export const getActiveCategories = async (req, res) => {
+  try {
+    const categories = await Category.find({ isActive: true })
+      .sort({ order: 1 });
+
+    res.status(200).json({
+      success: true,
+      categories,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching categories" });
+  }
+};

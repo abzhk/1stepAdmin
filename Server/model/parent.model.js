@@ -84,7 +84,7 @@ ParentSchema.index(
 );
 ParentSchema.post("save", async function () {
   try {
-    const Stats = (await import("./stats.js")).default;
+    const Stats = (await import("./stats.model.js")).default;
     await Stats.updateOne({}, { $inc: { totalParents: 1 } });
   } catch (err) {
     console.error("Failed to increment Stats.totalParents:", err);

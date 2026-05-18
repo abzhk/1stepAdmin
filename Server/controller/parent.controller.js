@@ -6,6 +6,7 @@ import Like from "../model/like.model.js";
 import {Booking} from '../model/booking.model.js'
 import Progress from '../model/Training/progress.model.js'
 import mongoose from "mongoose";
+import UserSubscription from "../model/subscription.model.js";
 
 export const createParent = async (req, res, next) => {
   const id = req.params.id;
@@ -217,24 +218,22 @@ export const fetchLikedResource = async (req, res, next) => {
 export const viewCountResource = async (req, res, next) => {};
 
 export const getallparents = async(req,res,next)=>{
- try{
-const{
-    limit=9,
-    startIndex=0,
-    searchTerm='',
-    sort='createdAt',
-    order='desc'
-}= req.query;
+  try{
+    const{
+      limit=9,
+      startIndex=0,
+      searchTerm="",
+      sort="createdAt",
+      order="desc",
+} = req.query;
 
- const query = { isParent: true };
+    const query = { isParent: true };
     const searchFilters = [];
 
-      if (searchTerm) {
-      const cleanedSearchTerm = searchTerm.trim().replace(/\s+/g, " ");
-
-      if (cleanedSearchTerm) {
-        const regex = new RegExp(cleanedSearchTerm, "i");
-
+    if (searchTerm) {
+      const cleaned = searchTerm.trim().replace(/\s+/g, " ");
+      if (cleaned) {
+        const regex = new RegExp(cleaned, "i");
         searchFilters.push({
           $or: [
             { "parentDetails.fullName": regex },
@@ -245,9 +244,7 @@ const{
         });
       }
     }
-   if (searchFilters.length > 0) {
-      query.$and = searchFilters;
-    }
+    if (searchFilters.length) query.$and = searchFilters;
 
     const sortQuery = {};
     sortQuery[sort] = order === "desc" ? -1 : 1;
@@ -255,24 +252,27 @@ const{
     const numericLimit = Number(limit);
     const numericStartIndex = Number(startIndex);
 
-    const [parents, totalCount] = await Promise.all([
-      Parent.find(query)
-        .populate({
-          path: "userRef",
-          select: "username email profilePicture",
-        })
-        .sort(sortQuery)
-        .skip(numericStartIndex)
-        .limit(numericLimit)
-        .lean(),
-      Parent.countDocuments(query),
-    ]);
+    const parentsData = await Parent.find(query)
+      .populate({
+        path: "userRef",
+        match: { isActive: true },
+        select: "_id username email profilePicture isActive",
+      })
+      .sort(sortQuery)
+      .lean();
+
+    const activeParents = parentsData.filter((p) => p.userRef);
+
+    const paginated = activeParents.slice(
+      numericStartIndex,
+      numericStartIndex + numericLimit,
+    );
 
     return res.status(200).json({
       success: true,
-      parents,
-      totalParents: totalCount,
-      totalPages: Math.ceil(totalCount / numericLimit),
+      parents: paginated,
+      totalParents: activeParents.length,
+      totalPages: Math.ceil(activeParents.length / numericLimit),
       currentPage: Math.floor(numericStartIndex / numericLimit) + 1,
       limit: numericLimit,
     });
@@ -360,5 +360,158 @@ export const parentstats = async (req, res, next) => {
     next(error);
   }
 };
+//actve or deactivate parent 
+export const setParentActiveStatus = async (req, res, next) => {
+  try {
+    const { userId, isActive } = req.body;
 
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: "userId is required",
+      });
+    }
+
+    if (isActive === false) {
+      const now = new Date();
+
+      const hasUpcomingBookings = await Booking.exists({
+        patient: userId,
+        "scheduledTime.date": { $gte: now },
+        status: { $in: ["pending", "approved"] },
+      });
+
+      if (hasUpcomingBookings) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "Cannot deactivate parent. There are upcoming bookings.",
+        });
+      }
+
+      const subscription = await UserSubscription.findOne({ user: userId });
+
+      if (
+        subscription &&
+        ["trial", "active", "past_due"].includes(subscription.status)
+      ) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "Cannot deactivate parent. Active subscription exists.",
+        });
+      }
+    }
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { isActive },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: `Parent ${isActive ? "Activated" : "Deactivated"} successfully`,
+      isActive: user.isActive,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getInactiveParents = async (req, res, next) => {
+  try {
+    const {
+      limit = 12,
+      startIndex = 0,
+      searchTerm = "",
+      sort = "createdAt",
+      order = "desc",
+    } = req.query;
+
+    const numericLimit = Number(limit);
+    const numericStartIndex = Number(startIndex);
+
+    // parent filters
+    const parentQuery = { isParent: true };
+
+    if (searchTerm) {
+      const regex = new RegExp(searchTerm.trim(), "i");
+      parentQuery.$or = [
+        { "parentDetails.fullName": regex },
+        { "parentDetails.childName": regex },
+        { "parentDetails.phoneNumber": regex },
+      ];
+    }
+
+    const sortQuery = { [sort]: order === "desc" ? -1 : 1 };
+
+    const [parents, totalCount] = await Promise.all([
+      Parent.find(parentQuery)
+        .populate({
+          path: "userRef",
+          match: { isActive: false }, 
+          select: "_id username email profilePicture isActive",
+        })
+        .sort(sortQuery)
+        .skip(numericStartIndex)
+        .limit(numericLimit)
+        .lean(),
+
+      Parent.countDocuments(parentQuery),
+    ]);
+
+    // remove records where populate failed (means active users)
+    const filteredParents = parents.filter((p) => p.userRef);
+
+    return res.status(200).json({
+      success: true,
+      parents: filteredParents,
+      totalParents: filteredParents.length,
+      totalPages: Math.ceil(filteredParents.length / numericLimit),
+      currentPage: Math.floor(numericStartIndex / numericLimit) + 1,
+      limit: numericLimit,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+//booking parents
+
+export const getParentBookings = async (req, res, next) => {
+  try {
+    const { parentId } = req.params;
+    const { limit = 10, startIndex = 0 } = req.query;
+
+    const numericLimit = Number(limit);
+    const numericStartIndex = Number(startIndex);
+
+    const [bookings, total] = await Promise.all([
+      Booking.find({ patient: parentId })
+        .populate("provider", "fullName email profilePicture")
+        .sort({ createdAt: -1 })
+        .skip(numericStartIndex)
+        .limit(numericLimit)
+        .lean(),
+
+      Booking.countDocuments({ patient: parentId }),
+    ]);
+
+    return res.status(200).json({
+      success: true,
+      bookings,
+      total,
+      totalPages: Math.ceil(total / numericLimit),
+      currentPage: Math.floor(numericStartIndex / numericLimit) + 1,
+    });
+  } catch (error) {
+    return next(errorHandler(500, "Error fetching parent bookings"));
+  }
+};
 

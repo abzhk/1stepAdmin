@@ -10,7 +10,7 @@ import {
   resetPassword,
   verifyOtpPassword,
 } from "../controller/auth.controller.js";
-import { validateLogin, validateUserCreate } from "../validator/Joi.js";
+import { validateLogin, validateUserCreate } from "../validator/joi.js";
 const router = express.Router();
 
 router.post("/signup", signup);

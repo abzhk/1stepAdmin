@@ -1,10 +1,13 @@
 import Article from "../model/Article/article.model.js";
 import Provider from "../model/provider.model.js";
 import Category from "../model/Article/category.model.js";
+import { errorHandler } from "../utils/error.js";
+import { FeaturedArticles } from "../utils/article.utils.js";
 
 // Create new article
-export const createArticle = async (req, res) => {
+export const createArticle = async (req, res,next) => {
   try {
+
     const {
       title,
       content,
@@ -13,77 +16,115 @@ export const createArticle = async (req, res) => {
       categoryId,
       tags,
       readTime,
+      featured,
+      position,
+       metaTitle,
+  metaDescription,
     } = req.body;
 
-    // Validation
-    if (!title || !content || !excerpt || !featuredImage || !categoryId) {
-      return res.status(400).json({
-        message: "All required fields must be provided",
-      });
+  // Validation
+    if (!title || !content || !excerpt  || !categoryId) {
+      return next(errorHandler(400, "All required fields must be provided"))
     }
-
-    // Verify provider exists
-    const provider = await Provider.findOne({ userRef: req.user.id });
-    if (!provider) {
-      return res.status(404).json({ message: "Provider not found" });
-    }
-
-    // Verify provider is verified
-    if (!provider.verified) {
-      return res.status(403).json({
-        message: "Only verified providers can create articles",
-      });
-    }
-
-    // Verify category exists and is active
+  
+// Check category
     const category = await Category.findById(categoryId);
+
     if (!category) {
-      return res.status(404).json({ message: "Category not found" });
+      return res.status(404).json({
+        success: false,
+        message: "Category not found",
+      });
     }
 
     if (!category.isActive) {
-      return res.status(400).json({
-        message: "This category is not currently active",
-      });
+      return next(errorHandler(400, "This category is not currently active"));
     }
 
-    // Create article
+    if (position !== null && position !== undefined) {
+  if (position < 1 || position > 10) {
+    return next(errorHandler (400, "Position must be between 1 and 10"))
+  }
+
+  const existing = await Article.findOne({ position });
+
+  if (existing) {
+    return next(errorHandler(400, `Position ${position} already assigned`));
+  }
+}
+
+    let providerId = null;
+    let providerName = "Admin";
+    let status = "approved";
+
+    const provider = await Provider.findOne({ userRef: req.user.id });
+ // Verify provider is verified
+    if (provider) {
+      if (!provider.verified) {
+        return next(errorHandler(403, "Only verified providers can create articles"));
+      }
+
+      providerId = provider._id;
+      providerName = provider.fullName;
+      status = "pending";
+    }
+
+    const authorType = req.user.role;
+
+   if (featured) {
+  await FeaturedArticles(Article);
+}
+
+ // Create article
     const article = new Article({
       title,
       content,
       excerpt,
-      featuredImage,
+      featuredImage:
+  Array.isArray(featuredImage)
+    ? featuredImage
+    : featuredImage
+    ? [featuredImage]
+    : [],
       category: category.name,
       categoryId: category._id,
       tags: tags || [],
       readTime: readTime || Math.ceil(content.split(" ").length / 200),
-      providerId: provider._id,
-      providerName: provider.fullName,
-      status: "pending",
+      providerId,
+      providerName,
+      status,
+      authorType,
+      featured: featured || false,
+        position: position || null,
+         metaTitle: metaTitle ,
+  metaDescription: metaDescription ,
+      publishedAt: status === "approved" ? new Date() : undefined,
     });
 
     await article.save();
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
-      message: "Article created and submitted for approval",
+      message:
+        status === "approved"
+          ? "Article published successfully"
+          : "Article created and submitted for approval",
       article,
     });
+
   } catch (error) {
     console.error("Create article error:", error);
-    res.status(500).json({
-      message: "Error creating article",
-      error: error.message,
-    });
+
+    return next(errorHandler(500, "Error creating article"));
   }
 };
 
 // Get all articles by provider
-export const getProviderArticles = async (req, res) => {
+export const getProviderArticles = async (req, res,next) => {
   try {
     const provider = await Provider.findOne({ userRef: req.user.id });
     if (!provider) {
-      return res.status(404).json({ message: "Provider not found" });
+      return next(errorHandler(404, "Provider not found"));
     }
 
     const { status, page = 1, limit = 10 } = req.query;
@@ -111,21 +152,22 @@ export const getProviderArticles = async (req, res) => {
     });
   } catch (error) {
     console.error("Get provider articles error:", error);
-    res.status(500).json({ message: "Error fetching articles" });
+    return next(errorHandler(500, "Error fetching articles"));
   }
 };
 
 // Get single article by ID (for editing)
-export const getArticleById = async (req, res) => {
+export const getArticleById = async (req, res,next) => {
   try {
     const { id } = req.params;
 
     const article = await Article.findById(id)
       .populate("providerId", "fullName profilePicture")
-      .populate("categoryId", "name slug icon color");
+      .populate("categoryId", "name slug icon color")
+      .populate("tags", "label");
 
     if (!article) {
-      return res.status(404).json({ message: "Article not found" });
+      return next(errorHandler(404, "Article not found"));
     }
 
     // Check if user is the owner or admin
@@ -136,16 +178,15 @@ export const getArticleById = async (req, res) => {
     ) {
       // If not owner, check if admin (you'll need to implement admin check)
       if (!req.user.isAdmin) {
-        return res
-          .status(403)
-          .json({ message: "Not authorized to view this article" });
+       return next(errorHandler(403, "Not authorized to view this article"));
       }
     }
 
     res.status(200).json({ success: true, article });
   } catch (error) {
     console.error("Get article error:", error);
-    res.status(500).json({ message: "Error fetching article" });
+    res.status(500).json({  message: error.message, });
+    
   }
 };
 
@@ -561,9 +602,8 @@ export const getAllArticlesAdmin = async (req, res) => {
 };
 
 // Approve article
-export const approveArticle = async (req, res) => {
+export const approveArticle = async (req, res,next) => {
   try {
-    console.log('Admin User:', req.user);
     const { id } = req.params;
 
     const article = await Article.findById(id);
@@ -591,12 +631,13 @@ export const approveArticle = async (req, res) => {
     });
   } catch (error) {
     console.error("Approve article error:", error);
-    res.status(500).json({ message: "Error approving article" });
+
+    return next(errorHandler(500, "Error approving article"));
   }
 };
 
 // Reject article
-export const rejectArticle = async (req, res) => {
+export const rejectArticle = async (req, res,next) => {
   try {
     const { id } = req.params;
     const { reason } = req.body;
@@ -629,7 +670,7 @@ export const rejectArticle = async (req, res) => {
     });
   } catch (error) {
     console.error("Reject article error:", error);
-    res.status(500).json({ message: "Error rejecting article" });
+    return next(errorHandler(500, "Error rejecting article"));
   }
 };
 
@@ -817,7 +858,7 @@ export const getPendingArticles = async (req, res) => {
     });
   } catch (error) {
     console.error("Get pending articles error:", error);
-    res.status(500).json({ message: "Error fetching pending articles" });
+    return next(errorHandler(500, "Error fetching pending articles"));
   }
 };
 
@@ -883,6 +924,218 @@ export const toggleArticleCategoryStatus = async (req, res) => {
     console.error("Toggle category status error:", error);
     res.status(500).json({
       message: error.message,
+    });
+  }
+};
+
+export const getAllArticles = async (req, res) => {
+  try {
+    const { page = 1, limit = 10, status } = req.query;
+
+    const filter = {};
+
+    if (status && status !== "all") {
+      filter.status = status;
+    }
+
+    const articles = await Article.find(filter)
+      .populate("providerId", "fullName email profilePicture")
+      .populate("categoryId", "name slug icon color")
+      .sort({ createdAt: -1 })
+      .limit(Number(limit))
+      .skip((page - 1) * limit);
+
+    const total = await Article.countDocuments(filter);
+
+    res.status(200).json({
+      success: true,
+      total,
+      totalPages: Math.ceil(total / limit),
+      currentPage: Number(page),
+      articles,
+    });
+  } catch (error) {
+    console.error("Get all articles error:", error);
+    res.status(500).json({ message: "Error fetching articles" });
+  }
+};
+//featured article
+export const toggleFeaturedArticle = async (req, res) => {
+  try {
+
+    const { id } = req.params;
+
+    const article = await Article.findById(id);
+
+    if (!article) {
+      return res.status(404).json({
+        message: "Article not found",
+      });
+    }
+
+    if (article.featured) {
+      article.featured = false;
+      await article.save();
+
+      return res.status(200).json({
+        success: true,
+        featured: false,
+        message: "Featured removed",
+      });
+    }
+
+    await FeaturedArticles(Article);
+
+
+    article.featured = true;
+    await article.save();
+
+    res.status(200).json({
+      success: true,
+      featured: true,
+      message: "Article marked as featured",
+    });
+
+  } catch (error) {
+    console.error("Toggle featured error:", error);
+
+    res.status(500).json({
+      message: "Error updating featured article",
+    });
+  }
+};
+
+//update article created by admin
+
+export const updateArticleAdmin = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const article = await Article.findById(id);
+
+    if (!article) {
+      return res.status(404).json({
+        message: "Article not found",
+      });
+    }
+
+    if (
+  !["Admin", "Super Admin", "content_admin"].includes(article.authorType)
+) {
+  return res.status(403).json({
+    message: "Only admin-created articles can be edit",
+  });
+}
+
+    const {
+      title,
+      content,
+      excerpt,
+      featuredImage,
+      categoryId,
+      tags,
+      position,
+      readTime,
+       metaTitle,
+  metaDescription,
+    } = req.body;
+
+    if (!title || !content || !excerpt || !featuredImage || !categoryId) {
+      return res.status(400).json({
+        message: "All required fields must be provided",
+      });
+    }
+    if (position !== undefined) {
+  // Allow null (to remove position)
+  if (position !== null) {
+    if (position < 1 || position > 10) {
+      return res.status(400).json({
+        message: "Position must be between 1 and 10",
+      });
+    }
+
+    // Check duplicate (exclude current article)
+    const existing = await Article.findOne({
+      position,
+      _id: { $ne: id },
+    });
+
+    if (existing) {
+      return res.status(400).json({
+        message: `Position ${position} already assigned`,
+      });
+    }
+  }
+
+  // Assign position (can be null)
+  article.position = position;
+}
+
+    const category = await Category.findById(categoryId);
+
+    if (!category || !category.isActive) {
+      return res.status(400).json({
+        message: "Invalid or inactive category",
+      });
+    }
+
+    article.title = title;
+    article.content = content;
+    article.excerpt = excerpt;
+    article.featuredImage = featuredImage;
+    article.category = category.name;
+    article.categoryId = category._id;
+    article.tags = tags || [];
+    article.readTime =
+      readTime || Math.ceil(content.split(" ").length / 200);
+      if (metaTitle !== undefined) article.metaTitle = metaTitle;
+if (metaDescription !== undefined) article.metaDescription = metaDescription;
+
+    await article.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Article updated successfully",
+      article,
+    });
+  } catch (error) {
+    console.error("Admin update article error:", error);
+
+    res.status(500).json({
+      message: "Error updating article",
+    });
+  }
+};
+//delete article by admin
+export const deleteArticlebyAdmin = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const article = await Article.findById(id);
+
+    if (!article) {
+      return res.status(404).json({
+        message: "Article not found",
+      });
+    }
+
+   if (article.authorType !== "Admin" && article.authorType !== "Super Admin") {
+  return res.status(403).json({
+    message: "Only admin-created articles can be edited here",
+  });
+}
+
+    await Article.findByIdAndDelete(id);
+
+    res.status(200).json({
+      success: true,
+      message: "Article deleted successfully",
+    });
+  } catch (error) {
+    console.error("Delete article admin error:", error);
+
+    res.status(500).json({
+      message: "Error deleting article",
     });
   }
 };

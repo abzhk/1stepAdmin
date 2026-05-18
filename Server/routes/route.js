@@ -7,11 +7,20 @@ import assessmentRoute from './assessment.route.js';
 import providerRoute from './provider.route.js'
 import bookingRoute from './booking.route.js'
 import parentRoute from './parent.route.js'
-import SuperAdminRoute from './superadmin.route.js';
+// import SuperAdminRoute from './superadmin.route.js';
 import AuthRoute from './auth.route.js';
 import Permission from './permission.route.js';
 import role from './role.route.js'
 import PlanRoute from './plan.route.js'
+import accessRoutes from './access.route.js';
+import userRoute from './user.route.js';
+import moduleRoute from './module.route.js';
+import masterRoute from './masterData.route.js';
+import subscriptionRoute from "./subscription.route.js"
+import invitedRoute from "./centre.route.js"
+import claimProfile from "./claimProfile.route.js"
+import notificationRoute from "./notification.route.js"
+import assessmentquestionsRoute from "./assessmentquestion.route.js"
 
 const router = express.Router(); 
 
@@ -32,7 +41,7 @@ router.use('/booking',bookingRoute)
 //parent route
 router.use('/parent',parentRoute)
 //superadmin route
-router.use('/superadmin',SuperAdminRoute)
+// router.use('/superadmin',SuperAdminRoute)
 //auth route
 router.use('/auth',AuthRoute)
 //permission
@@ -41,6 +50,25 @@ router.use('/permission',Permission);
 router.use("/role", role);
 //plan route
 router.use('/plan',PlanRoute)
+//access permission by admin
+router.use("/access", accessRoutes);
+//user route
+router.use("/users", userRoute);
+//modules
+router.use("/module",moduleRoute);
+//service typrs
+router.use("/services",masterRoute)
+//subscriptiob
+router.use("/subscription",subscriptionRoute)
+//invite provider
+router.use("/invite",invitedRoute)
+//claimprofile
+router.use("/claim", claimProfile)
+//notification
+router.use("/notifications", notificationRoute)
+//assessment questions
+router.use("/assessmentquestions", assessmentquestionsRoute)
+
 
 
 export default router;

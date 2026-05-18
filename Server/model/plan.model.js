@@ -9,6 +9,11 @@ const planSchema = new mongoose.Schema(
       lowercase: true,
       enum: ["free", "basic", "pro", "premium"],
     },
+     user_type: {
+     type: String,
+     enum: ["parent", "provider"],
+     index: true
+    },
     plan_name: {
       type: String,
       required: true,
@@ -40,7 +45,7 @@ const planSchema = new mongoose.Schema(
     },
     billing_interval: {
       type: String,
-      enum: ["monthly", "quarterly", "annually", "lifetime"],
+      enum: ["monthly", "quarterly", "annually"],
       required: true,
     },
     trial_period_days: {
@@ -55,21 +60,11 @@ const planSchema = new mongoose.Schema(
 
     // 🔥 MODULES UNLOCKED BY THIS PLAN
     available_modules: [
-      {
-        type: String,
-        enum: [
-          "dashboard",
-          "profile",
-          "messages",
-          "assessment",
-          "appointments",
-          "video_sessions",
-          "reports",
-          "billing",
-          "resource_library",
-        ],
-      },
-    ],
+  {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "AccessModules",
+  },
+],
 
     // 🔥 USAGE LIMITS
     max_messages_per_month: {
@@ -85,6 +80,15 @@ const planSchema = new mongoose.Schema(
       default: 1,
     },
     video_sessions_count: {
+      type: Number,
+      default: 0, // 0 = unlimited
+    },
+
+     max_parents_allowed: {
+      type: Number,
+      default: 1,
+    },
+    video_sessions_upload_per_month: {
       type: Number,
       default: 0, // 0 = unlimited
     },
@@ -136,7 +140,7 @@ const planSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-planSchema.index({ plan_key: 1, version_number: 1 }, { unique: true });
+planSchema.index({ plan_key: 1, user_type: 1, version_number: 1 }, { unique: true });
 planSchema.index({ slug: 1 });
 planSchema.index({ is_active: 1 });
 
