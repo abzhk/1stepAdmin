@@ -51,6 +51,7 @@ import { MODULES, ACTIONS } from "./constants/permission.js";
 import Asssessmentquestionary from "./pages/Assessment/AssessmentCreation.jsx"
 import AssessmentList from "./pages/Assessment/AssessmentList.jsx";
 import AssessmentQuestions from "./pages/Assessment/AssessmentQuestion.jsx";
+import AdminHelpdesk from "./pages/adminHelpdesk/AdminHelpdesk.jsx";
 
 const App = () => {
   const dispatch = useDispatch();
@@ -242,6 +243,7 @@ const App = () => {
           <Route path="/create-assessment" element={<Asssessmentquestionary />}/>
           <Route path="/create-assessment/:id" element={<Asssessmentquestionary />} />
            <Route path="/assessment-list" element={ <PermissionRoute module={MODULES.ASSESSMENT} action={ACTIONS.READ}><AssessmentList /> </PermissionRoute> }/>
+            <Route path="/help-desk" element={<AdminHelpdesk />}/>
            <Route path="/questions/:id" element={<AssessmentQuestions />}/>
         </Route>
       </Routes>

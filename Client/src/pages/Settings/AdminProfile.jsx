@@ -97,11 +97,21 @@ const AdminProfile = () => {
         body: JSON.stringify(form),
       });
 
-      if (res.success) {
-        toast.success("Profile updated");
-        setEdit(false);
-        fetchProfile();
-      }
+     if (res.success) {
+  toast.success("Profile updated");
+
+  setImagePreview(null);
+
+  setUser(res.user);
+
+  setForm({
+    username: res.user.username,
+    email: res.user.email,
+    profilePicture: res.user.profilePicture,
+  });
+
+  setEdit(false);
+}
     } catch (err) {
       toast.error("Update failed");
     }
