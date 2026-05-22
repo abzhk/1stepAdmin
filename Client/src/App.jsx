@@ -240,7 +240,7 @@ const App = () => {
           <Route path="/profile-settings" element={<ProfileSettings />} />
           <Route path="/help" element={<Help />} />
           <Route path="/all-complaints" element={<AllComplaints />} />
-          <Route path="/create-assessment" element={<Asssessmentquestionary />}/>
+          <Route path="/create-assessment" element={<PermissionRoute module={MODULES.ASSESSMENT} action={ACTIONS.CREATE}><Asssessmentquestionary /></PermissionRoute>}/>
           <Route path="/create-assessment/:id" element={<Asssessmentquestionary />} />
            <Route path="/assessment-list" element={ <PermissionRoute module={MODULES.ASSESSMENT} action={ACTIONS.READ}><AssessmentList /> </PermissionRoute> }/>
             <Route path="/help-desk" element={<AdminHelpdesk />}/>

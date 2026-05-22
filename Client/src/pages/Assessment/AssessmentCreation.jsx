@@ -2,6 +2,10 @@ import { useEffect, useState } from "react";
 import { api } from "../../utils/api.js";
 import { useNavigate, useParams } from "react-router-dom";
 import toast from "react-hot-toast";
+import { storage } from "../../firebase";
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import PermissionGuard from "../../Components/PermissionGuard.jsx";
+import { MODULES, ACTIONS } from "../../constants/permission.js";
 
 const AssessmentCreation = () => {
   const navigate = useNavigate();
@@ -15,44 +19,48 @@ const AssessmentCreation = () => {
     title: "",
     description: "",
     category: "",
+    image: "",
     scoringType: "sum",
     status: "draft",
   });
 
   const [questions, setQuestions] = useState([]);
+  const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [imagePreview, setImagePreview] = useState(null);
   const DEFAULT_OPTIONS = [
-  {
-    key: "A",
-    label: "Never",
-    score: 0,
-  },
-  {
-    key: "B",
-    label: "Rarely",
-    score: 1,
-  },
-  {
-    key: "C",
-    label: "Sometimes",
-    score: 2,
-  },
-  {
-    key: "D",
-    label: "Often",
-    score: 3,
-  },
-  {
-    key: "E",
-    label: "Always",
-    score: 4,
-  },
-];
+    {
+      key: "A",
+      label: "Never",
+      score: 0,
+    },
+    {
+      key: "B",
+      label: "Rarely",
+      score: 1,
+    },
+    {
+      key: "C",
+      label: "Sometimes",
+      score: 2,
+    },
+    {
+      key: "D",
+      label: "Often",
+      score: 3,
+    },
+    {
+      key: "E",
+      label: "Always",
+      score: 4,
+    },
+  ];
 
   const initialQuestionForm = {
-  questionText: "",
-  type: "multi_choice",
-  options: DEFAULT_OPTIONS,
-};
+    questionText: "",
+    type: "multi_choice",
+    options: DEFAULT_OPTIONS,
+  };
 
   const [questionForm, setQuestionForm] = useState(initialQuestionForm);
 
@@ -87,11 +95,12 @@ const AssessmentCreation = () => {
           `/api/assessmentquestions/get-by/${assessmentId}`,
         );
 
-        const data = res.data || res;
+        const data = res;
 
         setForm({
           title: data.title || "",
           description: data.description || "",
+          image: data.image || "",
           category: data.category?._id || "",
           scoringType: data.scoringType || "sum",
           status: data.status || "draft",
@@ -112,29 +121,21 @@ const AssessmentCreation = () => {
     fetchQuestions();
   }, [assessmentId]);
 
-const fetchQuestions =
-  async () => {
-
+  const fetchQuestions = async () => {
     try {
-
       const res = await api(
-        `/api/assessmentquestions/assessment/${assessmentId}/questions`
+        `/api/assessmentquestions/assessment/${assessmentId}/questions`,
       );
 
-      console.log(
-        "FETCH QUESTIONS",
-        res
-      );
+      console.log("FETCH QUESTIONS", res);
 
       setQuestions(res);
 
       return res;
-
     } catch (err) {
-
       console.error(err);
     }
-};
+  };
 
   // CREATE ASSESSMENT
 
@@ -205,63 +206,51 @@ const fetchQuestions =
 
   // TYPE CHANGE
 
- const handleTypeChange = (type) => {
-
-  if (type === "multi_choice") {
-
-    setQuestionForm({
-      ...questionForm,
-      type,
-      options: DEFAULT_OPTIONS,
-    });
-
-  } else {
-
-    setQuestionForm({
-      ...questionForm,
-      type,
-      options: [
-        {
-          key: "A",
-          label: "",
-          score: 0,
-        },
-      ],
-    });
-  }
-};
+  const handleTypeChange = (type) => {
+    if (type === "multi_choice") {
+      setQuestionForm({
+        ...questionForm,
+        type,
+        options: DEFAULT_OPTIONS,
+      });
+    } else {
+      setQuestionForm({
+        ...questionForm,
+        type,
+        options: [
+          {
+            key: "A",
+            label: "",
+            score: 0,
+          },
+        ],
+      });
+    }
+  };
 
   // VALIDATE QUESTION
 
- const validateQuestion = () => {
+  const validateQuestion = () => {
+    if (!questionForm.questionText.trim()) {
+      toast.error("Question is required");
 
-  if (!questionForm.questionText.trim()) {
+      return false;
+    }
 
-    toast.error("Question is required");
+    if (questionForm.options.length < 2) {
+      toast.error("At least 2 options required");
 
-    return false;
-  }
+      return false;
+    }
 
-  if (questionForm.options.length < 2) {
+    if (questionForm.options.some((o) => !o.label.trim())) {
+      toast.error("Fill all options");
 
-    toast.error("At least 2 options required");
+      return false;
+    }
 
-    return false;
-  }
-
-  if (
-    questionForm.options.some(
-      (o) => !o.label.trim()
-    )
-  ) {
-
-    toast.error("Fill all options");
-
-    return false;
-  }
-
-  return true;
-};
+    return true;
+  };
 
   // SAVE QUESTION
 
@@ -269,13 +258,18 @@ const fetchQuestions =
     try {
       if (!validateQuestion()) return;
 
+      if (!assessmentId) {
+        toast.error("Create assessment first");
+        return;
+      }
+
       const payload = {
-  assessmentId,
-  type: questionForm.type,
-  questionText: questionForm.questionText,
-  options: questionForm.options,
-};
-     
+        assessmentId,
+        type: questionForm.type,
+        questionText: questionForm.questionText,
+        options: questionForm.options,
+      };
+
       // UPDATE QUESTION
       if (editingId) {
         await api(`/api/assessmentquestions/edit-assessment/${editingId}`, {
@@ -322,8 +316,8 @@ const fetchQuestions =
       type: q.type,
 
       options:
-  q.options?.length > 0
-    ? q.options
+        q.options?.length > 0
+          ? q.options
           : q.options?.length > 0
             ? q.options
             : [
@@ -413,6 +407,9 @@ const fetchQuestions =
 
   const handlePublishVersion = async () => {
     try {
+      console.log("FORM BEFORE PUBLISH", form);
+      console.log("IMAGE BEFORE PUBLISH", form.image);
+
       // GET CURRENT ASSESSMENT
       const current = await api(
         `/api/assessmentquestions/get-by/${assessmentId}`,
@@ -443,7 +440,6 @@ const fetchQuestions =
       // VERSIONING FLOW
       const payload = {
         assessment: form,
-        questions,
       };
 
       await api(
@@ -485,17 +481,73 @@ const fetchQuestions =
 
       toast.success("Questions imported");
 
-      const updatedQuestions =
-  await fetchQuestions();
+      const updatedQuestions = await fetchQuestions();
 
-console.log(
-  "UPDATED QUESTIONS",
-  updatedQuestions
-);
+      console.log("UPDATED QUESTIONS", updatedQuestions);
     } catch (err) {
       console.error(err);
       toast.error("Import failed");
     }
+  };
+
+  const Max_SIZE = 2 * 1024 * 1024; 
+  //image upload
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+
+    
+    if (!file) return;
+
+    if (file.size > Max_SIZE) {
+      toast.error("File size exceeds 2MB limit");
+      return;
+    }
+
+    setImagePreview(URL.createObjectURL(file));
+
+    uploadImage(file);
+  };
+
+  const uploadImage = (file) => {
+    setUploading(true);
+
+    const fileName = new Date().getTime() + file.name;
+
+    const storageRef = ref(storage, "assessmentImages/" + fileName);
+
+    const uploadTask = uploadBytesResumable(storageRef, file);
+
+    uploadTask.on(
+      "state_changed",
+      (snapshot) => {
+        const prog = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+
+        setProgress(prog);
+      },
+
+      (error) => {
+        console.error(error);
+
+        toast.error("Image upload failed");
+
+        setUploading(false);
+      },
+
+      () => {
+        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+          console.log("FIREBASE URL", downloadURL);
+
+          setForm((prev) => ({
+            ...prev,
+            image: downloadURL,
+          }));
+
+          toast.success("Image uploaded");
+
+          setUploading(false);
+        });
+      },
+    );
   };
 
   return (
@@ -613,6 +665,31 @@ console.log(
                     </select>
                   </div>
 
+                  <div>
+                    <label className="mb-2 block text-label">Image</label>
+
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="w-full rounded-xl border-2 border-greenmuted p-3"
+                    />
+
+                    {uploading && (
+                      <p className="text-sm text-blue-600 mt-2">
+                        Uploading... {Math.round(progress)}%
+                      </p>
+                    )}
+
+                    {(imagePreview || form.image) && (
+                      <img
+                        src={imagePreview || form.image}
+                        alt="assessment"
+                        className="mt-4 w-40 h-40 object-cover rounded-xl border"
+                      />
+                    )}
+                  </div>
+
                   {/* DESCRIPTION */}
                   <div className="md:col-span-2">
                     <label className="mb-2 block text-label">Description</label>
@@ -686,11 +763,16 @@ console.log(
                 <div className="bg-offwhite p-6 rounded-2xl shadow mb-6">
                   <h2 className="text-xl font-bold mb-4">Questions</h2>
 
-{/* import question file excel */}
+                  {/* import question file excel */}
                   <div className="mb-4">
                     <label className="bg-darkgreen text-white px-4 py-2 rounded-xl cursor-pointer">
                       Import Excel / CSV
-                      <input type="file" accept=".xlsx,.xls,.csv"   onChange={handleExcelImport} hidden />
+                      <input
+                        type="file"
+                        accept=".xlsx,.xls,.csv"
+                        onChange={handleExcelImport}
+                        hidden
+                      />
                     </label>
                   </div>
 
@@ -718,63 +800,59 @@ console.log(
 
                   {/* OPTIONS */}
                   <>
-  {questionForm.options.map((opt, i) => (
-    <div key={i} className="flex gap-2 mb-2">
+                    {questionForm.options.map((opt, i) => (
+                      <div key={i} className="flex gap-2 mb-2">
+                        <input
+                          value={opt.label}
+                          placeholder="Option"
+                          className="flex-1 border p-2 rounded"
+                          onChange={(e) => {
+                            const updated = [...questionForm.options];
 
-      <input
-        value={opt.label}
-        placeholder="Option"
-        className="flex-1 border p-2 rounded"
-        onChange={(e) => {
+                            updated[i].label = e.target.value;
 
-          const updated = [...questionForm.options];
+                            setQuestionForm({
+                              ...questionForm,
+                              options: updated,
+                            });
+                          }}
+                        />
 
-          updated[i].label = e.target.value;
+                        <input
+                          type="number"
+                          value={opt.score}
+                          placeholder="Score"
+                          className="w-20 border p-2 rounded"
+                          onChange={(e) => {
+                            const updated = [...questionForm.options];
 
-          setQuestionForm({
-            ...questionForm,
-            options: updated,
-          });
-        }}
-      />
+                            updated[i].score = Number(e.target.value);
 
-      <input
-        type="number"
-        value={opt.score}
-        placeholder="Score"
-        className="w-20 border p-2 rounded"
-        onChange={(e) => {
+                            setQuestionForm({
+                              ...questionForm,
+                              options: updated,
+                            });
+                          }}
+                        />
 
-          const updated = [...questionForm.options];
+                        <button
+                          type="button"
+                          onClick={() => removeOption(i)}
+                          className="text-red-500"
+                        >
+                          X
+                        </button>
+                      </div>
+                    ))}
 
-          updated[i].score = Number(e.target.value);
-
-          setQuestionForm({
-            ...questionForm,
-            options: updated,
-          });
-        }}
-      />
-
-      <button
-        type="button"
-        onClick={() => removeOption(i)}
-        className="text-red-500"
-      >
-        X
-      </button>
-
-    </div>
-  ))}
-
-  <button
-    type="button"
-    onClick={addOption}
-    className="text-blue-600 text-sm"
-  >
-    + Add Option
-  </button>
-</>
+                    <button
+                      type="button"
+                      onClick={addOption}
+                      className="text-blue-600 text-sm"
+                    >
+                      + Add Option
+                    </button>
+                  </>
 
                   {/* BUTTONS */}
                   <div className="mt-4 flex gap-3">
@@ -867,13 +945,17 @@ console.log(
                     <span className="font-semibold">Status:</span> {form.status}
                   </div>
                 </div>
-
-                <button
-                  className="mt-6 bg-darkgreen text-white px-6 py-3 rounded-xl"
-                  onClick={handlePublishVersion}
+                <PermissionGuard
+                  module={MODULES.ASSESSMENT}
+                  action={ACTIONS.CREATE}
                 >
-                  Publish
-                </button>
+                  <button
+                    className="mt-6 bg-darkgreen text-white px-6 py-3 rounded-xl"
+                    onClick={handlePublishVersion}
+                  >
+                    Publish
+                  </button>
+                </PermissionGuard>
               </div>
             )}
 
