@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import dateFormatUtils from "../../utils/dateFormatUtils";
+import dateFormatUtils from "../../utils/dateFormatUtils.js";
 import { useNavigate } from "react-router-dom";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { api } from "../../utils/api.js";
