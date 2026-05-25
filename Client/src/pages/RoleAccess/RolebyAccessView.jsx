@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import CreateRoleandPermission from "./CreateRoleandPermission";
+import CreateRoleandPermission from "./CreateRoleandPermission.jsx";
 import {api} from "../../utils/api.js"
 
 const RolebyAccessView = () => {

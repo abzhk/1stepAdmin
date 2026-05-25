@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
-import dateFormatUtils from "../../utils/dateFormatUtils";
+import dateFormatUtils from "../../utils/dateFormatUtils.js";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { api } from "../../utils/api.js";

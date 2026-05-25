@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import RejectArticle from "./RejectArticle";
-import dateFormatUtils from "../../utils/dateFormatUtils";
+import RejectArticle from "./RejectArticle.jsx";
+import dateFormatUtils from "../../utils/dateFormatUtils.js";
 import { useNavigate } from "react-router-dom";
 import { GrView } from "react-icons/gr";
 import { api } from "../../utils/api.js";

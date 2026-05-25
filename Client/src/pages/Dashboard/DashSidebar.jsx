@@ -18,7 +18,7 @@ import { IoSettingsOutline } from "react-icons/io5";
 import { SiHelpdesk } from "react-icons/si";
 import logo from "../../assets/logo-18.png";
 import { useSelector, useDispatch } from "react-redux";
-import { logout } from "../../redux/slice/authSlice";
+import { logout } from "../../redux/slice/authSlice.js";
 import toast from "react-hot-toast";
 import { api } from "../../utils/api.js";
 import { MODULES, ACTIONS } from "../../constants/permission.js";

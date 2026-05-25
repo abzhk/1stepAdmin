@@ -6,7 +6,7 @@ import NavSearch from '../../utils/navbarSearch.jsx';
 import { useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
-import { logout } from "../../redux/slice/authSlice";
+import { logout } from "../../redux/slice/authSlice.js";
 import toast from "react-hot-toast";
 import { api } from "../../utils/api.js";
 import { CgLogOut } from "react-icons/cg";

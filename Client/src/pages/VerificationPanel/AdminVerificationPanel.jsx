@@ -1,7 +1,7 @@
 import { useState, useMemo, useRef,useEffect } from "react";
-import ApplicantList from "../../Components/Verification/ApplicationList";
-import StatsRow from "../../Components/Verification/StatsRow";
-import DetailPanel from "./DetailPanel";
+import ApplicantList from "../../Components/Verification/ApplicationList.jsx";
+import StatsRow from "../../Components/Verification/StatsRow.jsx";
+import DetailPanel from "./DetailPanel.jsx";
 import {api} from "../../utils/api.js";
 import toast from "react-hot-toast";
 

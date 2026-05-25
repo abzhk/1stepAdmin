@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { api } from "../../utils/api";
-import dateFormatUtils from "../../utils/dateFormatUtils";
+import { api } from "../../utils/api.js";
+import dateFormatUtils from "../../utils/dateFormatUtils.js";
 import PermissionGuard from "../../Components/PermissionGuard.jsx"; 
 import { MODULES, ACTIONS } from "../../constants/permission.js"
 

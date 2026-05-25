@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Outlet } from "react-router-dom";
-import DashboardNavbar from "../pages/Dashboard/DashboardNavbar";
-import DashSidebar from "../pages/Dashboard/DashSidebar";
+import DashboardNavbar from "../pages/dashboard/DashboardNavbar";
+import DashSidebar from "../pages/dashboard/DashSidebar";
 
 const Layout = () => {
   const [searchTerm, setSearchTerm] = useState("");
