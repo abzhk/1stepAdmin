@@ -72,7 +72,7 @@ const DashSidebar = () => {
     else if (path.startsWith("/viewcat")) setActive("Add Category");
     else if (path.startsWith("/viewarticle")) setActive("Approve Articles");
     else if (path.startsWith("/addassessment")) setActive("Add Assessment");
-    else if (path.startsWith("/help")) setActive("Help desk");
+    else if (path.startsWith("/admin-help-desk")) setActive("Help desk");
     else if (path.startsWith("/providerassessment"))
       setActive("Provider Assessments");
     else if (path.startsWith("/master")) setActive("Master Data");
@@ -266,7 +266,7 @@ const DashSidebar = () => {
 
           {iconBtn("Help desk", <SiHelpdesk />, () => {
             setActive("Help desk");
-            navigate("/help");
+            navigate("/admin-help-desk");
           })}
 
           {/* SETTINGS MENU */}

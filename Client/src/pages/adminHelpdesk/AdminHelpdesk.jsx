@@ -7,27 +7,76 @@ import AgentsPanel from "./pages/AgentsPanel";
 import ReportsPanel from "./pages/ReportsPanel";
 import TicketDrawer from "./pages/TicketDrawer";
 import NewTicketModal from "./pages/NewTicketModal";
+import { api } from "../../utils/api.js";
+import { useEffect } from "react";
 
 //UI designed By Gokul
 export default function AdminHelpdesk() {
   const [panel, setPanel] = useState("dashboard");
-  const [tickets, setTickets] = useState(INITIAL_TICKETS);
+  const [tickets, setTickets] = useState([]);
+  const [loading,setLoading]=useState();
+  const [error,setError] =useState();
   const [drawer, setDrawer] = useState(null);
   const [showNew, setShowNew] = useState(false);
   const [toast, setToast] = useState(null);
 
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(null), 3000); };
-  const updateTicket = (t) => { setTickets(prev => prev.map(x => x.id === t.id ? t : x)); showToast(`${t.id} updated`); };
+
+  const updateTicket = async (ticketId, payload) => {
+  console.log("Ticket ID:", ticketId);
+  console.log("Payload:", payload);
+
+  try {
+    const data = await api(
+      `/api/help/update-ticket/${ticketId}`,
+      {
+        method: "PUT",
+        body: JSON.stringify(payload),
+      }
+    );
+
+    console.log("Update Response:", data);
+
+    setTickets(prev =>
+      prev.map(t =>
+        t._id === ticketId ? data.ticket : t
+      )
+    );
+  } catch (error) {
+    console.error(error);
+  }
+};
   const addTicket = (t) => { setTickets(prev => [t, ...prev]); showToast(`${t.id} created!`); };
 
   const NAV = [
     { id: "dashboard", label: "Dashboard", icon: <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 16 16"><rect x="1" y="1" width="6" height="6" rx="1.5" /><rect x="9" y="1" width="6" height="6" rx="1.5" /><rect x="1" y="9" width="6" height="6" rx="1.5" /><rect x="9" y="9" width="6" height="6" rx="1.5" /></svg> },
     { id: "tickets", label: "Tickets", badge: tickets.filter(t => t.status === "Open").length, icon: <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 16 16"><rect x="2" y="2" width="12" height="12" rx="2" /><path d="M5 6h6M5 9h4" /></svg> },
-    { id: "agents", label: "Agents", icon: <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 16 16"><circle cx="8" cy="5" r="2.5" /><path d="M3 13c0-2.76 2.24-5 5-5s5 2.24 5 5" /></svg> },
+    // { id: "agents", label: "Agents", icon: <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 16 16"><circle cx="8" cy="5" r="2.5" /><path d="M3 13c0-2.76 2.24-5 5-5s5 2.24 5 5" /></svg> },
     { id: "reports", label: "Reports", icon: <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 16 16"><path d="M2 12V8M6 12V5M10 12V7M14 12V3" /></svg> },
   ];
 
   const TITLES = { dashboard: "Dashboard Overview", tickets: "Support Tickets", agents: "Support Agents", reports: "Analytics & Reports" };
+
+useEffect(() => {
+  const fetchTickets = async () => {
+    try {
+      setLoading(true);
+
+      const data = await api("/api/help/all-tickets");
+        console.log("API Response:", data);
+      console.log("Tickets:", data.tickets);
+
+      setTickets(data.tickets);
+    } catch (error) {
+      console.error(error);
+      setError("Failed to load tickets.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchTickets();
+}, []);
 
   return (
     <div className="flex h-screen bg-[#F6F4F0] overflow-hidden text-[#2d4a36] selection:bg-[#8fa797]/30" style={{ fontFamily: "'DM Sans','Nunito',sans-serif" }}>
@@ -44,8 +93,8 @@ export default function AdminHelpdesk() {
           
           <div className="text-[10px] font-bold text-[#8fa797]/70 uppercase tracking-widest px-3 mb-3 mt-8">Recent Tickets</div>
           {tickets.slice(0, 4).map((t, i) => (
-            <button key={t.id} onClick={() => { setPanel("tickets"); setDrawer({ ticket: t, idx: i }); }} className="w-full text-left px-4 py-3 rounded-2xl hover:bg-white hover:shadow-sm border border-transparent hover:border-[#8fa797]/20 transition-all mb-1.5 group">
-              <div className="font-mono text-[10px] font-bold text-[#8fa797] mb-1">{t.id}</div>
+            <button key={t._id} onClick={() => { setPanel("tickets"); setDrawer({ ticket: t, idx: i }); }} className="w-full text-left px-4 py-3 rounded-2xl hover:bg-white hover:shadow-sm border border-transparent hover:border-[#8fa797]/20 transition-all mb-1.5 group">
+              <div className="font-mono text-[10px] font-bold text-[#8fa797] mb-1">{t.ticketId}</div>
               <div className="text-[12px] font-bold text-[#2d4a36]/80 truncate group-hover:text-[#2d4a36]">{t.title}</div>
               <div className="mt-2"><StatusBadge status={t.status} /></div>
             </button>
@@ -70,7 +119,7 @@ export default function AdminHelpdesk() {
         <main className="flex-1 overflow-y-auto p-8 relative">
           {panel === "dashboard" && <DashboardPanel tickets={tickets} onViewAll={() => setPanel("tickets")} onTicketClick={(t, i) => setDrawer({ ticket: t, idx: i })} />}
           {panel === "tickets" && <TicketsPanel tickets={tickets} onTicketClick={(t, i) => setDrawer({ ticket: t, idx: i })} onUpdateTicket={updateTicket} />}
-          {panel === "agents" && <AgentsPanel />}
+          {/* {panel === "agents" && <AgentsPanel />} */}
           {panel === "reports" && <ReportsPanel tickets={tickets} />}
         </main>
       </div>
@@ -82,7 +131,10 @@ export default function AdminHelpdesk() {
             ticket={drawer.ticket}
             idx={drawer.idx}
             onClose={() => setDrawer(null)}
-            onUpdate={(t) => { updateTicket(t); setDrawer(null); }}
+            onUpdate={async (ticketId, payload) => {
+  await updateTicket(ticketId, payload);
+  setDrawer(null);
+}}
           />
         </div>
       )}
