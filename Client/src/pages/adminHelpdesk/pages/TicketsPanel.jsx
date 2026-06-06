@@ -1,27 +1,18 @@
 import { useState } from "react";
 import { Av, PriorityBadge, StatusBadge } from "../Shared/SharedUI";
 import {  ac } from "../data/mockData";
+import formatdatateUtils from "../../../utils/dateFormatUtils.js";
 
 
 //UI designed By Gokul
-export default function TicketsPanel({ tickets, onTicketClick, onUpdateTicket }) {
+export default function TicketsPanel({ tickets,search,
+  setSearch, onTicketClick, onUpdateTicket }) {
   const [filter, setFilter] = useState("All");
-  const [search, setSearch] = useState("");
   const [selected, setSelected] = useState(new Set());
 
-  const filtered = tickets.filter(t => {
-    const m = filter === "All" || t.status === filter;
-    const q = search.toLowerCase();
-    const s =
-  !search ||
-  [
-    t.ticketId,
-    t.email,
-    t.title,
-    t.category,
-  ].some(v => String(v).toLowerCase().includes(q));
-    return m && s;
-  });
+ const filtered = tickets.filter(
+  t => filter === "All" || t.status === filter
+);
 
   const toggle = id => setSelected(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
   const bulkClose = () => { selected.forEach(id => { const t = tickets.find(t => t._id === id); if (t) onUpdateTicket({ ...t, status: "Closed" }); }); setSelected(new Set()); };
@@ -63,7 +54,9 @@ export default function TicketsPanel({ tickets, onTicketClick, onUpdateTicket })
             <thead>
               <tr className="bg-[#F6F4F0]/30 border-b border-[#8fa797]/10">
                 <th className="px-6 py-4 w-12"><input type="checkbox" className="w-4 h-4 rounded text-[#2d4a36] focus:ring-[#8fa797] border-[#8fa797]/40 cursor-pointer" onChange={e => setSelected(e.target.checked ? new Set(filtered.map(t => t._id)) : new Set())} checked={selected.size === filtered.length && filtered.length > 0} /></th>
-                {["ID", "User", "Issue", "Category", "Priority", "Status", "Agent", "Created"].map(h => <th key={h} className="text-left text-[10px] font-bold text-[#8fa797] uppercase tracking-widest px-4 py-4">{h}</th>)}
+                {["ID", "User", "Issue", "Category", "Priority", "Status",
+                  //  "Agent", 
+                   "Created"].map(h => <th key={h} className="text-left text-[10px] font-bold text-[#8fa797] uppercase tracking-widest px-4 py-4">{h}</th>)}
               </tr>
             </thead>
             <tbody>
@@ -91,7 +84,7 @@ export default function TicketsPanel({ tickets, onTicketClick, onUpdateTicket })
                       <td className="px-4 py-4 text-[12px] font-bold text-[#8fa797]">{t.category}</td>
                       <td className="px-4 py-4"><PriorityBadge priority={t.priority} /></td>
                       <td className="px-4 py-4"><StatusBadge status={t.status} /></td>
-                      <td className="px-4 py-4">
+                      {/* <td className="px-4 py-4">
                         {t.agent ? (
                           <div className="flex items-center gap-2">
                             <div className="w-6 h-6 rounded-full bg-[#F6F4F0] border border-[#8fa797]/30 flex items-center justify-center text-[9px] font-bold text-[#2d4a36]">
@@ -100,8 +93,8 @@ export default function TicketsPanel({ tickets, onTicketClick, onUpdateTicket })
                             <span className="text-[12px] font-bold text-[#2d4a36]/80">{t.agent.split(" ")[0]}</span>
                           </div>
                         ) : <span className="text-[11px] font-medium text-[#8fa797] italic">Unassigned</span>}
-                      </td>
-                      <td className="px-4 py-4 text-[11px] font-medium text-[#8fa797] whitespace-nowrap">{new Date(t.createdAt).toLocaleDateString()}</td>
+                      </td> */}
+                      <td className="px-4 py-4 text-[11px] font-medium text-[#8fa797] whitespace-nowrap">{formatdatateUtils(t.createdAt)}</td>
                     </tr>
                   );
                 })}

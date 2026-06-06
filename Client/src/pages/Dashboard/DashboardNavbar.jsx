@@ -38,11 +38,12 @@ const DashboardNavbar = ({ searchTerm, setSearchTerm }) => {
   if (path.startsWith("/reports")) return "Reports";
   if (path.startsWith("/viewcat") ||path.startsWith("/viewarticle")||path.startsWith("/add-article")) return "Article";
   if (path.startsWith("/addassessment") ||path.startsWith("/providerassessment")||path.startsWith("/assessment-list")) return "Assessment";
-  if (path.startsWith("/master-data")) return "Master Data";
+  if (path.startsWith("/master")) return "Master Data";
   if (path.startsWith("/report")) return "Reports";
   if (path.startsWith("/create-admin")) return "Create Admin";
   if (path.startsWith("/centre")||path.startsWith("/upcoming-session")||path.startsWith("/edit-centre")) return "Centre";
   if (path.startsWith("/admin-verify")) return "Claim Profile";
+  if (path.startsWith("/admin-help-desk")) return "Help Desk";
   return "Dashboard";
 };
 

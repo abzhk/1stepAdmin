@@ -1,12 +1,13 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiArrowRight } from "react-icons/fi";
+import { api } from "../../utils/api.js";
+import  formatdatateUtils from "../../utils/dateFormatUtils.js";
 
-// STATUS BADGE
 const StatusBadge = ({ status }) => {
   const styles = {
     Open: "bg-red-50 text-red-500",
-    "In Progress": "bg-yellow-50 text-yellow-600",
+    "In Progress": "bg-yellow-200 text-yellow-600",
     Resolved: "bg-green-50 text-green-600",
   };
 
@@ -17,65 +18,71 @@ const StatusBadge = ({ status }) => {
   );
 };
 
-// MOCK DATA
-const mockMessages = [
-  { id: 1, name: "Ram", subject: "Login Issue", message: "Unable to login since yesterday", status: "Open", date: "10 Apr" },
-  { id: 2, name: "Mary", subject: "Payment Failed", message: "Payment is not going through", status: "In Progress", date: "09 Apr" },
-  { id: 3, name: "Alex", subject: "Account Locked", message: "Account locked issue", status: "Resolved", date: "08 Apr" },
-  { id: 4, name: "Priya", subject: "App Crash", message: "Dashboard crashes when opening", status: "Open", date: "07 Apr" },
-  { id: 5, name: "Rahul", subject: "Subscription Issue", message: "Subscription not updated", status: "In Progress", date: "06 Apr" },
-  { id: 6, name: "John", subject: "Profile Error", message: "Unable to update profile", status: "Resolved", date: "05 Apr" },
-];
-
 const HelpDeskCard = () => {
   const navigate = useNavigate();
+  const [tickets, setTickets] = useState([]);
+
+  const latestTickets = tickets.slice(0, 3);
+
+  useEffect(() => {
+    const fetchTickets = async () => {
+      try {
+        const data = await api("/api/help/all-tickets");
+
+        setTickets(
+          [...(data.tickets || [])]
+            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+            .slice(0, 3),
+        );
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchTickets();
+  }, []);
 
   return (
     <div className="h-[380px] bg-white rounded-3xl shadow-md p-6 flex flex-col">
-
       {/* HEADER */}
       <div className="flex justify-between items-center mb-5">
-        <h3 className="text-subheading tracking-wide">
-          Help Desk Activity
-        </h3>
+        <h3 className="text-subheading tracking-wide">Help Desk Activity</h3>
 
         <span className="text-xs px-3 py-1 rounded-full bg-gray-100 text-gray-600">
-          {mockMessages.length}
+          {latestTickets.length}
         </span>
       </div>
 
       {/* LIST */}
       <div className="flex-1 overflow-y-auto space-y-2 pr-1 scrollbar-hide">
-        {mockMessages.map((item) => (
+        {latestTickets.map((item) => (
           <div
-            key={item.id}
+            key={item._id}
             className="flex justify-between items-center p-3 rounded-xl hover:bg-offwhite transition group"
           >
-            
-            {/* LEFT */}
             <div className="flex gap-3 items-center">
-              
-              {/* Avatar */}
               <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#2d4a36] to-[#426b50] text-white flex items-center justify-center text-sm font-semibold shadow-sm">
-                {item.name.charAt(0)}
+                {item.user?.username?.charAt(0)}
               </div>
 
-              {/* Text */}
               <div>
                 <p className="text-sm font-medium text-gray-800 group-hover:text-black">
-                  {item.subject}
+                  {item.title}
                 </p>
-
-                <p className="text-xs text-gray-400 line-clamp-1">
-                  {item.message}
+                <p className="text-xs text-green-700 font-medium">
+                  {item.user?.email}
+                </p>
+                <p className="text-sm font-medium text-gray-800 group-hover:text-black">
+                  {item.user?.username }
                 </p>
               </div>
             </div>
 
-            {/* RIGHT */}
             <div className="text-right">
               <StatusBadge status={item.status} />
-              <p className="text-[10px] text-gray-400 mt-1">{item.date}</p>
+              <p className="text-[10px] text-gray-400 mt-1">
+                 {formatdatateUtils(item.createdAt)}
+              </p>
             </div>
           </div>
         ))}
@@ -84,7 +91,7 @@ const HelpDeskCard = () => {
       {/* FOOTER */}
       <div className="pt-4 flex justify-end">
         <button
-          onClick={() => navigate("/all-complaints")}
+          onClick={() => navigate("/admin-help-desk")}
           className="bg-gradient-to-r from-[#2d4a36] to-[#426b50] text-white p-3 rounded-full hover:scale-105 transition shadow-md"
         >
           <FiArrowRight />

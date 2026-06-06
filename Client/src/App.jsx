@@ -243,7 +243,7 @@ const App = () => {
           <Route path="/create-assessment" element={<PermissionRoute module={MODULES.ASSESSMENT} action={ACTIONS.CREATE}><Asssessmentquestionary /></PermissionRoute>}/>
           <Route path="/create-assessment/:id" element={<Asssessmentquestionary />} />
            <Route path="/assessment-list" element={ <PermissionRoute module={MODULES.ASSESSMENT} action={ACTIONS.READ}><AssessmentList /> </PermissionRoute> }/>
-            <Route path="/help-desk" element={<AdminHelpdesk />}/>
+            {/* <Route path="/help-desk" element={<AdminHelpdesk />}/> */}
            <Route path="/questions/:id" element={<AssessmentQuestions />}/>
            <Route path ="/admin-help-desk" element={<AdminHelpdesk/>}/>
         </Route>

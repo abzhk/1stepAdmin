@@ -73,7 +73,7 @@ const DashSidebar = () => {
     else if (path.startsWith("/viewarticle")) setActive("Approve Articles");
     else if (path.startsWith("/addassessment")) setActive("Add Assessment");
     else if (path.startsWith("/admin-help-desk")) setActive("Help desk");
-    else if (path.startsWith("/providerassessment"))
+    else if (path.startsWith("/providerassessment")||  path.startsWith("/assessment-list"))
       setActive("Provider Assessments");
     else if (path.startsWith("/master")) setActive("Master Data");
     else setActive("");

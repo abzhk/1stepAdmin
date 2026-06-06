@@ -1,4 +1,5 @@
-import MasterData from "../../model/Master/masterData.model.js";
+import MasterData, { VALID_TYPES } from "../../model/Master/masterData.model.js";
+import joi from "joi";
 
 // ============================================
 // GET OPTIONS BY TYPE (for dropdowns)
@@ -6,7 +7,18 @@ import MasterData from "../../model/Master/masterData.model.js";
 export const getOptionsByType = async (req, res) => {
   try {
     const { type } = req.params;
-    const { grouped, format = "dropdown" } = req.query;
+    const { grouped, format = "dropdown", page = 1, limit = 500 } = req.query;
+
+    if (!VALID_TYPES.includes(type)) {
+      return res.status(400).json({ success: false, message: "Invalid master data type" });
+    }
+
+    if (!["dropdown", "raw"].includes(format)) {
+      return res.status(400).json({ success: false, message: "Invalid format parameter" });
+    }
+
+    const limitNum = parseInt(limit) || 500;
+    const skipNum = (parseInt(page) - 1) * limitNum;
 
     let result;
 
@@ -15,10 +27,10 @@ export const getOptionsByType = async (req, res) => {
       result = await MasterData.getGroupedOptions(type, grouped);
     } else if (format === "dropdown") {
       // Return formatted for react-select
-      result = await MasterData.formatForDropdown(type);
+      result = await MasterData.formatForDropdown(type, {}, limitNum, skipNum);
     } else {
       // Return raw data
-      result = await MasterData.getOptionsByType(type);
+      result = await MasterData.getOptionsByType(type, {}, limitNum, skipNum);
     }
 
     res.status(200).json({
@@ -27,6 +39,9 @@ export const getOptionsByType = async (req, res) => {
       data: result,
     });
   } catch (error) {
+    if (error.name === 'ValidationError' || error.name === 'CastError') {
+      return res.status(400).json({ success: false, message: "Validation error", error: error.message });
+    }
     res.status(500).json({
       success: false,
       message: "Failed to fetch options",
@@ -40,7 +55,6 @@ export const getOptionsByType = async (req, res) => {
 // ============================================
 export const getAllTypes = async (req, res) => {
   try {
-
     const types = await MasterData.distinct("type");
 
     res.status(200).json({
@@ -61,10 +75,33 @@ export const getAllTypes = async (req, res) => {
 // ============================================
 export const createOption = async (req, res) => {
   try {
+    const schema = joi.object({
+      type: joi.string().valid(...VALID_TYPES).required(),
+      code: joi.string().required(),
+      label: joi.string().required(),
+
+      name: joi.string().allow("", null),
+      description: joi.string().allow("", null),
+      category: joi.string().allow("", null),
+      subCategory: joi.string().allow("", null),
+        metadata: joi.object().optional(),
+
+      isActive: joi.boolean(),
+      order: joi.number(),
+    });
+
+    const { error, value } = schema.validate(req.body);
+
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: error.details[0].message,
+      });
+    }
 
     const option = new MasterData({
-      ...req.body,
-      createdBy: req.user.id
+      ...value,
+      createdBy: req.user._id,
     });
 
     await option.save();
@@ -107,7 +144,37 @@ export const updateOption = async (req, res) => {
       });
     }
 
-    Object.assign(option, req.body);
+    const schema = joi.object({
+      code: joi.string(),
+
+      label: joi.string(),
+
+      name: joi.string().allow("", null),
+
+      description: joi.string().allow("", null),
+
+      category: joi.string().allow("", null),
+
+      subCategory: joi.string().allow("", null),
+
+      metadata: joi.object().optional(),
+
+      isActive: joi.boolean(),
+
+      order: joi.number(),
+    }).min(1);
+
+    const { error, value } = schema.validate(req.body);
+
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: error.details[0].message,
+      });
+    }
+
+    Object.assign(option, value);
+
     option.updatedBy = req.user._id;
 
     await option.save();
@@ -220,6 +287,7 @@ export const bulkToggleActive = async (req, res) => {
     });
   }
 };
+
 //all data without isactive
 export const getAllOptionsByTypeAdmin = async (req, res) => {
   try {

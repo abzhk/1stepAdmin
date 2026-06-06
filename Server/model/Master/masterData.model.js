@@ -1,5 +1,45 @@
 import mongoose, { Schema } from "mongoose";
 
+export const VALID_TYPES = [
+  // Clinical / Diagnosis
+  "condition",
+  "symptomDomain",
+
+  // Assessment related
+  "questionType",
+  "domain",
+  "severityLevel",
+  "scoringMethod",
+  "assessmentStatus",
+  "diagnosticSystem",
+  "clinicalCutoff",
+
+  // Provider & Service
+  "therapistSpecialization",
+  "serviceType",
+  "serviceMode",
+  "therapyType",
+
+  // Programs & Content
+  "programCategory",
+  "activityType",
+  "contentCategory",
+
+  // Operational
+  "ageBand",
+  "role",
+  "appointmentStatus",
+  "notificationTemplate",
+  "consentTemplate",
+
+  // Generic
+  "specialization",
+
+  // Subscription & Billing
+  "planBillingConfig",
+   "articleTag",
+];
+
 const masterDataSchema = new mongoose.Schema(
   {
     // ============================================
@@ -8,43 +48,7 @@ const masterDataSchema = new mongoose.Schema(
     type: {
       type: String,
       required: true,
-      enum: [
-        // Clinical / Diagnosis
-        "condition",
-        "symptomDomain",
-
-        // Assessment related
-        "questionType",
-        "domain",
-        "severityLevel",
-        "scoringMethod",
-        "assessmentStatus",
-        "diagnosticSystem",
-        "clinicalCutoff",
-
-        // Provider & Service
-        "therapistSpecialization",
-        "serviceType",
-        "serviceMode",
-        "therapyType",
-
-        // Programs & Content
-        "programCategory",
-        "activityType",
-        "contentCategory",
-
-        // Operational
-        "ageBand",
-        "role",
-        "appointmentStatus",
-        "notificationTemplate",
-        "consentTemplate",
-
-        // Generic
-        "specialization",
-        "condition",
-        "articleTag"
-      ],
+      enum: VALID_TYPES,
       index: true,
     },
 
@@ -358,7 +362,9 @@ masterDataSchema.pre("save", function (next) {
 // ============================================
 masterDataSchema.statics.getOptionsByType = async function (
   type,
-  filters = {}
+  filters = {},
+  limitNum = 500,
+  skipNum = 0
 ) {
   const query = {
     type,
@@ -368,6 +374,8 @@ masterDataSchema.statics.getOptionsByType = async function (
 
   return await this.find(query)
     .sort({ order: 1, label: 1 })
+    .skip(skipNum)
+    .limit(limitNum)
     .populate("conditionRefs", "code label")
     .lean();
 };
@@ -377,9 +385,11 @@ masterDataSchema.statics.getOptionsByType = async function (
 // ============================================
 masterDataSchema.statics.formatForDropdown = async function (
   type,
-  filters = {}
+  filters = {},
+  limitNum = 500,
+  skipNum = 0
 ) {
-  const items = await this.getOptionsByType(type, filters);
+  const items = await this.getOptionsByType(type, filters, limitNum, skipNum);
 
   return items.map((item) => ({
     value: item.code,
@@ -391,6 +401,17 @@ masterDataSchema.statics.formatForDropdown = async function (
     icdCode: item.icdCode,
     dsmCode: item.dsmCode,
   }));
+};
+
+// ============================================
+// STATICS: GET GROUPED OPTIONS
+// ============================================
+masterDataSchema.statics.getGroupedOptions = async function (type, groupByField) {
+  return await this.aggregate([
+    { $match: { type, isActive: true } },
+    { $group: { _id: `$${groupByField}`, options: { $push: "$$ROOT" } } },
+    { $sort: { _id: 1 } }
+  ]);
 };
 
 // ============================================
