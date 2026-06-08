@@ -90,6 +90,18 @@ ParentSchema.post("save", async function () {
     console.error("Failed to increment Stats.totalParents:", err);
   }
 });
+
+ParentSchema.post("findOneAndDelete", async function (doc) {
+  try {
+    if (!doc) return;
+
+    const Stats = (await import("./stats.model.js")).default;
+
+    await Stats.updateOne({}, { $inc: { totalParents: -1 } });
+  } catch (err) {
+    console.error("Failed to decrement Stats.totalParents:", err);
+  }
+});
 const Parent = mongoose.model("Parent", ParentSchema);
 
 export default Parent;
