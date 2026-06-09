@@ -394,6 +394,7 @@ const isVersionMode = !!id && mode === "version";
                       >
                         <option value="parent">Parent</option>
                         <option value="provider">Provider</option>
+                        <option value="centre">Centre</option>
                       </select>
                       <div>
                         <label className="text-sm font-bold text-[#2d4a36]">

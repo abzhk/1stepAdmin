@@ -11,7 +11,7 @@ const planSchema = new mongoose.Schema(
     },
      user_type: {
      type: String,
-     enum: ["parent", "provider"],
+     enum: ["parent", "provider","Centre"],
      index: true
     },
     plan_name: {

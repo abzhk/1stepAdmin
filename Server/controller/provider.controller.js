@@ -961,12 +961,25 @@ export const getCentreAppointments = async (req, res, next) => {
 
 export const getCentresForAdmin = async (req, res, next) => {
   try {
+    const {
+      limit = 12,
+      startIndex = 0,
+    } = req.query;
+
+    const totalCount = await Provider.countDocuments({
+      providerType: "centre",
+      isActive: true,
+    });
+
     // 1. Get centres
     const centres = await Provider.find({
       providerType: "centre",
       isActive: true,
-    }).populate("userRef", "isActive email profilePicture").sort({ createdAt: -1 });
-    
+    })
+      .populate("userRef", "isActive email profilePicture")
+      .sort({ createdAt: -1 })
+      .skip(Number(startIndex))
+      .limit(Number(limit));
 
     // 2. Users
     const userIds = centres.map((c) => c.userRef);
@@ -1002,26 +1015,26 @@ export const getCentresForAdmin = async (req, res, next) => {
       },
     ]);
 
-
     const countMap = {};
     providerCounts.forEach((item) => {
       countMap[item._id] = item.totalProviders;
     });
 
-
     const finalCentres = centres.map((c) => ({
       ...c.toObject(),
-      user: userMap[c.userRef] || null,
-      totalProviders: countMap[c._id.toString()] || 0, 
+      user: userMap[c.userRef?.toString()] || null,
+      totalProviders: countMap[c._id.toString()] || 0,
     }));
+
     const totalProviders = finalCentres.reduce(
-  (sum, c) => sum + c.totalProviders,
-  0
-);
+      (sum, c) => sum + c.totalProviders,
+      0
+    );
 
     res.status(200).json({
       success: true,
-      totalCentres: centres.length,
+      totalCount,
+      totalCentres: finalCentres.length,
       totalProviders,
       centres: finalCentres,
     });
