@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import MasterData from "./MasterData";  
 import TagArticle from "./TagArticle";   
-import { FaCogs, FaTags } from "react-icons/fa";
+import { FaCogs, FaTags, FaMoneyBillWave } from "react-icons/fa";
+import BillingInterval from "./BillingInterval";
 
 const MasterPage = () => {
   const [activeTab, setActiveTab] = useState("services");
@@ -35,11 +36,26 @@ const MasterPage = () => {
             <FaTags />
             Tags
           </button>
+
+
+ <button
+            onClick={() => setActiveTab("billing")}
+            className={`flex items-center gap-2 px-5 py-2 rounded-xl ${
+              activeTab === "billing"
+                ? "bg-darkgreen text-white"
+                : "bg-white shadow"
+            }`}
+          >
+            <FaMoneyBillWave />
+            Billing
+          </button>
+
         </div>
 
         <div>
           {activeTab === "services" && <MasterData />}
           {activeTab === "tags" && <TagArticle />}
+            {activeTab === "billing" && <BillingInterval />}
         </div>
 
       </div>

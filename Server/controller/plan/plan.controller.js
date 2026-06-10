@@ -1,6 +1,7 @@
 import Plan from "../../model/plan.model.js";
 import AccessModules from "../../model/acessmodule.model.js";
 import { errorHandler } from "../../utils/error.js";
+import MasterData from "../../model/Master/masterData.model.js";
 
 export const createPlan = async (req, res,next) => {
   try {
@@ -46,6 +47,19 @@ export const createPlan = async (req, res,next) => {
         message: "All required fields must be provided",
       });
     }
+
+
+    const billingOption = await MasterData.findOne({
+  type: "planBillingConfig",
+  code: billing_interval,
+  isActive: true,
+});
+
+if (!billingOption) {
+  return res.status(400).json({
+    message: "Invalid billing interval",
+  });
+}
 
 if (!Array.isArray(available_modules)) {
   return res.status(400).json({

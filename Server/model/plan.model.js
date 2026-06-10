@@ -11,7 +11,7 @@ const planSchema = new mongoose.Schema(
     },
      user_type: {
      type: String,
-     enum: ["parent", "provider","Centre"],
+     enum: ["parent", "provider","centre"],
      index: true
     },
     plan_name: {
@@ -44,9 +44,10 @@ const planSchema = new mongoose.Schema(
       uppercase: true,
     },
     billing_interval: {
-      type: String,
-      enum: ["monthly", "quarterly", "annually"],
-      required: true,
+       type: String,
+  required: true,
+  lowercase: true,
+  trim: true,
     },
     trial_period_days: {
       type: Number,

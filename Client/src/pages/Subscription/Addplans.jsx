@@ -30,6 +30,7 @@ const Addplans = () => {
   const { id } = useParams();
   const [modules, setModules] = useState([]);
   const location = useLocation();
+  const [billingOptions, setBillingOptions] = useState([]);
 const searchParams = new URLSearchParams(location.search);
 const mode = searchParams.get("mode");
 
@@ -47,7 +48,7 @@ const isVersionMode = !!id && mode === "version";
     price: "",
     discount: 0,
     currency: "INR",
-    billing_interval: "monthly",
+    billing_interval: "",
     trial_period_days: 0,
     stripe_price_id: "",
     available_modules: [],
@@ -106,6 +107,29 @@ const isVersionMode = !!id && mode === "version";
       video_sessions_count: Math.max(0, prev.video_sessions_count + delta),
     }));
   };
+
+
+// Billing period options
+useEffect(() => {
+  const fetchBillingOptions = async () => {
+    try {
+      const res = await api("/api/services/planBillingConfig?format=dropdown");
+
+      setBillingOptions(res.data);
+
+      
+      setFormData((prev) => ({
+        ...prev,
+        billing_interval:
+          prev.billing_interval || res.data[0]?.value || "",
+      }));
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  fetchBillingOptions();
+}, []);
 
   useEffect(() => {
     if (formData.user_type === "parent") {
@@ -392,9 +416,9 @@ const isVersionMode = !!id && mode === "version";
                         disabled={isEditMode || isVersionMode}
                         className="mt-1 w-full px-4 py-3 rounded-xl bg-[#F6F4F0] border border-[#8fa797]/30 focus:ring-2 focus:ring-[#2d4a36] outline-none text-[#2d4a36]"
                       >
-                        <option value="parent">Parent</option>
-                        <option value="provider">Provider</option>
-                        <option value="centre">Centre</option>
+                        <option value="parent">parent</option>
+                        <option value="provider">provider</option>
+                        <option value="centre">centre</option>
                       </select>
                       <div>
                         <label className="text-sm font-bold text-[#2d4a36]">
@@ -490,7 +514,7 @@ const isVersionMode = !!id && mode === "version";
                         <label className="text-sm font-bold text-[#2d4a36]">
                           Billing
                         </label>
-                        <select
+                        {/* <select
                           name="billing_interval"
                           value={formData.billing_interval}
                           onChange={handleChange}
@@ -500,7 +524,21 @@ const isVersionMode = !!id && mode === "version";
                           <option value="monthly">Monthly</option>
                           <option value="quarterly">Quarterly</option>
                           <option value="annually">Annually</option>
-                        </select>
+                        </select> */}
+
+                        <select
+  name="billing_interval"
+  value={formData.billing_interval}
+  onChange={handleChange}
+  disabled={isEditMode}
+  className="mt-1 w-full px-4 py-3 rounded-xl bg-[#F6F4F0] border border-[#8fa797]/30 focus:ring-2 focus:ring-[#2d4a36] outline-none text-[#2d4a36]"
+>
+  {billingOptions.map((item) => (
+    <option key={item.value} value={item.value}>
+      {item.label}
+    </option>
+  ))}
+</select>
                       </div>
                     </div>
                     <div>
