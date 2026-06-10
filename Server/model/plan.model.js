@@ -23,7 +23,7 @@ const planSchema = new mongoose.Schema(
       required: true,
       lowercase: true,
       trim: true,
-      unique: true,
+      // unique: true,
     },
     description: {
       type: String,

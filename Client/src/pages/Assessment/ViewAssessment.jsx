@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {api} from "../../utils/api.js";
+import toast from "react-hot-toast";
 
 const ViewAssessment = () => {
   const [categories, setCategories] = useState([]);
@@ -45,28 +46,23 @@ const ViewAssessment = () => {
     console.log("Edit ");
   };
 
-  const handleToggle = async (id) => {
-    try {
-      const res = await fetch(
-        `http://localhost:3001/api/assessment/category/toggle/${id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+ const handleToggle = async (id) => {
+  try {
+    const data = await api(`/api/assessment/category/toggle/${id}`, {
+      method: "PUT",
+    });
 
-      const data = await res.json();
+     toast.success(data.message || "Category status updated successfully");
 
-      if (!res.ok) {
-        throw new Error(data.message || "Failed to update");
-      }
-      fetchCategories();
-    } catch (error) {
-      console.error(error);
-    }
-  };
+
+    // Refresh the list
+    fetchCategories();
+  } catch (err) {
+    console.error(err);
+     toast.error(err.message || "Failed to update category");
+    setError(err.message || "Failed to update category");
+  }
+};
 
   return (
     <div className="w-full bg-secondary mt-8">

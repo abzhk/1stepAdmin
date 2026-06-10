@@ -5,7 +5,9 @@ import {
   deleteCategory,
   toggleCategory,
   adminGetAllAssessments,
-  getProviderAssessmentbyId
+  getProviderAssessmentbyId,
+   getActiveCategories,
+   getLastOrder,
 } from "../controller/assessment.controller.js";
 
 import { verifyAdminToken } from '../middlewares/authMiddleware.js';
@@ -56,5 +58,15 @@ router.get(
 
 
 router.get("/getassessment/:providerId", getProviderAssessmentbyId);
+
+
+router.get(
+  "/category/active",
+  verifyAdminToken,
+  canAccess(MODULES.ASSESSMENT, ACTIONS.READ),
+  getActiveCategories
+);
+
+router.get("/last-order",verifyAdminToken, getLastOrder);
 
 export default router;

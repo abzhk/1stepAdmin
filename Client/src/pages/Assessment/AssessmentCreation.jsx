@@ -73,7 +73,7 @@ const AssessmentCreation = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await api("/api/assessment/category/getall");
+        const res = await api("/api/assessment/category/active");
 
         setCategories(res.data || []);
       } catch (err) {

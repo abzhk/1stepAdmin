@@ -55,7 +55,7 @@ categorySchema.pre("save", function (next) {
 });
 
 // Index for faster queries
-categorySchema.index({ slug: 1 });
+// categorySchema.index({ slug: 1 });
 categorySchema.index({ isActive: 1, order: 1 });
 
 const Category = mongoose.model("Category", categorySchema);
