@@ -230,8 +230,7 @@ const TagArticle = () => {
                         <span
                           className={
                             tag.isActive
-                              ? "text-green-600 font-medium"
-                              : "text-red-500 font-medium"
+                           
                           }
                         >
                           {tag.isActive ? "Active" : "Inactive"}

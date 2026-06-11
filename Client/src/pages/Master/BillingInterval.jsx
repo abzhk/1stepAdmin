@@ -59,7 +59,6 @@ const BillingInterval = () => {
     e.preventDefault();
 
     const payload = {
-      type: "planBillingConfig",
       label: formData.label,
       code: formData.code,
       isActive: formData.isActive,
@@ -74,6 +73,7 @@ const BillingInterval = () => {
 
     try {
       if (editId) {
+        // UPDATE
         await api(`/api/services/${editId}`, {
           method: "PUT",
           body: JSON.stringify(payload),
@@ -81,9 +81,13 @@ const BillingInterval = () => {
 
         toast.success("Billing updated");
       } else {
+        // CREATE
         await api("/api/services", {
           method: "POST",
-          body: JSON.stringify(payload),
+          body: JSON.stringify({
+            ...payload,
+            type: "planBillingConfig",
+          }),
         });
 
         toast.success("Billing created");
@@ -100,13 +104,13 @@ const BillingInterval = () => {
     setEditId(item._id);
 
     setFormData({
-      label: item.label,
-      code: item.code,
-      discount_percent: item.metadata?.discount_percent || 0,
-      badge_text: item.metadata?.badge_text || "",
+      label: item.label || "",
+      code: item.code || "",
+      discount_percent: item.metadata?.discount_percent ?? 0,
+      badge_text: item.metadata?.badge_text ?? "",
       is_enabled: item.metadata?.is_enabled ?? true,
-      order: item.order || 1,
-      isActive: item.isActive,
+      order: item.metadata?.order ?? item.order ?? 1,
+      isActive: item.isActive ?? true,
     });
   };
 
@@ -121,73 +125,67 @@ const BillingInterval = () => {
 
   return (
     <div className="min-h-screen bg-offwhite">
-
       <PermissionGuard module={MODULES.MASTER_DATA} action={ACTIONS.CREATE}>
         <div className="bg-white p-6 rounded-2xl shadow mb-8">
-
-          <form
-            onSubmit={handleSubmit}
-            className="grid grid-cols-2 gap-4"
-          >
-                          <div className="flex flex-col">
-                <label className="text-sm font-medium mb-1">Label</label>
-            <input
-              name="label"
-              placeholder="Label"
-              value={formData.label}
-              onChange={handleChange}
-              className="bg-offwhite p-2 rounded-lg"
-            />
+          <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col">
+              <label className="text-sm font-medium mb-1">Label</label>
+              <input
+                name="label"
+                placeholder="Label"
+                value={formData.label}
+                onChange={handleChange}
+                className="bg-offwhite p-2 rounded-lg"
+              />
             </div>
 
-              <div className="flex flex-col">
-                <label className="text-sm font-medium mb-1">Code</label>
-            <input
-              name="code"
-              placeholder="Code"
-              value={formData.code}
-              onChange={handleChange}
-              className="bg-offwhite p-2 rounded-lg"
-            />
+            <div className="flex flex-col">
+              <label className="text-sm font-medium mb-1">Code</label>
+              <input
+                name="code"
+                placeholder="Code"
+                value={formData.code}
+                onChange={handleChange}
+                className="bg-offwhite p-2 rounded-lg"
+              />
             </div>
 
-              <div className="flex flex-col">
-                <label className="text-sm font-medium mb-1">Discount %</label>
-            <input
-              name="discount_percent"
-              type="number"
-              placeholder="Discount %"
-              value={formData.discount_percent}
-              onChange={handleChange}
-              className="bg-offwhite p-2 rounded-lg"
-            />
+            <div className="flex flex-col">
+              <label className="text-sm font-medium mb-1">Discount %</label>
+              <input
+                name="discount_percent"
+                type="number"
+                placeholder="Discount %"
+                value={formData.discount_percent}
+                onChange={handleChange}
+                className="bg-offwhite p-2 rounded-lg"
+              />
             </div>
 
-              <div className="flex flex-col">
-                <label className="text-sm font-medium mb-1">Badge</label>
-            <input
-              name="badge_text"
-              placeholder="Badge"
-              value={formData.badge_text}
-              onChange={handleChange}
-              className="bg-offwhite p-2 rounded-lg"
-            />
+            <div className="flex flex-col">
+              <label className="text-sm font-medium mb-1">Badge</label>
+              <input
+                name="badge_text"
+                placeholder="Badge"
+                value={formData.badge_text}
+                onChange={handleChange}
+                className="bg-offwhite p-2 rounded-lg"
+              />
             </div>
 
-              <div className="flex flex-col">
-                <label className="text-sm font-medium mb-1">Order</label>
-            <input
-              name="order"
-              type="number"
-              placeholder="Order"
-              value={formData.order}
-              onChange={handleChange}
-              className="bg-offwhite p-2 rounded-lg"
-            />
+            <div className="flex flex-col">
+              <label className="text-sm font-medium mb-1">Order</label>
+              <input
+                name="order"
+                type="number"
+                placeholder="Order"
+                value={formData.order}
+                onChange={handleChange}
+                className="bg-offwhite p-2 rounded-lg"
+              />
             </div>
 
             <div className="flex items-center gap-6">
-
               <label>
                 <input
                   type="checkbox"
@@ -207,7 +205,6 @@ const BillingInterval = () => {
                 />
                 <span className="ml-2">Active</span>
               </label>
-
             </div>
 
             <div className="col-span-2 flex justify-end">
@@ -215,20 +212,14 @@ const BillingInterval = () => {
                 {editId ? "Update" : "Submit"}
               </button>
             </div>
-
           </form>
-
         </div>
       </PermissionGuard>
 
       <div className="bg-white p-6 rounded-2xl shadow">
-
-        <h3 className="text-tabheading mb-4">
-          Billing Intervals
-        </h3>
+        <h3 className="text-tabheading mb-4">Billing Intervals</h3>
 
         <table className="w-full">
-
           <thead className="bg-offwhite">
             <tr className="text-left text-sm gap-4">
               <th className="p-3">Sl.No</th>
@@ -244,17 +235,17 @@ const BillingInterval = () => {
           </thead>
 
           <tbody>
-
             {billings.map((item, index) => (
               <tr key={item._id}>
-
                 <td className="p-3 ">{index + 1}</td>
                 <td className="p-3 ">{item.label}</td>
                 <td className="p-3 ">{item.code}</td>
                 <td className="p-3 ">{item.metadata?.discount_percent}%</td>
                 <td className="p-3 ">{item.metadata?.badge_text}</td>
-                <td className="p-3 ">{item.order}</td>
-                <td className="p-3 ">{item.isActive ? "Active" : "Inactive"}</td>
+                <td className="p-3">{item.metadata?.order ?? item.order}</td>
+                <td className="p-3 ">
+                  {item.isActive ? "Active" : "Inactive"}
+                </td>
                 <td>{dateFormatUtils(item.createdAt)}</td>
 
                 <td className="flex gap-2 p-2">
@@ -272,16 +263,11 @@ const BillingInterval = () => {
                     Delete
                   </button>
                 </td>
-
               </tr>
             ))}
-
           </tbody>
-
         </table>
-
       </div>
-
     </div>
   );
 };
