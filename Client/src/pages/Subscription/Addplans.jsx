@@ -28,11 +28,11 @@ const Addplans = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const navigate = useNavigate();
   const { id } = useParams();
-  const [modules, setModules] = useState([]);
   const location = useLocation();
   const [billingOptions, setBillingOptions] = useState([]);
 const searchParams = new URLSearchParams(location.search);
 const mode = searchParams.get("mode");
+const modules = Object.values(MODULES);
 
 const isEditMode = !!id && mode !== "version";
 const isVersionMode = !!id && mode === "version";
@@ -65,20 +65,6 @@ const isVersionMode = !!id && mode === "version";
     therapist_matching_type: "auto",
   });
 
-  useEffect(() => {
-    const fetchModules = async () => {
-      try {
-        const data = await api(`/api/module/get-module`);
-
-        setModules(Array.isArray(data) ? data : []);
-      } catch (err) {
-        console.error("Failed to fetch modules", err);
-        setModules([]);
-      }
-    };
-
-    fetchModules();
-  }, []);
 
   
 
@@ -187,7 +173,7 @@ useEffect(() => {
     await api(endpoint, {
       method,
       body: JSON.stringify(payload),
-    });
+    }); 
 
     toast.success(
       isEditMode
@@ -817,20 +803,18 @@ useEffect(() => {
                       </h3>
 
                       <div className="grid grid-cols-2 gap-3">
-                       {Array.isArray(modules) &&
-  modules.map((mod) => (
+                        {modules.map((module) => (
     <button
-      key={mod._id}
+      key={module}
       type="button"
-       disabled={isEditMode}
-      onClick={() => toggleModule(mod.modules)}
+      onClick={() => toggleModule(module)}
       className={`px-3 py-2 rounded-lg text-sm font-semibold border transition-all capitalize ${
-        formData.available_modules.includes(mod.modules)
+        formData.available_modules.includes(module)
           ? "bg-[#2d4a36] text-white border-[#2d4a36]"
           : "bg-white text-[#2d4a36] border-[#8fa797]/30 hover:bg-[#F6F4F0]"
       }`}
     >
-      {mod.modules.replaceAll("_", " ")}
+      {module.replaceAll("_", " ")}
     </button>
   ))}
                       </div>

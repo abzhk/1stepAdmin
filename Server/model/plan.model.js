@@ -76,7 +76,8 @@ const planSchema = new mongoose.Schema(
           "settings",
           "article",
           "courses",
-          "plans"
+          "plans",
+          "master_data"
         ],
       },
     ],
