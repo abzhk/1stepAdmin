@@ -822,6 +822,7 @@ useEffect(() => {
     <button
       key={mod._id}
       type="button"
+       disabled={isEditMode}
       onClick={() => toggleModule(mod.modules)}
       className={`px-3 py-2 rounded-lg text-sm font-semibold border transition-all capitalize ${
         formData.available_modules.includes(mod.modules)
