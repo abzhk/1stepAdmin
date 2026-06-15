@@ -817,21 +817,21 @@ useEffect(() => {
                       </h3>
 
                       <div className="grid grid-cols-2 gap-3">
-                        {Array.isArray(modules) &&
-                          modules.map((mod) => (
-                            <button
-                              key={mod._id}
-                              type="button"
-                              onClick={() => toggleModule(mod._id)}
-                              className={`px-3 py-2 rounded-lg text-sm font-semibold border transition-all capitalize ${
-                                formData.available_modules.includes(mod._id)
-                                  ? "bg-[#2d4a36] text-white border-[#2d4a36]"
-                                  : "bg-white text-[#2d4a36] border-[#8fa797]/30 hover:bg-[#F6F4F0]"
-                              }`}
-                            >
-                              {mod.modules.replace("_", " ")}
-                            </button>
-                          ))}
+                       {Array.isArray(modules) &&
+  modules.map((mod) => (
+    <button
+      key={mod._id}
+      type="button"
+      onClick={() => toggleModule(mod.modules)}
+      className={`px-3 py-2 rounded-lg text-sm font-semibold border transition-all capitalize ${
+        formData.available_modules.includes(mod.modules)
+          ? "bg-[#2d4a36] text-white border-[#2d4a36]"
+          : "bg-white text-[#2d4a36] border-[#8fa797]/30 hover:bg-[#F6F4F0]"
+      }`}
+    >
+      {mod.modules.replaceAll("_", " ")}
+    </button>
+  ))}
                       </div>
                     </div>
 

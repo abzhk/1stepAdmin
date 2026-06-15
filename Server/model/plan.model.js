@@ -56,16 +56,30 @@ const planSchema = new mongoose.Schema(
     },
     stripe_price_id: {
       type: String,
-      required: true,
     },
 
     // 🔥 MODULES UNLOCKED BY THIS PLAN
     available_modules: [
-  {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "AccessModules",
-  },
-],
+      {
+        type: String,
+        enum: [
+          "dashboard",
+          "profile",
+          "messages",
+          "assessment",
+          "appointments",
+          "video_sessions",
+          "reports",
+          "billing",
+          "resource_library",
+          "patients",
+          "settings",
+          "article",
+          "courses",
+          "plans"
+        ],
+      },
+    ],
 
     // 🔥 USAGE LIMITS
     max_messages_per_month: {

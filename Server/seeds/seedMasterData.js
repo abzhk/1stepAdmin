@@ -1,4 +1,4 @@
-import MasterData from "../model/Master/masterData.model.js";
+import MasterData from "../models/Master/masterData.model.js";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import path from "path";
@@ -396,6 +396,42 @@ const diagnosticSystems = [
 ];
 
 // ============================================
+// PLAN BILLING CONFIG (Admin-managed intervals)
+// ============================================
+const planBillingConfigs = [
+  {
+    code: "monthly",
+    label: "Monthly",
+    order: 1,
+    metadata: {
+      discount_percent: 0,
+      badge_text: null,
+      is_enabled: true,
+    },
+  },
+  {
+    code: "quarterly",
+    label: "Quarterly",
+    order: 2,
+    metadata: {
+      discount_percent: 10,
+      badge_text: "Save 10%",
+      is_enabled: true,
+    },
+  },
+  {
+    code: "annually",
+    label: "Yearly",
+    order: 3,
+    metadata: {
+      discount_percent: 20,
+      badge_text: "Save 20%",
+      is_enabled: true,
+    },
+  },
+];
+
+// ============================================
 // MAIN SEED FUNCTION
 // ============================================
 async function seedMasterData() {
@@ -448,6 +484,10 @@ async function seedMasterData() {
 
     await MasterData.bulkInsertOptions("diagnosticSystem", diagnosticSystems);
     console.log("✅ Diagnostic systems seeded");
+
+    // Subscription billing config
+    await MasterData.bulkInsertOptions("planBillingConfig", planBillingConfigs);
+    console.log("✅ Plan billing configs seeded");
 
     console.log("🎉 Master data seeding completed!");
   } catch (error) {

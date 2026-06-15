@@ -293,6 +293,21 @@ export const publishAssessmentVersion = async (req, res, next) => {
         currentAssessment.AssessmentId || currentAssessment._id,
     });
 
+const oldQuestions = await Question.find({
+  assessmentId: currentAssessment._id,
+}).lean();
+
+if (oldQuestions.length > 0) {
+  const clonedQuestions = oldQuestions.map(
+    ({ _id, createdAt, updatedAt, __v, ...question }) => ({
+      ...question,
+      assessmentId: newAssessment._id, 
+    })
+  );
+
+  await Question.insertMany(clonedQuestions);
+}
+
     return res.status(201).json({
       message: "Version published successfully",
       data: newAssessment,
