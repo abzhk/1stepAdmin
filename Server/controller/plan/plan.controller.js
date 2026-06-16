@@ -327,7 +327,7 @@ export const getPlans = async (req, res) => {
 
 export const updatePlan = async (req, res) => {
   try {
-    const { plan_name, description, is_featured } = req.body;
+    const { plan_name, description, is_featured ,available_modules,} = req.body;
 
     const updatedPlan = await Plan.findByIdAndUpdate(
       req.params.id,
@@ -335,6 +335,7 @@ export const updatePlan = async (req, res) => {
         plan_name,
         description,
         is_featured,
+       available_modules,
       },
       { new: true, runValidators: true }
     );
@@ -349,12 +350,14 @@ export const updatePlan = async (req, res) => {
       plan: updatedPlan,
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Failed to update plan",
-      error: error.message,
-    });
-  }
+  console.error("UPDATE PLAN ERROR:", error);
+
+  res.status(500).json({
+    success: false,
+    message: error.message,
+    error: error,
+  });
+}
 };
 
 

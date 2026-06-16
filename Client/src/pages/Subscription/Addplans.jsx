@@ -144,8 +144,11 @@ useEffect(() => {
       plan_name: formData.plan_name,
       description: formData.description,
       is_featured: formData.is_featured,
+        billing_interval: formData.billing_interval,
+  available_modules: formData.available_modules,
     };
 
+    console.log(payload);
     endpoint = `/api/plan/update/${id}`;
     method = "PUT";
   } else {
@@ -516,7 +519,7 @@ useEffect(() => {
   name="billing_interval"
   value={formData.billing_interval}
   onChange={handleChange}
-  disabled={isEditMode}
+   disabled={isEditMode}
   className="mt-1 w-full px-4 py-3 rounded-xl bg-[#F6F4F0] border border-[#8fa797]/30 focus:ring-2 focus:ring-[#2d4a36] outline-none text-[#2d4a36]"
 >
   {billingOptions.map((item) => (
