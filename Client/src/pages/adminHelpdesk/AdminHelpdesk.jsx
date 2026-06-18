@@ -53,7 +53,7 @@ export default function AdminHelpdesk() {
     { id: "dashboard", label: "Dashboard", icon: <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 16 16"><rect x="1" y="1" width="6" height="6" rx="1.5" /><rect x="9" y="1" width="6" height="6" rx="1.5" /><rect x="1" y="9" width="6" height="6" rx="1.5" /><rect x="9" y="9" width="6" height="6" rx="1.5" /></svg> },
     { id: "tickets", label: "Tickets", badge: tickets.filter(t => t.status === "Open").length, icon: <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 16 16"><rect x="2" y="2" width="12" height="12" rx="2" /><path d="M5 6h6M5 9h4" /></svg> },
     // { id: "agents", label: "Agents", icon: <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 16 16"><circle cx="8" cy="5" r="2.5" /><path d="M3 13c0-2.76 2.24-5 5-5s5 2.24 5 5" /></svg> },
-    { id: "reports", label: "Reports", icon: <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 16 16"><path d="M2 12V8M6 12V5M10 12V7M14 12V3" /></svg> },
+    // { id: "reports", label: "Reports", icon: <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 16 16"><path d="M2 12V8M6 12V5M10 12V7M14 12V3" /></svg> },
   ];
 
   const TITLES = { dashboard: "Dashboard Overview", tickets: "Support Tickets", agents: "Support Agents", reports: "Analytics & Reports" };
@@ -101,12 +101,12 @@ useEffect(() => {
           ))}
         </nav>
         
-        <div className="px-5 py-5 border-t border-[#8fa797]/10">
+        {/* <div className="px-5 py-5 border-t border-[#8fa797]/10">
           <div className="flex items-center gap-3 px-3 py-3 rounded-2xl bg-[#F6F4F0]/80 border border-[#8fa797]/20">
             <div className="w-8 h-8 rounded-full bg-[#f2a794]/20 border border-[#f2a794]/40 text-[#2d4a36] flex items-center justify-center text-[10px] font-black flex-shrink-0 shadow-sm">AD</div>
             <div className="min-w-0"><div className="text-[12px] font-bold text-[#2d4a36]">Admin User</div><div className="text-[10px] font-medium text-[#8fa797]">Workspace Owner</div></div>
           </div>
-        </div>
+        </div> */}
       </aside>
 
   

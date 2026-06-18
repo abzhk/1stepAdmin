@@ -229,7 +229,7 @@ export const getAllTickets = async (req, res, next) => {
 
     const [tickets, totalTickets] = await Promise.all([
       Help.find(query)
-      .populate("user", "username email")
+      .populate("user", "username email profilePicture")
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limitNumber)

@@ -88,11 +88,11 @@ export default function TicketDrawer({ ticket, idx, onClose, onUpdate }) {
             </div> */}
 
 
-        <div className="px-6 py-4 border-b border-[#8fa797]/10 grid grid-cols-3 gap-3 bg-[#F6F4F0]/30">
+        <div className="px-6 py-4 border-b border-[#8fa797]/10 grid grid-cols-2 gap-3 bg-[#F6F4F0]/30">
           {[
             { label: "Status", val: status, set: setStatus, opts: ["Open", "In progress", "Resolved",] },
             { label: "Priority", val: priority, set: setPriority, opts: ["High", "Medium", "Low"] },
-            { label: "Agent", val: agent, set: setAgent, opts: ["", ...AGENTS.map(a => a.name)], display: v => v ? v.split(" ")[0] : "Unassigned" },
+            // { label: "Agent", val: agent, set: setAgent, opts: ["", ...AGENTS.map(a => a.name)], display: v => v ? v.split(" ")[0] : "Unassigned" },
           ].map(f => (
             <div key={f.label}>
               <label className="text-[10px] font-bold text-[#8fa797] uppercase tracking-widest block mb-1.5">{f.label}</label>

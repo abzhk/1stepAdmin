@@ -22,6 +22,7 @@ import claimProfile from "./claimProfile.route.js"
 import notificationRoute from "./notification.route.js"
 import assessmentquestionsRoute from "./assessmentquestion.route.js"
 import helpdeskRoute from "./help.route.js"
+import contactRoute from "./contact.route.js"
 
 const router = express.Router(); 
 
@@ -71,6 +72,8 @@ router.use("/notifications", notificationRoute)
 router.use("/assessmentquestions", assessmentquestionsRoute)
 //helpdesk
 router.use("/help",helpdeskRoute);
+//contactus
+router.use("/contact",contactRoute);
 
 
 

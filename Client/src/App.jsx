@@ -52,6 +52,7 @@ import Asssessmentquestionary from "./pages/Assessment/AssessmentCreation.jsx"
 import AssessmentList from "./pages/Assessment/AssessmentList.jsx";
 import AssessmentQuestions from "./pages/Assessment/AssessmentQuestion.jsx";
 import AdminHelpdesk from "./pages/adminHelpdesk/AdminHelpdesk.jsx";
+import AdminInbox from "./pages/HelpDesk/InboxQuery.jsx";
 
 const App = () => {
   const dispatch = useDispatch();
@@ -246,6 +247,7 @@ const App = () => {
             {/* <Route path="/help-desk" element={<AdminHelpdesk />}/> */}
            <Route path="/questions/:id" element={<AssessmentQuestions />}/>
            <Route path ="/admin-help-desk" element={<AdminHelpdesk/>}/>
+              <Route path="/contact" element={<AdminInbox />}/>
         </Route>
       </Routes>
       <Toaster position="top-right" toastOptions={{ duration: 3000 }} />

@@ -29,7 +29,7 @@ export default function DashboardPanel({ tickets, onViewAll, onTicketClick }) {
         ))}
       </div>
 
-      <div className="grid grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 gap-5">
         <div className="col-span-2 bg-white rounded-[20px] border border-[#8fa797]/20 shadow-[0_4px_20px_rgba(45,74,54,0.02)] overflow-hidden flex flex-col">
           <div className="px-6 py-5 border-b border-[#8fa797]/10 flex items-center justify-between bg-[#F6F4F0]/30">
             <h2 className="text-[14px] font-bold text-[#2d4a36] tracking-tight">Recent Tickets</h2>
@@ -47,8 +47,17 @@ export default function DashboardPanel({ tickets, onViewAll, onTicketClick }) {
                   <td className="px-6 py-4 font-mono text-[11px] font-bold text-[#8fa797]/60">{t.ticketId}</td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <Av initials={t.initials} cc={ac(i)} size="sm" />
-                      <span className="text-[13px] font-bold text-[#2d4a36]">{t.user.username ? t.user.username.split(" ")[0] : t.user}</span>
+                    <Av
+  image={t.user?.profilePicture}
+  initials={t.user?.username?.charAt(0) || "G"}
+  cc={ac(i)}
+  size="sm"
+/>
+
+<span className="text-[13px] font-bold text-[#2d4a36]">
+  {t.user?.username || "Guest User"}
+</span>
+                      {/* <span className="text-[13px] font-bold text-[#2d4a36]">{t.user.username ? t.user.username.split(" ")[0] : t.user}</span> */}
                     </div>
                   </td>
                   <td className="px-6 py-4 max-w-[180px]"><span className="text-[13px] font-medium text-[#2d4a36]/80 truncate block">{t.title}</span></td>
@@ -80,7 +89,7 @@ export default function DashboardPanel({ tickets, onViewAll, onTicketClick }) {
           </div> */}
 
 {/* removed flex-1 from table to fix height issue   */}
-          <div className="bg-[#2d4a36] rounded-[20px] p-6 text-[#F6F4F0] shadow-lg shadow-[#2d4a36]/20 relative overflow-hidden  flex flex-col justify-center">
+          {/* <div className="bg-[#2d4a36] rounded-[20px] p-6 text-[#F6F4F0] shadow-lg shadow-[#2d4a36]/20 relative overflow-hidden  flex flex-col justify-center">
             <div className="absolute top-0 right-0 p-4 opacity-10">
                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
             </div>
@@ -90,7 +99,7 @@ export default function DashboardPanel({ tickets, onViewAll, onTicketClick }) {
             <div className="h-1.5 bg-black/20 rounded-full overflow-hidden">
               <div className="h-full bg-[#ffd333] rounded-full" style={{ width: "94%" }} />
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
