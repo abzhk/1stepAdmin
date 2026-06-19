@@ -17,7 +17,7 @@ router.get("/my-tickets", verifyAdminToken, getMyTickets);
 router.get("/ticket/:id", verifyAdminToken, getTicket);
 router.put("/update-ticket/:id", verifyAdminToken, updateTicket);
 router.delete("/delete-ticket/:id", verifyAdminToken, deleteTicket);
-router.get("/all-tickets",verifyAdminToken, getAllTickets);
+router.get("/all-tickets", getAllTickets);
 router.post(
   "/reply-ticket/:id",
   verifyAdminToken,

@@ -47,7 +47,12 @@ export default function TicketDrawer({ ticket, idx, onClose, onUpdate }) {
         
         
         <div className="px-6 py-4 border-b border-[#8fa797]/10 flex items-center gap-3">
-          <Av initials={ticket.initials} cc={ac(idx)} size="md" />
+          <Av
+  image={ticket.user?.profilePicture}
+  initials={ticket.user?.username?.charAt(0) || "G"}
+  cc={ac(idx)}
+  size="md"
+/>
           <div>
             <div className="text-[13px] font-bold text-[#2d4a36]">{ticket.user.username}</div>
             <div className="text-[11px] font-medium text-[#8fa797]">{ticket.email}</div>

@@ -231,14 +231,6 @@ export default function AdminInbox() {
     fetchMessages();
   }, []);
 
-  // Auto-refresh every 30 seconds
-  useEffect(() => {
-    const interval = setInterval(() => {
-      fetchMessages();
-    }, 30000);
-    
-    return () => clearInterval(interval);
-  }, []);
 
   // Scroll to bottom when new messages are added
   useEffect(() => {
@@ -400,12 +392,12 @@ export default function AdminInbox() {
                           <span className="text-xs text-[#8fa797]">#{active.topicId}</span>
                         </>
                       )}
-                      {active.isFromEmail && (
+                      {/* {active.isFromEmail && (
                         <>
                           <span className="text-xs text-[#8fa797]/40">•</span>
                           <span className="text-xs text-[#8fa797]">📧 Email</span>
                         </>
-                      )}
+                      )} */}
                     </div>
                   </div>
                   <div className="flex gap-2 flex-wrap">
@@ -429,7 +421,7 @@ export default function AdminInbox() {
                               timestamp={timestamp}
                               isFirst={index === 0}
                               isLast={index === active.messages.length - 1}
-                              source={msg.source}
+                              // source={msg.source}
                             />
                             
                             {/* Admin Replies to this message */}

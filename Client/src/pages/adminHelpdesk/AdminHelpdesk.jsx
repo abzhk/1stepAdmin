@@ -20,6 +20,8 @@ export default function AdminHelpdesk() {
   const [showNew, setShowNew] = useState(false);
   const [toast, setToast] = useState(null);
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+const [pagination, setPagination] = useState({});
 
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(null), 3000); };
 
@@ -63,10 +65,11 @@ const fetchTickets = async () => {
     setLoading(true);
 
     const data = await api(
-      `/api/help/all-tickets?search=${search}`
+      `/api/help/all-tickets?search=${search}&page=${page}&limit=10`
     );
 
     setTickets(data.tickets);
+     setPagination(data.pagination);
   } catch (error) {
     console.error(error);
   } finally {
@@ -76,7 +79,7 @@ const fetchTickets = async () => {
 
 useEffect(() => {
   fetchTickets();
-}, [search]);
+}, [search,page]);
 
   return (
     <div className="flex h-screen bg-[#F6F4F0] overflow-hidden text-[#2d4a36] selection:bg-[#8fa797]/30" style={{ fontFamily: "'DM Sans','Nunito',sans-serif" }}>
@@ -118,7 +121,9 @@ useEffect(() => {
         
         <main className="flex-1 overflow-y-auto p-8 relative">
           {panel === "dashboard" && <DashboardPanel tickets={tickets} onViewAll={() => setPanel("tickets")} onTicketClick={(t, i) => setDrawer({ ticket: t, idx: i })} />}
-          {panel === "tickets" && <TicketsPanel tickets={tickets}  search={search}
+          {panel === "tickets" && <TicketsPanel tickets={tickets}  search={search} page={page}
+  setPage={setPage}
+  pagination={pagination}
   setSearch={setSearch} onTicketClick={(t, i) => setDrawer({ ticket: t, idx: i })} onUpdateTicket={updateTicket} />}
           {/* {panel === "agents" && <AgentsPanel />} */}
           {panel === "reports" && <ReportsPanel tickets={tickets} />}

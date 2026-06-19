@@ -6,7 +6,9 @@ import formatdatateUtils from "../../../utils/dateFormatUtils.js";
 
 //UI designed By Gokul
 export default function TicketsPanel({ tickets,search,
-  setSearch, onTicketClick, onUpdateTicket }) {
+  setSearch, page,
+  setPage,
+  pagination,onTicketClick, onUpdateTicket }) {
   const [filter, setFilter] = useState("All");
   const [selected, setSelected] = useState(new Set());
 
@@ -38,7 +40,7 @@ export default function TicketsPanel({ tickets,search,
         </div>
         
         <div className="flex gap-2 px-6 py-3 border-b border-[#8fa797]/10 bg-white">
-          {["All", "Open", "In progress", "Resolved", "Closed"].map(f => {
+          {["All", "Open", "In progress", "Resolved", ].map(f => {
             const cnt = f === "All" ? tickets.length : tickets.filter(t => t.status === f).length;
             return (
               <button key={f} onClick={() => setFilter(f)} className={`text-[12px] px-4 py-1.5 rounded-full font-bold transition-all flex items-center gap-2 border ${filter === f ? "bg-[#2d4a36] text-[#F6F4F0] border-[#2d4a36] shadow-md" : "bg-[#F6F4F0]/50 text-[#8fa797] border-[#8fa797]/20 hover:border-[#8fa797]/40 hover:text-[#2d4a36]"}`}>
@@ -101,7 +103,29 @@ export default function TicketsPanel({ tickets,search,
             </tbody>
           </table>
         </div>
+        
       </div>
+      <div className="flex items-center justify-end gap-2 mt-4">
+  <button
+    disabled={!pagination?.hasPrevPage}
+    onClick={() => setPage((prev) => prev - 1)}
+    className="px-4 py-2 bg-[#2d4a36] text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+  >
+    Prev
+  </button>
+
+  <span className="px-4 py-2 bg-[#F6F4F0] text-[#2d4a36] mx-2">
+    {pagination?.page || 1} of {pagination?.totalPages || 1}
+  </span>
+
+  <button
+    disabled={!pagination?.hasNextPage}
+    onClick={() => setPage((prev) => prev + 1)}
+    className="px-4 py-2 bg-[#2d4a36] text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+  >
+    Next
+  </button>
+</div>
     </div>
   );
 }

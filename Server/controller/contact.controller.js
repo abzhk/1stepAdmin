@@ -1086,11 +1086,13 @@ export const replyToContact = async (req, res, next) => {
       return next(errorHandler(404, "Message not found"));
     }
 
+    // ===== FIX: ALWAYS use the provided messageId =====
+    // If messageId is not provided, use the LATEST message
     let targetMessage;
     if (messageId) {
       targetMessage = contact.messages.id(messageId);
     } else {
-      // If no messageId provided, use the latest message
+      // Use the latest message (most recent)
       targetMessage = contact.messages[contact.messages.length - 1];
     }
 
@@ -1098,48 +1100,96 @@ export const replyToContact = async (req, res, next) => {
       return next(errorHandler(404, "Message not found in conversation"));
     }
 
-    // Send email
-    await transporter.sendMail({
-      from: `"1Step Support" <${process.env.EMAIL_USER}>`,
-      to: contact.email,
-      subject: "Reply from 1Step Support",
-      html: `
-        <h2>Hello ${contact.name},</h2>
+    // Get topic ID
+    const topicId = contact.topicId || id;
 
-        <p>Thank you for contacting us.</p>
+    // ===== FIX: Get the FULL reply =====
+    const fullReply = reply.trim();
 
-        <h3>Our Reply</h3>
-        <p>${reply}</p>
-
-        <hr/>
-
-        <h4>Your Original Message</h4>
-        <p>${targetMessage.message}</p>
-
-        <br/>
-
-        <p>Regards,<br/>1Step Support Team</p>
-      `,
-    });
-
-    // Add reply to the specific message's replies array
+    // ===== FIX: Add reply to the CORRECT message =====
     targetMessage.replies.push({
-      message: reply.trim(),
+      message: fullReply,
       repliedBy: req.user.id,
       isInternal: false,
       repliedAt: new Date()
     });
 
-    // Update the message status
+    // Update the specific message status
     targetMessage.status = "replied";
     
-    // Update the main contact
+    // Update main contact
     contact.status = "replied";
-    contact.adminNotes = reply.trim();
+    contact.adminNotes = fullReply;
     
     await contact.save();
 
-    // Fetch updated contact with populated fields
+    // ===== FIX: Send email with the CORRECT reply for this specific message =====
+    const mailOptions = {
+      from: `"1Step Support" <${process.env.EMAIL_USER}>`,
+      to: contact.email,
+      subject: `Re: Reply from 1Step Support - Topic #${topicId}`,
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <style>
+            body { font-family: Arial, sans-serif; }
+            .container { max-width: 600px; margin: 0 auto; }
+            .header { background: #2d4a36; color: white; padding: 20px; }
+            .content { padding: 20px; }
+            .reply-box { 
+              background: #e8f5e9; 
+              padding: 15px; 
+              border-left: 4px solid #2d4a36;
+              margin: 15px 0;
+            }
+            .original-box {
+              background: #f5f5f5;
+              padding: 15px;
+              border-left: 4px solid #ffd333;
+              margin: 15px 0;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h2>✨ 1Step Support</h2>
+            </div>
+            <div class="content">
+              <h3>Hello ${contact.name},</h3>
+              <p>Thank you for your message. Here's our response:</p>
+              
+              <div class="reply-box">
+                <h4>💬 Our Reply</h4>
+                <p style="white-space: pre-wrap;">${fullReply}</p>
+                <p style="color: #666; font-size: 12px;">
+                  Replied on: ${new Date().toLocaleString()}
+                </p>
+              </div>
+              
+              <div class="original-box">
+                <h4>📝 Your Message:</h4>
+                <p>${targetMessage.message}</p>
+                <p style="color: #666; font-size: 12px;">
+                  Sent on: ${new Date(targetMessage.sentAt).toLocaleString()}
+                </p>
+              </div>
+              
+              <p><strong>Topic ID:</strong> #${topicId}</p>
+              <p>Reply to this email to continue the conversation.</p>
+              
+              <p>Warm regards,<br>The 1Step Team</p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    // Fetch updated contact
     const updatedContact = await Contact.findById(id)
       .populate("messages.replies.repliedBy", "username email")
       .populate("messages.sentBy", "username email");

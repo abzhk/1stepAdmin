@@ -72,7 +72,8 @@ const DashSidebar = () => {
     else if (path.startsWith("/viewcat")) setActive("Add Category");
     else if (path.startsWith("/viewarticle")) setActive("Approve Articles");
     else if (path.startsWith("/addassessment")) setActive("Add Assessment");
-    else if (path.startsWith("/admin-help-desk")) setActive("Help desk");
+    else if (path.startsWith("/admin-help-desk")||  path.startsWith("/contact"))
+       setActive("Help desk");
     else if (path.startsWith("/providerassessment")||  path.startsWith("/assessment-list"))
       setActive("Provider Assessments");
     else if (path.startsWith("/master")) setActive("Master Data");
@@ -264,10 +265,40 @@ const DashSidebar = () => {
               navigate("/master"),
             )}
 
-          {iconBtn("Help desk", <SiHelpdesk />, () => {
-            setActive("Help desk");
-            navigate("/admin-help-desk");
-          })}
+         {/* HELP DESK MENU */}
+<div
+  className="relative group"
+  onMouseEnter={() => openMenu("helpdesk")}
+  onMouseLeave={closeMenu}
+>
+  {iconBtn("Help desk", <SiHelpdesk />, () => {})}
+
+  {hoverMenu === "helpdesk" && (
+    <div className="absolute left-full top-0 ml-6 w-56 bg-white shadow-xl rounded-xl p-4 z-50">
+      <div
+        onClick={() => {
+          setActive("Help desk");
+          navigate("/admin-help-desk");
+        }}
+        className="p-2 hover:bg-darkgreen hover:text-white rounded-2xl flex gap-2 cursor-pointer"
+      >
+        <SiHelpdesk />
+        Help Desk
+      </div>
+
+      <div
+        onClick={() => {
+          setActive("Contact");
+          navigate("/contact");
+        }}
+        className="p-2 hover:bg-darkgreen hover:text-white rounded-2xl flex gap-2 cursor-pointer"
+      >
+        <IoIosMan />
+        Contact
+      </div>
+    </div>
+  )}
+</div>
 
           {/* SETTINGS MENU */}
           <div
