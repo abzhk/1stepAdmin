@@ -6,6 +6,7 @@ import { api } from "../../utils/api.js";
 import toast from "react-hot-toast";
 import PermissionGuard from "../../Components/PermissionGuard.jsx";
 import { MODULES, ACTIONS } from "../../constants/permission.js"
+import { useOutletContext } from "react-router-dom";
 
 
 const ListViewArticle = () => {
@@ -18,13 +19,24 @@ const ListViewArticle = () => {
   const [deleteId, setDeleteId] = useState(null);
 const [showDeleteModal, setShowDeleteModal] = useState(false);
 const [status, setStatus] = useState("all");
+const {searchTerm}  = useOutletContext();
 
   const fetchArticles = async () => {
   try {
     setLoading(true);
     setError("");
 
-    const data = await api(`/api/article/all?page=${page}&limit=10&status=${status}`);
+    const params = new URLSearchParams({
+      page,
+      limit: 10,
+      status,
+    });
+
+    if (searchTerm?.trim()) {
+      params.append("search", searchTerm.trim());
+    }
+
+    const data = await api(`/api/article/all?${params}`);
 
     setArticles(data.articles || []);
     setTotalPages(data.totalPages || 1);
@@ -67,7 +79,7 @@ const [status, setStatus] = useState("all");
 
 useEffect(() => {
   fetchArticles();
-}, [page, status]);
+}, [page, status,searchTerm]);
 
   return (
     <div className="min-h-screen bg-secondary p-6">

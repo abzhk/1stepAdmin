@@ -1086,13 +1086,11 @@ export const replyToContact = async (req, res, next) => {
       return next(errorHandler(404, "Message not found"));
     }
 
-    // ===== FIX: ALWAYS use the provided messageId =====
-    // If messageId is not provided, use the LATEST message
     let targetMessage;
     if (messageId) {
       targetMessage = contact.messages.id(messageId);
     } else {
-      // Use the latest message (most recent)
+      // Use the latest message
       targetMessage = contact.messages[contact.messages.length - 1];
     }
 
@@ -1103,10 +1101,10 @@ export const replyToContact = async (req, res, next) => {
     // Get topic ID
     const topicId = contact.topicId || id;
 
-    // ===== FIX: Get the FULL reply =====
+    //  Get the FULL reply 
     const fullReply = reply.trim();
 
-    // ===== FIX: Add reply to the CORRECT message =====
+    //  Add reply to the CORRECT message 
     targetMessage.replies.push({
       message: fullReply,
       repliedBy: req.user.id,
@@ -1123,7 +1121,7 @@ export const replyToContact = async (req, res, next) => {
     
     await contact.save();
 
-    // ===== FIX: Send email with the CORRECT reply for this specific message =====
+    //  Send email with the CORRECT reply for this specific message
     const mailOptions = {
       from: `"1Step Support" <${process.env.EMAIL_USER}>`,
       to: contact.email,

@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import {api} from "../../utils/api.js";
 import toast from "react-hot-toast";
+import { useOutletContext } from "react-router-dom";
 
 const ViewAssessment = () => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const { searchTerm } = useOutletContext();
 
   const PAGE_SIZE = 5;
   const [currentPage, setCurrentPage] = useState(1);
@@ -14,7 +16,13 @@ const ViewAssessment = () => {
     try {
       setLoading(true);
       setError("");
- const data = await api(`/api/assessment/category/getall`);
+      const params = new URLSearchParams();
+
+       if (searchTerm?.trim()) {
+      params.append("search", searchTerm.trim());
+    }
+
+ const data = await api(`/api/assessment/category/getall?${params}`);
     
       setCategories(data.data || []);
       setCurrentPage(1);
@@ -27,7 +35,7 @@ const ViewAssessment = () => {
 
   useEffect(() => {
     fetchCategories();
-  }, []);
+  }, [searchTerm]);
 
   const totalPages = Math.max(1, Math.ceil(categories.length / PAGE_SIZE));
   const startIndex = (currentPage - 1) * PAGE_SIZE;

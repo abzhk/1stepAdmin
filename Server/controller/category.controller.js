@@ -9,11 +9,21 @@ import Category from "../model/Article/category.model.js";
 // Get all categories (Public)
 export const getAllCategories = async (req, res,next) => {
   try {
+       const { searchTerm } = req.query;
+
+       let filter = {};
+
+      if (searchTerm) {
+      filter.name = {
+        $regex: searchTerm,
+        $options: "i",
+      };
+    }
     // const { includeInactive } = req.query;
 
     // const query = includeInactive === "true" ? {} : { isActive: true };
 
-    const categories = await Category.find().sort({ order: 1, name: 1 });
+    const categories = await Category.find(filter).sort({ order: 1, name: 1 });
 
     res.status(200).json({
       success: true,

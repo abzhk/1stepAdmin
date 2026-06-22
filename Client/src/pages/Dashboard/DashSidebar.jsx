@@ -317,12 +317,12 @@ const DashSidebar = () => {
                   <IoIosMan /> Profile
                 </div>
 
-                <div
+                {/* <div
                   onClick={() => navigate("/profile-settings")}
                   className="p-2 hover:bg-darkgreen  hover:text-white rounded-2xl flex gap-2 cursor-pointer"
                 >
                   <IoSettingsOutline /> Profile Settings
-                </div>
+                </div> */}
 
                 {role === "Super Admin" && (
                   <div

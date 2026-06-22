@@ -930,12 +930,19 @@ export const toggleArticleCategoryStatus = async (req, res) => {
 
 export const getAllArticles = async (req, res) => {
   try {
-    const { page = 1, limit = 10, status } = req.query;
+    const { page = 1, limit = 10, status ,search} = req.query;
 
     const filter = {};
 
     if (status && status !== "all") {
       filter.status = status;
+    }
+
+      if (search) {
+      filter.$or = [
+        { title: { $regex: search, $options: "i" } },
+        { providerName: { $regex: search, $options: "i" } },
+      ];
     }
 
     const articles = await Article.find(filter)

@@ -3,12 +3,14 @@ import { api } from "../../utils/api.js";
 import dateFormatUtils from "../../utils/dateFormatUtils.js";
 import PermissionGuard from "../../Components/PermissionGuard.jsx";
 import { MODULES, ACTIONS } from "../../constants/permission.js";
+import { useOutletContext } from "react-router-dom"; 
 
 const TagArticle = () => {
   const [tags, setTags] = useState([]);
   const [editId, setEditId] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
+    const { searchTerm } = useOutletContext();
 
   const [formData, setFormData] = useState({
     code: "",
@@ -115,6 +117,17 @@ const TagArticle = () => {
       console.error("Delete failed:", error);
     }
   };
+  
+const filteredTags = tags.filter((tag) => {
+  const search = searchTerm?.toLowerCase() || "";
+
+  return (
+    tag.label?.toLowerCase().includes(search) ||
+    tag.code?.toLowerCase().includes(search) ||
+    tag.description?.toLowerCase().includes(search) ||
+    (tag.isActive ? "active" : "inactive").includes(search)
+  );
+});
 
   return (
     <div className="min-h-screen bg-offwhite">
@@ -216,7 +229,7 @@ const TagArticle = () => {
                 </thead>
 
                 <tbody>
-                  {tags.map((tag, index) => (
+                  {filteredTags.map((tag, index) => (
                     <tr
                       key={tag._id}
                       className=" hover:bg-offwhite text-table-text"

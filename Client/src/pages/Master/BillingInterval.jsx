@@ -4,10 +4,13 @@ import dateFormatUtils from "../../utils/dateFormatUtils";
 import PermissionGuard from "../../Components/PermissionGuard";
 import { MODULES, ACTIONS } from "../../constants/permission";
 import toast from "react-hot-toast";
+import { useOutletContext } from "react-router-dom"; 
 
 const BillingInterval = () => {
   const [billings, setBillings] = useState([]);
   const [editId, setEditId] = useState(null);
+  const { searchTerm } = useOutletContext();
+
 
   const [formData, setFormData] = useState({
     label: "",
@@ -123,6 +126,18 @@ const BillingInterval = () => {
     fetchBillings();
   };
 
+
+  const filteredBillings = billings.filter((item) => {
+  const search = searchTerm?.toLowerCase() || "";
+
+  return (
+    item.label?.toLowerCase().includes(search) ||
+    item.code?.toLowerCase().includes(search) ||
+    item.metadata?.badge_text?.toLowerCase().includes(search) ||
+    (item.isActive ? "active" : "inactive").includes(search)
+  );
+});
+
   return (
     <div className="min-h-screen bg-offwhite">
       <PermissionGuard module={MODULES.MASTER_DATA} action={ACTIONS.CREATE}>
@@ -235,7 +250,7 @@ const BillingInterval = () => {
           </thead>
 
           <tbody>
-            {billings.map((item, index) => (
+            {filteredBillings.map((item, index) => (
               <tr key={item._id}>
                 <td className="p-3 ">{index + 1}</td>
                 <td className="p-3 ">{item.label}</td>
@@ -249,19 +264,28 @@ const BillingInterval = () => {
                 <td>{dateFormatUtils(item.createdAt)}</td>
 
                 <td className="flex gap-2 p-2">
+                    <PermissionGuard
+                          module={MODULES.MASTER_DATA}
+                          action={ACTIONS.UPDATE}
+                        >
                   <button
                     onClick={() => handleEdit(item)}
                     className="bg-darkgreen px-4 py-2 rounded-lg text-white"
                   >
                     Edit
                   </button>
-
+</PermissionGuard>
+  <PermissionGuard
+                          module={MODULES.MASTER_DATA}
+                          action={ACTIONS.DELETE}
+                        >
                   <button
                     onClick={() => handleDelete(item._id)}
                     className="bg-red-500 px-4 py-2 rounded-lg text-white"
                   >
                     Delete
                   </button>
+                  </PermissionGuard>
                 </td>
               </tr>
             ))}

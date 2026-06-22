@@ -356,8 +356,19 @@ export const getProviderAssessmentAnalytics = async (req, res) => {
 
 export const getAllCategories = async (req, res) => {
   try {
+
+     const { search } = req.query;
+
+    let filter = {};
+
+    if (search) {
+      filter.$or = [
+        { name: { $regex: search, $options: "i" } },
+        { description: { $regex: search, $options: "i" } },
+      ];
+    }
     const categories = await assessmentCategory
-      .find()             
+      .find(filter)             
       .sort({ order: 1 });   
 
     res.status(200).json({ success: true, data: categories });

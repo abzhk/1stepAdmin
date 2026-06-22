@@ -4,9 +4,11 @@ import dateFormatUtils from "../../utils/dateFormatUtils.js";
 import PermissionGuard from "../../Components/PermissionGuard.jsx";
 import { MODULES, ACTIONS } from "../../constants/permission.js";
 import toast from "react-hot-toast";
+import { useOutletContext } from "react-router-dom";
 
 const MasterData = () => {
   const [services, setServices] = useState([]);
+  const { searchTerm } = useOutletContext();
 
   const [formData, setFormData] = useState({
     code: "",
@@ -97,6 +99,17 @@ const MasterData = () => {
     }
   };
 
+  const filteredServices = services.filter((service) => {
+  const search = searchTerm?.toLowerCase() || "";
+
+  return (
+    service.label?.toLowerCase().includes(search) ||
+    service.code?.toLowerCase().includes(search) ||
+    (service.metadata?.billable ? "yes" : "no").includes(search) ||
+    (service.isActive ? "active" : "inactive").includes(search)
+  );
+});
+
   return (
     <div className="min-h-screen bg-offwhite">
       <div className=" mx-auto">
@@ -182,7 +195,7 @@ const MasterData = () => {
               </thead>
 
               <tbody>
-                {services.map((service, index) => (
+                {filteredServices.map((service, index) => (
                   <tr
                     key={service._id}
                     className=" hover:bg-offwhite text-table-text"

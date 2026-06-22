@@ -234,7 +234,7 @@ export const updateAdminProfile = async (req, res,next) => {
         profilePicture,
       },
       { new: true }
-    );
+    ).populate("role");
 
     if (!updatedUser) {
      return next(errorHandler(404, "User not found"));
@@ -246,6 +246,7 @@ export const updateAdminProfile = async (req, res,next) => {
         id: updatedUser._id,
         username: updatedUser.username,
         email: updatedUser.email,
+         role: updatedUser.role?.role,
         profilePicture: updatedUser.profilePicture,
       },
     });
