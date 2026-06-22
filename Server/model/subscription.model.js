@@ -83,7 +83,7 @@ const userSubscriptionSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-userSubscriptionSchema.index({ user: 1 });
+// userSubscriptionSchema.index({ user: 1 });
 userSubscriptionSchema.index({ status: 1 });
 
 // 🔥 METHODS

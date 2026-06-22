@@ -22,6 +22,31 @@ const CreateAdmin = () => {
   const [imagePreview, setImagePreview] = useState(null);
   const [error, setError] = useState("");
   const [roles, setRoles] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [page, setPage] = useState(1);
+const [limit] = useState(10);
+const [totalPages, setTotalPages] = useState(1);
+const [search, setSearch] = useState("");
+
+
+  const fetchUsers = async () => {
+  try {
+    const res = await api(
+      `/api/users/users?page=${page}&limit=${limit}&search=${search}`
+    );
+
+    if (res.success) {
+      setUsers(res.users);
+      setTotalPages(res.pagination.totalPages);
+    }
+  } catch (err) {
+    toast.error("Failed to load users");
+  }
+};
+
+useEffect(() => {
+  fetchUsers();
+}, [page, search]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -277,8 +302,109 @@ const CreateAdmin = () => {
         </div>
       </div>
       </div>
+      {/* ROLES TABLE */}
+<div className="mt-10">
+  <h3 className="text-subheading mb-4">
+    Existing Users
+  </h3>
+<div className="bg-white px-6 py-6 rounded-2xl shadow-md">
+  <div className="overflow-x-auto rounded-xl border border-gray-200">
+    <table className="w-full">
+      <thead className="bg-offwhite">
+        <tr>
+          <th className="px-4 py-3">S.No</th>
+          <th className="px-4 py-3">Profile</th>
+          <th className="px-4 py-3">Username</th>
+          <th className="px-4 py-3">Email</th>
+          <th className="px-4 py-3">Role</th>
+          <th className="px-4 py-3">Status</th>
+          <th className="px-4 py-3">Created</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {users.length > 0 ? (
+          users.map((user, index) => (
+            <tr key={user._id} className="border-t hover:bg-offwhite">
+              <td className="px-4 py-3">{(page - 1) * limit + index + 1}</td>
+
+              <td className="px-4 py-3">
+                <img
+                  src={user.profilePicture}
+                  alt={user.username}
+                  className="w-10 h-10 rounded-full object-cover"
+                />
+              </td>
+
+              <td className="px-4 py-3">
+                {user.username}
+              </td>
+
+              <td className="px-4 py-3">
+                {user.email}
+              </td>
+
+              <td className="px-4 py-3">
+                {user.role?.role || "No Role"}
+              </td>
+
+              <td className="px-4 py-3">
+                {user.isActive ? (
+                  <span className="text-green-600">
+                    Active
+                  </span>
+                ) : (
+                  <span className="text-red-600">
+                    Inactive
+                  </span>
+                )}
+              </td>
+
+              <td className="px-4 py-3">
+                {new Date(user.createdAt).toLocaleDateString()}
+              </td>
+            </tr>
+          ))
+        ) : (
+          <tr>
+            <td
+              colSpan="7"
+              className="text-center py-6 text-gray-500"
+            >
+              No users found
+            </td>
+          </tr>
+        )}
+      </tbody>
+    </table>
+  </div>
+  </div>
+</div>
+<div className="flex justify-end items-end gap-3 mt-6">
+  <button
+    disabled={page === 1}
+    onClick={() => setPage((prev) => prev - 1)}
+    className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+  >
+    Previous
+  </button>
+
+  <span className="font-medium">
+    Page {page} of {totalPages}
+  </span>
+
+  <button
+    disabled={page === totalPages}
+    onClick={() => setPage((prev) => prev + 1)}
+    className="px-4 py-2 bg-[#2d4a36] text-white rounded disabled:opacity-50"
+  >
+    Next
+  </button>
+</div>
       </div>
+      
     </div>
+    
   );
 };
 

@@ -88,6 +88,18 @@ const toggleDefaultModule = (module) => {
       const updated = current.includes(action)
         ? current.filter((a) => a !== action)
         : [...current, action];
+          setDefaultModules((prevModules) => {
+      if (updated.length > 0) {
+      
+        if (!prevModules.includes(module)) {
+          return [...prevModules, module];
+        }
+        return prevModules;
+      } else {
+        // If no permissions remain, remove module
+        return prevModules.filter((m) => m !== module);
+      }
+    });
 
       if (updated.length === 0) {
         const clone = { ...prev };

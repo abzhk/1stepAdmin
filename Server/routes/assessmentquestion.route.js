@@ -12,7 +12,8 @@ import {
    deleteQuestion,
     publishAssessmentVersion,
     bulkImportQuestions,
-} from "../controller/Assessment/assessment.controller.js";
+} from "../controller/Assessment/adminassessment.controller.js";
+
 import { verifyAdminToken } from "../middlewares/authMiddleware.js";
 import { canAccess } from "../middlewares/permission.middleware.js";
 import { MODULES, ACTIONS } from "../constants/permissions.js";

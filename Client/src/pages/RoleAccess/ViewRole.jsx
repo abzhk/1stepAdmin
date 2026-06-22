@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FiEdit2, FiChevronDown, FiChevronUp } from "react-icons/fi";
-import CreateRP from "./CreateRoleandPermission";
+import CreateRP from "./CreateRoleandPermission.jsx";
 import { api } from "../../utils/api.js";
 import toast from "react-hot-toast";
 

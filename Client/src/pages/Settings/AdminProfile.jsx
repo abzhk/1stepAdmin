@@ -2,9 +2,9 @@ import React, { useState, useEffect, useRef } from "react";
 import { FaUserEdit, FaCamera } from "react-icons/fa";
 import { IoSaveOutline } from "react-icons/io5";
 import { MdEmail } from "react-icons/md";
-import { api } from "../../utils/api";
+import { api } from "../../utils/api.js";
 import toast from "react-hot-toast";
-import { storage } from "../../firebase";
+import { storage } from "../../firebase.js";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import PermissionGuard from "../../Components/PermissionGuard.jsx";
 import { MODULES, ACTIONS } from "../../constants/permission.js";
@@ -97,11 +97,21 @@ const AdminProfile = () => {
         body: JSON.stringify(form),
       });
 
-      if (res.success) {
-        toast.success("Profile updated");
-        setEdit(false);
-        fetchProfile();
-      }
+     if (res.success) {
+  toast.success("Profile updated");
+
+  setImagePreview(null);
+
+  setUser(res.user);
+
+  setForm({
+    username: res.user.username,
+    email: res.user.email,
+    profilePicture: res.user.profilePicture,
+  });
+
+  setEdit(false);
+}
     } catch (err) {
       toast.error("Update failed");
     }

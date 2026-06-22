@@ -8,7 +8,7 @@ import fs from "fs";
 // Create Assessment
 export const createAssessment = async (req, res, next) => {
   try {
-    const { title, description, category, version } = req.body;
+    const { title, description, category, version,image  } = req.body;
 
     // VALIDATION
     if (!title || !description || !category) {
@@ -36,6 +36,7 @@ export const createAssessment = async (req, res, next) => {
       title: title.trim(),
       description,
       category,
+       image,
       version: version || 1,
       totalQuestions: 0,
       status: "draft",
@@ -226,142 +227,91 @@ export const publishAssessmentVersion = async (req, res, next) => {
       return next(errorHandler(404, "Assessment not found"));
     }
 
-    const { assessment, questions } = req.body;
-
-    const existingQuestions = await Question.find({
-      assessmentId: currentAssessment._id,
-    }).sort({ order: 1 });
+    const { assessment } = req.body;
 
     const assessmentChanged =
       currentAssessment.title !== assessment.title ||
       currentAssessment.description !== assessment.description ||
+      currentAssessment.image !== assessment.image ||
       String(currentAssessment.category) !== String(assessment.category) ||
       currentAssessment.scoringType !== assessment.scoringType ||
       currentAssessment.status !== assessment.status;
 
-    const oldQuestions = existingQuestions.map((q) => ({
-      questionText: q.questionText,
-
-      type: q.type,
-
-      options: q.options,
-
-      isRequired: q.isRequired,
-
-      order: q.order,
-    }));
-
-    const newQuestionsPayload = questions.map((q, index) => ({
-      questionText: q.questionText,
-
-      type: q.type,
-
-      options: q.options,
-
-      isRequired: q.isRequired,
-
-      order: index + 1,
-    }));
-
-    const questionsChanged =
-      JSON.stringify(oldQuestions) !== JSON.stringify(newQuestionsPayload);
-
-    if (!assessmentChanged && !questionsChanged) {
+    if (!assessmentChanged) {
       return res.status(200).json({
         message: "No changes detected",
-
         data: currentAssessment,
       });
     }
 
+    const totalQuestions = await Question.countDocuments({
+      assessmentId: currentAssessment._id,
+    });
+
+    // First publish of draft assessment
     if (
       currentAssessment.version === 1 &&
       currentAssessment.status === "draft" &&
       !currentAssessment.AssessmentId
     ) {
       currentAssessment.title = assessment.title;
-
       currentAssessment.description = assessment.description;
-
+      currentAssessment.image = assessment.image;
       currentAssessment.category = assessment.category;
-
       currentAssessment.scoringType = assessment.scoringType;
-
       currentAssessment.status = assessment.status;
-
-      currentAssessment.totalQuestions = questions.length;
-
+      currentAssessment.totalQuestions = totalQuestions;
       currentAssessment.isLatestVersion = true;
 
       await currentAssessment.save();
 
       return res.status(200).json({
         message: "Assessment updated successfully",
-
         data: currentAssessment,
       });
     }
 
-    // ARCHIVE OLD VERSION
-
+    // Archive current version
     await Assessment.findByIdAndUpdate(currentAssessment._id, {
       status: "archived",
       isLatestVersion: false,
     });
 
-    // CREATE NEW VERSION
-
+    // Create new version
     const newAssessment = await Assessment.create({
       title: assessment.title,
-
       description: assessment.description,
-
+      image: assessment.image,
       category: assessment.category,
-
       scoringType: assessment.scoringType,
-
-      totalQuestions: questions.length,
-
+      totalQuestions,
       version: currentAssessment.version + 1,
-
       status: assessment.status,
-
       isLatestVersion: true,
-
       createdBy: req.user.id,
-
-      AssessmentId: currentAssessment.AssessmentId || currentAssessment._id,
+      AssessmentId:
+        currentAssessment.AssessmentId || currentAssessment._id,
     });
 
-    // CREATE QUESTIONS
+const oldQuestions = await Question.find({
+  assessmentId: currentAssessment._id,
+}).lean();
 
-    const newQuestions = questions.map((q, index) => ({
-      assessmentId: newAssessment._id,
+if (oldQuestions.length > 0) {
+  const clonedQuestions = oldQuestions.map(
+    ({ _id, createdAt, updatedAt, __v, ...question }) => ({
+      ...question,
+      assessmentId: newAssessment._id, 
+    })
+  );
 
-      questionKey: q.questionKey || `Q${index + 1}`,
+  await Question.insertMany(clonedQuestions);
+}
 
-      questionText: q.questionText,
-
-      type: q.type,
-
-      order: index + 1,
-
-      isRequired: q.isRequired,
-
-      options: q.options,
-
-      scale: q.scale,
-
-      validation: q.validation,
-
-      conditionalLogic: q.conditionalLogic,
-    }));
-
-    await Question.insertMany(newQuestions);
-
-    res
-      .status(201)
-      .json({ message: "Version published successfully", data: newAssessment });
+    return res.status(201).json({
+      message: "Version published successfully",
+      data: newAssessment,
+    });
   } catch (err) {
     next(errorHandler(500, err.message));
   }

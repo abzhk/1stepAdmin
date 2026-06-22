@@ -9,6 +9,7 @@ import {
   deleteUser,
   resetPassword,
   saveErrorLog,
+  getAllUsers,
 } from "../controller/user.controller.js";
 import { validatePassword } from "../validator/joi.js";
 
@@ -20,6 +21,7 @@ router.post("/resetpassword/:id", verifyToken, validatePassword, resetPassword);
 router.get("/providers/:id", verifyToken, getUserProvider);
 router.get("/getusers", verifyToken, getUsers);
 router.delete("/delete/:userId", verifyToken, deleteUser);
+router.get("/users",  getAllUsers);
 
 //user
 router.post("/errorlog", saveErrorLog);

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState ,useEffect} from "react";
 import ViewAssessmentCategories from "./ViewAssessment";
 import {api} from "../../utils/api.js"
 import PermissionGuard from "../../Components/PermissionGuard.jsx";
@@ -17,6 +17,7 @@ const AddAssessmentCategory = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [lastOrder, setLastOrder] = useState(0);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -59,6 +60,20 @@ const AddAssessmentCategory = () => {
       setLoading(false);
     }
   };
+
+
+useEffect(() => {
+  const fetchLastOrder = async () => {
+    try {
+      const res = await api("/api/assessment/last-order");
+      setLastOrder(res.lastOrder || 0);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  fetchLastOrder();
+}, []);
 
   return (
    
@@ -121,7 +136,7 @@ const AddAssessmentCategory = () => {
             </div>
 
             <div>
-              <label className="text-label">Order</label>
+              <label className="text-label"> Order {lastOrder > 0 && `(Last used: ${lastOrder})`}</label>
               <input
                 type="number"
                 name="order"

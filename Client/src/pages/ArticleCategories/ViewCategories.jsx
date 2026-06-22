@@ -5,7 +5,8 @@ import EditCategory from "./EditCategories";
 import {api} from "../../utils/api.js";
 import PermissionGuard from "../../Components/PermissionGuard.jsx";
 import { MODULES, ACTIONS } from "../../constants/permission.js"
-import toast from "react-hot-toast";  
+import toast from "react-hot-toast";
+import { useOutletContext } from "react-router-dom"; 
 
 
 const ViewCategories = () => {
@@ -15,9 +16,11 @@ const ViewCategories = () => {
   const [error, setError] = useState("");
 
 
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editCategoryId, setEditCategoryId] = useState(null);
 const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+const { searchTerm } = useOutletContext();
 
 
 
@@ -32,7 +35,15 @@ const fetchCategories = async () => {
     setLoading(true);
     setError("");
 
-    const data = await api(`/api/category/getallcategories`);
+    const params = new URLSearchParams();
+
+    if (searchTerm?.trim()) {
+      params.append("searchTerm", searchTerm.trim());
+    }
+
+    const data = await api(
+      `/api/category/getallcategories?${params}`
+    );
 
     setCategories(data.categories || []);
     setTotalCount(data.total || 0);
@@ -46,7 +57,7 @@ const fetchCategories = async () => {
 
 useEffect(() => {
   fetchCategories();
-}, []);
+}, [searchTerm]);
 
 
   const visibleCategories = useMemo(() => {

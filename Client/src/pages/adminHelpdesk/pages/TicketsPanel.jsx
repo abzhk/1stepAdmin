@@ -1,23 +1,23 @@
 import { useState } from "react";
 import { Av, PriorityBadge, StatusBadge } from "../Shared/SharedUI";
-import { INITIAL_TICKETS, ac } from "../data/mockData";
+import {  ac } from "../data/mockData";
+import formatdatateUtils from "../../../utils/dateFormatUtils.js";
 
 
 //UI designed By Gokul
-export default function TicketsPanel({ tickets, onTicketClick, onUpdateTicket }) {
+export default function TicketsPanel({ tickets,search,
+  setSearch, page,
+  setPage,
+  pagination,onTicketClick, onUpdateTicket }) {
   const [filter, setFilter] = useState("All");
-  const [search, setSearch] = useState("");
   const [selected, setSelected] = useState(new Set());
 
-  const filtered = tickets.filter(t => {
-    const m = filter === "All" || t.status === filter;
-    const q = search.toLowerCase();
-    const s = !search || [t.id, t.user, t.title, t.cat].some(v => v.toLowerCase().includes(q));
-    return m && s;
-  });
+ const filtered = tickets.filter(
+  t => filter === "All" || t.status === filter
+);
 
   const toggle = id => setSelected(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
-  const bulkClose = () => { selected.forEach(id => { const t = tickets.find(t => t.id === id); if (t) onUpdateTicket({ ...t, status: "Closed" }); }); setSelected(new Set()); };
+  const bulkClose = () => { selected.forEach(id => { const t = tickets.find(t => t._id === id); if (t) onUpdateTicket({ ...t, status: "Closed" }); }); setSelected(new Set()); };
 
   return (
     <div className="animate-in fade-in duration-500">
@@ -40,7 +40,7 @@ export default function TicketsPanel({ tickets, onTicketClick, onUpdateTicket })
         </div>
         
         <div className="flex gap-2 px-6 py-3 border-b border-[#8fa797]/10 bg-white">
-          {["All", "Open", "In progress", "Resolved", "Closed"].map(f => {
+          {["All", "Open", "In progress", "Resolved", ].map(f => {
             const cnt = f === "All" ? tickets.length : tickets.filter(t => t.status === f).length;
             return (
               <button key={f} onClick={() => setFilter(f)} className={`text-[12px] px-4 py-1.5 rounded-full font-bold transition-all flex items-center gap-2 border ${filter === f ? "bg-[#2d4a36] text-[#F6F4F0] border-[#2d4a36] shadow-md" : "bg-[#F6F4F0]/50 text-[#8fa797] border-[#8fa797]/20 hover:border-[#8fa797]/40 hover:text-[#2d4a36]"}`}>
@@ -55,24 +55,26 @@ export default function TicketsPanel({ tickets, onTicketClick, onUpdateTicket })
           <table className="w-full min-w-[900px]">
             <thead>
               <tr className="bg-[#F6F4F0]/30 border-b border-[#8fa797]/10">
-                <th className="px-6 py-4 w-12"><input type="checkbox" className="w-4 h-4 rounded text-[#2d4a36] focus:ring-[#8fa797] border-[#8fa797]/40 cursor-pointer" onChange={e => setSelected(e.target.checked ? new Set(filtered.map(t => t.id)) : new Set())} checked={selected.size === filtered.length && filtered.length > 0} /></th>
-                {["ID", "User", "Issue", "Category", "Priority", "Status", "Agent", "Created"].map(h => <th key={h} className="text-left text-[10px] font-bold text-[#8fa797] uppercase tracking-widest px-4 py-4">{h}</th>)}
+                <th className="px-6 py-4 w-12"><input type="checkbox" className="w-4 h-4 rounded text-[#2d4a36] focus:ring-[#8fa797] border-[#8fa797]/40 cursor-pointer" onChange={e => setSelected(e.target.checked ? new Set(filtered.map(t => t._id)) : new Set())} checked={selected.size === filtered.length && filtered.length > 0} /></th>
+                {["ID", "User", "Issue", "Category", "Priority", "Status",
+                  //  "Agent", 
+                   "Created"].map(h => <th key={h} className="text-left text-[10px] font-bold text-[#8fa797] uppercase tracking-widest px-4 py-4">{h}</th>)}
               </tr>
             </thead>
             <tbody>
               {filtered.length === 0
                 ? <tr><td colSpan={9} className="text-center py-20 text-[13px] font-bold text-[#8fa797]">No tickets found.</td></tr>
                 : filtered.map((t, i) => {
-                  const origIdx = INITIAL_TICKETS.findIndex(x => x.id === t.id);
+                 
                   return (
-                    <tr key={t.id} onClick={() => onTicketClick(t, origIdx >= 0 ? origIdx : i)} className={`border-b border-[#8fa797]/5 hover:bg-[#F6F4F0]/60 transition-colors cursor-pointer last:border-0 ${selected.has(t.id) ? "bg-[#ffd333]/5" : ""}`}>
-                      <td className="px-6 py-4" onClick={e => { e.stopPropagation(); toggle(t.id); }}><input type="checkbox" className="w-4 h-4 rounded text-[#2d4a36] focus:ring-[#8fa797] border-[#8fa797]/40 cursor-pointer" checked={selected.has(t.id)} readOnly /></td>
-                      <td className="px-4 py-4 font-mono text-[11px] font-bold text-[#8fa797]/60">{t.id}</td>
+                    <tr key={t._id}   onClick={() => onTicketClick(t, i)} className={`border-b border-[#8fa797]/5 hover:bg-[#F6F4F0]/60 transition-colors cursor-pointer last:border-0 ${selected.has(t._id) ? "bg-[#ffd333]/5" : ""}`}>
+                      <td className="px-6 py-4" onClick={e => { e.stopPropagation(); toggle(t._id); }}><input type="checkbox" className="w-4 h-4 rounded text-[#2d4a36] focus:ring-[#8fa797] border-[#8fa797]/40 cursor-pointer" checked={selected.has(t._id)} readOnly /></td>
+                      <td className="px-4 py-4 font-mono text-[11px] font-bold text-[#8fa797]/60">{t.ticketId}</td>
                       <td className="px-4 py-4">
                         <div className="flex items-center gap-3">
-                          <Av initials={t.initials} cc={ac(origIdx >= 0 ? origIdx : i)} size="sm" />
+                          <Av initials={t.email?.charAt(0).toUpperCase()} cc={ac(i)} size="sm"/>
                           <div>
-                            <div className="text-[12px] font-bold text-[#2d4a36] whitespace-nowrap">{t.user}</div>
+                            <div className="text-[12px] font-bold text-[#2d4a36] whitespace-nowrap">{t.user?.username}</div>
                             <div className="text-[10px] font-medium text-[#8fa797]">{t.email}</div>
                           </div>
                         </div>
@@ -81,10 +83,10 @@ export default function TicketsPanel({ tickets, onTicketClick, onUpdateTicket })
                         <div className="text-[13px] font-medium text-[#2d4a36] truncate block">{t.title}</div>
                         {t.messages > 0 && <div className="text-[10px] font-bold text-[#8fa797] mt-0.5">{t.messages} message{t.messages !== 1 ? "s" : ""}</div>}
                       </td>
-                      <td className="px-4 py-4 text-[12px] font-bold text-[#8fa797]">{t.cat}</td>
+                      <td className="px-4 py-4 text-[12px] font-bold text-[#8fa797]">{t.category}</td>
                       <td className="px-4 py-4"><PriorityBadge priority={t.priority} /></td>
                       <td className="px-4 py-4"><StatusBadge status={t.status} /></td>
-                      <td className="px-4 py-4">
+                      {/* <td className="px-4 py-4">
                         {t.agent ? (
                           <div className="flex items-center gap-2">
                             <div className="w-6 h-6 rounded-full bg-[#F6F4F0] border border-[#8fa797]/30 flex items-center justify-center text-[9px] font-bold text-[#2d4a36]">
@@ -93,15 +95,37 @@ export default function TicketsPanel({ tickets, onTicketClick, onUpdateTicket })
                             <span className="text-[12px] font-bold text-[#2d4a36]/80">{t.agent.split(" ")[0]}</span>
                           </div>
                         ) : <span className="text-[11px] font-medium text-[#8fa797] italic">Unassigned</span>}
-                      </td>
-                      <td className="px-4 py-4 text-[11px] font-medium text-[#8fa797] whitespace-nowrap">{t.created}</td>
+                      </td> */}
+                      <td className="px-4 py-4 text-[11px] font-medium text-[#8fa797] whitespace-nowrap">{formatdatateUtils(t.createdAt)}</td>
                     </tr>
                   );
                 })}
             </tbody>
           </table>
         </div>
+        
       </div>
+      <div className="flex items-center justify-end gap-2 mt-4">
+  <button
+    disabled={!pagination?.hasPrevPage}
+    onClick={() => setPage((prev) => prev - 1)}
+    className="px-4 py-2 bg-[#2d4a36] text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+  >
+    Prev
+  </button>
+
+  <span className="px-4 py-2 bg-[#F6F4F0] text-[#2d4a36] mx-2">
+    {pagination?.page || 1} of {pagination?.totalPages || 1}
+  </span>
+
+  <button
+    disabled={!pagination?.hasNextPage}
+    onClick={() => setPage((prev) => prev + 1)}
+    className="px-4 py-2 bg-[#2d4a36] text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+  >
+    Next
+  </button>
+</div>
     </div>
   );
 }

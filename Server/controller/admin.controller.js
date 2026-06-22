@@ -105,25 +105,25 @@ export const login = async (req, res,next) => {
 //delete provider
 export const deleteProvider = async (req, res,next) => {
   try {
-    const { providerId } = req.params;   
+    const { providerId } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(providerId)) {
-  return next(errorHandler(400, "Invalid user id"));
-}
+      return next(errorHandler(400, "Invalid provider id"));
+    }
 
-    const providerDoc = await Provider.findOne({ userRef: providerId });
+    const providerDoc = await Provider.findById(providerId);
 
     if (!providerDoc) {
-  return next(errorHandler(404, "Provider not found"));
-}
+      return next(errorHandler(404, "Provider not found"));
+    }
 
-    await Booking.deleteMany({ provider: providerDoc._id });
+    await Booking.deleteMany({provider: providerDoc._id });
 
-    await BookedSlots.deleteMany({ provider: providerDoc._id });
+    await BookedSlots.deleteMany({provider: providerDoc._id  });
 
-    await Provider.deleteOne({ userRef: providerId });
+    await Provider.findOneAndDelete({_id: providerDoc._id });
 
-    await User.deleteOne({ _id: providerId });
+    await User.deleteOne({_id: providerDoc.userRef });
 
     return res.status(200).json({
       success: true,
@@ -132,7 +132,7 @@ export const deleteProvider = async (req, res,next) => {
   } catch (error) {
     console.error(error);
 
-   return next(errorHandler(500, "Failed to delete provider"));
+    return next(errorHandler(500, "Failed to delete provider"));
   }
 };
 export const logoutAdmin = async (req, res,next) => {
@@ -234,7 +234,7 @@ export const updateAdminProfile = async (req, res,next) => {
         profilePicture,
       },
       { new: true }
-    );
+    ).populate("role");
 
     if (!updatedUser) {
      return next(errorHandler(404, "User not found"));
@@ -246,6 +246,7 @@ export const updateAdminProfile = async (req, res,next) => {
         id: updatedUser._id,
         username: updatedUser.username,
         email: updatedUser.email,
+         role: updatedUser.role?.role,
         profilePicture: updatedUser.profilePicture,
       },
     });

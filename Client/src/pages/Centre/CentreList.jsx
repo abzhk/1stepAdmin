@@ -10,35 +10,30 @@ const CentreList = () => {
   const navigate = useNavigate();
 
   const [viewMode, setViewMode] = useState("grid");
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [selectedCentre, setSelectedCentre] = useState(null);
   const [centres, setCentres] = useState([]);
+  const [page, setPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
 
-  useEffect(() => {
-    const fetchCentres = async () => {
-      try {
-        const data = await api("/api/provider/centre-list");
-        setCentres(data.centres || []);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-    fetchCentres();
-  }, []);
+  const limit = 12;
 
-  const confirmDelete = async () => {
+  const fetchCentres = async () => {
     try {
-      await api(`/api/provider/centre/${selectedCentre._id}`, "DELETE");
-      setCentres((prev) =>
-        prev.filter((c) => c._id !== selectedCentre._id)
+      const startIndex = (page - 1) * limit;
+
+      const data = await api(
+        `/api/provider/centre-list?startIndex=${startIndex}&limit=${limit}`,
       );
-      setShowDeleteModal(false);
-      setSelectedCentre(null);
+
+      setCentres(data.centres || []);
+      setTotalCount(data.totalCount || 0);
     } catch (err) {
       console.error(err);
-      toast.error("Failed to delete centre");
     }
   };
+
+  useEffect(() => {
+    fetchCentres();
+  }, [page]);
 
   const toggleCentreStatus = async (centre) => {
     if (centre.totalProviders > 0 && centre.isActive) {
@@ -57,18 +52,16 @@ const CentreList = () => {
 
       if (res.success) {
         toast.success(
-          `Centre ${!centre.isActive ? "activated" : "deactivated"}`
+          `Centre ${!centre.isActive ? "activated" : "deactivated"}`,
         );
 
         if (centre.isActive) {
-          setCentres((prev) =>
-            prev.filter((c) => c._id !== centre._id)
-          );
+          setCentres((prev) => prev.filter((c) => c._id !== centre._id));
         } else {
           setCentres((prev) =>
             prev.map((c) =>
-              c._id === centre._id ? { ...c, isActive: true } : c
-            )
+              c._id === centre._id ? { ...c, isActive: true } : c,
+            ),
           );
         }
       }
@@ -125,26 +118,25 @@ const CentreList = () => {
 
       {/* GRID VIEW */}
       {viewMode === "grid" ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {centres.map((centre) => (
-            <div
-              key={centre._id}
-              className="group bg-white/80 backdrop-blur-md border border-gray-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col"
-            >
-              {/* IMAGE */}
-              <div className="relative h-52 overflow-hidden">
-                <img
-                  src={centre.profilePicture}
-                  alt={centre.fullName}
-                  className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
-                />
+        <div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {centres.map((centre) => (
+              <div
+                key={centre._id}
+                className="group bg-white/80 backdrop-blur-md border border-gray-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col"
+              >
+                {/* IMAGE */}
+                <div className="relative h-52 overflow-hidden">
+                  <img
+                    src={centre.profilePicture}
+                    alt={centre.fullName}
+                    className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                  />
 
-                <div className="absolute inset-0 " />
+                  <div className="absolute inset-0 " />
 
-                <div className="absolute bottom-3 left-3 right-3 flex justify-between items-center">
-                  
-
-                  {/* <span
+                  <div className="absolute bottom-3 left-3 right-3 flex justify-between items-center">
+                    {/* <span
                     className={`text-xs px-3 py-1 rounded-full ${
                       centre.isActive
                         ? "bg-green-500/20 text-green-100"
@@ -153,154 +145,163 @@ const CentreList = () => {
                   >
                     {centre.isActive ? "Active" : "Inactive"}
                   </span> */}
+                  </div>
                 </div>
-              </div>
 
-              {/* CONTENT */}
-              <div className="p-4 flex flex-col gap-3">
-                <div className="text-sm text-gray-600 space-y-1">
-
-                  <h2 className="text-darkgreen font-semibold text-lg truncate">
-                    {centre.fullName}
-                  </h2>
-                  <p className="truncate">
-                    <span className="text-cardfooter uppercase">Email:</span>{" "}
-                  <span className="text-cardfooter">
-    {centre.user?.email || "-"}
-  </span>
-                  </p>
-                  {/* <p>
+                {/* CONTENT */}
+                <div className="p-4 flex flex-col gap-3">
+                  <div className="text-sm text-gray-600 space-y-1">
+                    <h2 className="text-darkgreen font-semibold text-lg truncate">
+                      {centre.fullName}
+                    </h2>
+                    <p className="truncate">
+                      <span className="text-cardfooter uppercase">Email:</span>{" "}
+                      <span className="text-cardfooter">
+                            {centre.userRef?.email || centre.email || "-"}
+                      </span>
+                    </p>
+                    {/* <p>
                     <span className="text-gray-400">Phone:</span>{" "}
                     {centre.phone}
                   </p> */}
-                </div>
-
-                {/* STATS */}
-                <div className="flex justify-between">
-                  <div>
-                    <p className="text-cardfooter uppercase">Providers</p>
-                    <p className="font-semibold text-darkgreen text-lg">
-                      {centre.totalProviders}
-                    </p>
                   </div>
 
-                  <div>
-                    <p className="text-cardfooter uppercase">Sessions</p>
-                    <p className="font-semibold text-darkgreen text-lg">
-                      {centre.totalSessions}
-                    </p>
-                  </div>
-                </div>
+                  {/* STATS */}
+                  <div className="flex justify-between">
+                    <div>
+                      <p className="text-cardfooter uppercase">Providers</p>
+                      <p className="font-semibold text-darkgreen text-lg">
+                        {centre.totalProviders}
+                      </p>
+                    </div>
 
-                {/* ACTIONS */}
-                <div className="flex justify-between items-center mt-2">
-                  <div className="flex gap-2">
+                    <div>
+                      <p className="text-cardfooter uppercase">Sessions</p>
+                      <p className="font-semibold text-darkgreen text-lg">
+                        {centre.totalSessions}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* ACTIONS */}
+                  <div className="flex justify-between items-center mt-2">
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => navigate(`/centre-detail/${centre._id}`)}
+                        className="p-2 rounded-lg bg-softpeach/60 text-darkgreen hover:bg-gray-200"
+                      >
+                        <AiFillEye />
+                      </button>
+
+                      <button
+                        onClick={() => navigate(`/edit-centre/${centre._id}`)}
+                        className="p-2 rounded-lg bg-yellow/50 text-darkgreen hover:bg-yellow"
+                      >
+                        <FiEdit2 />
+                      </button>
+                    </div>
+
                     <button
-                      onClick={() =>
-                        navigate(`/centre-detail/${centre._id}`)
-                      }
-                      className="p-2 rounded-lg bg-softpeach/60 text-darkgreen hover:bg-gray-200"
+                      onClick={() => toggleCentreStatus(centre)}
+                      disabled={centre.totalProviders > 0 && centre.isActive}
+                      className={`text-xs px-4 py-1.5 rounded-full ${
+                        centre.totalProviders > 0 && centre.isActive
+                          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                          : centre.isActive
+                            ? "bg-red-100 text-red-600 hover:bg-red-200"
+                            : "bg-green-100 text-green-600 hover:bg-green-200"
+                      }`}
                     >
-                      <AiFillEye/>
-                    </button>
-
-                    <button
-                      onClick={() =>
-                        navigate(`/edit-centre/${centre._id}`)
-                      }
-                      className="p-2 rounded-lg bg-yellow/50 text-darkgreen hover:bg-yellow"
-                    >
-                      <FiEdit2 />
+                      {centre.isActive ? "Deactivate" : "Activate"}
                     </button>
                   </div>
-
-                  <button
-                    onClick={() => toggleCentreStatus(centre)}
-                    disabled={
-                      centre.totalProviders > 0 && centre.isActive
-                    }
-                    className={`text-xs px-4 py-1.5 rounded-full ${
-                      centre.totalProviders > 0 && centre.isActive
-                        ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                        : centre.isActive
-                        ? "bg-red-100 text-red-600 hover:bg-red-200"
-                        : "bg-green-100 text-green-600 hover:bg-green-200"
-                    }`}
-                  >
-                    {centre.isActive ? "Deactivate" : "Activate"}
-                  </button>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
+          <div className="flex justify-end gap-4 mt-6">
+            <button
+              disabled={page === 1}
+              onClick={() => setPage((p) => p - 1)}
+              className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+            >
+              Previous
+            </button>
+
+            <span className="flex items-center">
+              Page {page} of {Math.ceil(totalCount / limit)}
+            </span>
+
+            <button
+              disabled={page >= Math.ceil(totalCount / limit)}
+              onClick={() => setPage((p) => p + 1)}
+              className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+            >
+              Next
+            </button>
+          </div>
         </div>
       ) : (
         /* LIST VIEW  */
         <div className="bg-white p-6 rounded-xl shadow overflow-hidden">
           <div className="shadow-md rounded-2xl">
-          <table className="w-full text-sm">
-            <thead className="bg-offwhite text-cardfooter uppercase text-left">
-              <tr>
-                <th className="p-3 text-left">Centre</th>
-                <th className="p-3 text-left">Email</th>
-                <th className="p-3 text-left">Phone</th>
-                <th className="p-3 text-left">Providers</th>
-                <th className="p-3 text-left">Sessions</th>
-                <th className="p-3 text-left">Status</th>
-                <th className="p-3 text-right">Actions</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {centres.map((centre) => (
-                <tr
-                  key={centre._id}
-                  className=" hover:bg-offwhite/50"
-                >
-                  <td className="p-3 flex items-center gap-3">
-                    <img
-                      src={centre.profilePicture}
-                      className="w-10 h-10 rounded-lg object-cover"
-                    />
-                    {centre.fullName}
-                  </td>
-
-                  <td className="p-3">{centre.email}</td>
-                  <td className="p-3">{centre.phone}</td>
-                  <td className="p-3">{centre.totalProviders}</td>
-                  <td className="p-3">{centre.totalSessions}</td>
-
-                  <td className="p-3">
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs ${
-                        centre.isActive
-                          ? "bg-green-100 text-green-600"
-                          : "bg-red-100 text-red-600"
-                      }`}
-                    >
-                      {centre.isActive ? "Active" : "Inactive"}
-                    </span>
-                  </td>
-
-                  <td className="p-3 flex justify-end gap-2">
-                    <button className="p-2 bg-gray-100 rounded-lg">
-                      <AiFillEye />
-                    </button>
-
-                    <button
-                      onClick={() =>
-                        navigate(`/edit-centre/${centre._id}`)
-                      }
-                      className="p-2 bg-blue-100 text-blue-600 rounded-lg"
-                    >
-                      <FiEdit2 />
-                    </button>
-                  </td>
+            <table className="w-full text-sm">
+              <thead className="bg-offwhite text-cardfooter uppercase text-left">
+                <tr>
+                  <th className="p-3 text-left">Centre</th>
+                  <th className="p-3 text-left">Email</th>
+                  <th className="p-3 text-left">Phone</th>
+                  <th className="p-3 text-left">Providers</th>
+                  <th className="p-3 text-left">Sessions</th>
+                  <th className="p-3 text-left">Status</th>
+                  <th className="p-3 text-right">Actions</th>
                 </tr>
-              ))}
-              
-            </tbody>
-          </table>
+              </thead>
+
+              <tbody>
+                {centres.map((centre) => (
+                  <tr key={centre._id} className=" hover:bg-offwhite/50">
+                    <td className="p-3 flex items-center gap-3">
+                      <img
+                        src={centre.profilePicture}
+                        className="w-10 h-10 rounded-lg object-cover"
+                      />
+                      {centre.fullName}
+                    </td>
+
+                    <td className="p-3">{centre.email}</td>
+                    <td className="p-3">{centre.phone}</td>
+                    <td className="p-3">{centre.totalProviders}</td>
+                    <td className="p-3">{centre.totalSessions}</td>
+
+                    <td className="p-3">
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs ${
+                          centre.isActive
+                            ? "bg-green-100 text-green-600"
+                            : "bg-red-100 text-red-600"
+                        }`}
+                      >
+                        {centre.isActive ? "Active" : "Inactive"}
+                      </span>
+                    </td>
+
+                    <td className="p-3 flex justify-end gap-2">
+                      <button className="p-2 bg-gray-100 rounded-lg">
+                        <AiFillEye />
+                      </button>
+
+                      <button
+                        onClick={() => navigate(`/edit-centre/${centre._id}`)}
+                        className="p-2 bg-blue-100 text-blue-600 rounded-lg"
+                      >
+                        <FiEdit2 />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       )}

@@ -16,6 +16,14 @@ const providerSchema = new mongoose.Schema(
         return this.providerType === "centre";
       },
     },
+    openTime: {
+      type: String,
+      default: "08:00",
+    },
+    closeTime: {
+      type: String,
+      default: "18:00",
+    },
     name: {
       type: Array,
       required: true,
@@ -87,8 +95,10 @@ const providerSchema = new mongoose.Schema(
     imageUrls: {
       type: Array,
     },
+
     userRef: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
       required: true,
     },
     verified: {
@@ -167,32 +177,15 @@ providerSchema.index(
 );
 
 providerSchema.index(
-  {
-    "address.city": 1,
-    "address.pincode": 1,
-  },
-  {
-    name: "location_filter_index",
-  }
+  { "address.city": 1, "address.pincode": 1 },
+  { name: "location_filter_index" }
 );
 
-providerSchema.index(
-  {
-    createdAt: -1,
-  },
-  {
-    name: "created_at_index",
-  }
-);
+providerSchema.index({ createdAt: -1 }, { name: "created_at_index" });
 
-providerSchema.index(
-  {
-    userRef: 1,
-  },
-  {
-    name: "user_ref_index",
-  }
-);
+providerSchema.index({ userRef: 1 }, { name: "user_ref_index" });
+
+
 
 providerSchema.post("save", async function (doc) {
 

@@ -5,6 +5,7 @@ import { useParams } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import PermissionGuard from "../../Components/PermissionGuard.jsx";
 import { MODULES, ACTIONS } from "../../constants/permission.js"
+import { useOutletContext } from "react-router-dom";
 
 
 const AssessmentList = () => {
@@ -15,13 +16,23 @@ const AssessmentList = () => {
   const [page, setPage] = useState(1);
 const [limit] = useState(10);
 const [totalPages, setTotalPages] = useState(1);
+const { searchTerm } = useOutletContext();
 
  const fetchAssessments = async () => {
   try {
 
-    const res = await api(
-      `/api/assessmentquestions/get-assessment?page=${page}&limit=${limit}`
-    );
+   const params = new URLSearchParams({
+  page,
+  limit,
+});
+
+if (searchTerm?.trim()) {
+  params.append("search", searchTerm.trim());
+}
+
+const res = await api(
+  `/api/assessmentquestions/get-assessment?${params}`
+);
 
     setList(res.data || []);
     setTotalPages(res.totalPages || 1);
@@ -33,7 +44,11 @@ const [totalPages, setTotalPages] = useState(1);
 
 useEffect(() => {
   fetchAssessments();
-}, [page]);
+}, [page,searchTerm]);
+
+useEffect(() => {
+  setPage(1);
+}, [searchTerm]);
 
 const handleDelete = async (id) => {
   try {

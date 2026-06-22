@@ -4,7 +4,10 @@ import {
   getOptionsByType,
   createOption,
     updateOption,
-    getAllOptionsByTypeAdmin
+    getAllOptionsByTypeAdmin,
+    deleteOption,
+    bulkToggleActive,
+    reorderOptions,
 } from "../controller/masterController/masterData.controller.js";
 import { verifyToken } from "../utils/verifyUser.js";
 import { verifyAdminToken } from "../middlewares/authMiddleware.js";
@@ -20,7 +23,12 @@ router.post("/",verifyAdminToken,canAccess(MODULES.MASTER_DATA, ACTIONS.CREATE),
 
 // UPDATE
 router.put("/:id",verifyAdminToken, canAccess(MODULES.MASTER_DATA, ACTIONS.UPDATE),updateOption);
-router.get("/admin/:type", verifyAdminToken,
-  canAccess(MODULES.MASTER_DATA, ACTIONS.READ),getAllOptionsByTypeAdmin);
+
+router.delete ("/:id",verifyAdminToken, canAccess(MODULES.MASTER_DATA, ACTIONS.DELETE),deleteOption);
+router.get("/admin/:type", verifyAdminToken,canAccess(MODULES.MASTER_DATA, ACTIONS.READ),getAllOptionsByTypeAdmin);
+
+  router.patch("/reorder",verifyAdminToken,canAccess(MODULES.MASTER_DATA, ACTIONS.UPDATE),reorderOptions);
+
+router.patch("/bulk-toggle",verifyAdminToken,canAccess(MODULES.MASTER_DATA, ACTIONS.UPDATE),bulkToggleActive);
 
 export default router;

@@ -35,7 +35,29 @@ export function PriorityBadge({ priority }) {
   );
 }
 
-export function Av({ initials, cc, size = "sm" }) {
-  const sz = { xs: "w-6 h-6 text-[9px]", sm: "w-8 h-8 text-[11px]", md: "w-10 h-10 text-[13px]", lg: "w-12 h-12 text-[14px]" };
-  return <div className={`${sz[size]} rounded-full flex items-center justify-center font-bold flex-shrink-0 shadow-sm ${cc}`}>{initials}</div>;
+export function Av({ image, initials, cc, size = "sm" }) {
+  const sz = {
+    xs: "w-6 h-6 text-[9px]",
+    sm: "w-8 h-8 text-[11px]",
+    md: "w-10 h-10 text-[13px]",
+    lg: "w-12 h-12 text-[14px]",
+  };
+
+  if (image) {
+    return (
+      <img
+        src={image}
+        alt={initials}
+        className={`${sz[size]} rounded-full object-cover flex-shrink-0 shadow-sm`}
+      />
+    );
+  }
+
+  return (
+    <div
+      className={`${sz[size]} rounded-full flex items-center justify-center font-bold flex-shrink-0 shadow-sm ${cc}`}
+    >
+      {initials}
+    </div>
+  );
 }

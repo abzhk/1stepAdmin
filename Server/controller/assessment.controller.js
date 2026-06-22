@@ -13,6 +13,10 @@ export const createCategory = async (req, res,next) => {
     if (existingCategory) {
       return next(errorHandler(400, "Category already exists"));
     }
+      const existingOrder = await assessmentCategory.findOne({ order });
+    if (existingOrder) {
+      return next(errorHandler(400, "Order already exists"));
+    }
 
     const category = new assessmentCategory({
       name,
@@ -352,8 +356,19 @@ export const getProviderAssessmentAnalytics = async (req, res) => {
 
 export const getAllCategories = async (req, res) => {
   try {
+
+     const { search } = req.query;
+
+    let filter = {};
+
+    if (search) {
+      filter.$or = [
+        { name: { $regex: search, $options: "i" } },
+        { description: { $regex: search, $options: "i" } },
+      ];
+    }
     const categories = await assessmentCategory
-      .find()             
+      .find(filter)             
       .sort({ order: 1 });   
 
     res.status(200).json({ success: true, data: categories });
@@ -434,6 +449,48 @@ export const getProviderAssessmentbyId = async (req, res) => {
   } catch (error) {
     console.error("ERROR:", error);
     return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+
+//get active status category list
+
+export const getActiveCategories = async (req, res) => {
+  try {
+    const categories = await assessmentCategory
+      .find({ status: true })
+      .sort({ order: 1 });
+
+    res.status(200).json({
+      success: true,
+      data: categories,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+//highest order number
+
+export const getLastOrder = async (req, res) => {
+  try {
+    const lastCategory = await assessmentCategory
+      .findOne()
+      .sort({ order: -1 })
+      .select("order");
+
+    res.status(200).json({
+      success: true,
+      lastOrder: lastCategory?.order || 0,
+    });
+  } catch (error) {
+    res.status(500).json({
       success: false,
       message: error.message,
     });

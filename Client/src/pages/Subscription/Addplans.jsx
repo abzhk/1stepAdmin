@@ -28,10 +28,11 @@ const Addplans = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const navigate = useNavigate();
   const { id } = useParams();
-  const [modules, setModules] = useState([]);
   const location = useLocation();
+  const [billingOptions, setBillingOptions] = useState([]);
 const searchParams = new URLSearchParams(location.search);
 const mode = searchParams.get("mode");
+const modules = Object.values(MODULES);
 
 const isEditMode = !!id && mode !== "version";
 const isVersionMode = !!id && mode === "version";
@@ -47,7 +48,7 @@ const isVersionMode = !!id && mode === "version";
     price: "",
     discount: 0,
     currency: "INR",
-    billing_interval: "monthly",
+    billing_interval: "",
     trial_period_days: 0,
     stripe_price_id: "",
     available_modules: [],
@@ -64,20 +65,6 @@ const isVersionMode = !!id && mode === "version";
     therapist_matching_type: "auto",
   });
 
-  useEffect(() => {
-    const fetchModules = async () => {
-      try {
-        const data = await api(`/api/module/get-module`);
-
-        setModules(Array.isArray(data) ? data : []);
-      } catch (err) {
-        console.error("Failed to fetch modules", err);
-        setModules([]);
-      }
-    };
-
-    fetchModules();
-  }, []);
 
   
 
@@ -107,6 +94,29 @@ const isVersionMode = !!id && mode === "version";
     }));
   };
 
+
+// Billing period options
+useEffect(() => {
+  const fetchBillingOptions = async () => {
+    try {
+      const res = await api("/api/services/planBillingConfig?format=dropdown");
+
+      setBillingOptions(res.data);
+
+      
+      setFormData((prev) => ({
+        ...prev,
+        billing_interval:
+          prev.billing_interval || res.data[0]?.value || "",
+      }));
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  fetchBillingOptions();
+}, []);
+
   useEffect(() => {
     if (formData.user_type === "parent") {
       setFormData((prev) => ({
@@ -134,8 +144,11 @@ const isVersionMode = !!id && mode === "version";
       plan_name: formData.plan_name,
       description: formData.description,
       is_featured: formData.is_featured,
+        billing_interval: formData.billing_interval,
+  available_modules: formData.available_modules,
     };
 
+    console.log(payload);
     endpoint = `/api/plan/update/${id}`;
     method = "PUT";
   } else {
@@ -163,7 +176,7 @@ const isVersionMode = !!id && mode === "version";
     await api(endpoint, {
       method,
       body: JSON.stringify(payload),
-    });
+    }); 
 
     toast.success(
       isEditMode
@@ -392,8 +405,9 @@ const isVersionMode = !!id && mode === "version";
                         disabled={isEditMode || isVersionMode}
                         className="mt-1 w-full px-4 py-3 rounded-xl bg-[#F6F4F0] border border-[#8fa797]/30 focus:ring-2 focus:ring-[#2d4a36] outline-none text-[#2d4a36]"
                       >
-                        <option value="parent">Parent</option>
-                        <option value="provider">Provider</option>
+                        <option value="parent">parent</option>
+                        <option value="provider">provider</option>
+                        <option value="centre">centre</option>
                       </select>
                       <div>
                         <label className="text-sm font-bold text-[#2d4a36]">
@@ -489,7 +503,7 @@ const isVersionMode = !!id && mode === "version";
                         <label className="text-sm font-bold text-[#2d4a36]">
                           Billing
                         </label>
-                        <select
+                        {/* <select
                           name="billing_interval"
                           value={formData.billing_interval}
                           onChange={handleChange}
@@ -499,7 +513,21 @@ const isVersionMode = !!id && mode === "version";
                           <option value="monthly">Monthly</option>
                           <option value="quarterly">Quarterly</option>
                           <option value="annually">Annually</option>
-                        </select>
+                        </select> */}
+
+                        <select
+  name="billing_interval"
+  value={formData.billing_interval}
+  onChange={handleChange}
+   disabled={isEditMode}
+  className="mt-1 w-full px-4 py-3 rounded-xl bg-[#F6F4F0] border border-[#8fa797]/30 focus:ring-2 focus:ring-[#2d4a36] outline-none text-[#2d4a36]"
+>
+  {billingOptions.map((item) => (
+    <option key={item.value} value={item.value}>
+      {item.label}
+    </option>
+  ))}
+</select>
                       </div>
                     </div>
                     <div>
@@ -778,21 +806,20 @@ const isVersionMode = !!id && mode === "version";
                       </h3>
 
                       <div className="grid grid-cols-2 gap-3">
-                        {Array.isArray(modules) &&
-                          modules.map((mod) => (
-                            <button
-                              key={mod._id}
-                              type="button"
-                              onClick={() => toggleModule(mod._id)}
-                              className={`px-3 py-2 rounded-lg text-sm font-semibold border transition-all capitalize ${
-                                formData.available_modules.includes(mod._id)
-                                  ? "bg-[#2d4a36] text-white border-[#2d4a36]"
-                                  : "bg-white text-[#2d4a36] border-[#8fa797]/30 hover:bg-[#F6F4F0]"
-                              }`}
-                            >
-                              {mod.modules.replace("_", " ")}
-                            </button>
-                          ))}
+                        {modules.map((module) => (
+    <button
+      key={module}
+      type="button"
+      onClick={() => toggleModule(module)}
+      className={`px-3 py-2 rounded-lg text-sm font-semibold border transition-all capitalize ${
+        formData.available_modules.includes(module)
+          ? "bg-[#2d4a36] text-white border-[#2d4a36]"
+          : "bg-white text-[#2d4a36] border-[#8fa797]/30 hover:bg-[#F6F4F0]"
+      }`}
+    >
+      {module.replaceAll("_", " ")}
+    </button>
+  ))}
                       </div>
                     </div>
 

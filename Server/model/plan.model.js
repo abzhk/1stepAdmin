@@ -11,7 +11,7 @@ const planSchema = new mongoose.Schema(
     },
      user_type: {
      type: String,
-     enum: ["parent", "provider"],
+     enum: ["parent", "provider","centre"],
      index: true
     },
     plan_name: {
@@ -23,7 +23,7 @@ const planSchema = new mongoose.Schema(
       required: true,
       lowercase: true,
       trim: true,
-      unique: true,
+      // unique: true,
     },
     description: {
       type: String,
@@ -44,9 +44,10 @@ const planSchema = new mongoose.Schema(
       uppercase: true,
     },
     billing_interval: {
-      type: String,
-      enum: ["monthly", "quarterly", "annually"],
-      required: true,
+       type: String,
+  required: true,
+  lowercase: true,
+  trim: true,
     },
     trial_period_days: {
       type: Number,
@@ -55,16 +56,31 @@ const planSchema = new mongoose.Schema(
     },
     stripe_price_id: {
       type: String,
-      required: true,
     },
 
     // 🔥 MODULES UNLOCKED BY THIS PLAN
     available_modules: [
-  {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "AccessModules",
-  },
-],
+      {
+        type: String,
+        enum: [
+          "dashboard",
+          "profile",
+          "messages",
+          "assessment",
+          "appointments",
+          "video_sessions",
+          "reports",
+          "billing",
+          "resource_library",
+          "patients",
+          "settings",
+          "article",
+          "courses",
+          "plans",
+          "master_data"
+        ],
+      },
+    ],
 
     // 🔥 USAGE LIMITS
     max_messages_per_month: {

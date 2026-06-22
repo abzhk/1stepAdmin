@@ -245,3 +245,52 @@ export const saveErrorLog = async (req, res, next) => {
     next(error);
   }
 };
+
+
+export const getAllUsers = async (req, res, next) => {
+  try {
+    const {
+      search = "",
+      page = 1,
+      limit = 10,
+      sort = "desc",
+    } = req.query;
+
+    const pageNumber = parseInt(page);
+    const limitNumber = parseInt(limit);
+
+    // Search filter
+    const filter = search
+      ? {
+          $or: [
+            { username: { $regex: search, $options: "i" } },
+            { email: { $regex: search, $options: "i" } },
+          ],
+        }
+      : {};
+
+    // Total count
+    const totalUsers = await User.countDocuments(filter);
+
+    // Fetch users
+    const users = await User.find(filter)
+      .populate("role", "role")
+      .select("-password -refreshToken")
+      .sort({ createdAt: sort === "asc" ? 1 : -1 })
+      .skip((pageNumber - 1) * limitNumber)
+      .limit(limitNumber);
+
+    res.status(200).json({
+      success: true,
+      users,
+      pagination: {
+        currentPage: pageNumber,
+        totalPages: Math.ceil(totalUsers / limitNumber),
+        totalUsers,
+        limit: limitNumber,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};

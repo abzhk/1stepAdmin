@@ -1,6 +1,7 @@
 import Plan from "../../model/plan.model.js";
-import AccessModules from "../../model/acessmodule.model.js";
+
 import { errorHandler } from "../../utils/error.js";
+import MasterData from "../../model/Master/masterData.model.js";
 
 export const createPlan = async (req, res,next) => {
   try {
@@ -39,13 +40,26 @@ export const createPlan = async (req, res,next) => {
       !slug ||
       !description ||
       price === undefined ||
-      !billing_interval ||
-      !stripe_price_id
+      !billing_interval 
+      // !stripe_price_id
     ) {
       return res.status(400).json({
         message: "All required fields must be provided",
       });
     }
+
+
+    const billingOption = await MasterData.findOne({
+  type: "planBillingConfig",
+  code: billing_interval,
+  isActive: true,
+});
+
+if (!billingOption) {
+  return res.status(400).json({
+    message: "Invalid billing interval",
+  });
+}
 
 if (!Array.isArray(available_modules)) {
   return res.status(400).json({
@@ -53,19 +67,30 @@ if (!Array.isArray(available_modules)) {
   });
 }
 
-const validModules = await AccessModules.find().select("_id");
-
-const validModuleIds = new Set(
-  validModules.map((m) => m._id.toString())
-);
+const validModules = [
+  "dashboard",
+  "profile",
+  "patients",
+  "messages",
+  "assessment",
+  "appointments",
+  "video_sessions",
+  "reports",
+  "billing",
+  "resource_library",
+  "settings",
+  "article",
+  "courses",
+  "plans"
+];
 
 const invalidModules = available_modules.filter(
-  (id) => !validModuleIds.has(id.toString())
+  (module) => !validModules.includes(module)
 );
 
 if (invalidModules.length > 0) {
   return res.status(400).json({
-    message: `Invalid module IDs selected`,
+    message: "Invalid modules selected",
   });
 }
 
@@ -116,7 +141,7 @@ if (invalidModules.length > 0) {
         billing_interval,
         trial_period_days: normalizedTrial,
         stripe_price_id,
-        available_modules: [...available_modules.map(id => id.toString())].sort(),
+        available_modules: [...available_modules].sort(),
         max_messages_per_month: Number(max_messages_per_month),
         max_assessments_per_month: Number(max_assessments_per_month),
         max_providers_allowed: Number(max_providers_allowed),
@@ -145,7 +170,7 @@ if (invalidModules.length > 0) {
         billing_interval: latestPlan.billing_interval,
         trial_period_days: latestPlan.trial_period_days,
         stripe_price_id: latestPlan.stripe_price_id,
-        available_modules: [...latestPlan.available_modules.map(id => id.toString())].sort(),
+        available_modules: [...latestPlan.available_modules].sort(),
         max_messages_per_month: latestPlan.max_messages_per_month,
         max_assessments_per_month:
           latestPlan.max_assessments_per_month,
@@ -302,7 +327,7 @@ export const getPlans = async (req, res) => {
 
 export const updatePlan = async (req, res) => {
   try {
-    const { plan_name, description, is_featured } = req.body;
+    const { plan_name, description, is_featured ,available_modules,} = req.body;
 
     const updatedPlan = await Plan.findByIdAndUpdate(
       req.params.id,
@@ -310,6 +335,7 @@ export const updatePlan = async (req, res) => {
         plan_name,
         description,
         is_featured,
+       available_modules,
       },
       { new: true, runValidators: true }
     );
@@ -324,12 +350,14 @@ export const updatePlan = async (req, res) => {
       plan: updatedPlan,
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Failed to update plan",
-      error: error.message,
-    });
-  }
+  console.error("UPDATE PLAN ERROR:", error);
+
+  res.status(500).json({
+    success: false,
+    message: error.message,
+    error: error,
+  });
+}
 };
 
 

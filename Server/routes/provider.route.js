@@ -19,36 +19,36 @@ import { verifyAdminToken } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
-router.get("/getProviders", getProviders);
+router.get("/getProviders",verifyAdminToken, getProviders);
 
 //provider by id
-router.get("/providersbyid/:id", getProviderById);
+router.get("/providersbyid/:id",verifyAdminToken, getProviderById);
 //provider stats 
-router.get('/getallbooking/:id', getProviderStats);
+router.get('/getallbooking/:id', verifyAdminToken, getProviderStats);
 //deactivate
-router.put("/admin/provider/status", setProviderActiveStatus);
+router.put("/admin/provider/status",verifyAdminToken, setProviderActiveStatus);
 //inactive -provider list
-router.get("/inactive-providers",  getInactiveProviders);
+router.get("/inactive-providers",  verifyAdminToken, getInactiveProviders);
 //center-appointments
 router.get("/centre-appointments", verifyAdminToken, getCentreAppointments);
 //get centre list for admin
-router.get("/centre-list",getCentresForAdmin);
-router.get("/centre-stats", getCentreStats);
-router.get("/individual-list", getIndividualProviders);
-router.get("/centre-session", getAllCentreDashboardStats);
+router.get("/centre-list",verifyAdminToken,getCentresForAdmin);
+router.get("/centre-stats", verifyAdminToken, getCentreStats);
+router.get("/individual-list", verifyAdminToken, getIndividualProviders);
+router.get("/centre-session", verifyAdminToken, getAllCentreDashboardStats);
 
-router.get("/appointments/monthly", getMonthlyAppointments);
+router.get("/appointments/monthly", verifyAdminToken, getMonthlyAppointments);
 //delete centre
 router.delete("/centre/:id",verifyAdminToken, deleteCentre);
 
 router.put("/centre/set-active-status",verifyAdminToken,setCentreActiveStatus);
 //inactive centres list
-router.get("/centre/inactive-list", getInactiveCentres);
+router.get("/centre/inactive-list", verifyAdminToken, getInactiveCentres);
 
-router.get("/centre/:id", getCentreById);
+router.get("/centre/:id", verifyAdminToken, getCentreById);
 
 
-router.get("/centre-details/:id",  getCentreFullDetails);
+router.get("/centre-details/:id",  verifyAdminToken, getCentreFullDetails);
 
 router.put("/centre/:id", verifyAdminToken,updateCentreByAdmin);
 

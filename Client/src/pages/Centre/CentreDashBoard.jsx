@@ -88,7 +88,7 @@ const CentreDashBoard = () => {
                   
 
                   <td className="text-table-text">{c.totalProviders || "-"}</td>
-                  <td className="text-table-text">{c.user?.email || "-"}</td>
+                  <td className="text-table-text">{c.userRef?.email || "-"}</td>
                   <td className="text-table-text text-center">{c.experience || "-"}</td>
                   {/* <td>
                     <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs">
