@@ -260,9 +260,10 @@ function ProviderView() {
         </div>
       ) : (
         /* LIST VIEW */
+        <div className="bg-white rounded-2xl px-6 py-6">
         <div className="bg-white rounded-xl shadow  overflow-hidden">
           <table className="w-full text-sm">
-            <thead className="bg-gray-100 text-gray-700">
+            <thead className="bg-offwhite text-gray-700  text-cardfooter uppercase">
               <tr>
                 <th className="p-3 text-left">Provider</th>
                 <th className="p-3 text-left">City</th>
@@ -274,7 +275,7 @@ function ProviderView() {
 
             <tbody>
               {providers.map((provider) => (
-                <tr key={provider._id} className="border-t hover:bg-gray-50">
+                <tr key={provider._id} className=" hover:bg-offwhite text-table-text">
                   <td className="p-3 flex items-center gap-3">
                     <img
                       src={provider.profilePicture}
@@ -317,7 +318,7 @@ function ProviderView() {
                       onClick={() =>
                         navigate(`/providers/edit/${provider._id}`)
                       }
-                      className="p-2 bg-blue-100 text-blue-600 rounded-lg"
+                      className="p-2 bg-darkgreen text-white rounded-lg"
                     >
                       <FiEdit2 />
                     </button>
@@ -326,11 +327,12 @@ function ProviderView() {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       )}
 
       {/* Pagination */}
-      <div className="flex flex-col md:flex-row items-center justify-between mt-8 pt-4 border-t">
+      <div className="flex flex-col md:flex-row items-center justify-between mt-8 pt-4">
         <p className="text-sm text-gray-600 mb-4 md:mb-0">
           Showing {(page - 1) * limit + 1} to{" "}
           {(page - 1) * limit + providers.length} of {totalCount} providers

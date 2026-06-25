@@ -67,8 +67,9 @@ const CreateModule = () => {
   }
 
  return (
-  <div className="min-h-screen bg-white rounded-3xl p-6">
-    <div className="max-w-5xl mx-auto space-y-6">
+  <div className=" bg-white rounded-3xl p-6">
+    <div className="bg-offwhite px-2 py-2 rounded-3xl shadow-sm">
+    <div className="max-w-6xl mx-auto space-y-6">
 
       {/* Header */}
       <div>
@@ -143,6 +144,7 @@ const CreateModule = () => {
         )}
       </div>
 
+    </div>
     </div>
   </div>
 );

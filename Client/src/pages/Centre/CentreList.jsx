@@ -188,14 +188,14 @@ const CentreList = () => {
                     <div className="flex gap-2">
                       <button
                         onClick={() => navigate(`/centre-detail/${centre._id}`)}
-                        className="p-2 rounded-lg bg-softpeach/60 text-darkgreen hover:bg-gray-200"
+                        className="p-2 rounded-lg bg-gray-100 text-darkgreen hover:bg-gray-200"
                       >
                         <AiFillEye />
                       </button>
 
                       <button
                         onClick={() => navigate(`/edit-centre/${centre._id}`)}
-                        className="p-2 rounded-lg bg-yellow/50 text-darkgreen hover:bg-yellow"
+                        className="p-2 rounded-lg bg-darkgreen text-white hover:bg-yellow"
                       >
                         <FiEdit2 />
                       </button>
@@ -219,7 +219,7 @@ const CentreList = () => {
               </div>
             ))}
           </div>
-          <div className="flex justify-end gap-4 mt-6">
+          {/* <div className="flex justify-end gap-4 mt-6">
             <button
               disabled={page === 1}
               onClick={() => setPage((p) => p - 1)}
@@ -239,7 +239,7 @@ const CentreList = () => {
             >
               Next
             </button>
-          </div>
+          </div> */}
         </div>
       ) : (
         /* LIST VIEW  */
@@ -260,7 +260,7 @@ const CentreList = () => {
 
               <tbody>
                 {centres.map((centre) => (
-                  <tr key={centre._id} className=" hover:bg-offwhite/50">
+                  <tr key={centre._id} className=" hover:bg-offwhite/50 text-table-text ">
                     <td className="p-3 flex items-center gap-3">
                       <img
                         src={centre.profilePicture}
@@ -293,7 +293,7 @@ const CentreList = () => {
 
                       <button
                         onClick={() => navigate(`/edit-centre/${centre._id}`)}
-                        className="p-2 bg-blue-100 text-blue-600 rounded-lg"
+                        className="p-2 bg-darkgreen text-white rounded-lg"
                       >
                         <FiEdit2 />
                       </button>
@@ -303,9 +303,32 @@ const CentreList = () => {
               </tbody>
             </table>
           </div>
+          
         </div>
+        
       )}
-    </div>
+     <div className="flex justify-end items-center gap-4 mt-6">
+  <button
+    disabled={page === 1}
+    onClick={() => setPage((prev) => prev - 1)}
+    className="px-4 py-2 bg-gray-200 rounded-xl disabled:opacity-50"
+  >
+    Previous
+  </button>
+
+  <span className="text-table-text">
+    Page {page} of {Math.ceil(totalCount / limit)}
+  </span>
+
+  <button
+    disabled={page >= Math.ceil(totalCount / limit)}
+    onClick={() => setPage((prev) => prev + 1)}
+    className="px-4 py-2 bg-darkgreen text-white rounded-xl hover:bg-yellow disabled:opacity-50"
+  >
+    Next
+  </button>
+</div>
+</div>
   );
 };
 

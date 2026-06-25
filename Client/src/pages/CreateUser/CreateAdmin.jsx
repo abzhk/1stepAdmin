@@ -4,6 +4,7 @@ import { api } from "../../utils/api.js";
 import { storage } from "../../firebase.js";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { FaCamera, FaUser } from "react-icons/fa";
+import dateFormatUtils from "../../utils/dateFormatUtils.js";
 
 const CreateAdmin = () => {
   const fileInputRef = useRef(null);
@@ -34,7 +35,7 @@ const [search, setSearch] = useState("");
     const res = await api(
       `/api/users/users?page=${page}&limit=${limit}&search=${search}`
     );
-
+  console.log("API Response:", res);
     if (res.success) {
       setUsers(res.users);
       setTotalPages(res.pagination.totalPages);
@@ -47,6 +48,54 @@ const [search, setSearch] = useState("");
 useEffect(() => {
   fetchUsers();
 }, [page, search]);
+
+
+const handleStatus = async (user) => {
+  try {
+    let endpoint = "";
+    let payload = {};
+
+    const role = user.role?.role?.toLowerCase();
+
+    if (role === "parent") {
+  endpoint = "/api/parent/admin/parent/status";
+  payload = {
+    userId: user._id,
+    isActive: !user.isActive,
+  };
+} else if (role === "provider") {
+  endpoint = "/api/provider/admin/provider/status";
+  payload = {
+    providerId: user.providerId,
+    isActive: !user.isActive,
+  };
+} else if (role === "centre") {
+  endpoint = "/api/provider/centre/set-active-status";
+  payload = {
+    centreId: user.centreId, 
+    isActive: !user.isActive,
+  };
+} else {
+  endpoint = "/api/users/status";
+  payload = {
+    userId: user._id,
+    isActive: !user.isActive,
+  };
+}
+
+    const res = await api(endpoint, {
+      method: "PUT",
+      body: JSON.stringify(payload),
+    });
+
+    if (res.success) {
+      toast.success(res.message);
+      fetchUsers();
+    }
+  } catch (err) {
+    toast.error(err.message);
+  }
+};
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -312,21 +361,22 @@ useEffect(() => {
     <table className="w-full">
       <thead className="bg-offwhite">
         <tr>
-          <th className="px-4 py-3">S.No</th>
-          <th className="px-4 py-3">Profile</th>
-          <th className="px-4 py-3">Username</th>
-          <th className="px-4 py-3">Email</th>
-          <th className="px-4 py-3">Role</th>
-          <th className="px-4 py-3">Status</th>
-          <th className="px-4 py-3">Created</th>
+          <th className="px-4 py-3 text-cardfooter uppercase">S.No</th>
+          <th className="px-4 py-3 text-cardfooter uppercase">Profile</th>
+          <th className="px-4 py-3 text-cardfooter uppercase">Username</th>
+          <th className="px-4 py-3 text-cardfooter uppercase">Email</th>
+          <th className="px-4 py-3 text-cardfooter uppercase">Role</th>
+          <th className="px-4 py-3 text-cardfooter uppercase">Status</th>
+          <th className="px-4 py-3 text-cardfooter uppercase">Created</th>
+           <th className="px-4 py-3 text-cardfooter uppercase">Action</th>
         </tr>
       </thead>
 
       <tbody>
         {users.length > 0 ? (
           users.map((user, index) => (
-            <tr key={user._id} className="border-t hover:bg-offwhite">
-              <td className="px-4 py-3">{(page - 1) * limit + index + 1}</td>
+            <tr key={user._id} className=" hover:bg-offwhite">
+              <td className="px-4 py-3 text-table-text">{(page - 1) * limit + index + 1}</td>
 
               <td className="px-4 py-3">
                 <img
@@ -336,19 +386,19 @@ useEffect(() => {
                 />
               </td>
 
-              <td className="px-4 py-3">
+              <td className="px-4 py-3 text-table-text">
                 {user.username}
               </td>
 
-              <td className="px-4 py-3">
+              <td className="px-4 py-3 text-table-text">
                 {user.email}
               </td>
 
-              <td className="px-4 py-3">
+              <td className="px-4 py-3 text-table-text">
                 {user.role?.role || "No Role"}
               </td>
 
-              <td className="px-4 py-3">
+              <td className="px-4 py-3 text-table-text">
                 {user.isActive ? (
                   <span className="text-green-600">
                     Active
@@ -360,9 +410,20 @@ useEffect(() => {
                 )}
               </td>
 
-              <td className="px-4 py-3">
-                {new Date(user.createdAt).toLocaleDateString()}
+              <td className="px-4 py-3 text-table-text">
+                {dateFormatUtils(user.createdAt)}
               </td>
+
+              <td className="px-4 py-3">
+  <button
+    onClick={() => handleStatus(user)}
+    className={`px-3 py-1 rounded-xl text-white ${
+      user.isActive ? "bg-red-500" : "bg-darkgreen"
+    }`}
+  >
+    {user.isActive ? "Deactivate" : "Activate"}
+  </button>
+</td>
             </tr>
           ))
         ) : (

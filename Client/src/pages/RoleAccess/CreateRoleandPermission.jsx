@@ -206,7 +206,7 @@ useEffect(() => {
 
 
   return (
-  <div className="min-h-screen bg-white rounded-3xl p-6 overflow-hidden">
+  <div className="min-h-screen  rounded-3xl p-4 overflow-hidden">
         <div className="max-w-full mx-auto bg-white rounded-3xl border border-gray-100 shadow-lg p-8 space-y-8">
      <div className="flex justify-between items-center pb-5 border-b border-gray-100">
         <div>
