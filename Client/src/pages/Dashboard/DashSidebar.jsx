@@ -266,6 +266,7 @@ const DashSidebar = () => {
             )}
 
          {/* HELP DESK MENU */}
+           {hasModuleAccess(MODULES.HELP) && (
 <div
   className="relative group"
   onMouseEnter={() => openMenu("helpdesk")}
@@ -297,8 +298,11 @@ const DashSidebar = () => {
         Contact
       </div>
     </div>
+    
   )}
 </div>
+  )}
+
 
           {/* SETTINGS MENU */}
           <div
