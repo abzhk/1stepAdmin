@@ -237,10 +237,11 @@ function ParentView() {
         </div>
       ) : (
         /* LIST VIEW */
+        <div className="bg-white px-6 py-6 rounded-2xl">
         <div className="bg-white rounded-xl shadow  overflow-hidden">
           <table className="w-full text-sm">
 
-            <thead className="bg-gray-100 text-gray-700">
+            <thead className="bg-offwhite text-gray-700  text-cardfooter uppercase">
               <tr>
                 <th className="p-3 text-left">Parent</th>
                 <th className="p-3 text-left">Child</th>
@@ -254,7 +255,7 @@ function ParentView() {
               {parents.map((parent) => (
                 <tr
                   key={parent._id}
-                  className="border-t hover:bg-gray-50"
+                  className=" hover:bg-offwhite text-table-text"
                 >
 
                   <td className="p-3 flex items-center gap-3">
@@ -305,7 +306,7 @@ function ParentView() {
                           `/parent/edit/${parent.userRef?._id}`
                         )
                       }
-                      className="p-2 bg-blue-100 text-blue-600 rounded-lg"
+                      className="p-2 bg-darkgreen text-white rounded-lg"
                     >
                       <FiEdit2 />
                     </button>
@@ -316,11 +317,12 @@ function ParentView() {
             </tbody>
 
           </table>
+          </div>
         </div>
       )}
 
       {/* Pagination */}
-      <div className="flex flex-col md:flex-row items-center justify-between mt-8 pt-4 border-t border-gray-200">
+      <div className="flex flex-col md:flex-row items-center justify-between mt-8 pt-4  border-gray-200">
 
         <p className="text-sm text-gray-700 mb-4 md:mb-0">
           Showing <b>{fromIndex}</b> to <b>{toIndex}</b> of{" "}

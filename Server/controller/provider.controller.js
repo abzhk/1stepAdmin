@@ -1642,7 +1642,7 @@ export const setCentreActiveStatus = async (req, res, next) => {
 
     if (isActive === false) {
       const hasProviders = await Invitation.exists({
-        centreId: centreId,
+        centreId,
         status: "accepted",
       });
 
@@ -1655,13 +1655,23 @@ export const setCentreActiveStatus = async (req, res, next) => {
       }
     }
 
+    // Update Provider collection
     centre.isActive = isActive;
     await centre.save();
 
+    // Update User collection
+    await User.findByIdAndUpdate(
+      centre.userRef,
+      { isActive },
+      { new: true }
+    );
+
     res.status(200).json({
       success: true,
-      message: `Centre ${isActive ? "Activated" : "Deactivated"} successfully`,
-      isActive: centre.isActive,
+      message: `Centre ${
+        isActive ? "Activated" : "Deactivated"
+      } successfully`,
+      isActive,
     });
   } catch (error) {
     next(error);

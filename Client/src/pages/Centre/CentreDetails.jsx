@@ -91,10 +91,10 @@ const CentreDetails = () => {
             {providers.map((p) => (
               <tr key={p._id} className=" hover:bg-offwhite text-table-text">
 
-                <td className="p-3">{p.name}</td>
-                <td className="p-3">{p.email}</td>
-                <td className="p-3">{p.phone}</td>
-                <td className="p-3">{p.sessions}</td>
+                <td className="p-3 text-table-text">{p.name}</td>
+                <td className="p-3 text-table-text">{p.email}</td>
+                <td className="p-3 text-table-text">{p.phone}</td>
+                <td className="p-3 text-table-text">{p.sessions}</td>
 
                 <td className="p-3">
                   <span

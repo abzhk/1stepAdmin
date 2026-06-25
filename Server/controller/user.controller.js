@@ -1,6 +1,7 @@
 import Provider from "../model/provider.model.js";
 import User from "../model/user.model.js";
 import { errorHandler } from "../utils/error.js";
+import Role from "../model/role.model.js";
 
 import bcryptjs from "bcryptjs";
 
@@ -259,20 +260,26 @@ export const getAllUsers = async (req, res, next) => {
     const pageNumber = parseInt(page);
     const limitNumber = parseInt(limit);
 
-    // Search filter
-    const filter = search
-      ? {
-          $or: [
-            { username: { $regex: search, $options: "i" } },
-            { email: { $regex: search, $options: "i" } },
-          ],
-        }
-      : {};
+    const excludedRoles = await Role.find({
+      role: { $in: ["Admin", "Super Admin", "content_admin"] },
+    }).select("_id");
 
-    // Total count
+    const excludedRoleIds = excludedRoles.map((role) => role._id);
+
+    const filter = {
+      ...(search
+        ? {
+            $or: [
+              { username: { $regex: search, $options: "i" } },
+              { email: { $regex: search, $options: "i" } },
+            ],
+          }
+        : {}),
+      role: { $nin: excludedRoleIds },
+    };
+
     const totalUsers = await User.countDocuments(filter);
 
-    // Fetch users
     const users = await User.find(filter)
       .populate("role", "role")
       .select("-password -refreshToken")
@@ -280,9 +287,43 @@ export const getAllUsers = async (req, res, next) => {
       .skip((pageNumber - 1) * limitNumber)
       .limit(limitNumber);
 
+    const usersWithExtraIds = await Promise.all(
+      users.map(async (user) => {
+        const obj = user.toObject();
+
+        const role = obj.role?.role?.toLowerCase();
+
+        if (role === "provider") {
+          const provider = await Provider.findOne(
+            {
+              userRef: user._id,
+              providerType: "individual",
+            },
+            "_id"
+          );
+
+          obj.providerId = provider?._id || null;
+        }
+
+        if (role === "centre") {
+          const centre = await Provider.findOne(
+            {
+              userRef: user._id,
+              providerType: "centre",
+            },
+            "_id"
+          );
+
+          obj.centreId = centre?._id || null;
+        }
+
+        return obj;
+      })
+    );
+
     res.status(200).json({
       success: true,
-      users,
+      users: usersWithExtraIds,
       pagination: {
         currentPage: pageNumber,
         totalPages: Math.ceil(totalUsers / limitNumber),

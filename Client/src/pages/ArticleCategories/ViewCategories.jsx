@@ -122,7 +122,7 @@ const handleEdit = (id) => {
       <div className="flex-1 bg-white p-8 rounded-2xl shadow-sm  overflow-x-auto">
         <table className="w-full table-auto shadow-sm rounded-2xl">
           <thead>
-            <tr className="bg-offwhite  text-left">
+            <tr className="bg-offwhite  text-left text-tab-subtext">
               <th className="px-4 sm:px-6 py-4 text-left text-cardfooter uppercase tracking-wider">S.No</th>
               <th className="px-4 sm:px-6 py-4 text-left text-cardfooter uppercase tracking-wider">Category Name</th>
                <th className="px-4 sm:px-6 py-4 text-left text-cardfooter uppercase tracking-wider">Icon</th>
