@@ -7,7 +7,12 @@ const EditCategory = ({ isOpen, onClose, categoryId, onUpdated }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const { register, handleSubmit, reset } = useForm();
+  const {
+  register,
+  handleSubmit,
+  reset,
+  formState: { errors },
+} = useForm();
 
 
   useEffect(() => {
@@ -97,8 +102,26 @@ const EditCategory = ({ isOpen, onClose, categoryId, onUpdated }) => {
             </div>
 
             <div className="col-span-2">
-              <label>Description</label>
-              <textarea {...register("description")} className="w-full border p-2 rounded" />
+              <textarea
+  {...register("description", {
+    required: "Description is required",
+    minLength: {
+      value: 10,
+      message: "Description must be at least 10 characters",
+    },
+    maxLength: {
+      value: 200,
+      message: "Description must be less than 200 characters",
+    },
+  })}
+  className="w-full border p-2 rounded"
+/>
+
+{errors.description && (
+  <p className="text-red-500 text-sm mt-1">
+    {errors.description.message}
+  </p>
+)}
             </div>
           </div>
 

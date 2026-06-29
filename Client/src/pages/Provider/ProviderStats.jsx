@@ -81,7 +81,7 @@ function ProviderStats() {
 
         const data = await api(`/api/provider/getallbooking/${id}?${params.toString()}`);
        
-
+        
         setStats(data.stats || null);
       } catch (err) {
         setError(err.message || "Something went wrong");

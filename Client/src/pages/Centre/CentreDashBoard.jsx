@@ -6,6 +6,7 @@ import Appointmentstats from "../../Components/CentreComponent/Appointmentstats"
 import { api } from "../../utils/api";
 import { useEffect, useState } from "react";
 import CentreCard from "./CentreCard";
+import  dateFormatUtils  from "../../utils/dateFormatUtils";
 
 const CentreDashBoard = () => {
   const navigate = useNavigate();
@@ -164,12 +165,12 @@ const CentreDashBoard = () => {
             Upcoming Sessions
           </h2>
 
-          <button
+          {/* <button
             onClick={() => navigate("/upcoming-session")}
             className="flex items-center gap-2 text-sm px-4 py-2 bg-green-900 text-white rounded-xl hover:bg-green-800 transition"
           >
             View All →
-          </button>
+          </button> */}
         </div>
 
         <div className="overflow-x-auto">
@@ -192,7 +193,7 @@ const CentreDashBoard = () => {
       </td>
     </tr>
   ) : (
-    upcomingSessions.slice(0, 3).map((s) => (
+    upcomingSessions.slice(0, 5).map((s) => (
       <tr
         key={s._id}
         className="bg-white hover:bg-offwhite rounded-xl  hover:shadow-md transition text-table-text"
@@ -206,12 +207,8 @@ const CentreDashBoard = () => {
         </td>
 
         <td className="px-4 text-gray-700">
-          {new Date(s.scheduledTime?.date).toLocaleDateString("en-IN", {
-            day: "2-digit",
-            month: "short",
-            year: "numeric",
-          })}
-        </td>
+  {dateFormatUtils(s.scheduledTime?.date)}
+</td>
 
         {/* Time */}
         <td className="px-4 text-gray-700">

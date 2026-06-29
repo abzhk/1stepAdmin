@@ -96,7 +96,7 @@ const pageTitle = getPageTitle();
 
 
           {/* Notification Bell & Dropdown */}
-          <div className="relative" ref={notifRef}>
+          {/* <div className="relative" ref={notifRef}>
             <button 
               onClick={() => { setIsNotifOpen(!isNotifOpen); setIsProfileOpen(false); }}
               className={`relative p-2 transition-colors rounded-full hover:bg-gray-100 ${isNotifOpen ? 'text-[#fbbf24] bg-gray-100' : 'text-gray-400'}`}
@@ -129,7 +129,7 @@ const pageTitle = getPageTitle();
                 </div>
               </div>
             )}
-          </div>
+          </div> */}
 
           {/* Profile Dropdown */}
           <div className="relative" ref={profileRef}>
@@ -155,10 +155,10 @@ const pageTitle = getPageTitle();
                   <Settings size={18} />
                   <span className="text-sm font-medium">My Profile</span>
                 </Link>
-                <Link to="/settings" className="flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-[#fbbf24]">
+                {/* <Link to="/settings" className="flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-[#fbbf24]">
                   <Settings size={18} />
                   <span className="text-sm font-medium">Settings</span>
-                </Link>
+                </Link> */}
                 
                <button
   onClick={handleLogout}

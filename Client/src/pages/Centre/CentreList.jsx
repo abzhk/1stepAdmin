@@ -274,17 +274,23 @@ const CentreList = () => {
                     <td className="p-3">{centre.totalProviders}</td>
                     <td className="p-3">{centre.totalSessions}</td>
 
-                    <td className="p-3">
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs ${
-                          centre.isActive
-                            ? "bg-green-100 text-green-600"
-                            : "bg-red-100 text-red-600"
-                        }`}
-                      >
-                        {centre.isActive ? "Active" : "Inactive"}
-                      </span>
-                    </td>
+                   <td className="p-3">
+ 
+    <button
+      onClick={() => toggleCentreStatus(centre)}
+      disabled={centre.totalProviders > 0 && centre.isActive}
+      className={`px-3 py-2 rounded-lg text-xs font-medium ${
+        centre.totalProviders > 0 && centre.isActive
+          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+          : centre.isActive
+          ? "bg-red-100 text-red-600 hover:bg-red-200"
+          : "bg-green-100 text-green-600 hover:bg-green-200"
+      }`}
+    >
+      {centre.isActive ? "Deactivate" : "Activate"}
+    </button>
+ 
+</td>
 
                     <td className="p-3 flex justify-end gap-2">
                       <button className="p-2 bg-gray-100 rounded-lg">

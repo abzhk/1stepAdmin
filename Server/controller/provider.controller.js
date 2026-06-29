@@ -1224,9 +1224,9 @@ export const getIndividualProviders = async (req, res, next) => {
     );
 
     res.status(200).json({
-      providers: activeProviders,
-      totalCount: activeProviders.length,
-    });
+  providers: activeProviders,
+  totalCount,
+});
   } catch (error) {
   console.error(error);
   next(errorHandler(500, "Failed to fetch providers"));
