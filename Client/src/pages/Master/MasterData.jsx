@@ -44,41 +44,57 @@ const MasterData = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    try {
+  try {
+    const payload = {
+      code: formData.code,
+      label: formData.label,
+      description: formData.description,
+      order: Number(formData.order),
+      metadata: {
+        durationDefault: Number(formData.durationDefault),
+        billable: formData.billable,
+      },
+    };
+
+    if (editId) {
+      // UPDATE
+      await api(`/api/services/${editId}`, {
+        method: "PUT",
+        body: JSON.stringify(payload),
+      });
+
+      toast.success("Service updated successfully");
+    } else {
+      // CREATE
       await api("/api/services", {
         method: "POST",
         body: JSON.stringify({
           type: "serviceType",
-          code: formData.code,
-          label: formData.label,
-            description: formData.description,
-            order: Number(formData.order),
-          metadata: {
-            durationDefault: Number(formData.durationDefault),
-            billable: formData.billable,
-          },
+          ...payload,
         }),
       });
 
       toast.success("Service created successfully");
-
-      setFormData({
-        code: "",
-        label: "",
-          description: "",
-         order: 0,
-        durationDefault: "",
-        billable: false,
-      });
-
-      fetchServices();
-    } catch (error) {
-      toast.error(error.message || "Something went wrong");
     }
-  };
 
+    setFormData({
+      code: "",
+      label: "",
+      description: "",
+      order: 0,
+      durationDefault: "",
+      billable: false,
+    });
+
+    setEditId(null);
+
+    fetchServices();
+  } catch (error) {
+    toast.error(error.message || "Something went wrong");
+  }
+};
   const handleEdit = (service) => {
     setEditId(service._id);
 
@@ -195,11 +211,11 @@ const MasterData = () => {
 
               <div className="col-span-2 flex justify-end">
                 <button
-                  type="submit"
-                  className="bg-peach text-white px-6 py-2 rounded-lg hover:bg-darkgreen transition"
-                >
-                  Submit
-                </button>
+  type="submit"
+  className="bg-peach text-white px-6 py-2 rounded-lg hover:bg-darkgreen transition"
+>
+  {editId ? "Update" : "Submit"}
+</button>
               </div>
             </form>
           </div>

@@ -98,6 +98,18 @@ export const createOption = async (req, res) => {
         message: error.details[0].message,
       });
     }
+    const existingOrder = await MasterData.findOne({
+      type: value.type,
+      order: value.order,
+    });
+
+    if (existingOrder) {
+      return res.status(400).json({
+        success: false,
+        message: "Order already exists.",
+      });
+    }
+
 
     const option = new MasterData({
       ...value,
@@ -172,6 +184,21 @@ export const updateOption = async (req, res) => {
         message: error.details[0].message,
       });
     }
+   
+if (value.order !== undefined) {
+  const existingOrder = await MasterData.findOne({
+    type: option.type,
+    order: value.order,
+    _id: { $ne: option._id },
+  });
+
+  if (existingOrder) {
+    return res.status(400).json({
+      success: false,
+      message: `Order ${value.order} already exists.`,
+    });
+  }
+}
 
     Object.assign(option, value);
 

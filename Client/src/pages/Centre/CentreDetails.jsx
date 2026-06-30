@@ -42,10 +42,93 @@ const CentreDetails = () => {
         <IoIosArrowRoundBack size={22} />
         Back
       </button>
-
-      <h1 className="text-2xl font-bold text-green-900 mb-6 uppercase">
+<div className="bg-white rounded-2xl shadow-md p-6 mb-6">
+  <div className="flex items-center justify-between pb-4 mb-5">
+    <div>
+      <h1 className="text-2xl font-bold text-green-900 uppercase">
         {centre.fullName}
       </h1>
+    </div>
+
+    {centre.profilePicture && (
+      <img
+        src={centre.profilePicture}
+        alt={centre.fullName}
+        className="w-20 h-20 rounded-full object-cover "
+      />
+    )}
+  </div>
+
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+
+    <div className="bg-offwhite rounded-xl p-4">
+      <p className="  text-cardfooter mb-1">Email</p>
+      <p className="text-label break-all">{centre.email}</p>
+    </div>
+
+    <div className="bg-offwhite rounded-xl p-4">
+      <p className=" text-cardfooter mb-1">Phone</p>
+      <p className="text-label">{centre.phone}</p>
+    </div>
+
+    <div className="bg-offwhite rounded-xl p-4">
+      <p className=" text-cardfooter mb-1">Qualification</p>
+      <p className="text-label">{centre.qualification}</p>
+    </div>
+
+    <div className="bg-offwhite rounded-xl p-4">
+      <p className=" text-cardfooter mb-1">Experience</p>
+      <p className="text-label">{centre.experience} Years</p>
+    </div>
+
+  </div>
+
+  <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mt-5">
+
+    <div className="bg-offwhite rounded-xl p-4">
+      <p className="  text-cardfooter mb-2">Address</p>
+
+      <p className="text-label">
+        {[
+          centre.address?.addressLine1,
+          centre.address?.street,
+          centre.address?.city,
+          centre.address?.state,
+          centre.address?.country,
+          centre.address?.pincode,
+        ]
+          .filter(Boolean)
+          .join(", ")}
+      </p>
+    </div>
+
+    <div className="bg-offwhite rounded-xl p-4">
+      <p className="text-cardfooter mb-2">Services</p>
+
+      <div className="flex flex-wrap gap-2">
+        {centre.name?.map((service, index) => (
+          <span
+            key={index}
+            className="px-3 py-1 bg-greenmuted text-yellow  text-tab-subheading rounded-full text-sm"
+          >
+            {service}
+          </span>
+        ))}
+      </div>
+    </div>
+
+  </div>
+
+  {centre.description && (
+    <div className="mt-5 bg-offwhite rounded-xl p-4">
+      <p className="text-cardfooter mb-2">Description</p>
+
+      <p className="text-label leading-7">
+        {centre.description}
+      </p>
+    </div>
+  )}
+</div>
 
       {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
 
