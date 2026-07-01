@@ -155,6 +155,7 @@ const DashSidebar = () => {
           })}
 
           {/* USER MENU */}
+           {hasModuleAccess(MODULES.Roles) && (
           <div
             className="relative group"
             onMouseEnter={() => openMenu("user")}
@@ -194,6 +195,7 @@ const DashSidebar = () => {
               </div>
             )}
           </div>
+           )}
 
           {hasModuleAccess(MODULES.PLANS) &&
             iconBtn("Plans", <TbReportSearch />, () => navigate("/add-plans"))}
