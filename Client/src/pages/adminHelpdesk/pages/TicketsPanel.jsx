@@ -55,7 +55,7 @@ export default function TicketsPanel({ tickets,search,
           <table className="w-full min-w-[900px]">
             <thead>
               <tr className="bg-offwhite border-b border-[#8fa797]/10">
-                <th className="px-6 py-4 w-12"></th>
+                {/* <th className="px-6 py-4 w-12"></th> */}
                 {["ID", "User", "Issue", "Category", "Priority", "Status",
                   //  "Agent", 
                    "Created"].map(h => <th key={h} className="text-left text-[10px] font-bold text-[#8fa797] uppercase tracking-widest px-4 py-4">{h}</th>)}
@@ -68,7 +68,7 @@ export default function TicketsPanel({ tickets,search,
                  
                   return (
                     <tr key={t._id}   onClick={() => onTicketClick(t, i)} className={`border-b border-[#8fa797]/5 hover:bg-[#F6F4F0]/60 transition-colors cursor-pointer last:border-0 ${selected.has(t._id) ? "bg-[#ffd333]/5" : ""}`}>
-                      <td className="px-6 py-4" onClick={e => { e.stopPropagation(); toggle(t._id); }}></td>
+                      {/* <td className="px-6 py-4" onClick={e => { e.stopPropagation(); toggle(t._id); }}></td> */}
                       <td className="px-4 py-4  text-[11px] text-label">{t.ticketId}</td>
                       <td className="px-4 py-4">
                         <div className="flex items-center gap-3">

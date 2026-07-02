@@ -44,7 +44,7 @@ export default function DashboardPanel({ tickets, onViewAll, onTicketClick }) {
             <tbody>
               {tickets.slice(0, 6).map((t, i) => (
                 <tr key={t._id} onClick={() => onTicketClick(t, i)} className="border-b border-[#8fa797]/5 hover:bg-[#F6F4F0]/50 transition-colors cursor-pointer last:border-0">
-                  <td className="px-6 py-4 font-mono text-[11px] font-bold text-[#8fa797]/60">{t.ticketId}</td>
+                  <td className="px-6 py-4 text-[11px] text-label">{t.ticketId}</td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                     <Av
@@ -54,15 +54,15 @@ export default function DashboardPanel({ tickets, onViewAll, onTicketClick }) {
   size="sm"
 />
 
-<span className="text-[13px] font-bold text-[#2d4a36]">
-  {t.user?.username || "Guest User"}
+<span className="text-[13px] text-label">
+  {t.user?.username}
 </span>
                       {/* <span className="text-[13px] font-bold text-[#2d4a36]">{t.user.username ? t.user.username.split(" ")[0] : t.user}</span> */}
                     </div>
                   </td>
                   <td className="px-6 py-4 max-w-[180px]"><span className="text-[13px] font-medium text-[#2d4a36]/80 truncate block">{t.title}</span></td>
-                  <td className="px-6 py-4"><PriorityBadge priority={t.priority} /></td>
-                  <td className="px-6 py-4"><StatusBadge status={t.status} /></td>
+                  <td className="px-6 py-4 text-label"><PriorityBadge priority={t.priority} /></td>
+                  <td className="px-6 py-4 text-label"><StatusBadge status={t.status} /></td>
                 </tr>
               ))}
             </tbody>
