@@ -13,10 +13,10 @@ export default function DashboardPanel({ tickets, onViewAll, onTicketClick }) {
     <div className="animate-in fade-in duration-500">
       <div className="grid grid-cols-4 gap-4 mb-6">
         {[
-          { label: "Open", val: open, color: "text-[#8fa797]", dot: "bg-[#8fa797]", sub: "+2 since yesterday" },
-          { label: "In Progress", val: inP, color: "text-[#ffd333]", dot: "bg-[#ffd333]", sub: `${AGENTS.filter(a => a.status === "online").length} agents active` },
-          { label: "Resolved", val: res, color: "text-[#2d4a36]", dot: "bg-[#2d4a36]", sub: "+5 from last week" },
-          { label: "High Priority", val: high, color: "text-[#f2a794]", dot: "bg-[#f2a794]", sub: "Needs attention" },
+          { label: "Open", val: open, color: "text-darkgreen", dot: "bg-darkgreen",  },
+          { label: "In Progress", val: inP, color: "text-yellow", dot: "bg-yellow",  },
+          { label: "Resolved", val: res, color: "text-[#2d4a36]", dot: "bg-[#2d4a36]",  },
+          { label: "High Priority", val: high, color: "text-softpeach", dot: "bg-softpeach", },
         ].map(s => (
           <div key={s.label} className="bg-white rounded-[20px] border border-[#8fa797]/20 p-5 shadow-[0_4px_20px_rgba(45,74,54,0.02)] hover:shadow-[0_8px_30px_rgba(45,74,54,0.06)] transition-all">
             <div className="flex items-center justify-between mb-2">
@@ -24,7 +24,7 @@ export default function DashboardPanel({ tickets, onViewAll, onTicketClick }) {
               <div className={`w-2 h-2 rounded-full ${s.dot}`} />
             </div>
             <div className={`text-[32px] font-black tracking-tight ${s.color} leading-none mb-1`}>{s.val}</div>
-            <div className="text-[11px] font-medium text-[#8fa797]">{s.sub}</div>
+            {/* <div className="text-[11px] font-medium text-[#8fa797]">{s.sub}</div> */}
           </div>
         ))}
       </div>

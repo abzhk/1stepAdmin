@@ -82,10 +82,10 @@ useEffect(() => {
 }, [search,page]);
 
   return (
-    <div className="flex h-screen bg-[#F6F4F0] overflow-hidden text-[#2d4a36] selection:bg-[#8fa797]/30" style={{ fontFamily: "'DM Sans','Nunito',sans-serif" }}>
-      <aside className="w-64 flex-shrink-0 bg-white/60 backdrop-blur-xl border-r border-[#8fa797]/20 flex flex-col z-10 shadow-[4px_0_24px_rgba(45,74,54,0.02)]">
+    <div className="flex h-screen bg-[#F6F4F0] overflow-hidden text-[#2d4a36] selection:bg-greenmuted rounded-t-2xl" >
+      <aside className="w-64 flex-shrink-0 bg-white backdrop-blur-xl border-r border-[#8fa797]/20 flex flex-col z-10 shadow-[4px_0_24px_rgba(45,74,54,0.02)]">
         <nav className="flex-1 px-4 py-6 overflow-y-auto">
-          <div className="text-[10px] font-bold text-[#8fa797]/70 uppercase tracking-widest px-3 mb-3">Menu</div>
+          <div className="text-[10px] font-bold text-greenmuted uppercase tracking-widest px-3 mb-3">Menu</div>
           {NAV.map(item => (
             <button key={item.id} onClick={() => setPanel(item.id)} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-[13px] mb-1.5 transition-all font-bold ${panel === item.id ? "bg-[#2d4a36] text-[#F6F4F0] shadow-md shadow-[#2d4a36]/10" : "text-[#8fa797] hover:bg-[#8fa797]/10 hover:text-[#2d4a36]"}`}>
               <span className={panel === item.id ? "opacity-100" : "opacity-60"}>{item.icon}</span>
@@ -114,7 +114,7 @@ useEffect(() => {
 
   
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
-        <header className="h-[76px] bg-white/60 backdrop-blur-xl border-b border-[#8fa797]/20 flex items-center px-8 gap-4 flex-shrink-0 z-10">
+        <header className="h-[76px] bg-white backdrop-blur-xl border-b border-[#8fa797]/20 flex items-center px-8 gap-4 flex-shrink-0 z-10">
           <h1 className="text-[20px] font-black text-[#2d4a36] flex-1 tracking-tight">{TITLES[panel]}</h1>
          
         </header>

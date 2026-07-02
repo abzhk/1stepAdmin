@@ -255,16 +255,17 @@ export const getAllUsers = async (req, res, next) => {
       page = 1,
       limit = 10,
       sort = "desc",
+      role = "",
     } = req.query;
 
     const pageNumber = parseInt(page);
     const limitNumber = parseInt(limit);
 
-    const excludedRoles = await Role.find({
-      role: { $in: ["Admin", "Super Admin", "content_admin"] },
+    const adminRoles = await Role.find({
+      role: { $in: ["Admin", "content_admin"] },
     }).select("_id");
 
-    const excludedRoleIds = excludedRoles.map((role) => role._id);
+    const adminRoleIds = adminRoles.map((r) => r._id);
 
     const filter = {
       ...(search
@@ -275,8 +276,15 @@ export const getAllUsers = async (req, res, next) => {
             ],
           }
         : {}),
-      role: { $nin: excludedRoleIds },
     };
+
+
+    if (role === "admin") {
+      filter.role = { $in: adminRoleIds };
+    } else if (role === "user") {
+      filter.role = { $nin: adminRoleIds };
+    }
+   
 
     const totalUsers = await User.countDocuments(filter);
 
@@ -291,9 +299,9 @@ export const getAllUsers = async (req, res, next) => {
       users.map(async (user) => {
         const obj = user.toObject();
 
-        const role = obj.role?.role?.toLowerCase();
+        const roleName = obj.role?.role?.toLowerCase();
 
-        if (role === "provider") {
+        if (roleName === "provider") {
           const provider = await Provider.findOne(
             {
               userRef: user._id,
@@ -305,7 +313,7 @@ export const getAllUsers = async (req, res, next) => {
           obj.providerId = provider?._id || null;
         }
 
-        if (role === "centre") {
+        if (roleName === "centre") {
           const centre = await Provider.findOne(
             {
               userRef: user._id,

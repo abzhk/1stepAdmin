@@ -28,12 +28,13 @@ const CreateAdmin = () => {
 const [limit] = useState(10);
 const [totalPages, setTotalPages] = useState(1);
 const [search, setSearch] = useState("");
+const [roleFilter, setRoleFilter] = useState("user");
 
 
   const fetchUsers = async () => {
   try {
     const res = await api(
-      `/api/users/users?page=${page}&limit=${limit}&search=${search}`
+      `/api/users/users?page=${page}&limit=${limit}&search=${search}&role=${roleFilter}`
     );
   console.log("API Response:", res);
     if (res.success) {
@@ -47,7 +48,7 @@ const [search, setSearch] = useState("");
 
 useEffect(() => {
   fetchUsers();
-}, [page, search]);
+}, [page, search, roleFilter]);
 
 
 const handleStatus = async (user) => {
@@ -357,6 +358,19 @@ const handleStatus = async (user) => {
     Existing Users
   </h3>
 <div className="bg-white px-6 py-6 rounded-2xl shadow-md">
+  <div className="flex justify-end mr-6 items-center text-cardfooter mb-3 gap-3">Filter
+   <select
+  value={roleFilter}
+  onChange={(e) => {
+    setRoleFilter(e.target.value);
+    setPage(1);
+  }}
+  className="rounded-xl border border-greenmuted px-3 py-2"
+>
+  <option value="admin">Admin</option>
+  <option value="user">User</option>
+</select>
+  </div>
   <div className="overflow-x-auto rounded-xl border border-gray-200">
     <table className="w-full">
       <thead className="bg-offwhite">
@@ -415,14 +429,20 @@ const handleStatus = async (user) => {
               </td>
 
               <td className="px-4 py-3">
-  <button
-    onClick={() => handleStatus(user)}
-    className={`px-3 py-1 rounded-xl text-white ${
-      user.isActive ? "bg-red-500" : "bg-darkgreen"
-    }`}
-  >
-    {user.isActive ? "Deactivate" : "Activate"}
-  </button>
+  {!["admin", "content_admin"].includes(
+    user.role?.role?.toLowerCase()
+  ) ? (
+    <button
+      onClick={() => handleStatus(user)}
+      className={`px-3 py-1 rounded-xl text-white ${
+        user.isActive ? "bg-red-500" : "bg-darkgreen"
+      }`}
+    >
+      {user.isActive ? "Deactivate" : "Activate"}
+    </button>
+  ) : (
+    <span className="text-gray-400">--</span>
+  )}
 </td>
             </tr>
           ))
