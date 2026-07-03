@@ -261,10 +261,10 @@ export default function AdminInbox() {
             <p className="text-xs text-[#2d4a36]/60 mt-1 uppercase tracking-widest font-bold">Client Communications</p>
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-xs font-semibold text-[#2d4a36]/80 flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-full border border-[#8fa797]/30 shadow-sm">
+            {/* <span className="text-xs font-semibold text-[#2d4a36]/80 flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-full border border-[#8fa797]/30 shadow-sm">
               <span className="w-2.5 h-2.5 rounded-full bg-[#f2a794] inline-block animate-pulse" />
               {unreadCount} unread
-            </span>
+            </span> */}
             <span className="bg-[#2d4a36] text-[#F6F4F0] text-xs px-3 py-1.5 rounded-full font-semibold shadow-sm">
               {msgs.length} total
             </span>
