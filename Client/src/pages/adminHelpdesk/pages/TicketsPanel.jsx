@@ -56,7 +56,7 @@ export default function TicketsPanel({ tickets,search,
             <thead>
               <tr className="bg-offwhite border-b border-[#8fa797]/10">
                 {/* <th className="px-6 py-4 w-12"></th> */}
-                {["ID", "User", "Issue", "Category", "Priority", "Status",
+                {["ID", "User", "Issue", "Category","Role", "Priority", "Status",
                   //  "Agent", 
                    "Created"].map(h => <th key={h} className="text-left text-[10px] font-bold text-[#8fa797] uppercase tracking-widest px-4 py-4">{h}</th>)}
               </tr>
@@ -72,19 +72,32 @@ export default function TicketsPanel({ tickets,search,
                       <td className="px-4 py-4  text-[11px] text-label">{t.ticketId}</td>
                       <td className="px-4 py-4">
                         <div className="flex items-center gap-3">
-                          <Av initials={t.email?.charAt(0).toUpperCase()} cc={ac(i)} size="sm"/>
+                          <Av
+  image={t.user?.profilePicture}
+  initials={t.user?.username?.charAt(0) || "G"}
+  cc={ac(i)}
+  size="sm"
+/>
+                          {/* <Av initials={t.email?.charAt(0).toUpperCase()} cc={ac(i)} size="sm"/> */}
                           <div>
                             <div className="text-[12px] font-bold text-[#2d4a36] whitespace-nowrap">{t.user?.username}</div>
                             <div className="text-[10px] font-medium text-[#8fa797]">{t.email}</div>
                           </div>
                         </div>
                       </td>
-                      <td className="px-4 py-4 max-w-[200px]">
-                        <div className="text-[13px] font-medium text-[#2d4a36] truncate block">{t.title}</div>
-                        {t.messages > 0 && <div className="text-[10px]  text-label">{t.messages} message{t.messages !== 1 ? "s" : ""}</div>}
-                      </td>
+                     <td className="px-4 py-4 max-w-[200px]">
+  <div className="text-[13px] font-medium text-[#2d4a36]">
+    {t.title.length > 10 ? `${t.title.slice(0, 10)}...` : t.title}
+  </div>
+
+  {t.messages > 0 && (
+    <div className="text-[10px] text-label">
+      {t.messages} message{t.messages !== 1 ? "s" : ""}
+    </div>
+  )}
+</td>
                       <td className="px-4 py-4 text-[12px] font-bold text-label">{t.category}</td>
-                       {/* <td className="px-4 py-4 text-[12px] font-bold text-label">{t.user?.role}</td> */}
+                       <td className="px-4 py-4 text-[12px] font-bold text-label">{t.user?.role?.role}</td>
                       <td className="px-4 py-4"><PriorityBadge priority={t.priority} /></td>
                       <td className="px-4 py-4"><StatusBadge status={t.status} /></td>
                       {/* <td className="px-4 py-4">

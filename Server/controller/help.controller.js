@@ -120,6 +120,19 @@ export const updateTicket = async (req, res, next) => {
       update.priority = priority;
     }
 
+   const existingTicket = await Help.findById(req.params.id);
+
+if (!existingTicket) {
+  return next(errorHandler(404, "Ticket not found."));
+}
+
+
+if (existingTicket.status === "Resolved") {
+  return next(
+    errorHandler(400, "This ticket has already been resolved and cannot be reopened.")
+  );
+}
+
     const ticket = await Help.findByIdAndUpdate(
       req.params.id,
       { $set: update },
@@ -392,7 +405,14 @@ export const getAllTickets = async (req, res, next) => {
 
     const [tickets, totalTickets] = await Promise.all([
       Help.find(query)
-      .populate("user", "username email profilePicture role")
+      .populate({
+      path: "user",
+      select: "username email profilePicture role",
+      populate: {
+        path: "role",
+        select: "role", 
+      },
+    })
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limitNumber)
