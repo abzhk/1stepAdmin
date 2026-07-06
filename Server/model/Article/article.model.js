@@ -23,15 +23,15 @@ const articleSchema = new mongoose.Schema(
       required: true,
       maxlength: 300,
     },
-    featuredImage: {
-  type: [String],
-  default: [],
-},
-    category: { type: String, required: true },
+  featuredImage: [{
+      type: String,
+      required: true,
+    }],
+    category: { type: String},
     categoryId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Category",
-      required: true,
+
     },
     tags: [
       {
@@ -100,6 +100,17 @@ metaDescription: {
     publishedAt: {
       type: Date,
     },
+    referenceType: {
+  type: String,
+  enum: ["category", "service"],
+  required: true,
+  default: "category",
+},
+
+serviceId: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: "MasterData",
+},
   },
   { timestamps: true }
 );

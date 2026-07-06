@@ -1,6 +1,8 @@
 import Help from "../model/Help/help.model.js";
 import { errorHandler } from "../utils/error.js";
 import nodemailer from "nodemailer";
+import {ticketReplyEmail} from "../utils/emailTemplates.js"
+import  User from "../model/user.model.js";
 
 const VALID_CATEGORIES = [
   "Account & Access",
@@ -118,11 +120,25 @@ export const updateTicket = async (req, res, next) => {
       update.priority = priority;
     }
 
+   const existingTicket = await Help.findById(req.params.id);
+
+if (!existingTicket) {
+  return next(errorHandler(404, "Ticket not found."));
+}
+
+
+if (existingTicket.status === "Resolved") {
+  return next(
+    errorHandler(400, "This ticket has already been resolved and cannot be reopened.")
+  );
+}
+
     const ticket = await Help.findByIdAndUpdate(
       req.params.id,
       { $set: update },
       { new: true }
-    );
+    ).populate("user", "username email profilePicture");
+    
 
     if (!ticket) {
       return next(errorHandler(404, "Ticket not found."));
@@ -132,44 +148,195 @@ export const updateTicket = async (req, res, next) => {
       await transporter.sendMail({
   from: process.env.EMAIL_USER,
   to: ticket.email,
-  subject: `Status Update: ${ticket.ticketId} - ${ticket.status}`,
+  subject: `Status Update: ${ticket.ticketId}`,
   html: `
-    <h2>Support Ticket Update</h2>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+</head>
 
-    <p>Hello ${ticket.user?.username || "User"},</p>
+<body style="margin:0;padding:0;background:#eceae4;">
 
-    <p>
-      ${
-        ticket.status === "Open"
-          ? "Your support ticket has been received and is awaiting review by our support team."
-          : ticket.status === "In progress"
-          ? "Your support ticket has been reviewed and is currently being worked on by our technical team."
-          : ticket.status === "Resolved"
-          ? "We are pleased to inform you that your reported issue has been resolved."
-          : "Your support ticket has been updated."
-      }
-    </p>
+<table width="100%" cellpadding="0" cellspacing="0" style="padding:32px 12px;">
+<tr>
+<td align="center">
 
-    <h3>Ticket Details</h3>
+<table width="100%" cellpadding="0" cellspacing="0"
+style="max-width:560px;background:#ffffff;border-radius:20px;overflow:hidden;box-shadow:0 8px 30px rgba(45,74,54,.08);">
 
-    <ul>
-      <li><strong>Ticket ID:</strong> ${ticket.ticketId}</li>
-      <li><strong>Title:</strong> ${ticket.title}</li>
-      <li><strong>Category:</strong> ${ticket.category}</li>
-      <li><strong>Description:</strong> ${ticket.description}</li>
-      <li><strong>Status:</strong> ${ticket.status}</li>
-      <li><strong>Priority:</strong> ${ticket.priority}</li>
-    </ul>
+<tr>
+<td style="background:#2d4a36;padding:36px 40px;">
 
-    <p>
-      We will keep you informed of further updates regarding this ticket.
-    </p>
+<div style="font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#8fa797;">
+1Step Support
+</div>
 
-    <br/>
+<div style="padding-top:14px;">
+<table cellpadding="0" cellspacing="0">
+<tr>
+<td style="width:44px;height:44px;background:#8fa797;border-radius:50%;text-align:center;font-size:22px;color:#fff;">
+&#10003;
+</td>
+<td style="padding-left:14px;">
+<div style="font-size:22px;font-weight:700;color:#fff;">
+Ticket Status Updated
+</div>
+</td>
+</tr>
+</table>
+</div>
 
-    <p>Best Regards,</p>
-    <p><strong>1STEP Support Team</strong></p>
-  `,
+</td>
+</tr>
+
+<tr>
+<td style="padding:32px 40px;">
+
+<p style="margin:0 0 24px;font-size:15px;line-height:1.6;color:#5b6b60;">
+Hello <strong>${ticket.user?.username || "User"}</strong>,
+</p>
+
+<p style="margin:0 0 24px;font-size:15px;line-height:1.6;color:#5b6b60;">
+${
+  ticket.status === "Open"
+    ? "Your support request has been received and is waiting for review."
+    : ticket.status === "In progress"
+    ? "Good news! Our support team is currently working on your request."
+    : "Your support request has been successfully resolved."
+}
+</p>
+
+<table width="100%" cellpadding="0" cellspacing="0">
+
+<tr>
+<td style="padding:12px 0;border-bottom:1px solid #e8e4dd;font-size:13px;color:#7a877f;font-weight:600;width:120px;">
+Ticket ID
+</td>
+<td style="padding:12px 0;border-bottom:1px solid #e8e4dd;font-size:14px;color:#2d4a36;font-weight:600;">
+${ticket.ticketId}
+</td>
+</tr>
+
+<tr>
+<td style="padding:12px 0;border-bottom:1px solid #e8e4dd;font-size:13px;color:#7a877f;font-weight:600;">
+Category
+</td>
+<td style="padding:12px 0;border-bottom:1px solid #e8e4dd;font-size:14px;color:#2d4a36;font-weight:600;">
+${ticket.category}
+</td>
+</tr>
+
+<tr>
+  <td style="padding:16px 0;vertical-align:top;font-size:13px;color:#7a877f;font-weight:600;">
+    Description
+  </td>
+  <td style="padding:16px 0;font-size:14px;line-height:1.8;color:#2d4a36;white-space:pre-wrap;">
+    ${ticket.description}
+  </td>
+</tr>
+
+<tr>
+<td style="padding:12px 0;border-bottom:1px solid #e8e4dd;font-size:13px;color:#7a877f;font-weight:600;">
+Priority
+</td>
+<td style="padding:12px 0;border-bottom:1px solid #e8e4dd;">
+<span style="
+display:inline-block;
+background:${
+  ticket.priority === "High"
+    ? "#fbe9e3"
+    : ticket.priority === "Medium"
+    ? "#fbf3d6"
+    : "#eef2ef"
+};
+color:${
+  ticket.priority === "High"
+    ? "#e07a5f"
+    : ticket.priority === "Medium"
+    ? "#d9a400"
+    : "#8fa797"
+};
+padding:4px 12px;
+border-radius:999px;
+font-size:12px;
+font-weight:700;">
+${ticket.priority}
+</span>
+</td>
+</tr>
+
+<tr>
+<td style="padding:12px 0;font-size:13px;color:#7a877f;font-weight:600;">
+Status
+</td>
+<td style="padding:12px 0;">
+<span style="
+display:inline-block;
+background:#f0efe9;
+color:${
+  ticket.status === "Resolved"
+    ? "#8fa797"
+    : ticket.status === "In progress"
+    ? "#d9a400"
+    : "#2d4a36"
+};
+padding:4px 12px;
+border-radius:999px;
+font-size:12px;
+font-weight:700;">
+${ticket.status}
+</span>
+</td>
+</tr>
+
+</table>
+
+</td>
+</tr>
+
+<tr>
+<td style="padding:20px 40px 36px;">
+
+<table width="100%" cellpadding="0" cellspacing="0">
+<tr>
+<td style="background:#f3f6f4;border-left:4px solid #8fa797;border-radius:10px;padding:14px 18px;font-size:13px;line-height:1.6;color:#5b6b60;">
+We will continue to keep you informed whenever there is another update on your support request.
+</td>
+</tr>
+</table>
+
+</td>
+</tr>
+
+<tr>
+<td style="background:#F6F4F0;padding:24px 40px;border-top:1px solid #e8e4dd;">
+
+<p style="margin:0;font-size:12px;color:#9aa69d;">
+Thank you for choosing 1Step. We're always here to help.
+</p>
+
+<p style="margin-top:8px;font-size:12px;font-weight:600;color:#7a877f;">
+— The 1Step Support Team
+</p>
+
+</td>
+</tr>
+
+</table>
+
+<p style="margin:18px auto 0;font-size:11px;color:#a7aaa3;text-align:center;">
+© ${new Date().getFullYear()} 1Step. All rights reserved.
+</p>
+
+</td>
+</tr>
+</table>
+
+</body>
+</html>
+`,
 });
 
       console.log(
@@ -214,14 +381,23 @@ export const getAllTickets = async (req, res, next) => {
     if (status && status !== "All") {
       query.status = status;
     }
+    let userIds = [];
 
-    if (search) {
-      query.$or = [
-        { ticketId: { $regex: search, $options: "i" } },
-        { title: { $regex: search, $options: "i" } },
-        { email: { $regex: search, $options: "i" } },
-      ];
-    }
+   if (search) {
+  const users = await User.find({
+    username: { $regex: search, $options: "i" },
+  }).select("_id");
+
+  userIds = users.map((u) => u._id);
+
+  query.$or = [
+    { ticketId: { $regex: search, $options: "i" } },
+    { title: { $regex: search, $options: "i" } },
+    { email: { $regex: search, $options: "i" } },
+    { category: { $regex: search, $options: "i" } }, 
+    { user: { $in: userIds } }, 
+  ];
+}
 
     const pageNumber = Number(page);
     const limitNumber = Number(limit);
@@ -229,7 +405,14 @@ export const getAllTickets = async (req, res, next) => {
 
     const [tickets, totalTickets] = await Promise.all([
       Help.find(query)
-      .populate("user", "username email profilePicture")
+      .populate({
+      path: "user",
+      select: "username email profilePicture role",
+      populate: {
+        path: "role",
+        select: "role", 
+      },
+    })
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limitNumber)
@@ -276,19 +459,14 @@ export const replyTicket = async (req, res, next) => {
 
     await ticket.save();
 
+    const { subject, text, html } = ticketReplyEmail(ticket, message);
+
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: ticket.email,
-      subject: `Reply for ${ticket.ticketId}`,
-      html: `
-        <h2>1STEP Team Response</h2>
-
-        <p>${message}</p>
-
-        <hr />
-
-        <p>Ticket ID: ${ticket.ticketId}</p>
-      `,
+      subject,
+      text,
+      html,
     });
 
     res.status(200).json({

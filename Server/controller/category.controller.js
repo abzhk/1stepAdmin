@@ -121,11 +121,12 @@ export const createCategory = async (req, res, next) => {
     const { name, description, icon, color, order } = req.body;
 
     // Validation
-    if (!name || !description) {
-      return res.status(400).json({
-        message: "Name and description are required",
-      });
-    }
+    if (!name || !description || order === undefined) {
+  return res.status(400).json({
+    success: false,
+    message: "Name, description and order are required",
+  });
+}
 
     // Check if category already exists
     const existingCategory = await Category.findOne({
@@ -138,12 +139,21 @@ export const createCategory = async (req, res, next) => {
       });
     }
 
+    const existingOrder = await Category.findOne({ order });
+
+if (existingOrder) {
+  return res.status(400).json({
+    success: false,
+    message: "Order already exists",
+  });
+}
+
     const category = new Category({
       name,
       description,
       icon: icon || "📝",
       color: color || "#65467C",
-      order: order || 0,
+      order,
     });
 
     await category.save();
@@ -212,9 +222,29 @@ export const updateCategory = async (req, res, next) => {
     }
 
     if (icon !== undefined) category.icon = icon;
-    if (color !== undefined) category.color = color;
-    if (order !== undefined) category.order = order;
-    if (isActive !== undefined) category.isActive = isActive;
+if (color !== undefined) category.color = color;
+
+if (order !== undefined) {
+  const orderNumber = Number(order);
+
+  const existingOrder = await Category.findOne({
+    order: orderNumber,
+    _id: { $ne: id }, 
+  });
+
+  if (existingOrder) {
+    return res.status(400).json({
+      success: false,
+      message: "Order already exists",
+    });
+  }
+
+  category.order = orderNumber;
+}
+
+if (isActive !== undefined) {
+  category.isActive = isActive;
+}
 
     await category.save();
 

@@ -155,6 +155,7 @@ const DashSidebar = () => {
           })}
 
           {/* USER MENU */}
+           {hasModuleAccess(MODULES.Roles) && (
           <div
             className="relative group"
             onMouseEnter={() => openMenu("user")}
@@ -194,6 +195,7 @@ const DashSidebar = () => {
               </div>
             )}
           </div>
+           )}
 
           {hasModuleAccess(MODULES.PLANS) &&
             iconBtn("Plans", <TbReportSearch />, () => navigate("/add-plans"))}
@@ -266,6 +268,7 @@ const DashSidebar = () => {
             )}
 
          {/* HELP DESK MENU */}
+           {hasModuleAccess(MODULES.HELP) && (
 <div
   className="relative group"
   onMouseEnter={() => openMenu("helpdesk")}
@@ -297,8 +300,11 @@ const DashSidebar = () => {
         Contact
       </div>
     </div>
+    
   )}
 </div>
+  )}
+
 
           {/* SETTINGS MENU */}
           <div

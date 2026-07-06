@@ -13,6 +13,8 @@ const MasterData = () => {
   const [formData, setFormData] = useState({
     code: "",
     label: "",
+     description: "",
+     order: 0,
     durationDefault: "",
     billable: false,
   });
@@ -42,43 +44,65 @@ const MasterData = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    try {
+  try {
+    const payload = {
+      code: formData.code,
+      label: formData.label,
+      description: formData.description,
+      order: Number(formData.order),
+      metadata: {
+        durationDefault: Number(formData.durationDefault),
+        billable: formData.billable,
+      },
+    };
+
+    if (editId) {
+      // UPDATE
+      await api(`/api/services/${editId}`, {
+        method: "PUT",
+        body: JSON.stringify(payload),
+      });
+
+      toast.success("Service updated successfully");
+    } else {
+      // CREATE
       await api("/api/services", {
         method: "POST",
         body: JSON.stringify({
           type: "serviceType",
-          code: formData.code,
-          label: formData.label,
-          metadata: {
-            durationDefault: Number(formData.durationDefault),
-            billable: formData.billable,
-          },
+          ...payload,
         }),
       });
 
       toast.success("Service created successfully");
-
-      setFormData({
-        code: "",
-        label: "",
-        durationDefault: "",
-        billable: false,
-      });
-
-      fetchServices();
-    } catch (error) {
-      toast.error(error.message || "Something went wrong");
     }
-  };
 
+    setFormData({
+      code: "",
+      label: "",
+      description: "",
+      order: 0,
+      durationDefault: "",
+      billable: false,
+    });
+
+    setEditId(null);
+
+    fetchServices();
+  } catch (error) {
+    toast.error(error.message || "Something went wrong");
+  }
+};
   const handleEdit = (service) => {
     setEditId(service._id);
 
     setFormData({
       code: service.code || "",
       label: service.label || "",
+       description: service.description || "",
+       order: service.order ?? 0,
       durationDefault: service.metadata?.durationDefault || "",
       billable: service.metadata?.billable || false,
     });
@@ -141,6 +165,17 @@ const MasterData = () => {
               </div>
 
               <div className="flex flex-col">
+  <label className="text-sm font-medium mb-1">Description</label>
+  <textarea
+    name="description"
+    value={formData.description}
+    onChange={handleChange}
+    rows={3}
+    className="rounded-lg px-3 py-2 bg-offwhite"
+  />
+</div>
+
+              <div className="flex flex-col">
                 <label className="text-sm font-medium mb-1">
                   Duration (minutes)
                 </label>
@@ -152,6 +187,16 @@ const MasterData = () => {
                   className=" rounded-lg px-3 py-2 bg-offwhite "
                 />
               </div>
+              <div className="flex flex-col">
+  <label className="text-sm font-medium mb-1">Order</label>
+  <input
+    type="number"
+    name="order"
+    value={formData.order}
+    onChange={handleChange}
+    className="rounded-lg px-3 py-2 bg-offwhite"
+  />
+</div>
 
               <div className="flex items-center mt-6  rounded-lg px-3 py-2 focus:outline-none bg-offwhite ">
                 <input
@@ -166,11 +211,11 @@ const MasterData = () => {
 
               <div className="col-span-2 flex justify-end">
                 <button
-                  type="submit"
-                  className="bg-peach text-white px-6 py-2 rounded-lg hover:bg-darkgreen transition"
-                >
-                  Submit
-                </button>
+  type="submit"
+  className="bg-peach text-white px-6 py-2 rounded-lg hover:bg-darkgreen transition"
+>
+  {editId ? "Update" : "Submit"}
+</button>
               </div>
             </form>
           </div>
@@ -186,7 +231,7 @@ const MasterData = () => {
                   <th className="p-3">Sl.no</th>
                   <th className="p-3">Service</th>
                   <th className="p-3">Code</th>
-
+                  <th className="p-3">Order</th>
                   <th className="p-3">Billable</th>
                   <th className="p-3">Status</th>
                   <th className="p-3">Created At</th>
@@ -203,6 +248,7 @@ const MasterData = () => {
                     <td className="p-3">{index + 1}</td>
                     <td className="p-3">{service.label}</td>
                     <td className="p-3">{service.code}</td>
+                    <td className="p-3">{service.order}</td>
 
                     <td className="p-3">
                       {service.metadata?.billable ? "Yes" : "No"}

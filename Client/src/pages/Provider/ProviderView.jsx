@@ -292,17 +292,22 @@ function ProviderView() {
                       : provider.therapytype}
                   </td>
 
-                  <td className="p-3">
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs ${
-                        provider.isActive
-                          ? "bg-green-100 text-green-600"
-                          : "bg-red-100 text-red-600"
-                      }`}
-                    >
-                      {provider.isActive ? "Active" : "Inactive"}
-                    </span>
-                  </td>
+                 <td className="p-3">
+  
+
+    <button
+      onClick={() =>
+        changeStatus(provider._id, !provider.isActive)
+      }
+      className={`px-3 py-2 rounded-lg text-xs font-medium ${
+        provider.isActive
+          ? "bg-red-100 text-red-600"
+          : "bg-green-100 text-green-600"
+      }`}
+    >
+      {provider.isActive ? "Deactivate" : "Activate"}
+    </button>
+</td>
 
                   <td className="p-3 flex justify-end gap-2">
                     <button

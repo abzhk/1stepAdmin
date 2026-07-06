@@ -27,17 +27,28 @@ export default function TicketDrawer({ ticket, idx, onClose, onUpdate }) {
         <div className="px-6 py-5 border-b border-[#8fa797]/10 flex items-start justify-between gap-4 bg-[#F6F4F0]/30">
           <div className="flex-1 min-w-0">
             <div className="font-mono text-[11px] font-bold text-[#8fa797] mb-1.5">{ticket.ticketId}</div>
-            <div className="text-[16px] font-bold text-[#2d4a36] leading-snug tracking-tight">{ticket.title}</div>
+            <div className="text-[16px] font-bold text-[#2d4a36] leading-snug tracking-tight">{ticket.category}</div>
+            {/* <div className="px-0 py-0 border-b border-[#8fa797]/10 bg-[#F6F4F0]/20"> */}
+  {/* <div className="text-[10px] font-bold text-[#8fa797] uppercase tracking-widest mb-2">
+    Description
+  </div> */}
+
+  {/* <div className="max-h-15 overflow-y-auto scrollbar-custom rounded-xl border border-[#8fa797]/20 bg-white p-4">
+    <p className="text-[13px] leading-6 text-[#2d4a36] whitespace-pre-wrap">
+      {ticket.description}
+    </p>
+  </div> */}
+{/* </div> */}
 
 
            
 
 
 
-            <div className="flex items-center gap-2 mt-3">
+            {/* <div className="flex items-center gap-2 mt-2">
               <StatusBadge status={status} />
               <PriorityBadge priority={priority} />
-            </div>
+            </div> */}
           </div>
           <button onClick={onClose} className="w-8 h-8 rounded-full flex items-center justify-center text-[#8fa797] hover:bg-[#8fa797]/10 hover:text-[#2d4a36] transition-colors flex-shrink-0">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 16 16"><path d="M3 3l10 10M13 3L3 13" /></svg>
@@ -46,7 +57,7 @@ export default function TicketDrawer({ ticket, idx, onClose, onUpdate }) {
 
         
         
-        <div className="px-6 py-4 border-b border-[#8fa797]/10 flex items-center gap-3">
+        <div className="px-6 py-1 border-b border-[#8fa797]/10 flex items-center gap-3">
           <Av
   image={ticket.user?.profilePicture}
   initials={ticket.user?.username?.charAt(0) || "G"}
@@ -58,15 +69,13 @@ export default function TicketDrawer({ ticket, idx, onClose, onUpdate }) {
             <div className="text-[11px] font-medium text-[#8fa797]">{ticket.email}</div>
           </div>
           <div className="ml-auto text-right">
-            <div className="text-[10px] font-bold text-[#8fa797]/70 uppercase tracking-widest mb-0.5">Opened</div>
-            <div className="text-[12px] font-medium text-[#2d4a36]/70">{ticket.created}</div>
-          </div>
-        </div>
+            {/* <div className="text-[10px] font-bold text-[#8fa797]/70 uppercase tracking-widest mb-0.5">Opened</div> */}
 
- <div className="px-4 py-2 border-b border-[#8fa797]/10 flex items-center gap-3">
+
+ <div className="px-4 py-2  flex items-center gap-3">
             {ticket?.attachment?.fileName && (
-  <div className="px-6 py-4 border-b border-[#8fa797]/10 bg-[#F6F4F0]/20">
-    <div className="text-[10px] font-bold text-[#8fa797] uppercase tracking-widest mb-2">
+  <div className="px-2 py-3 border-b border-[#8fa797]/10 bg-offwhite rounded-2xl">
+    <div className="text-[10px] font-bold text-[#8fa797] uppercase tracking-widest mb-2 flex justify-start">
       Attachment
     </div>
 
@@ -74,10 +83,10 @@ export default function TicketDrawer({ ticket, idx, onClose, onUpdate }) {
       onClick={() => setShowAttachment(true)}
       className="w-full flex items-center gap-3 p-3 rounded-xl bg-white border border-[#8fa797]/20 hover:bg-[#F6F4F0] transition-colors"
     >
-      <div className="text-xl">📎</div>
+      {/* <div className="text-xl">📎</div> */}
 
       <div className="flex-1 text-left">
-        <div className="text-[13px] font-bold text-[#2d4a36]">
+        <div className="text-[10px] text-label">
           {ticket.attachment.fileName}
         </div>
       </div>
@@ -86,6 +95,16 @@ export default function TicketDrawer({ ticket, idx, onClose, onUpdate }) {
 )}
             
             </div>
+
+
+
+
+
+            
+          </div>
+        </div>
+
+
               {/* <div className="px-6 py-4 border-b border-[#8fa797]/10 bg-[#F6F4F0]/20">
  <div className="text-[10px] font-bold text-[#8fa797] uppercase tracking-widest mb-2">Description : 
                {ticket.description}
@@ -93,7 +112,7 @@ export default function TicketDrawer({ ticket, idx, onClose, onUpdate }) {
             </div> */}
 
 
-        <div className="px-6 py-4 border-b border-[#8fa797]/10 grid grid-cols-2 gap-3 bg-[#F6F4F0]/30">
+        <div className="px-6 py-4 border-b border-[#8fa797]/10 grid grid-cols-2 gap-3 bg-offwhite">
           {[
             { label: "Status", val: status, set: setStatus, opts: ["Open", "In progress", "Resolved",] },
             { label: "Priority", val: priority, set: setPriority, opts: ["High", "Medium", "Low"] },
@@ -108,21 +127,26 @@ export default function TicketDrawer({ ticket, idx, onClose, onUpdate }) {
           ))}
         </div>
 
-        <div className="flex-1 overflow-y-auto px-6 py-5 flex flex-col gap-5 bg-[#F6F4F0]/10">
-          <div className="text-[10px] font-bold text-[#8fa797]/70 uppercase tracking-widest text-center">Conversation History</div>
+        <div className="flex-1 overflow-y-auto px-6 py-5 flex flex-col gap-5 bg-white">
+          <div className="text-cardfooter">
+  <span className="font-semibold">Description:</span>
+  <p className="mt-1">{ticket.description}</p>
+</div>
+          <div className=" font-bold text-cardtitle uppercase tracking-widest text-center">Admin Response</div>
+          
           {messages.map((msg, i) => (
             <div key={i} className={`flex gap-3 ${msg.from === "agent" ? "flex-row-reverse" : ""}`}>
-              <Av initials={msg.initials} cc={msg.cc} size="sm" />
-              <div className={`flex-1 max-w-[360px] ${msg.from === "agent" ? "items-end flex flex-col" : ""}`}>
+              {/* <Av initials={msg.initials} cc={msg.cc} size="sm" /> */}
+              {/* <div className={`flex-1 max-w-[360px] ${msg.from === "agent" ? "items-end flex flex-col" : ""}`}>
                 <div className={`flex items-center gap-2 mb-1 ${msg.from === "agent" ? "flex-row-reverse" : ""}`}>
                   <span className="text-[11px] font-bold text-[#2d4a36]">{msg.name}</span>
                   <span className="text-[10px] font-medium text-[#8fa797]">{msg.time}</span>
-                </div>
+                </div> */}
                 <div className={`text-[13px] leading-relaxed px-4 py-3 border shadow-sm ${msg.from === "agent" ? "bg-[#2d4a36] text-[#F6F4F0] border-[#2d4a36] rounded-[20px] rounded-tr-sm" : "bg-[#F6F4F0] text-[#2d4a36] border-[#8fa797]/20 rounded-[20px] rounded-tl-sm"}`}>
                   {msg.message}
                 </div>
               </div>
-            </div>
+            // </div>
           ))}
           {reply && (
             <div className="flex gap-3 flex-row-reverse animate-in fade-in slide-in-from-bottom-2 duration-300">
@@ -143,14 +167,14 @@ export default function TicketDrawer({ ticket, idx, onClose, onUpdate }) {
         <div className="px-6 py-4 border-t border-[#8fa797]/20 bg-white">
           <textarea value={reply} onChange={e => setReply(e.target.value)} placeholder="Write a reply…" className="w-full text-[13px] font-medium px-4 py-3 border border-[#8fa797]/30 rounded-2xl bg-[#F6F4F0]/50 text-[#2d4a36] placeholder-[#8fa797] focus:outline-none focus:bg-white focus:ring-2 focus:ring-[#8fa797]/40 resize-none transition-all" rows={3} />
           <div className="flex items-center justify-between mt-3">
-            <button onClick={async () => {
+            <button   disabled={ticket.status === "Resolved"} onClick={async () => {
   await onUpdate(ticket._id, {
     status,
     priority,
   });
 
   onClose();
-}} className="text-[12px] text-[#8fa797] hover:text-[#2d4a36] transition-colors font-bold">
+}} className="text-[13px] font-bold bg-[#2d4a36] text-[#F6F4F0] px-6 py-2.5 rounded-full hover:bg-[#8fa797] hover:text-[#2d4a36] shadow-md shadow-[#2d4a36]/10 transition-all disabled:opacity-40 disabled:hover:bg-[#2d4a36] disabled:hover:text-[#F6F4F0] disabled:cursor-not-allowed">
               Save changes
             </button>
             <button onClick={async () => {

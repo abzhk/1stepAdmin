@@ -38,6 +38,7 @@ const categorySchema = new mongoose.Schema(
     order: {
       type: Number,
       default: 0,
+        unique: true,
     },
   },
   { timestamps: true }

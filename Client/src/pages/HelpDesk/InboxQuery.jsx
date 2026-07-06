@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { api } from "../../utils/api";
+import dateFormatUtils from "../../utils/dateFormatUtils";
 
 const TAG_STYLES = {
   new: "bg-[#ffd333]/30 text-[#2d4a36] border border-[#ffd333]/50",
@@ -70,6 +71,10 @@ export default function AdminInbox() {
   const [error, setError] = useState(null);
   const chatEndRef = useRef(null);
   const textareaRef = useRef(null);
+  const [totalMessages, setTotalMessages] = useState(0);
+  const [page, setPage] = useState(1);
+  const [hasNextPage, setHasNextPage] = useState(false);
+  
 
   const filtered = msgs.filter((m) => {
     if (filter === "unread" && !m.unread) return false; 
@@ -84,13 +89,32 @@ export default function AdminInbox() {
   const active = msgs.find((m) => m.id === activeId);
   const unreadCount = msgs.filter((m) => m.unread).length;
 
-  const openMsg = (id) => {
-    setMsgs((prev) => prev.map((m) => (m.id === id ? { ...m, unread: false } : m)));
+  const openMsg = async (id) => {
+  try {
+    const res = await api(`/api/contact/${id}`);
+
+    setMsgs(prev =>
+      prev.map(m =>
+        m.id === id
+          ? {
+              ...m,
+              unread: false,
+              status: "read",
+              messages: res.data.messages,
+            }
+          : m
+      )
+    );
+
     setActiveId(id);
     setReplyText("");
     setReplyMessageId(null);
     setError(null);
-  };
+
+  } catch (err) {
+    console.log(err);
+  }
+};
 
   const sendReply = async (id) => {
     if (!replyText.trim() || sending) return;
@@ -165,7 +189,7 @@ export default function AdminInbox() {
     try {
       setLoading(true);
       setError(null);
-      const res = await api("/api/contact/getall");
+      const res = await api(`/api/contact/getall?page=${page}&limit=20`);
       
       const formatted = res.data.map((item) => {
         const latestMessage = item.messages && item.messages.length > 0 
@@ -217,8 +241,15 @@ export default function AdminInbox() {
           isFromEmail: isFromEmail,
         };
       });
-      
-      setMsgs(formatted);
+      setTotalMessages(res.totalMessages);
+      setHasNextPage(
+  res.pagination.currentPage < res.pagination.totalPages
+);
+      if (page === 1) {
+  setMsgs(formatted);
+} else {
+  setMsgs(prev => [...prev, ...formatted]);
+}
     } catch (err) {
       console.error("Error fetching messages:", err);
       setError(err.message || "Failed to load messages. Please refresh the page.");
@@ -229,7 +260,7 @@ export default function AdminInbox() {
 
   useEffect(() => {
     fetchMessages();
-  }, []);
+  }, [page]);
 
 
   // Scroll to bottom when new messages are added
@@ -261,12 +292,12 @@ export default function AdminInbox() {
             <p className="text-xs text-[#2d4a36]/60 mt-1 uppercase tracking-widest font-bold">Client Communications</p>
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-xs font-semibold text-[#2d4a36]/80 flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-full border border-[#8fa797]/30 shadow-sm">
+            {/* <span className="text-xs font-semibold text-[#2d4a36]/80 flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-full border border-[#8fa797]/30 shadow-sm">
               <span className="w-2.5 h-2.5 rounded-full bg-[#f2a794] inline-block animate-pulse" />
               {unreadCount} unread
-            </span>
+            </span> */}
             <span className="bg-[#2d4a36] text-[#F6F4F0] text-xs px-3 py-1.5 rounded-full font-semibold shadow-sm">
-              {msgs.length} total
+              {totalMessages} total
             </span>
             {/* <button
               onClick={fetchMessages}
@@ -274,6 +305,8 @@ export default function AdminInbox() {
             >
               🔄 Refresh
             </button> */}
+
+            
           </div>
         </div>
 
@@ -318,7 +351,7 @@ export default function AdminInbox() {
         <div className="flex flex-col md:flex-row flex-1 overflow-hidden">
           
           {/* Message list */}
-          <div className="w-full md:w-[350px] border-r border-[#8fa797]/20 bg-white flex-shrink-0 flex flex-col h-full max-h-[calc(120vh-300px)]">
+          <div className="w-full md:w-[350px] border-r border-[#8fa797]/20 bg-white flex-shrink-0 flex flex-col h-full max-h-[calc(110vh-300px)]">
             <div className="flex-1 overflow-y-auto">
               {filtered.length === 0 ? (
                 <div className="flex items-center justify-center h-full text-sm text-[#8fa797] p-8 text-center font-medium">
@@ -342,15 +375,15 @@ export default function AdminInbox() {
                       <span className={`text-sm font-bold ${m.unread ? "text-[#2d4a36]" : "text-[#2d4a36]/80"}`}>
                         {m.name}
                       </span>
-                      <span className="text-[10px] font-bold text-[#8fa797] uppercase tracking-wider">{m.date}</span>
+                      <span className="text-[10px] font-bold text-[#8fa797] uppercase tracking-wider">{dateFormatUtils(m.createdAt)}</span>
                     </div>
                     <div className="text-xs font-semibold text-[#2d4a36]/60 pl-2 truncate mb-1">{m.reason || "No subject"}</div>
                     <div className="text-[11px] text-[#2d4a36]/50 pl-2 truncate mb-3 leading-relaxed">
                       {m.msg}
                     </div>
-                    <div className="flex gap-1.5 pl-2 flex-wrap">
+                    {/* <div className="flex gap-1.5 pl-2 flex-wrap">
                       {m.tags.map((t) => <Tag key={t} label={t} />)}
-                    </div>
+                    </div> */}
                     {m.messageCount > 1 && (
                       <div className="mt-2 pl-2">
                         <span className="text-[10px] text-[#8fa797] font-medium bg-[#F6F4F0] px-2 py-0.5 rounded-full">
@@ -361,7 +394,16 @@ export default function AdminInbox() {
                   </div>
                 ))
               )}
+               
             </div>
+           {hasNextPage && (
+    <button
+      onClick={() => setPage(prev => prev + 1)}
+      className="w-full py-3  bg-white hover:bg-[#F6F4F0] text-sm font-semibold"
+    >
+      Load More
+    </button>
+  )}
           </div>
 
           {/* Detail pane - Chat Area */}
@@ -384,8 +426,8 @@ export default function AdminInbox() {
                     <div className="flex items-center gap-2 mt-1 flex-wrap">
                       <span className={`w-2 h-2 rounded-full inline-block shadow-sm ${STATUS_DOT[active.status] || "bg-[#8fa797]"}`} />
                       <span className="text-xs text-[#8fa797]">{active.email}</span>
-                      <span className="text-xs text-[#8fa797]/40">•</span>
-                      <span className="text-xs text-[#8fa797] capitalize">{active.status}</span>
+                      {/* <span className="text-xs text-[#8fa797]/40">•</span>
+                      <span className="text-xs text-[#8fa797] capitalize">{active.status}</span> */}
                       {active.topicId && (
                         <>
                           <span className="text-xs text-[#8fa797]/40">•</span>
@@ -400,9 +442,9 @@ export default function AdminInbox() {
                       )} */}
                     </div>
                   </div>
-                  <div className="flex gap-2 flex-wrap">
+                  {/* <div className="flex gap-2 flex-wrap">
                     {active.tags.slice(0, 2).map((t) => <Tag key={t} label={t} />)}
-                  </div>
+                  </div> */}
                 </div>
 
                 {/* Chat Messages */}
@@ -441,7 +483,7 @@ export default function AdminInbox() {
                             )}
                             
                             {/* Reply button for this specific message */}
-                            <button
+                            {/* <button
                               onClick={() => {
                                 setReplyMessageId(msg._id);
                                 if (textareaRef.current) {
@@ -451,7 +493,7 @@ export default function AdminInbox() {
                               className="ml-12 mt-1 text-xs text-[#8fa797] hover:text-[#2d4a36] font-medium transition-colors"
                             >
                               Reply to this message →
-                            </button>
+                            </button> */}
                           </div>
                         );
                       })}

@@ -3,6 +3,7 @@ import Provider from "../model/provider.model.js";
 import Category from "../model/Article/category.model.js";
 import { errorHandler } from "../utils/error.js";
 import { FeaturedArticles } from "../utils/article.utils.js";
+import MasterData from "../model/Master/masterData.model.js";
 
 // Create new article
 export const createArticle = async (req, res,next) => {
@@ -14,6 +15,8 @@ export const createArticle = async (req, res,next) => {
       excerpt,
       featuredImage,
       categoryId,
+       referenceType,
+       serviceId,
       tags,
       readTime,
       featured,
@@ -23,23 +26,47 @@ export const createArticle = async (req, res,next) => {
     } = req.body;
 
   // Validation
-    if (!title || !content || !excerpt  || !categoryId) {
-      return next(errorHandler(400, "All required fields must be provided"))
-    }
+   if (!title || !content || !excerpt || !referenceType) {
+  return next(errorHandler(400, "All required fields must be provided"));
+}
+
+if (referenceType === "category" && !categoryId) {
+  return next(errorHandler(400, "Category is required"));
+}
+
+if (referenceType === "service" && !serviceId) {
+  return next(errorHandler(400, "Service is required"));
+}
   
 // Check category
-    const category = await Category.findById(categoryId);
+   let category = null;
+let service = null;
 
-    if (!category) {
-      return res.status(404).json({
-        success: false,
-        message: "Category not found",
-      });
-    }
+if (referenceType === "category") {
+  category = await Category.findById(categoryId);
 
-    if (!category.isActive) {
-      return next(errorHandler(400, "This category is not currently active"));
-    }
+  if (!category) {
+    return res.status(404).json({
+      success: false,
+      message: "Category not found",
+    });
+  }
+
+  if (!category.isActive) {
+    return next(errorHandler(400, "This category is not currently active"));
+  }
+}
+
+if (referenceType === "service") {
+  service = await MasterData.findOne({
+    _id: serviceId,
+    type: "serviceType",
+  });
+
+  if (!service) {
+    return next(errorHandler(404, "Service not found"));
+  }
+}
 
     if (position !== null && position !== undefined) {
   if (position < 1 || position > 10) {
@@ -80,14 +107,12 @@ export const createArticle = async (req, res,next) => {
       title,
       content,
       excerpt,
-      featuredImage:
-  Array.isArray(featuredImage)
-    ? featuredImage
-    : featuredImage
-    ? [featuredImage]
-    : [],
-      category: category.name,
-      categoryId: category._id,
+     featuredImage: featuredImage || [],
+
+category: category ? category.name : null,
+categoryId: category ? category._id : null,
+
+serviceId: service ? service._id : null,
       tags: tags || [],
       readTime: readTime || Math.ceil(content.split(" ").length / 200),
       providerId,
@@ -164,6 +189,7 @@ export const getArticleById = async (req, res,next) => {
     const article = await Article.findById(id)
       .populate("providerId", "fullName profilePicture")
       .populate("categoryId", "name slug icon color")
+       .populate("serviceId", "label code")
       .populate("tags", "label");
 
     if (!article) {
@@ -1039,7 +1065,9 @@ export const updateArticleAdmin = async (req, res) => {
       content,
       excerpt,
       featuredImage,
-      categoryId,
+       referenceType,
+       categoryId,
+      serviceId,
       tags,
       position,
       readTime,
@@ -1047,11 +1075,29 @@ export const updateArticleAdmin = async (req, res) => {
   metaDescription,
     } = req.body;
 
-    if (!title || !content || !excerpt || !featuredImage || !categoryId) {
-      return res.status(400).json({
-        message: "All required fields must be provided",
-      });
-    }
+   if (!title || !content || !excerpt || !referenceType) {
+  return res.status(400).json({
+    message: "All required fields must be provided",
+  });
+}
+
+if (!Array.isArray(featuredImage) || featuredImage.length === 0) {
+  return res.status(400).json({
+    message: "At least one featured image is required",
+  });
+}
+
+if (referenceType === "category" && !categoryId) {
+  return res.status(400).json({
+    message: "Category is required",
+  });
+}
+
+if (referenceType === "service" && !serviceId) {
+  return res.status(400).json({
+    message: "Service is required",
+  });
+}
     if (position !== undefined) {
   // Allow null (to remove position)
   if (position !== null) {
@@ -1078,20 +1124,53 @@ export const updateArticleAdmin = async (req, res) => {
   article.position = position;
 }
 
-    const category = await Category.findById(categoryId);
+    let category = null;
+let service = null;
 
-    if (!category || !category.isActive) {
-      return res.status(400).json({
-        message: "Invalid or inactive category",
-      });
-    }
+if (referenceType === "category") {
+  category = await Category.findById(categoryId);
+
+  if (!category || !category.isActive) {
+    return res.status(400).json({
+      message: "Invalid or inactive category",
+    });
+  }
+}
+
+if (referenceType === "service") {
+  service = await MasterData.findOne({
+    _id: serviceId,
+    type: "serviceType",
+  });
+
+  if (!service) {
+    return res.status(400).json({
+      message: "Invalid service",
+    });
+  }
+}
 
     article.title = title;
     article.content = content;
     article.excerpt = excerpt;
-    article.featuredImage = featuredImage;
-    article.category = category.name;
-    article.categoryId = category._id;
+    article.featuredImage = Array.isArray(featuredImage)
+  ? featuredImage
+  : featuredImage
+  ? [featuredImage]
+  : [];
+    article.referenceType = referenceType;
+
+if (referenceType === "category") {
+  article.category = category.name;
+  article.categoryId = category._id;
+  article.serviceId = null;
+}
+
+if (referenceType === "service") {
+  article.category = null;
+  article.categoryId = null;
+  article.serviceId = service._id;
+}
     article.tags = tags || [];
     article.readTime =
       readTime || Math.ceil(content.split(" ").length / 200);
@@ -1109,7 +1188,9 @@ if (metaDescription !== undefined) article.metaDescription = metaDescription;
     console.error("Admin update article error:", error);
 
     res.status(500).json({
-      message: "Error updating article",
+         success: false,
+     message: "Error updating article",
+    error: error.message,
     });
   }
 };

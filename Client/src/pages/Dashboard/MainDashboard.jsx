@@ -46,6 +46,10 @@ const MainDashboard = () => {
       label: "Claim Profile",
       color: "bg-green-50 text-green-600 border border-greenmuted/20",
       onClick: () => navigate("/admin-verify"),
+       permission:{
+        module: MODULES.Roles,
+        action: ACTIONS.READ,
+      }
     },
     {
       icon: TbReportSearch,

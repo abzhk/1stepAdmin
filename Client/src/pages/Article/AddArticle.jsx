@@ -17,6 +17,7 @@ const AddArticle = () => {
   const [tags, setTags] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [selectedTags, setSelectedTags] = useState([]);
+  const [services, setServices] = useState([]);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -29,10 +30,28 @@ const AddArticle = () => {
     position: "",
     metaTitle: "",
     metaDescription: "",
+    referenceType: "category",
+    serviceId: "",
   });
 
   const [loading, setLoading] = useState(false);
   const [imagePreviews, setImagePreviews] = useState([]);
+
+
+  useEffect(() => {
+  const fetchServices = async () => {
+    try {
+      const data = await api("/api/services/serviceType?format=raw");
+
+      setServices(data.data || []);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to load services");
+    }
+  };
+
+  fetchServices();
+}, []);
 
   useEffect(() => {
     const fetchTags = async () => {
@@ -124,9 +143,12 @@ const handleImageChange = (e) => {
           );
 
           setFormData(prev => ({
-            ...prev,
-            featuredImage: [...prev.featuredImage, downloadURL]
-          }));
+  ...prev,
+  featuredImage: [
+    ...prev.featuredImage,
+    downloadURL,
+  ],
+}));
 
           toast.success(`${file.name} uploaded successfully`);
         });
@@ -140,7 +162,9 @@ const handleImageChange = (e) => {
     if (imageUrl) {
       setFormData(prev => ({
         ...prev,
-        featuredImage: prev.featuredImage.filter(url => url !== imageUrl)
+       featuredImage: prev.featuredImage.filter(
+  img => img !== imageUrl
+)
       }));
     } else {
       const previewToRemove = imagePreviews.find(p => p.id === previewId);
@@ -166,21 +190,32 @@ const handleImageChange = (e) => {
     fetchCategories();
   }, []);
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+const handleChange = (e) => {
+  const { name, value, type, checked } = e.target;
 
-    setFormData({
-      ...formData,
-      [name]:
-        name === "position"
-          ? value === ""
-            ? ""
-            : Number(value)
-          : type === "checkbox"
-          ? checked
-          : value,
-    });
-  };
+  if (name === "referenceType") {
+    setFormData((prev) => ({
+      ...prev,
+      referenceType: value,
+      categoryId: "",
+      serviceId: "",
+    }));
+
+    return;
+  }
+
+  setFormData((prev) => ({
+    ...prev,
+    [name]:
+      name === "position"
+        ? value === ""
+          ? ""
+          : Number(value)
+        : type === "checkbox"
+        ? checked
+        : value,
+  }));
+};
   
   const tagInputValue = selectedTags
     .map((t) => t.articleTag || t.label)
@@ -245,6 +280,8 @@ const handleImageChange = (e) => {
           excerpt: article.excerpt,
           content: article.content,
           featuredImage: article.featuredImage || [],
+          referenceType: article.referenceType || "category",
+           serviceId: article.serviceId?._id || "",
           categoryId: article.categoryId?._id || "",
           tags: article.tags,
           featured: article.featured || false,
@@ -256,12 +293,12 @@ const handleImageChange = (e) => {
         setSelectedTags(article.tags || []);
         
         if (article.featuredImage && article.featuredImage.length > 0) {
-          const existingPreviews = article.featuredImage.map((url, index) => ({
+          const existingPreviews = article.featuredImage.map((img, index) => ({
             id: `existing-${Date.now()}-${index}`,
-            preview: url,
+            preview: img,
             uploading: false,
             progress: 100,
-            url: url,
+            url: img,
             isExisting: true
           }));
           setImagePreviews(existingPreviews);
@@ -310,6 +347,17 @@ const handleImageChange = (e) => {
               <form onSubmit={handleSubmit} className="p-8">
                 <div className="space-y-8">
                   <div className="space-y-2">
+                     <label className=" text-label mb-1">Select Reference Type </label>
+<select  className="w-full border border-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow"
+    name="referenceType"
+    value={formData.referenceType}
+    onChange={handleChange}
+>
+    <option value="category">Category</option>
+    <option value="service">Service</option>
+</select>
+</div>
+ <div className="space-y-2">
                     <label className=" text-label mb-1">Title </label>
                     <input
                       name="title"
@@ -356,23 +404,49 @@ const handleImageChange = (e) => {
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="text-label mb-1">Category </label>
-                      <select
-                        name="categoryId"
-                        value={formData.categoryId}
-                        onChange={handleChange}
-                        required
-                        className="w-full border border-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow"
-                      >
-                        <option value="">Select Category</option>
-                        {categories.map((cat) => (
-                          <option key={cat._id} value={cat._id}>
-                            {cat.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
+                    {formData.referenceType === "category" && (
+  <div>
+    <label className="text-label mb-1">Category</label>
+
+    <select
+      name="categoryId"
+      value={formData.categoryId}
+      onChange={handleChange}
+      required
+      className="w-full border border-gray-400 rounded-lg px-3 py-2"
+    >
+      <option value="">Select Category</option>
+
+      {categories.map((cat) => (
+        <option key={cat._id} value={cat._id}>
+          {cat.name}
+        </option>
+      ))}
+    </select>
+  </div>
+)}
+
+{formData.referenceType === "service" && (
+  <div>
+    <label className="text-label mb-1">Service</label>
+
+    <select
+      name="serviceId"
+      value={formData.serviceId}
+      onChange={handleChange}
+      required
+      className="w-full border border-gray-400 rounded-lg px-3 py-2"
+    >
+      <option value="">Select Service</option>
+
+      {services.map((service) => (
+        <option key={service._id} value={service._id}>
+          {service.label}
+        </option>
+      ))}
+    </select>
+  </div>
+)}
 
                     <div>
                       <label className="text-label mb-1">Position (1–10)</label>

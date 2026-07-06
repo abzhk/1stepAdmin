@@ -522,6 +522,7 @@ export const getAllContactMessages = async (req, res, next) => {
     res.status(200).json({
       success: true,
       data: messages,
+       totalMessages: totalCount,  
       pagination: {
         currentPage: page,
         totalPages: Math.ceil(totalCount / limit),
@@ -537,14 +538,12 @@ export const getAllContactMessages = async (req, res, next) => {
 
 export const getContactMessageById = async (req, res, next) => {
   try {
-    if (req.user?.role?.role?.toLowerCase() !== "admin") {
-      return next(errorHandler(403, "Access denied. Admin only."));
-    }
+    
 
     const message = await Contact.findById(req.params.id)
       .populate("userRef", "username email profilePicture")
-      .populate("replies.repliedBy", "username email")
-      .populate("messages.sentBy", "username email");
+      .populate("messages.sentBy", "username email")
+      .populate("messages.replies.repliedBy", "username email");
 
     if (!message) {
       return next(errorHandler(404, "Contact message not found"));

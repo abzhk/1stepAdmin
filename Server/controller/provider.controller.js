@@ -1094,7 +1094,7 @@ export const getIndividualProviders = async (req, res, next) => {
     } = req.query;
 
     let query = {
-      providerType: "individual", 
+      providerType: "individual",
     };
 
     const searchFilters = [];
@@ -1103,15 +1103,32 @@ export const getIndividualProviders = async (req, res, next) => {
       const cleanedSearchTerm = searchTerm.trim().replace(/\s+/g, " ");
 
       if (cleanedSearchTerm) {
-        const textSearchFilter = { $text: { $search: cleanedSearchTerm } };
+        const textSearchFilter = {
+          $text: { $search: cleanedSearchTerm },
+        };
 
         const regexSearchFilter = {
           $or: [
             { fullName: { $regex: cleanedSearchTerm, $options: "i" } },
             { name: { $regex: cleanedSearchTerm, $options: "i" } },
-            { "address.city": { $regex: cleanedSearchTerm, $options: "i" } },
-            { "address.state": { $regex: cleanedSearchTerm, $options: "i" } },
-            { therapytype: { $regex: cleanedSearchTerm, $options: "i" } },
+            {
+              "address.city": {
+                $regex: cleanedSearchTerm,
+                $options: "i",
+              },
+            },
+            {
+              "address.state": {
+                $regex: cleanedSearchTerm,
+                $options: "i",
+              },
+            },
+            {
+              therapytype: {
+                $regex: cleanedSearchTerm,
+                $options: "i",
+              },
+            },
           ],
         };
 
@@ -1125,7 +1142,7 @@ export const getIndividualProviders = async (req, res, next) => {
           } else {
             searchFilters.push(regexSearchFilter);
           }
-        } catch (error) {
+        } catch {
           searchFilters.push(regexSearchFilter);
         }
       }
@@ -1149,7 +1166,6 @@ export const getIndividualProviders = async (req, res, next) => {
       }
     }
 
-    // Combine filters
     if (searchFilters.length > 0) {
       query = {
         ...query,
@@ -1157,30 +1173,67 @@ export const getIndividualProviders = async (req, res, next) => {
       };
     }
 
-    const sortQuery = {};
-    sortQuery[sort] = order === "desc" ? -1 : 1;
+    const sortStage = {};
+    sortStage[sort] = order === "desc" ? -1 : 1;
 
-    const isUsingTextSearch = searchFilters.some((f) => f.$text);
-    if (isUsingTextSearch) {
-      sortQuery.score = { $meta: "textScore" };
-    }
-
-    const [providers, totalCount] = await Promise.all([
-      Provider.find(query)
-        .collation({ locale: "en", strength: 2 })
-        .sort(sortQuery)
-        .limit(Number(limit))
-        .skip(Number(startIndex))
-        .select(
-          "fullName name address email phone providerType profilePicture createdAt verified regularPrice experience therapytype ratingSummary timeSlots userRef"
-        )
-        .lean(),
-
-      Provider.countDocuments(query),
+    const providers = await Provider.aggregate([
+      {
+        $match: query,
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "userRef",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $unwind: "$user",
+      },
+      {
+        $match: {
+          "user.isActive": true,
+        },
+      },
+      {
+        $sort: sortStage,
+      },
+      {
+        $facet: {
+          data: [
+            { $skip: Number(startIndex) },
+            { $limit: Number(limit) },
+            {
+              $project: {
+                fullName: 1,
+                name: 1,
+                address: 1,
+                email: 1,
+                phone: 1,
+                providerType: 1,
+                profilePicture: 1,
+                createdAt: 1,
+                verified: 1,
+                regularPrice: 1,
+                experience: 1,
+                therapytype: 1,
+                ratingSummary: 1,
+                timeSlots: 1,
+                userRef: 1,
+              },
+            },
+          ],
+          total: [{ $count: "count" }],
+        },
+      },
     ]);
 
+    const providerList = providers[0].data;
+    const totalCount = providers[0].total[0]?.count || 0;
 
-    const providerIds = providers.map((p) => p._id);
+    const providerIds = providerList.map((p) => p._id);
+
     const last48hrs = new Date(Date.now() - 48 * 60 * 60 * 1000);
 
     const bookings = await Booking.aggregate([
@@ -1193,7 +1246,9 @@ export const getIndividualProviders = async (req, res, next) => {
       {
         $group: {
           _id: "$provider",
-          count: { $sum: 1 },
+          count: {
+            $sum: 1,
+          },
         },
       },
     ]);
@@ -1202,37 +1257,21 @@ export const getIndividualProviders = async (req, res, next) => {
       bookings.map((b) => [b._id.toString(), b.count])
     );
 
-   
-    const userIds = providers.map((p) => p.userRef);
-
-    const users = await User.find({ _id: { $in: userIds } })
-      .select("_id isActive")
-      .lean();
-
-    const userMap = new Map(
-      users.map((u) => [u._id.toString(), u.isActive])
-    );
-
-    const providersWithBooking = providers.map((provider) => ({
+    const providersWithBooking = providerList.map((provider) => ({
       ...provider,
       totalBookings: bookingMap.get(provider._id.toString()) || 0,
-      isActive: userMap.get(provider.userRef?.toString()) || false,
+      isActive: true,
     }));
 
-    const activeProviders = providersWithBooking.filter(
-      (p) => p.isActive === true
-    );
-
     res.status(200).json({
-      providers: activeProviders,
-      totalCount: activeProviders.length,
+      providers: providersWithBooking,
+      totalCount,
     });
   } catch (error) {
-  console.error(error);
-  next(errorHandler(500, "Failed to fetch providers"));
-}
+    console.error(error);
+    next(errorHandler(500, "Failed to fetch providers"));
+  }
 };
-
 export const getAllCentreDashboardStats = async (req, res, next) => {
   try {
 

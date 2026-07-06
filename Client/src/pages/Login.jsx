@@ -55,9 +55,13 @@ const Login = () => {
       toast.success("Login successful ");
       navigate("/dashboard");
     } catch (err) {
-      console.error("Login error:", err);
-      toast.error("Something went wrong. Please try again.");
-    } finally {
+    console.error("Login error:", err);
+
+    const message = err.message || "Something went wrong";
+
+    setError(message);
+    toast.error(message);
+  } finally {
       setLoading(false);
     }
   };
