@@ -27,7 +27,7 @@ export default function TicketDrawer({ ticket, idx, onClose, onUpdate }) {
         <div className="px-6 py-5 border-b border-[#8fa797]/10 flex items-start justify-between gap-4 bg-[#F6F4F0]/30">
           <div className="flex-1 min-w-0">
             <div className="font-mono text-[11px] font-bold text-[#8fa797] mb-1.5">{ticket.ticketId}</div>
-            <div className="text-[16px] font-bold text-[#2d4a36] leading-snug tracking-tight">{ticket.title}</div>
+            <div className="text-[16px] font-bold text-[#2d4a36] leading-snug tracking-tight">{ticket.category}</div>
             {/* <div className="px-0 py-0 border-b border-[#8fa797]/10 bg-[#F6F4F0]/20"> */}
   {/* <div className="text-[10px] font-bold text-[#8fa797] uppercase tracking-widest mb-2">
     Description

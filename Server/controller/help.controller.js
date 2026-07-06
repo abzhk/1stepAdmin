@@ -221,20 +221,20 @@ ${ticket.ticketId}
 
 <tr>
 <td style="padding:12px 0;border-bottom:1px solid #e8e4dd;font-size:13px;color:#7a877f;font-weight:600;">
-Title
-</td>
-<td style="padding:12px 0;border-bottom:1px solid #e8e4dd;font-size:14px;color:#2d4a36;font-weight:600;">
-${ticket.title}
-</td>
-</tr>
-
-<tr>
-<td style="padding:12px 0;border-bottom:1px solid #e8e4dd;font-size:13px;color:#7a877f;font-weight:600;">
 Category
 </td>
 <td style="padding:12px 0;border-bottom:1px solid #e8e4dd;font-size:14px;color:#2d4a36;font-weight:600;">
 ${ticket.category}
 </td>
+</tr>
+
+<tr>
+  <td style="padding:16px 0;vertical-align:top;font-size:13px;color:#7a877f;font-weight:600;">
+    Description
+  </td>
+  <td style="padding:16px 0;font-size:14px;line-height:1.8;color:#2d4a36;white-space:pre-wrap;">
+    ${ticket.description}
+  </td>
 </tr>
 
 <tr>

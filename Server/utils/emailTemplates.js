@@ -88,7 +88,6 @@ ${replyMessage}
 <table width="100%" cellpadding="0" cellspacing="0">
 
 ${row("Ticket ID", ticket.ticketId)}
-${row("Title", ticket.title)}
 ${row("Category", ticket.category)}
 
 ${row(
@@ -97,6 +96,30 @@ ${row(
     ${ticket.priority}
   </span>`
 )}
+
+<tr>
+  <td style="
+    padding:16px 0;
+    border-bottom:1px solid #e8e4dd;
+    vertical-align:top;
+    font-size:13px;
+    color:#7a877f;
+    font-weight:600;
+    width:120px;">
+    Description
+  </td>
+
+  <td style="
+    padding:16px 0;
+    border-bottom:1px solid #e8e4dd;
+    font-size:14px;
+    color:#2d4a36;
+    line-height:1.8;
+    white-space:pre-wrap;
+    word-break:break-word;">
+    ${ticket.description || "-"}
+  </td>
+</tr>
 
 <tr>
 <td style="padding:12px 0;font-size:13px;color:#7a877f;font-weight:600;">

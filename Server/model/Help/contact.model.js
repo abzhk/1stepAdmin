@@ -49,7 +49,7 @@ const messageSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["pending", "in-progress", "replied", "resolved", "closed"],
+    enum: ["pending", "in-progress", "read", "replied", "resolved", "closed"],
     default: "pending",
   },
   // NEW FIELDS FOR EMAIL TRACKING
@@ -146,7 +146,7 @@ const contactSchema = new mongoose.Schema(
     },
     status: { 
       type: String,
-      enum: ["pending", "in-progress", "replied", "resolved", "closed"],
+      enum: ["pending", "in-progress",  "read", "replied", "resolved", "closed"],
       default: "pending",
     },
     resolvedAt: {

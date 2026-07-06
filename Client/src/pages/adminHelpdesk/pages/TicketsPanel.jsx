@@ -40,15 +40,19 @@ export default function TicketsPanel({ tickets,search,
         </div>
         
         <div className="flex gap-2 px-6 py-3 border-b border-[#8fa797]/10 bg-white">
-          {["All", "Open", "In progress", "Resolved", ].map(f => {
-            const cnt = f === "All" ? tickets.length : tickets.filter(t => t.status === f).length;
-            return (
-              <button key={f} onClick={() => setFilter(f)} className={`text-[12px] px-4 py-1.5 rounded-full font-bold transition-all flex items-center gap-2 border ${filter === f ? "bg-[#2d4a36] text-[#F6F4F0] border-[#2d4a36] shadow-md" : "bg-[#F6F4F0]/50 text-[#8fa797] border-[#8fa797]/20 hover:border-[#8fa797]/40 hover:text-[#2d4a36]"}`}>
-                {f}
-                <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${filter === f ? "bg-white/20 text-[#F6F4F0]" : "bg-white text-[#8fa797] shadow-sm"}`}>{cnt}</span>
-              </button>
-            );
-          })}
+          {["All", "Open", "In progress", "Resolved"].map((f) => (
+  <button
+    key={f}
+    onClick={() => setFilter(f)}
+    className={`text-[12px] px-4 py-1.5 rounded-full font-bold transition-all border ${
+      filter === f
+        ? "bg-[#2d4a36] text-[#F6F4F0] border-[#2d4a36] shadow-md"
+        : "bg-[#F6F4F0]/50 text-[#8fa797] border-[#8fa797]/20 hover:border-[#8fa797]/40 hover:text-[#2d4a36]"
+    }`}
+  >
+    {f}
+  </button>
+))}
         </div>
         
         <div className="overflow-x-auto">
@@ -119,26 +123,38 @@ export default function TicketsPanel({ tickets,search,
         </div>
         
       </div>
-      <div className="flex items-center justify-end gap-2 mt-4">
-  <button
-    disabled={!pagination?.hasPrevPage}
-    onClick={() => setPage((prev) => prev - 1)}
-    className="px-4 py-2 bg-[#2d4a36] text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
-  >
-    Prev
-  </button>
+      <div className="flex flex-col md:flex-row items-center justify-between mt-6">
+  <p className="text-sm text-[#8fa797]">
+  Showing {(pagination.page - 1) * pagination.limit + (filtered.length ? 1 : 0)}{" "}
+  to{" "}
+  {Math.min(
+    (pagination.page - 1) * pagination.limit + filtered.length,
+    pagination.total
+  )}{" "}
+  of {pagination.total} tickets
+</p>
 
-  <span className="px-4 py-2 bg-[#F6F4F0] text-[#2d4a36] mx-2">
-    {pagination?.page || 1} of {pagination?.totalPages || 1}
-  </span>
+  <div className="flex items-center gap-2">
+    <button
+      disabled={!pagination?.hasPrevPage}
+      onClick={() => setPage((prev) => prev - 1)}
+      className="px-4 py-2 bg-[#2d4a36] text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+      Prev
+    </button>
 
-  <button
-    disabled={!pagination?.hasNextPage}
-    onClick={() => setPage((prev) => prev + 1)}
-    className="px-4 py-2 bg-[#2d4a36] text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
-  >
-    Next
-  </button>
+    <span className="px-4 py-2 bg-[#F6F4F0] text-[#2d4a36] rounded-lg">
+      {pagination?.page || 1} of {pagination?.totalPages || 1}
+    </span>
+
+    <button
+      disabled={!pagination?.hasNextPage}
+      onClick={() => setPage((prev) => prev + 1)}
+      className="px-4 py-2 bg-[#2d4a36] text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+      Next
+    </button>
+  </div>
 </div>
     </div>
   );
