@@ -265,6 +265,10 @@ export const getAllUsers = async (req, res, next) => {
       role: { $in: ["Admin", "content_admin"] },
     }).select("_id");
 
+    const superAdminRole = await Role.findOne({
+  role: "Super Admin",
+}).select("_id");
+
     const adminRoleIds = adminRoles.map((r) => r._id);
 
     const filter = {
@@ -279,11 +283,13 @@ export const getAllUsers = async (req, res, next) => {
     };
 
 
-    if (role === "admin") {
-      filter.role = { $in: adminRoleIds };
-    } else if (role === "user") {
-      filter.role = { $nin: adminRoleIds };
-    }
+   if (role === "admin") {
+  filter.role = { $in: adminRoleIds };
+} else if (role === "user") {
+  filter.role = {
+    $nin: [...adminRoleIds, superAdminRole._id],
+  };
+}
    
 
     const totalUsers = await User.countDocuments(filter);

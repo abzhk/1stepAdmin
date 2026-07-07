@@ -11,7 +11,11 @@ export const getStats = async (req, res,next) => {
     if (!stats) {
       return next(errorHandler(404,"stats not found"))
     }
-    res.json(stats);
+     const totalParents = await Parent.countDocuments();
+    res.json({
+      ...stats.toObject(),
+      totalParents,
+    });
   } catch (err) {
     console.error("Error fetching stats:", err);
     return next(errorHandler(500, "Error fetching stats"));

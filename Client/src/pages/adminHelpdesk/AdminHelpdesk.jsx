@@ -22,6 +22,12 @@ export default function AdminHelpdesk() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
 const [pagination, setPagination] = useState({});
+const [stats, setStats] = useState({
+  open: 0,
+  inProgress: 0,
+  resolved: 0,
+  highPriority: 0,
+});
 
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(null), 3000); };
 
@@ -70,6 +76,7 @@ const fetchTickets = async () => {
 console.log(data.pagination);
     setTickets(data.tickets);
      setPagination(data.pagination);
+     setStats(data.stats);
   } catch (error) {
     console.error(error);
   } finally {
@@ -120,7 +127,7 @@ useEffect(() => {
         </header>
         
         <main className="flex-1 overflow-y-auto p-8 relative">
-          {panel === "dashboard" && <DashboardPanel tickets={tickets} onViewAll={() => setPanel("tickets")} onTicketClick={(t, i) => setDrawer({ ticket: t, idx: i })} />}
+          {panel === "dashboard" && <DashboardPanel tickets={tickets}  stats={stats} onViewAll={() => setPanel("tickets")} onTicketClick={(t, i) => setDrawer({ ticket: t, idx: i })} />}
           {panel === "tickets" && <TicketsPanel tickets={tickets}  search={search} page={page}
   setPage={setPage}
   pagination={pagination}
