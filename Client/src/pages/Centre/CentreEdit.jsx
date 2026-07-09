@@ -53,10 +53,11 @@ const CentreEdit = () => {
   const handleSubmit = async () => {
     try {
      await api(`/api/provider/centre/${id}`, {
-  body: JSON.stringify(formData), 
+  method: "PUT",
   headers: {
     "Content-Type": "application/json",
   },
+  body: JSON.stringify(formData),
 });
 
       navigate("/centre-list");
