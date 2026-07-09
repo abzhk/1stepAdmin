@@ -319,12 +319,35 @@ export const bulkToggleActive = async (req, res) => {
 export const getAllOptionsByTypeAdmin = async (req, res) => {
   try {
     const { type } = req.params;
+     const { page = 1, limit = 10, search = "" } = req.query;
 
-    const data = await MasterData.find({ type }).sort({ order: 1 });
+    const pageNumber = parseInt(page);
+    const limitNumber = parseInt(limit);
+    const skip = (pageNumber - 1) * limitNumber;
+     const query = {
+      type,
+    };
+
+    const [data, total] = await Promise.all([
+      MasterData.find(query)
+        .sort({ order: 1 })
+        .skip(skip)
+        .limit(limitNumber),
+
+      MasterData.countDocuments(query),
+    ]);
 
     res.status(200).json({
       success: true,
       data,
+       pagination: {
+        currentPage: pageNumber,
+        totalPages: Math.ceil(total / limitNumber),
+        totalItems: total,
+        pageSize: limitNumber,
+        hasNextPage: pageNumber < Math.ceil(total / limitNumber),
+        hasPrevPage: pageNumber > 1,
+      },
     });
   } catch (error) {
     res.status(500).json({
