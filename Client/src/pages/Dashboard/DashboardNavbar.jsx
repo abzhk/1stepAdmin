@@ -32,7 +32,7 @@ const DashboardNavbar = ({ searchTerm, setSearchTerm }) => {
   if (path.startsWith("/dashboard")) return "Dashboard";
   if (path.startsWith("/users")) return "Users";
   if (path.startsWith("/allproviders")||path.startsWith("/inactive-providers")) return "Providers";
-  if (path.startsWith("/view-parent") ||path.startsWith("/inactive-parents")) return "parents";
+  if (path.startsWith("/view-parent") ||path.startsWith("/inactive-parents")) return "Parents";
   if (path.startsWith("/add-plans")||path.startsWith("/view-plans")) return "Plans";
   if (path.startsWith("/create-Role")) return "Roles";
   if (path.startsWith("/reports")) return "Reports";
@@ -44,6 +44,8 @@ const DashboardNavbar = ({ searchTerm, setSearchTerm }) => {
   if (path.startsWith("/centre")||path.startsWith("/upcoming-session")||path.startsWith("/edit-centre")) return "Centre";
   if (path.startsWith("/admin-verify")) return "Claim Profile";
   if (path.startsWith("/admin-help-desk")) return "Help Desk";
+  if (path.startsWith("/contact")) return "Contact Us";
+  if (path.startsWith("/admin-profile")) return "Profile";
   return "Dashboard";
 };
 

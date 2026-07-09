@@ -24,6 +24,8 @@ export const VALID_TYPES = [
   "programCategory",
   "activityType",
   "contentCategory",
+  "articleTag",
+  "ourServices",
 
   // Operational
   "ageBand",
@@ -37,7 +39,6 @@ export const VALID_TYPES = [
 
   // Subscription & Billing
   "planBillingConfig",
-   "articleTag",
 ];
 
 const masterDataSchema = new mongoose.Schema(
