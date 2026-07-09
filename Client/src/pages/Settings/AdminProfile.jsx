@@ -91,6 +91,11 @@ const AdminProfile = () => {
   };
 
   const handleUpdate = async () => {
+
+     if (uploading) {
+    toast.error("Please wait until the image upload is complete.");
+    return;
+  }
     try {
       const res = await api("/api/admin/update-profile", {
         method: "PUT",
@@ -227,12 +232,37 @@ const AdminProfile = () => {
 </PermissionGuard>
             ) : (
               <PermissionGuard module={MODULES.SETTINGS} action={ACTIONS.UPDATE}>
+                <div className="flex gap-3">
+        {/* Cancel */}
+        <button
+          type="button"
+          onClick={() => {
+            setForm({
+              username: user.username,
+              email: user.email,
+              profilePicture: user.profilePicture,
+            });
+
+            setImagePreview(null);
+            setUploading(false);
+            setProgress(0);
+            setEdit(false);
+
+            if (fileInputRef.current) {
+              fileInputRef.current.value = "";
+            }
+          }}
+          className="rounded-xl border border-gray-300 bg-gray-100 px-6 py-3 text-gray-700 hover:bg-gray-200 transition"
+        >
+          Cancel
+        </button>
               <button
-                onClick={handleUpdate}
+                onClick={handleUpdate} disabled={uploading}
                 className="flex items-center gap-2 rounded-xl px-6 py-3 bg-[#2d4a36] text-white shadow-lg hover:scale-105 transition"
               >
                 <IoSaveOutline /> Save Changes
               </button>
+              </div>
               </PermissionGuard>
             )}
 

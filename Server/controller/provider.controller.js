@@ -1639,12 +1639,12 @@ export const deleteCentre = async (req, res, next) => {
       });
     }
 
-    const userId = new mongoose.Types.ObjectId(centre.userRef);
+    const deletedCentre = await Provider.findByIdAndDelete(id);
 
-    await Promise.all([
-      Provider.deleteOne({ _id: id }),
-      User.deleteOne({ _id: userId }),
-    ]);
+const deletedUser = await User.findByIdAndDelete(centre.userRef);
+
+console.log("Deleted Centre:", deletedCentre);
+console.log("Deleted User:", deletedUser);
 
     return res.status(200).json({
       success: true,
@@ -1696,7 +1696,17 @@ export const setCentreActiveStatus = async (req, res, next) => {
 
     // Update Provider collection
     centre.isActive = isActive;
-    await centre.save();
+   await Provider.findByIdAndUpdate(
+  centreId,
+  {
+    $set: {
+      isActive,
+    },
+  },
+  {
+    new: true,
+  }
+);
 
     // Update User collection
     await User.findByIdAndUpdate(
