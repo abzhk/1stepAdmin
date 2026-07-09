@@ -340,6 +340,39 @@ const contentCategories = [
   { code: "therapeutic_tips", label: "Therapeutic Tips", order: 4 },
 ];
 
+// ============================================
+// OUR SERVICES
+// ============================================
+const ourServices = [
+  { code: "diagnostic_evaluation", label: "Diagnostic Evaluation", category: "Assessments", order: 1 },
+  { code: "occupational_therapy", label: "Occupational Therapy", category: "Therapy Services", order: 2 },
+  { code: "speech_therapy", label: "Speech Therapy", category: "Therapy Services", order: 3 },
+  { code: "music_therapy", label: "Music Therapy", category: "Therapy Services", order: 4 },
+  { code: "school_based_service", label: "School-Based Service", category: "Specialized Programs", order: 5 },
+  { code: "art_as_therapy", label: "Art As Therapy", category: "Specialized Programs", order: 6 },
+];
+
+// ============================================
+// ARTICLE TAGS
+// ============================================
+const articleTags = [
+  { code: "trauma", label: "Trauma", order: 1 },
+  { code: "cbt", label: "CBT", order: 2 },
+  { code: "telehealth", label: "Telehealth", order: 3 },
+  { code: "ethics", label: "Ethics", order: 4 },
+  { code: "burnout", label: "Burnout", order: 5 },
+  { code: "marketing", label: "Marketing", order: 6 },
+  { code: "kids", label: "Kids", order: 7 },
+  { code: "tech", label: "Tech", order: 8 },
+  { code: "anxiety", label: "Anxiety", order: 9 },
+  { code: "autism", label: "Autism", order: 10 },
+  { code: "speech_therapy", label: "Speech Therapy", order: 11 },
+  { code: "occupational_therapy", label: "Occupational Therapy", order: 12 },
+  { code: "mental_health", label: "Mental Health", order: 13 },
+  { code: "parenting", label: "Parenting", order: 14 },
+  { code: "early_intervention", label: "Early Intervention", order: 15 },
+];
+
 // Keep existing assessment-related data...
 const questionTypes = [
   {
@@ -474,6 +507,12 @@ async function seedMasterData() {
 
     await MasterData.bulkInsertOptions("contentCategory", contentCategories);
     console.log("✅ Content categories seeded");
+
+    await MasterData.bulkInsertOptions("ourServices", ourServices);
+    console.log("✅ Our services seeded");
+
+    await MasterData.bulkInsertOptions("articleTag", articleTags);
+    console.log("✅ Article tags seeded");
 
     // Assessment data
     await MasterData.bulkInsertOptions("questionType", questionTypes);

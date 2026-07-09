@@ -52,7 +52,7 @@ import Asssessmentquestionary from "./pages/Assessment/AssessmentCreation.jsx"
 import AssessmentList from "./pages/Assessment/AssessmentList.jsx";
 import AssessmentQuestions from "./pages/Assessment/AssessmentQuestion.jsx";
 import AdminHelpdesk from "./pages/adminHelpdesk/AdminHelpdesk.jsx";
-import AdminInbox from "./pages/HelpDesk/InboxQuery.jsx";
+import AdminInbox from "./pages/ContactUs/InboxQuery.jsx";
 
 const App = () => {
   const dispatch = useDispatch();

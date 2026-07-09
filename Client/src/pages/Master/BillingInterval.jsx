@@ -193,6 +193,7 @@ const BillingInterval = () => {
               <input
                 name="order"
                 type="number"
+                min={1}
                 placeholder="Order"
                 value={formData.order}
                 onChange={handleChange}

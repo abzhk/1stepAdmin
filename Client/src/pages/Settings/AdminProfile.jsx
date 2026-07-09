@@ -8,11 +8,13 @@ import { storage } from "../../firebase.js";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import PermissionGuard from "../../Components/PermissionGuard.jsx";
 import { MODULES, ACTIONS } from "../../constants/permission.js";
+import { setUser } from "../../redux/slice/authSlice";
+import { useDispatch } from "react-redux";
 
 const AdminProfile = () => {
   const fileInputRef = useRef(null);
-
-  const [user, setUser] = useState(null);
+  const dispatch = useDispatch();
+  const [profile, setProfile] = useState(null);
   const [edit, setEdit] = useState(false);
 
   const [form, setForm] = useState({
@@ -37,7 +39,7 @@ const AdminProfile = () => {
       });
 
       if (res.success) {
-        setUser(res.user);
+         setProfile(res.user); 
         setForm({
           username: res.user.username,
           email: res.user.email,
@@ -107,13 +109,14 @@ const AdminProfile = () => {
 
   setImagePreview(null);
 
-  setUser(res.user);
+  setProfile(res.user);
 
   setForm({
     username: res.user.username,
     email: res.user.email,
     profilePicture: res.user.profilePicture,
   });
+   dispatch(setUser(res.user));
 
   setEdit(false);
 }
@@ -122,7 +125,7 @@ const AdminProfile = () => {
     }
   };
 
-  if (!user) return <div className="p-6">Loading...</div>;
+  if (!profile) return <div className="p-6">Loading...</div>;
 
  return (
   <div className="min-h-screen bg-offwhite p-4 md:p-8 text-[#2d4a36]">
@@ -212,7 +215,7 @@ const AdminProfile = () => {
             <div>
               <label className="text-label">Role</label>
               <div className="mt-2 p-3 rounded-xl bg-softpeach/70  text-white font-semibold">
-                {user.role}
+                {profile.role}
               </div>
             </div>
 
@@ -238,9 +241,9 @@ const AdminProfile = () => {
           type="button"
           onClick={() => {
             setForm({
-              username: user.username,
-              email: user.email,
-              profilePicture: user.profilePicture,
+              username: profile.username,
+              email: profile.email,
+              profilePicture: profile.profilePicture,
             });
 
             setImagePreview(null);

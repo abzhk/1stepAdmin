@@ -189,7 +189,7 @@ useEffect(() => {
     setIsSubmitted(true);
   } catch (err) {
     console.error(err);
-    toast.error("Something went wrong");
+    toast.error(err.message || "Something went wrong");
   }
 };
 
@@ -434,6 +434,7 @@ useEffect(() => {
                           name="plan_name"
                           value={formData.plan_name}
                           onChange={handleChange}
+                          maxLength={30}
                           disabled={isVersionMode}
                           placeholder="e.g. Premium Plan"
                           className="mt-1 w-full px-4 py-3 rounded-xl bg-[#F6F4F0] border border-[#8fa797]/30 focus:ring-2 focus:ring-[#2d4a36] outline-none text-[#2d4a36]"
@@ -448,6 +449,7 @@ useEffect(() => {
                           name="description"
                           rows={3}
                           value={formData.description}
+                           maxLength={500}
                           onChange={handleChange}
                           placeholder="Briefly describe..."
                           className="mt-1 w-full px-4 py-3 rounded-xl bg-[#F6F4F0] border border-[#8fa797]/30 focus:ring-2 focus:ring-[#2d4a36] outline-none resize-none text-[#2d4a36]"
@@ -842,9 +844,14 @@ useEffect(() => {
                           type="number"
                           name="max_messages_per_month"
                           min="0"
+                           disabled={isEditMode}
                           value={formData.max_messages_per_month}
                           onChange={handleChange}
-                          onKeyDown={(e) => e.key === "." && e.preventDefault()}
+                          onKeyDown={(e) => {
+  if (["-", ".", "e", "E"].includes(e.key)) {
+    e.preventDefault();
+  }
+}}
                           className="mt-1 w-full px-4 py-3 rounded-xl bg-[#F6F4F0] border border-[#8fa797]/30"
                         />
                       </div>
@@ -858,9 +865,14 @@ useEffect(() => {
                           type="number"
                           name="max_assessments_per_month"
                           min="0"
+                           disabled={isEditMode}
                           value={formData.max_assessments_per_month}
                           onChange={handleChange}
-                          onKeyDown={(e) => e.key === "." && e.preventDefault()}
+                          onKeyDown={(e) => {
+  if (["-", ".", "e", "E"].includes(e.key)) {
+    e.preventDefault();
+  }
+}}
                           className="mt-1 w-full px-4 py-3 rounded-xl bg-[#F6F4F0] border border-[#8fa797]/30"
                         />
                       </div>
@@ -875,11 +887,14 @@ useEffect(() => {
                             type="number"
                             name="max_providers_allowed"
                             min="1"
+                             disabled={isEditMode}
                             value={formData.max_providers_allowed}
                             onChange={handleChange}
-                            onKeyDown={(e) =>
-                              e.key === "." && e.preventDefault()
-                            }
+                            onKeyDown={(e) => {
+  if (["-", ".", "e", "E"].includes(e.key)) {
+    e.preventDefault();
+  }
+}}
                             className="mt-1 w-full px-4 py-3 rounded-xl bg-[#F6F4F0] border border-[#8fa797]/30"
                           />
                         </div>
@@ -1072,13 +1087,20 @@ useEffect(() => {
                   {formData.plan_name || "Untitled Plan"}
                 </h3>
                 <div className="mt-4 flex items-baseline justify-center text-[#2d4a36]">
-                  <span className="text-5xl font-extrabold tracking-tight">
-                    ₹{finalPrice || "0"}
-                  </span>
-                  <span className="ml-1 text-xl font-medium text-[#8fa797]">
-                    /{formData.billing_interval === "annually" ? "yr" : "mo"}
-                  </span>
-                </div>
+  <span className="text-5xl font-extrabold tracking-tight">
+    ₹{finalPrice || "0"}
+  </span>
+  <span className="ml-1 text-xl font-medium text-[#8fa797]">
+    /
+    {formData.billing_interval === "monthly"
+      ? "mo"
+      : formData.billing_interval === "quarterly"
+      ? "qtr"
+      : formData.billing_interval === "annually"
+      ? "yr"
+      : ""}
+  </span>
+</div>
                 <p className="mt-4 text-sm text-[#8fa797]">
                   {formData.description || "Description..."}
                 </p>
