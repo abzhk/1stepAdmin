@@ -9,6 +9,7 @@ import { BookedSlots } from "../model/booking.model.js";
 // import SkilledProvider from "../models/skilledprovider.model.js";
 import UserSubscription from "../model/subscription.model.js";
 import Invitation from "../model/Centre/invitation.model.js";
+import Stats from "../model/stats.model.js";
 
 
 //validator
@@ -771,6 +772,7 @@ export const setProviderActiveStatus = async (req, res, next) => {
         message: "providerId is required",
       });
     }
+    
 
     // find provider
     const provider = await Provider.findById(providerId);
@@ -822,12 +824,28 @@ export const setProviderActiveStatus = async (req, res, next) => {
       { new: true }
     );
 
+    await Provider.findByIdAndUpdate(
+  providerId,
+  { isActive },
+  { new: true }
+);
+
     if (!user) {
       return res.status(404).json({
         success: false,
         message: "user not found",
       });
     }
+
+    await Stats.updateOne(
+  {},
+  {
+    $inc: {
+      totalProviders: isActive ? 1 : -1,
+      totalIndividualProviders: isActive ? 1 : -1,
+    },
+  }
+);
 
     res.status(200).json({
       success: true,
@@ -1714,6 +1732,16 @@ export const setCentreActiveStatus = async (req, res, next) => {
       { isActive },
       { new: true }
     );
+
+    await Stats.updateOne(
+  {},
+  {
+    $inc: {
+      totalProviders: isActive ? 1 : -1,
+      totalCentreProviders: isActive ? 1 : -1,
+    },
+  }
+);
 
     res.status(200).json({
       success: true,
