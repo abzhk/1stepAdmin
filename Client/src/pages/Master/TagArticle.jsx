@@ -11,6 +11,9 @@ const TagArticle = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
     const { searchTerm } = useOutletContext();
+    const [page, setPage] = useState(1);
+const [pagination, setPagination] = useState({});
+const limit = 10;
 
   const [formData, setFormData] = useState({
     code: "",
@@ -20,17 +23,22 @@ const TagArticle = () => {
   });
 
   useEffect(() => {
-    fetchTags();
-  }, []);
+  fetchTags(page);
+}, [page]);
 
-  const fetchTags = async () => {
-    try {
-      const res = await api("/api/services/admin/articleTag");
-      setTags(res.data || []);
-    } catch (error) {
-      console.error("Fetch failed:", error);
-    }
-  };
+  const fetchTags = async (pageNo = page) => {
+  try {
+    const res = await api(
+      `/api/services/admin/articleTag?page=${pageNo}&limit=${limit}`
+    );
+
+    setTags(res.data || []);
+    setPagination(res.pagination);
+    setPage(pageNo);
+  } catch (error) {
+    console.error("Fetch failed:", error);
+  }
+};
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -234,7 +242,7 @@ const filteredTags = tags.filter((tag) => {
                       key={tag._id}
                       className=" hover:bg-offwhite text-table-text"
                     >
-                      <td className="p-3">{index + 1}</td>
+                      <td className="p-3"> {(page - 1) * limit + index + 1}</td>
                       <td className="p-3">{tag.label}</td>
                       <td className="p-3">{tag.code}</td>
                       <td>{tag.description}</td>
@@ -327,7 +335,29 @@ const filteredTags = tags.filter((tag) => {
             </div>
           </div>
         </div>
+        
       )}
+      <div className="flex justify-end items-center gap-4 mt-5">
+  <button
+    disabled={!pagination.hasPrevPage}
+    onClick={() => fetchTags(page - 1)}
+    className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+  >
+    Previous
+  </button>
+
+  <span>
+    Page {pagination.currentPage} of {pagination.totalPages}
+  </span>
+
+  <button
+    disabled={!pagination.hasNextPage}
+    onClick={() => fetchTags(page + 1)}
+    className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+  >
+    Next
+  </button>
+</div>
     </div>
   );
 };
