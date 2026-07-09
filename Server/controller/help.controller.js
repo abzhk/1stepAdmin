@@ -403,7 +403,7 @@ export const getAllTickets = async (req, res, next) => {
     const limitNumber = Number(limit);
     const skip = (pageNumber - 1) * limitNumber;
 
-    const [tickets, totalTickets] = await Promise.all([
+    const [tickets, totalTickets,stats] = await Promise.all([
       Help.find(query)
       .populate({
       path: "user",
@@ -418,11 +418,46 @@ export const getAllTickets = async (req, res, next) => {
         .limit(limitNumber)
         .lean(),
       Help.countDocuments(query),
+
+ Help.aggregate([
+    {
+      $group: {
+        _id: null,
+        open: {
+          $sum: {
+            $cond: [{ $eq: ["$status", "Open"] }, 1, 0],
+          },
+        },
+        inProgress: {
+          $sum: {
+            $cond: [{ $eq: ["$status", "In progress"] }, 1, 0],
+          },
+        },
+        resolved: {
+          $sum: {
+            $cond: [{ $eq: ["$status", "Resolved"] }, 1, 0],
+          },
+        },
+        highPriority: {
+          $sum: {
+            $cond: [{ $eq: ["$priority", "High"] }, 1, 0],
+          },
+        },
+      },
+    },
+  ]),
+
     ]);
 
     res.status(200).json({
       success: true,
       tickets,
+       stats: stats[0] || {
+    open: 0,
+    inProgress: 0,
+    resolved: 0,
+    highPriority: 0,
+  },
       pagination: {
         total: totalTickets,
         page: pageNumber,

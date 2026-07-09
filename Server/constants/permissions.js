@@ -15,7 +15,9 @@ export const MODULES = {
   COURSES: "courses",
   ARTICLES: "article",
   MASTER_DATA: "master_data",
-  PLANS: "plans"
+  PLANS: "plans",
+  Roles:"roles",
+  HELP:"help"
 };
 
 export const ACTIONS = {

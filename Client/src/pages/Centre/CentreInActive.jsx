@@ -44,11 +44,14 @@ const CentreInActive = () => {
 
   const confirmDelete = async () => {
     try {
-      const res = await api(
-        `/api/provider/centre/${selectedCentreId}`,
-        "DELETE",
-      );
+     const res = await api(
+  `/api/provider/centre/${selectedCentreId}`,
+  {
+    method: "DELETE",
+  }
+);
 
+console.log("DELETE RESPONSE:", res);
       if (res.success) {
         setCentres((prev) => prev.filter((c) => c._id !== selectedCentreId));
 

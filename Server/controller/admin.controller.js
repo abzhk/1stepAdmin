@@ -21,10 +21,20 @@ export const createAdmin = async (req, res,next) => {
 
       const selectedRole = await Role.findOne({ role });
 
-    if (!selectedRole) {
-      return next(errorHandler(400, "Invalid role selected"));
-    }
 
+const roleName = selectedRole.role.toLowerCase();
+
+if (roleName === "super admin") {
+  const existingSuperAdmin = await User.findOne({
+    role: selectedRole._id,
+  });
+
+  if (existingSuperAdmin) {
+    return next(
+      errorHandler(403, "Only one Super Admin is allowed")
+    );
+  }
+}
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const adminUser = new User({

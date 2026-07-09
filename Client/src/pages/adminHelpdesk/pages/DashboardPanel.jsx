@@ -3,7 +3,7 @@ import { AGENTS, AGENT_COLOR_MAP, ac } from "../data/mockData";
 
 
 //UI designed By Gokul
-export default function DashboardPanel({ tickets, onViewAll, onTicketClick }) {
+export default function DashboardPanel({ tickets,  stats, onViewAll, onTicketClick }) {
   const open = tickets.filter(t => t.status === "Open").length;
   const inP = tickets.filter(t => t.status === "In progress").length;
   const res = tickets.filter(t => t.status === "Resolved").length;
