@@ -150,6 +150,7 @@ const OurServices = () => {
     type="text"
     name="label"
     value={formData.label}
+    maxLength={50}
     onChange={handleChange}
     className="rounded-lg px-3 py-2 bg-offwhite"
     required
@@ -162,6 +163,7 @@ const OurServices = () => {
     type="text"
     name="code"
     value={formData.code}
+    maxLength={50}
     onChange={handleChange}
     className="rounded-lg px-3 py-2 bg-offwhite"
     required
@@ -174,6 +176,7 @@ const OurServices = () => {
     type="text"
     name="category"
     value={formData.category}
+    maxLength={50}
     onChange={handleChange}
     className="rounded-lg px-3 py-2 bg-offwhite"
     required

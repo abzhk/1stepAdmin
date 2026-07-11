@@ -148,6 +148,7 @@ const BillingInterval = () => {
               <input
                 name="label"
                 placeholder="Label"
+                maxLength={50}
                 value={formData.label}
                 onChange={handleChange}
                 className="bg-offwhite p-2 rounded-lg"
@@ -159,6 +160,7 @@ const BillingInterval = () => {
               <input
                 name="code"
                 placeholder="Code"
+                maxLength={50}
                 value={formData.code}
                 onChange={handleChange}
                 className="bg-offwhite p-2 rounded-lg"
@@ -170,6 +172,8 @@ const BillingInterval = () => {
               <input
                 name="discount_percent"
                 type="number"
+                min={0}
+                max={100}
                 placeholder="Discount %"
                 value={formData.discount_percent}
                 onChange={handleChange}
@@ -182,6 +186,7 @@ const BillingInterval = () => {
               <input
                 name="badge_text"
                 placeholder="Badge"
+                maxLength={50}
                 value={formData.badge_text}
                 onChange={handleChange}
                 className="bg-offwhite p-2 rounded-lg"

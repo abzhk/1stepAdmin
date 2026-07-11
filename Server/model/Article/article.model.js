@@ -100,17 +100,17 @@ metaDescription: {
     publishedAt: {
       type: Date,
     },
-    referenceType: {
-  type: String,
-  enum: ["category", "service"],
-  required: true,
-  default: "category",
-},
+//     referenceType: {
+//   type: String,
+//   enum: ["category", "service"],
+//   required: true,
+//   default: "category",
+// },
 
-serviceId: {
-  type: mongoose.Schema.Types.ObjectId,
-  ref: "MasterData",
-},
+// serviceId: {
+//   type: mongoose.Schema.Types.ObjectId,
+//   ref: "MasterData",
+// },
   },
   { timestamps: true }
 );

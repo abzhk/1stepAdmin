@@ -4,6 +4,7 @@ import dateFormatUtils from "../../utils/dateFormatUtils.js";
 import PermissionGuard from "../../Components/PermissionGuard.jsx";
 import { MODULES, ACTIONS } from "../../constants/permission.js";
 import { useOutletContext } from "react-router-dom"; 
+import toast from "react-hot-toast";
 
 const TagArticle = () => {
   const [tags, setTags] = useState([]);
@@ -70,9 +71,24 @@ const limit = 10;
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    try {
+  try {
+    if (editId) {
+      // Update
+      const payload = {
+        code: formData.code,
+        description: formData.description,
+        label: formData.label,
+        isActive: formData.isActive,
+      };
+
+      await api(`/api/services/${editId}`, {
+        method: "PUT",
+        body: JSON.stringify(payload),
+      });
+    } else {
+      // Create
       const payload = {
         type: "articleTag",
         code: formData.code,
@@ -81,32 +97,26 @@ const limit = 10;
         isActive: formData.isActive,
       };
 
-      if (editId) {
-        await api(`/api/services/${editId}`, {
-          method: "PUT",
-          body: JSON.stringify(payload),
-        });
-      } else {
-        await api("/api/services", {
-          method: "POST",
-          body: JSON.stringify(payload),
-        });
-      }
-
-      setFormData({
-        code: "",
-        description: "",
-        label: "",
-        isActive: true,
+      await api("/api/services", {
+        method: "POST",
+        body: JSON.stringify(payload),
       });
-      setEditId(null);
-
-      fetchTags();
-    } catch (error) {
-      console.error("Submit failed:", error);
     }
-  };
 
+    setFormData({
+      code: "",
+      description: "",
+      label: "",
+      isActive: true,
+    });
+
+    setEditId(null);
+    fetchTags();
+  } catch (error) {
+    console.error("Submit failed:", error);
+    toast.error(error.message || "Something went wrong");
+  }
+};
   const handleDelete = async () => {
     try {
       await api(`/api/services/${deleteId}`, {
@@ -150,6 +160,7 @@ const filteredTags = tags.filter((tag) => {
                 <input
                   type="text"
                   name="label"
+                  maxLength={50}
                   value={formData.label}
                   onChange={handleChange}
                   className="rounded-lg px-3 py-2 bg-offwhite"
@@ -163,6 +174,7 @@ const filteredTags = tags.filter((tag) => {
                 <input
                   type="text"
                   name="code"
+                  maxLength={50}
                   value={formData.code}
                   onChange={handleChange}
                   className="rounded-lg px-3 py-2 bg-offwhite"
@@ -172,9 +184,11 @@ const filteredTags = tags.filter((tag) => {
 
               <div className="flex flex-col">
                 <label className="text-sm font-medium mb-1">Description</label>
-                <input
+                <textarea
                   type="text"
                   name="description"
+                  rows={3}
+    maxLength={500}
                   value={formData.description}
                   onChange={handleChange}
                   className="rounded-lg px-3 py-2 bg-offwhite"
@@ -182,7 +196,7 @@ const filteredTags = tags.filter((tag) => {
               </div>
 
               {/* Active */}
-              <div className="flex items-center mt-6 bg-offwhite px-3 py-2 rounded-lg">
+               <div className="flex items-center rounded-lg bg-offwhite px-3 py-2 h-[42px] mt-6">
                 <input
                   type="checkbox"
                   name="isActive"
