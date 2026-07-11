@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState , useRef } from "react";
 import { api } from "../../utils/api.js";
 import dateFormatUtils from "../../utils/dateFormatUtils.js";
 import PermissionGuard from "../../Components/PermissionGuard.jsx";
@@ -15,6 +15,7 @@ const TagArticle = () => {
     const [page, setPage] = useState(1);
 const [pagination, setPagination] = useState({});
 const limit = 10;
+const formRef = useRef(null);
 
   const [formData, setFormData] = useState({
     code: "",
@@ -58,6 +59,12 @@ const limit = 10;
       isActive: tag.isActive,
     });
     setEditId(tag._id);
+     setTimeout(() => {
+    formRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  }, 100);
   };
 
   const handleCancel = () => {
@@ -152,7 +159,7 @@ const filteredTags = tags.filter((tag) => {
       <div className=" mx-auto">
         <PermissionGuard module={MODULES.MASTER_DATA} action={ACTIONS.CREATE}>
           {/* FORM */}
-          <div className="bg-white p-6 rounded-2xl shadow-md mb-8">
+          <div ref={formRef} style={{ scrollMarginTop: "160px" }} className="bg-white p-6 rounded-2xl shadow-md mb-8">
             <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4">
               {/* Label */}
               <div className="flex flex-col">

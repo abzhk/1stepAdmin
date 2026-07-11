@@ -151,7 +151,7 @@ const formRef = useRef(null);
     <div className="min-h-screen bg-offwhite">
       <div className=" mx-auto">
         <PermissionGuard module={MODULES.MASTER_DATA} action={ACTIONS.CREATE}>
-          <div    ref={formRef} className="bg-white p-6 rounded-2xl shadow-md mb-8">
+          <div    ref={formRef} style={{ scrollMarginTop: "160px" }} className="bg-white p-6 rounded-2xl shadow-md mb-8">
             <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4">
               <div className="flex flex-col">
                 <label className="text-sm font-medium mb-1">Service Name</label>
