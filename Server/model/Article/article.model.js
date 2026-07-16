@@ -94,27 +94,27 @@ metaDescription: {
 },
    authorType: {
     type: String,
-    enum: [ "Admin", "Super Admin","Provider","content_admin"],
+    enum: [ "Admin", "Super Admin","Provider","content_admin","1step"],
     default: "Admin",
    },
     publishedAt: {
       type: Date,
     },
-    referenceType: {
-  type: String,
-  enum: ["category", "service"],
-  required: true,
-  default: "category",
-},
+//     referenceType: {
+//   type: String,
+//   enum: ["category", "service"],
+//   required: true,
+//   default: "category",
+// },
 
-serviceId: {
-  type: mongoose.Schema.Types.ObjectId,
-  ref: "MasterData",
-},
+// serviceId: {
+//   type: mongoose.Schema.Types.ObjectId,
+//   ref: "MasterData",
+// },
   },
   { timestamps: true }
 );
-
++
 // Text search index
 articleSchema.index(
   {

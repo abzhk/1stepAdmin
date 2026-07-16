@@ -4,6 +4,7 @@ import Category from "../model/Article/category.model.js";
 import { errorHandler } from "../utils/error.js";
 import { FeaturedArticles } from "../utils/article.utils.js";
 import MasterData from "../model/Master/masterData.model.js";
+import sanitizeHtml from "sanitize-html";
 
 // Create new article
 export const createArticle = async (req, res,next) => {
@@ -15,8 +16,8 @@ export const createArticle = async (req, res,next) => {
       excerpt,
       featuredImage,
       categoryId,
-       referenceType,
-       serviceId,
+      //  referenceType,
+      //  serviceId,
       tags,
       readTime,
       featured,
@@ -26,46 +27,59 @@ export const createArticle = async (req, res,next) => {
     } = req.body;
 
   // Validation
-   if (!title || !content || !excerpt || !referenceType) {
+   if (!title || !content || !excerpt || !categoryId) {
   return next(errorHandler(400, "All required fields must be provided"));
 }
 
-if (referenceType === "category" && !categoryId) {
-  return next(errorHandler(400, "Category is required"));
-}
+// if (referenceType === "category" && !categoryId) {
+//   return next(errorHandler(400, "Category is required"));
+// }
 
-if (referenceType === "service" && !serviceId) {
-  return next(errorHandler(400, "Service is required"));
-}
+// if (referenceType === "service" && !serviceId) {
+//   return next(errorHandler(400, "Service is required"));
+// }
   
 // Check category
-   let category = null;
-let service = null;
+//    let category = null;
+// let service = null;
 
-if (referenceType === "category") {
-  category = await Category.findById(categoryId);
+// if (referenceType === "category") {
+//   category = await Category.findById(categoryId);
 
-  if (!category) {
-    return res.status(404).json({
-      success: false,
-      message: "Category not found",
-    });
-  }
+//   if (!category) {
+//     return res.status(404).json({
+//       success: false,
+//       message: "Category not found",
+//     });
+//   }
 
-  if (!category.isActive) {
-    return next(errorHandler(400, "This category is not currently active"));
-  }
+//   if (!category.isActive) {
+//     return next(errorHandler(400, "This category is not currently active"));
+//   }
+// }
+
+// if (referenceType === "service") {
+//   service = await MasterData.findOne({
+//     _id: serviceId,
+//     type: "serviceType",
+//   });
+
+//   if (!service) {
+//     return next(errorHandler(404, "Service not found"));
+//   }
+// }
+
+const category = await Category.findById(categoryId);
+
+if (!category) {
+  return res.status(404).json({
+    success: false,
+    message: "Category not found",
+  });
 }
 
-if (referenceType === "service") {
-  service = await MasterData.findOne({
-    _id: serviceId,
-    type: "serviceType",
-  });
-
-  if (!service) {
-    return next(errorHandler(404, "Service not found"));
-  }
+if (!category.isActive) {
+  return next(errorHandler(400, "This category is not currently active"));
 }
 
     if (position !== null && position !== undefined) {
@@ -98,21 +112,48 @@ if (referenceType === "service") {
 
     const authorType = req.user.role;
 
+
+    if (
+  ["Admin", "Super Admin", "content_admin"].includes(authorType)
+) {
+  authorType = "1step";
+}
+
+
    if (featured) {
   await FeaturedArticles(Article);
 }
 
+ const cleanContent = sanitizeHtml(content, {
+  allowedTags: [
+    "p",
+    "br",
+    "strong",
+    "b",
+    "em",
+    "i",
+    "ul",
+    "ol",
+    "li",
+    "h1",
+    "h2",
+    "h3",
+    "a"
+  ],
+  allowedAttributes: {
+    a: ["href", "target", "rel"],
+  },
+  allowedStyles: {}, 
+});
+
  // Create article
     const article = new Article({
       title,
-      content,
+        content: cleanContent,
       excerpt,
      featuredImage: featuredImage || [],
-
-category: category ? category.name : null,
-categoryId: category ? category._id : null,
-
-serviceId: service ? service._id : null,
+category: category.name,
+categoryId: category._id,
       tags: tags || [],
       readTime: readTime || Math.ceil(content.split(" ").length / 200),
       providerId,
@@ -125,6 +166,8 @@ serviceId: service ? service._id : null,
   metaDescription: metaDescription ,
       publishedAt: status === "approved" ? new Date() : undefined,
     });
+
+   
 
     await article.save();
 
@@ -140,7 +183,7 @@ serviceId: service ? service._id : null,
   } catch (error) {
     console.error("Create article error:", error);
 
-    return next(errorHandler(500, "Error creating article"));
+    return next( errorHandler(500, error.message || "Error creating article"));
   }
 };
 
@@ -189,7 +232,6 @@ export const getArticleById = async (req, res,next) => {
     const article = await Article.findById(id)
       .populate("providerId", "fullName profilePicture")
       .populate("categoryId", "name slug icon color")
-       .populate("serviceId", "label code")
       .populate("tags", "label");
 
     if (!article) {
@@ -1060,14 +1102,15 @@ export const updateArticleAdmin = async (req, res) => {
   });
 }
 
+
     const {
       title,
       content,
       excerpt,
       featuredImage,
-       referenceType,
+      //  referenceType,
        categoryId,
-      serviceId,
+      // serviceId,
       tags,
       position,
       readTime,
@@ -1075,7 +1118,7 @@ export const updateArticleAdmin = async (req, res) => {
   metaDescription,
     } = req.body;
 
-   if (!title || !content || !excerpt || !referenceType) {
+   if (!title || !content || !excerpt || !categoryId) {
   return res.status(400).json({
     message: "All required fields must be provided",
   });
@@ -1087,17 +1130,41 @@ if (!Array.isArray(featuredImage) || featuredImage.length === 0) {
   });
 }
 
-if (referenceType === "category" && !categoryId) {
-  return res.status(400).json({
-    message: "Category is required",
-  });
-}
 
-if (referenceType === "service" && !serviceId) {
-  return res.status(400).json({
-    message: "Service is required",
-  });
-}
+// if (referenceType === "category" && !categoryId) {
+//   return res.status(400).json({
+//     message: "Category is required",
+//   });
+// }
+
+// if (referenceType === "service" && !serviceId) {
+//   return res.status(400).json({
+//     message: "Service is required",
+//   });
+// }
+
+
+const cleanContent = sanitizeHtml(content, {
+  allowedTags: [
+    "p",
+    "br",
+    "strong",
+    "b",
+    "em",
+    "i",
+    "ul",
+    "ol",
+    "li",
+    "h1",
+    "h2",
+    "h3",
+    "a"
+  ],
+  allowedAttributes: {
+    a: ["href", "target", "rel"],
+  },
+  allowedStyles: {},
+});
     if (position !== undefined) {
   // Allow null (to remove position)
   if (position !== null) {
@@ -1124,53 +1191,63 @@ if (referenceType === "service" && !serviceId) {
   article.position = position;
 }
 
-    let category = null;
-let service = null;
+const category = await Category.findById(categoryId);
 
-if (referenceType === "category") {
-  category = await Category.findById(categoryId);
-
-  if (!category || !category.isActive) {
-    return res.status(400).json({
-      message: "Invalid or inactive category",
-    });
-  }
-}
-
-if (referenceType === "service") {
-  service = await MasterData.findOne({
-    _id: serviceId,
-    type: "serviceType",
+if (!category || !category.isActive) {
+  return res.status(400).json({
+    message: "Invalid or inactive category",
   });
-
-  if (!service) {
-    return res.status(400).json({
-      message: "Invalid service",
-    });
-  }
 }
+
+//     let category = null;
+// let service = null;
+
+// if (referenceType === "category") {
+//   category = await Category.findById(categoryId);
+
+//   if (!category || !category.isActive) {
+//     return res.status(400).json({
+//       message: "Invalid or inactive category",
+//     });
+//   }
+// }
+
+// if (referenceType === "service") {
+//   service = await MasterData.findOne({
+//     _id: serviceId,
+//     type: "serviceType",
+//   });
+
+//   if (!service) {
+//     return res.status(400).json({
+//       message: "Invalid service",
+//     });
+//   }
+// }
 
     article.title = title;
-    article.content = content;
+    article.content = cleanContent;
     article.excerpt = excerpt;
     article.featuredImage = Array.isArray(featuredImage)
   ? featuredImage
   : featuredImage
   ? [featuredImage]
   : [];
-    article.referenceType = referenceType;
+//     article.referenceType = referenceType;
 
-if (referenceType === "category") {
-  article.category = category.name;
-  article.categoryId = category._id;
-  article.serviceId = null;
-}
+// if (referenceType === "category") {
+//   article.category = category.name;
+//   article.categoryId = category._id;
+//   article.serviceId = null;
+// }
 
-if (referenceType === "service") {
-  article.category = null;
-  article.categoryId = null;
-  article.serviceId = service._id;
-}
+// if (referenceType === "service") {
+//   article.category = null;
+//   article.categoryId = null;
+//   article.serviceId = service._id;
+// }
+article.category = category.name;
+article.categoryId = category._id;
     article.tags = tags || [];
     article.readTime =
       readTime || Math.ceil(content.split(" ").length / 200);
@@ -1189,8 +1266,7 @@ if (metaDescription !== undefined) article.metaDescription = metaDescription;
 
     res.status(500).json({
          success: false,
-     message: "Error updating article",
-    error: error.message,
+      message: error.message || "Error updating article",
     });
   }
 };

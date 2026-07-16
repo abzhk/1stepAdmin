@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { api } from "../../utils/api";
 import dateFormatUtils from "../../utils/dateFormatUtils";
 import PermissionGuard from "../../Components/PermissionGuard";
@@ -10,6 +10,7 @@ const BillingInterval = () => {
   const [billings, setBillings] = useState([]);
   const [editId, setEditId] = useState(null);
   const { searchTerm } = useOutletContext();
+  const formRef = useRef(null);
 
 
   const [formData, setFormData] = useState({
@@ -115,6 +116,12 @@ const BillingInterval = () => {
       order: item.metadata?.order ?? item.order ?? 1,
       isActive: item.isActive ?? true,
     });
+    setTimeout(() => {
+      formRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 100);
   };
 
   const handleDelete = async (id) => {
@@ -141,13 +148,14 @@ const BillingInterval = () => {
   return (
     <div className="min-h-screen bg-offwhite">
       <PermissionGuard module={MODULES.MASTER_DATA} action={ACTIONS.CREATE}>
-        <div className="bg-white p-6 rounded-2xl shadow mb-8">
+        <div ref={formRef} style={{ scrollMarginTop: "160px" }} className="bg-white p-6 rounded-2xl shadow mb-8">
           <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4">
             <div className="flex flex-col">
               <label className="text-sm font-medium mb-1">Label</label>
               <input
                 name="label"
                 placeholder="Label"
+                maxLength={50}
                 value={formData.label}
                 onChange={handleChange}
                 className="bg-offwhite p-2 rounded-lg"
@@ -159,6 +167,7 @@ const BillingInterval = () => {
               <input
                 name="code"
                 placeholder="Code"
+                maxLength={50}
                 value={formData.code}
                 onChange={handleChange}
                 className="bg-offwhite p-2 rounded-lg"
@@ -170,6 +179,8 @@ const BillingInterval = () => {
               <input
                 name="discount_percent"
                 type="number"
+                min={0}
+                max={100}
                 placeholder="Discount %"
                 value={formData.discount_percent}
                 onChange={handleChange}
@@ -182,6 +193,7 @@ const BillingInterval = () => {
               <input
                 name="badge_text"
                 placeholder="Badge"
+                maxLength={50}
                 value={formData.badge_text}
                 onChange={handleChange}
                 className="bg-offwhite p-2 rounded-lg"

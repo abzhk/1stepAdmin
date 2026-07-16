@@ -1,5 +1,5 @@
 // OurServices.jsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState ,useRef } from "react";
 import { api } from "../../utils/api.js";
 import dateFormatUtils from "../../utils/dateFormatUtils.js";
 import PermissionGuard from "../../Components/PermissionGuard.jsx";
@@ -13,6 +13,7 @@ const OurServices = () => {
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState({});
   const limit = 10;
+  const formRef = useRef(null);
 
   const [formData, setFormData] = useState({
   code: "",
@@ -110,6 +111,11 @@ const OurServices = () => {
   category: service.category || "",
   order: service.order ?? 1,
 });
+
+ formRef.current?.scrollIntoView({
+    behavior: "smooth",
+    block: "start",
+  });
   };
 
   const handleDelete = async () => {
@@ -142,7 +148,7 @@ const OurServices = () => {
     <div className="min-h-screen bg-offwhite">
       <div className="mx-auto">
         <PermissionGuard module={MODULES.MASTER_DATA} action={ACTIONS.CREATE}>
-          <div className="bg-white p-6 rounded-2xl shadow-md mb-8">
+          <div   ref={formRef} style={{ scrollMarginTop: "160px" }} className="bg-white p-6 rounded-2xl shadow-md mb-8">
             <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4">
               <div className="flex flex-col">
   <label className="text-sm font-medium mb-1">Service Name</label>
@@ -150,6 +156,7 @@ const OurServices = () => {
     type="text"
     name="label"
     value={formData.label}
+    maxLength={50}
     onChange={handleChange}
     className="rounded-lg px-3 py-2 bg-offwhite"
     required
@@ -162,6 +169,7 @@ const OurServices = () => {
     type="text"
     name="code"
     value={formData.code}
+    maxLength={50}
     onChange={handleChange}
     className="rounded-lg px-3 py-2 bg-offwhite"
     required
@@ -174,6 +182,7 @@ const OurServices = () => {
     type="text"
     name="category"
     value={formData.category}
+    maxLength={50}
     onChange={handleChange}
     className="rounded-lg px-3 py-2 bg-offwhite"
     required

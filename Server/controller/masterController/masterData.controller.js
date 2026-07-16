@@ -123,13 +123,23 @@ export const createOption = async (req, res) => {
       message: "Option created successfully",
       data: option,
     });
-  } catch (error) {
-    res.status(400).json({
+  }catch (error) {
+  if (error.code === 11000) {
+    const typeName = req.body.type
+      ?.replace(/([A-Z])/g, " $1")
+      .replace(/^./, str => str.toUpperCase());
+
+    return res.status(400).json({
       success: false,
-      message: "Failed to create option",
-      error: error.message,
+      message: `${typeName} code already exists.`,
     });
   }
+
+  return res.status(400).json({
+    success: false,
+    message: error.message || "Failed to create option",
+  });
+}
 };
 
 // ============================================

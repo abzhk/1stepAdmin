@@ -17,7 +17,7 @@ const AddArticle = () => {
   const [tags, setTags] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [selectedTags, setSelectedTags] = useState([]);
-  const [services, setServices] = useState([]);
+  // const [services, setServices] = useState([]);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -30,28 +30,28 @@ const AddArticle = () => {
     position: "",
     metaTitle: "",
     metaDescription: "",
-    referenceType: "category",
-    serviceId: "",
+    // referenceType: "category",
+    // serviceId: "",
   });
 
   const [loading, setLoading] = useState(false);
   const [imagePreviews, setImagePreviews] = useState([]);
 
 
-  useEffect(() => {
-  const fetchServices = async () => {
-    try {
-      const data = await api("/api/services/serviceType?format=raw");
+//   useEffect(() => {
+//   const fetchServices = async () => {
+//     try {
+//       const data = await api("/api/services/serviceType?format=raw");
 
-      setServices(data.data || []);
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to load services");
-    }
-  };
+//       setServices(data.data || []);
+//     } catch (err) {
+//       console.error(err);
+//       toast.error("Failed to load services");
+//     }
+//   };
 
-  fetchServices();
-}, []);
+//   fetchServices();
+// }, []);
 
   useEffect(() => {
     const fetchTags = async () => {
@@ -193,16 +193,16 @@ const handleImageChange = (e) => {
 const handleChange = (e) => {
   const { name, value, type, checked } = e.target;
 
-  if (name === "referenceType") {
-    setFormData((prev) => ({
-      ...prev,
-      referenceType: value,
-      categoryId: "",
-      serviceId: "",
-    }));
+  // if (name === "referenceType") {
+  //   setFormData((prev) => ({
+  //     ...prev,
+  //     referenceType: value,
+  //     categoryId: "",
+  //     serviceId: "",
+  //   }));
 
-    return;
-  }
+  //   return;
+  // }
 
   setFormData((prev) => ({
     ...prev,
@@ -346,7 +346,7 @@ const handleChange = (e) => {
 
               <form onSubmit={handleSubmit} className="p-8">
                 <div className="space-y-8">
-                  <div className="space-y-2">
+                  {/* <div className="space-y-2">
                      <label className=" text-label mb-1">Select Reference Type </label>
 <select  className="w-full border border-gray-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow"
     name="referenceType"
@@ -356,7 +356,7 @@ const handleChange = (e) => {
     <option value="category">Category</option>
     <option value="service">Service</option>
 </select>
-</div>
+</div> */}
  <div className="space-y-2">
                     <label className=" text-label mb-1">Title </label>
                     <input
@@ -404,7 +404,27 @@ const handleChange = (e) => {
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-6">
-                    {formData.referenceType === "category" && (
+
+                    <div>
+  <label className="text-label mb-1">Category</label>
+
+  <select
+    name="categoryId"
+    value={formData.categoryId}
+    onChange={handleChange}
+    required
+    className="w-full border border-gray-400 rounded-lg px-3 py-2"
+  >
+    <option value="">Select Category</option>
+
+    {categories.map((cat) => (
+      <option key={cat._id} value={cat._id}>
+        {cat.name}
+      </option>
+    ))}
+  </select>
+</div>
+                    {/* {formData.referenceType === "category" && (
   <div>
     <label className="text-label mb-1">Category</label>
 
@@ -424,9 +444,9 @@ const handleChange = (e) => {
       ))}
     </select>
   </div>
-)}
+)} */}
 
-{formData.referenceType === "service" && (
+{/* {formData.referenceType === "service" && (
   <div>
     <label className="text-label mb-1">Service</label>
 
@@ -446,7 +466,7 @@ const handleChange = (e) => {
       ))}
     </select>
   </div>
-)}
+)} */}
 
                     <div>
                       <label className="text-label mb-1">Position (1–10)</label>
