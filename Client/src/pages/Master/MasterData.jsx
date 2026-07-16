@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState ,useRef} from "react";
 import { api } from "../../utils/api.js";
 import dateFormatUtils from "../../utils/dateFormatUtils.js";
 import PermissionGuard from "../../Components/PermissionGuard.jsx";
@@ -12,6 +12,7 @@ const MasterData = () => {
   const [page, setPage] = useState(1);
 const [pagination, setPagination] = useState({});
 const limit = 10;
+const formRef = useRef(null);
 
   const [formData, setFormData] = useState({
     code: "",
@@ -114,6 +115,10 @@ const limit = 10;
       durationDefault: service.metadata?.durationDefault || "",
       billable: service.metadata?.billable || false,
     });
+     formRef.current?.scrollIntoView({
+    behavior: "smooth",
+    block: "start",
+  });
   };
 
   const handleDelete = async () => {
@@ -146,7 +151,7 @@ const limit = 10;
     <div className="min-h-screen bg-offwhite">
       <div className=" mx-auto">
         <PermissionGuard module={MODULES.MASTER_DATA} action={ACTIONS.CREATE}>
-          <div className="bg-white p-6 rounded-2xl shadow-md mb-8">
+          <div    ref={formRef} style={{ scrollMarginTop: "160px" }} className="bg-white p-6 rounded-2xl shadow-md mb-8">
             <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4">
               <div className="flex flex-col">
                 <label className="text-sm font-medium mb-1">Service Name</label>
@@ -155,6 +160,7 @@ const limit = 10;
                   name="label"
                   value={formData.label}
                   onChange={handleChange}
+                    maxLength={50}
                   className=" rounded-lg px-3 py-2  bg-offwhite "
                   required
                 />
@@ -167,6 +173,7 @@ const limit = 10;
                   name="code"
                   value={formData.code}
                   onChange={handleChange}
+                  maxLength={50}
                   className=" rounded-lg px-3 py-2 bg-offwhite "
                   required
                 />
@@ -179,6 +186,7 @@ const limit = 10;
     value={formData.description}
     onChange={handleChange}
     rows={3}
+    maxLength={500}
     className="rounded-lg px-3 py-2 bg-offwhite"
   />
 </div>
@@ -189,6 +197,7 @@ const limit = 10;
                 </label>
                 <input
                   type="number"
+                     min={0}
                   name="durationDefault"
                   value={formData.durationDefault}
                   onChange={handleChange}
