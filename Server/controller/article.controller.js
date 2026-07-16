@@ -4,7 +4,7 @@ import Category from "../model/Article/category.model.js";
 import { errorHandler } from "../utils/error.js";
 import { FeaturedArticles } from "../utils/article.utils.js";
 import MasterData from "../model/Master/masterData.model.js";
-import sanitizeHtml from "sanitize-html";
+import DOMPurify from "isomorphic-dompurify";
 
 // Create new article
 export const createArticle = async (req, res,next) => {
@@ -110,7 +110,7 @@ if (!category.isActive) {
       status = "pending";
     }
 
-    const authorType = req.user.role;
+    let authorType = req.user.role;
 
 
     if (
@@ -124,28 +124,45 @@ if (!category.isActive) {
   await FeaturedArticles(Article);
 }
 
- const cleanContent = sanitizeHtml(content, {
-  allowedTags: [
+
+const cleanContent = DOMPurify.sanitize(content, {
+  ALLOWED_TAGS: [
     "p",
     "br",
     "strong",
     "b",
     "em",
     "i",
+    "u",
     "ul",
     "ol",
     "li",
+    "blockquote",
     "h1",
     "h2",
     "h3",
-    "a"
+    "h4",
+    "a",
+    "img"
   ],
-  allowedAttributes: {
-    a: ["href", "target", "rel"],
-  },
-  allowedStyles: {}, 
-});
 
+  ALLOWED_ATTR: [
+    "href",
+    "target",
+    "rel",
+    "src",
+    "alt"
+  ],
+
+  FORBID_ATTR: [
+    "style",
+    "class",
+    "color",
+    "font",
+    "face"
+  ]
+});
+ 
  // Create article
     const article = new Article({
       title,
@@ -1144,26 +1161,36 @@ if (!Array.isArray(featuredImage) || featuredImage.length === 0) {
 // }
 
 
-const cleanContent = sanitizeHtml(content, {
-  allowedTags: [
+const cleanContent = DOMPurify.sanitize(content, {
+  ALLOWED_TAGS: [
     "p",
     "br",
     "strong",
     "b",
     "em",
     "i",
+    "u",
     "ul",
     "ol",
     "li",
+    "blockquote",
     "h1",
     "h2",
     "h3",
-    "a"
+    "a",
+    "img"
   ],
-  allowedAttributes: {
-    a: ["href", "target", "rel"],
-  },
-  allowedStyles: {},
+  ALLOWED_ATTR: [
+    "href",
+    "target",
+    "rel",
+    "src",
+    "alt"
+  ],
+  FORBID_ATTR: [
+    "style",
+    "class"
+  ]
 });
     if (position !== undefined) {
   // Allow null (to remove position)
