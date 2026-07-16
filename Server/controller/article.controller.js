@@ -4,6 +4,7 @@ import Category from "../model/Article/category.model.js";
 import { errorHandler } from "../utils/error.js";
 import { FeaturedArticles } from "../utils/article.utils.js";
 import MasterData from "../model/Master/masterData.model.js";
+import sanitizeHtml from "sanitize-html";
 
 // Create new article
 export const createArticle = async (req, res,next) => {
@@ -111,14 +112,44 @@ if (!category.isActive) {
 
     const authorType = req.user.role;
 
+
+    if (
+  ["Admin", "Super Admin", "content_admin"].includes(authorType)
+) {
+  authorType = "1step";
+}
+
+
    if (featured) {
   await FeaturedArticles(Article);
 }
 
+ const cleanContent = sanitizeHtml(content, {
+  allowedTags: [
+    "p",
+    "br",
+    "strong",
+    "b",
+    "em",
+    "i",
+    "ul",
+    "ol",
+    "li",
+    "h1",
+    "h2",
+    "h3",
+    "a"
+  ],
+  allowedAttributes: {
+    a: ["href", "target", "rel"],
+  },
+  allowedStyles: {}, 
+});
+
  // Create article
     const article = new Article({
       title,
-      content,
+        content: cleanContent,
       excerpt,
      featuredImage: featuredImage || [],
 category: category.name,
@@ -135,6 +166,8 @@ categoryId: category._id,
   metaDescription: metaDescription ,
       publishedAt: status === "approved" ? new Date() : undefined,
     });
+
+   
 
     await article.save();
 
@@ -1069,6 +1102,7 @@ export const updateArticleAdmin = async (req, res) => {
   });
 }
 
+
     const {
       title,
       content,
@@ -1108,6 +1142,29 @@ if (!Array.isArray(featuredImage) || featuredImage.length === 0) {
 //     message: "Service is required",
 //   });
 // }
+
+
+const cleanContent = sanitizeHtml(content, {
+  allowedTags: [
+    "p",
+    "br",
+    "strong",
+    "b",
+    "em",
+    "i",
+    "ul",
+    "ol",
+    "li",
+    "h1",
+    "h2",
+    "h3",
+    "a"
+  ],
+  allowedAttributes: {
+    a: ["href", "target", "rel"],
+  },
+  allowedStyles: {},
+});
     if (position !== undefined) {
   // Allow null (to remove position)
   if (position !== null) {
@@ -1169,7 +1226,7 @@ if (!category || !category.isActive) {
 // }
 
     article.title = title;
-    article.content = content;
+    article.content = cleanContent;
     article.excerpt = excerpt;
     article.featuredImage = Array.isArray(featuredImage)
   ? featuredImage

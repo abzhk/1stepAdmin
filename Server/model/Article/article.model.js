@@ -94,7 +94,7 @@ metaDescription: {
 },
    authorType: {
     type: String,
-    enum: [ "Admin", "Super Admin","Provider","content_admin"],
+    enum: [ "Admin", "Super Admin","Provider","content_admin","1step"],
     default: "Admin",
    },
     publishedAt: {
@@ -114,7 +114,7 @@ metaDescription: {
   },
   { timestamps: true }
 );
-
++
 // Text search index
 articleSchema.index(
   {
