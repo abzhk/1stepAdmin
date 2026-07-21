@@ -1074,7 +1074,7 @@ export const updateArticleAdmin = async (req, res) => {
     }
 
     if (
-  !["Admin", "Super Admin", "content_admin"].includes(article.authorType)
+  !["1step","Admin", "Super Admin", "content_admin"].includes(article.authorType)
 ) {
   return res.status(403).json({
     message: "Only admin-created articles can be edit",
@@ -1242,7 +1242,7 @@ export const deleteArticlebyAdmin = async (req, res) => {
       });
     }
 
-   if (article.authorType !== "Admin" && article.authorType !== "Super Admin") {
+   if (article.authorType !== "Admin" && article.authorType !== "Super Admin" && article.authorType !== "1step") {
   return res.status(403).json({
     message: "Only admin-created articles can be edited here",
   });

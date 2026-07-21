@@ -1,24 +1,28 @@
-import React, { useEffect, useState ,useRef} from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { api } from "../../utils/api.js";
 import dateFormatUtils from "../../utils/dateFormatUtils.js";
 import PermissionGuard from "../../Components/PermissionGuard.jsx";
 import { MODULES, ACTIONS } from "../../constants/permission.js";
 import toast from "react-hot-toast";
 import { useOutletContext } from "react-router-dom";
+import ServiceSpecializationMapping from "./ServiceSpecializationMapping.jsx";
 
 const MasterData = () => {
   const [services, setServices] = useState([]);
   const { searchTerm } = useOutletContext();
   const [page, setPage] = useState(1);
-const [pagination, setPagination] = useState({});
-const limit = 10;
-const formRef = useRef(null);
+  const [pagination, setPagination] = useState({});
+  const limit = 10;
+  const formRef = useRef(null);
+  const [selectedServiceForMapping, setSelectedServiceForMapping] = useState(null);
+  const [showMappingForm, setShowMappingForm] = useState(false);
+const mappingRef = useRef(null);
 
   const [formData, setFormData] = useState({
     code: "",
     label: "",
-     description: "",
-     order: 0,
+    description: "",
+    order: 0,
     durationDefault: "",
     billable: false,
   });
@@ -27,22 +31,22 @@ const formRef = useRef(null);
   const [deleteId, setDeleteId] = useState(null);
 
   useEffect(() => {
-  fetchServices(page);
-}, [page]);
+    fetchServices(page);
+  }, [page]);
 
   const fetchServices = async (pageNo = page) => {
-  try {
-    const res = await api(
-      `/api/services/admin/serviceType?page=${pageNo}&limit=${limit}`
-    );
+    try {
+      const res = await api(
+        `/api/services/admin/serviceType?page=${pageNo}&limit=${limit}`
+      );
 
-    setServices(res.data || []);
-    setPagination(res.pagination);
-    setPage(pageNo);
-  } catch (error) {
-    console.error(error);
-  }
-};
+      setServices(res.data || []);
+      setPagination(res.pagination);
+      setPage(pageNo);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -53,72 +57,67 @@ const formRef = useRef(null);
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  try {
-    const payload = {
-      code: formData.code,
-      label: formData.label,
-      description: formData.description,
-      order: Number(formData.order),
-      metadata: {
-        durationDefault: Number(formData.durationDefault),
-        billable: formData.billable,
-      },
-    };
+    try {
+      const payload = {
+        code: formData.code,
+        label: formData.label,
+        description: formData.description,
+        order: Number(formData.order),
+        metadata: {
+          durationDefault: Number(formData.durationDefault),
+          billable: formData.billable,
+        },
+      };
 
-    if (editId) {
-      // UPDATE
-      await api(`/api/services/${editId}`, {
-        method: "PUT",
-        body: JSON.stringify(payload),
+      if (editId) {
+        await api(`/api/services/${editId}`, {
+          method: "PUT",
+          body: JSON.stringify(payload),
+        });
+        toast.success("Service updated successfully");
+      } else {
+        await api("/api/services", {
+          method: "POST",
+          body: JSON.stringify({
+            type: "serviceType",
+            ...payload,
+          }),
+        });
+        toast.success("Service created successfully");
+      }
+
+      setFormData({
+        code: "",
+        label: "",
+        description: "",
+        order: 0,
+        durationDefault: "",
+        billable: false,
       });
 
-      toast.success("Service updated successfully");
-    } else {
-      // CREATE
-      await api("/api/services", {
-        method: "POST",
-        body: JSON.stringify({
-          type: "serviceType",
-          ...payload,
-        }),
-      });
-
-      toast.success("Service created successfully");
+      setEditId(null);
+      fetchServices();
+    } catch (error) {
+      toast.error(error.message || "Something went wrong");
     }
+  };
 
-    setFormData({
-      code: "",
-      label: "",
-      description: "",
-      order: 0,
-      durationDefault: "",
-      billable: false,
-    });
-
-    setEditId(null);
-
-    fetchServices();
-  } catch (error) {
-    toast.error(error.message || "Something went wrong");
-  }
-};
   const handleEdit = (service) => {
     setEditId(service._id);
-
     setFormData({
       code: service.code || "",
       label: service.label || "",
-       description: service.description || "",
-       order: service.order ?? 0,
+      description: service.description || "",
+      order: service.order ?? 0,
       durationDefault: service.metadata?.durationDefault || "",
       billable: service.metadata?.billable || false,
     });
-     formRef.current?.scrollIntoView({
-    behavior: "smooth",
-    block: "start",
-  });
+    formRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
   };
 
   const handleDelete = async () => {
@@ -128,30 +127,62 @@ const formRef = useRef(null);
       });
 
       fetchServices();
-
       setShowDeleteModal(false);
       setDeleteId(null);
     } catch (error) {
       console.error(error);
+      toast.error("Delete failed");
     }
   };
 
   const filteredServices = services.filter((service) => {
-  const search = searchTerm?.toLowerCase() || "";
+    const search = searchTerm?.toLowerCase() || "";
+    return (
+      service.label?.toLowerCase().includes(search) ||
+      service.code?.toLowerCase().includes(search) ||
+      (service.metadata?.billable ? "yes" : "no").includes(search) ||
+      (service.isActive ? "active" : "inactive").includes(search)
+    );
+  });
 
-  return (
-    service.label?.toLowerCase().includes(search) ||
-    service.code?.toLowerCase().includes(search) ||
-    (service.metadata?.billable ? "yes" : "no").includes(search) ||
-    (service.isActive ? "active" : "inactive").includes(search)
-  );
-});
+
+  useEffect(() => {
+  if (showMappingForm && mappingRef.current) {
+    mappingRef.current.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  }
+}, [showMappingForm, selectedServiceForMapping]);
+
+  // Handle click on service row to show mapping
+  const handleServiceClick = (serviceId) => {
+  setSelectedServiceForMapping(serviceId);
+  setShowMappingForm(true);
+};
+
+  const resetForm = () => {
+  setFormData({
+    code: "",
+    label: "",
+    description: "",
+    order: 0,
+    durationDefault: "",
+    billable: false,
+  });
+
+  setEditId(null);
+};
 
   return (
     <div className="min-h-screen bg-offwhite">
-      <div className=" mx-auto">
+      <div className="mx-auto">
         <PermissionGuard module={MODULES.MASTER_DATA} action={ACTIONS.CREATE}>
-          <div    ref={formRef} style={{ scrollMarginTop: "160px" }} className="bg-white p-6 rounded-2xl shadow-md mb-8">
+          <div
+            ref={formRef}
+            style={{ scrollMarginTop: "160px" }}
+            className="bg-white p-6 rounded-2xl shadow-md mb-8"
+          >
             <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4">
               <div className="flex flex-col">
                 <label className="text-sm font-medium mb-1">Service Name</label>
@@ -160,8 +191,8 @@ const formRef = useRef(null);
                   name="label"
                   value={formData.label}
                   onChange={handleChange}
-                    maxLength={50}
-                  className=" rounded-lg px-3 py-2  bg-offwhite "
+                  maxLength={50}
+                  className="rounded-lg px-3 py-2 bg-offwhite"
                   required
                 />
               </div>
@@ -174,22 +205,22 @@ const formRef = useRef(null);
                   value={formData.code}
                   onChange={handleChange}
                   maxLength={50}
-                  className=" rounded-lg px-3 py-2 bg-offwhite "
+                  className="rounded-lg px-3 py-2 bg-offwhite"
                   required
                 />
               </div>
 
               <div className="flex flex-col">
-  <label className="text-sm font-medium mb-1">Description</label>
-  <textarea
-    name="description"
-    value={formData.description}
-    onChange={handleChange}
-    rows={3}
-    maxLength={500}
-    className="rounded-lg px-3 py-2 bg-offwhite"
-  />
-</div>
+                <label className="text-sm font-medium mb-1">Description</label>
+                <textarea
+                  name="description"
+                  value={formData.description}
+                  onChange={handleChange}
+                  rows={3}
+                  maxLength={500}
+                  className="rounded-lg px-3 py-2 bg-offwhite"
+                />
+              </div>
 
               <div className="flex flex-col">
                 <label className="text-sm font-medium mb-1">
@@ -197,26 +228,27 @@ const formRef = useRef(null);
                 </label>
                 <input
                   type="number"
-                     min={0}
+                  min={0}
                   name="durationDefault"
                   value={formData.durationDefault}
                   onChange={handleChange}
-                  className=" rounded-lg px-3 py-2 bg-offwhite "
+                  className="rounded-lg px-3 py-2 bg-offwhite"
                 />
               </div>
-              <div className="flex flex-col">
-  <label className="text-sm font-medium mb-1">Order</label>
-  <input
-    type="number"
-    name="order"
-    min={0}
-    value={formData.order}
-    onChange={handleChange}
-    className="rounded-lg px-3 py-2 bg-offwhite"
-  />
-</div>
 
-              <div className="flex items-center mt-6  rounded-lg px-3 py-2 focus:outline-none bg-offwhite ">
+              <div className="flex flex-col">
+                <label className="text-sm font-medium mb-1">Order</label>
+                <input
+                  type="number"
+                  name="order"
+                  min={0}
+                  value={formData.order}
+                  onChange={handleChange}
+                  className="rounded-lg px-3 py-2 bg-offwhite"
+                />
+              </div>
+
+              <div className="flex items-center mt-6 rounded-lg px-3 py-2 focus:outline-none bg-offwhite">
                 <input
                   type="checkbox"
                   name="billable"
@@ -224,17 +256,27 @@ const formRef = useRef(null);
                   onChange={handleChange}
                   className="mr-2"
                 />
-                <label className="text-sm font-medium ">Billable</label>
+                <label className="text-sm font-medium">Billable</label>
               </div>
 
-              <div className="col-span-2 flex justify-end">
-                <button
-  type="submit"
-  className="bg-peach text-white px-6 py-2 rounded-lg hover:bg-darkgreen transition"
->
-  {editId ? "Update" : "Submit"}
-</button>
-              </div>
+             <div className="col-span-2 flex justify-end gap-3">
+  {editId && (
+    <button
+      type="button"
+      onClick={resetForm}
+      className="px-6 py-2 rounded-lg bg-gray-300 text-gray-700 hover:bg-gray-400 transition"
+    >
+      Cancel
+    </button>
+  )}
+
+  <button
+    type="submit"
+    className="bg-peach text-white px-6 py-2 rounded-lg hover:bg-darkgreen transition"
+  >
+    {editId ? "Update" : "Submit"}
+  </button>
+</div>
             </form>
           </div>
         </PermissionGuard>
@@ -261,18 +303,28 @@ const formRef = useRef(null);
                 {filteredServices.map((service, index) => (
                   <tr
                     key={service._id}
-                    className=" hover:bg-offwhite text-table-text"
+                    className="hover:bg-offwhite text-table-text cursor-pointer"
+                    onClick={() => handleServiceClick(service._id)}
                   >
-                    <td className="p-3"> {(page - 1) * limit + index + 1}</td>
-                    <td className="p-3">{service.label}</td>
+                    <td className="p-3">{(page - 1) * limit + index + 1}</td>
+                    <td className="p-3 font-medium text-blue-600 hover:underline">
+                      {service.label}
+                    </td>
                     <td className="p-3">{service.code}</td>
                     <td className="p-3">{service.order}</td>
-
                     <td className="p-3">
                       {service.metadata?.billable ? "Yes" : "No"}
                     </td>
                     <td className="p-3">
-                      {service.isActive ? "Active" : "Inactive"}
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          service.isActive
+                            ? "bg-green-100 text-green-800"
+                            : "bg-red-100 text-red-800"
+                        }`}
+                      >
+                        {service.isActive ? "Active" : "Inactive"}
+                      </span>
                     </td>
                     <td className="p-3">
                       {dateFormatUtils(service.createdAt)}
@@ -284,8 +336,11 @@ const formRef = useRef(null);
                           action={ACTIONS.UPDATE}
                         >
                           <button
-                            onClick={() => handleEdit(service)}
-                            className="px-4 py-2 bg-darkgreen text-white rounded-lg"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEdit(service);
+                            }}
+                            className="px-4 py-2 bg-darkgreen text-white rounded-lg hover:bg-opacity-90 transition"
                           >
                             Edit
                           </button>
@@ -296,11 +351,12 @@ const formRef = useRef(null);
                           action={ACTIONS.DELETE}
                         >
                           <button
-                            onClick={() => {
+                            onClick={(e) => {
+                              e.stopPropagation();
                               setDeleteId(service._id);
                               setShowDeleteModal(true);
                             }}
-                            className="px-4 py-2 bg-red-500 text-white rounded-lg"
+                            className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
                           >
                             Delete
                           </button>
@@ -312,7 +368,7 @@ const formRef = useRef(null);
 
                 {services.length === 0 && (
                   <tr>
-                    <td colSpan="6" className="p-4 text-center text-gray-500">
+                    <td colSpan="8" className="p-4 text-center text-gray-500">
                       No services found
                     </td>
                   </tr>
@@ -322,63 +378,74 @@ const formRef = useRef(null);
           </div>
         </div>
       </div>
+
+      {/* Delete Modal */}
       {showDeleteModal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl p-6 w-96 shadow-lg">
             <h2 className="text-lg font-semibold mb-2">Delete Service</h2>
-
             <p className="text-gray-600 mb-6">
               Are you sure you want to delete this service?
             </p>
-
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => {
                   setShowDeleteModal(false);
                   setDeleteId(null);
                 }}
-                className="px-4 py-2 rounded-lg bg-gray-200"
+                className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition"
               >
                 Cancel
               </button>
-
               <button
                 onClick={handleDelete}
-                className="px-4 py-2 rounded-lg bg-red-500 text-white"
+                className="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600 transition"
               >
                 Delete
               </button>
             </div>
-            
           </div>
-
-          
         </div>
       )}
 
-      <div className="flex justify-end items-center mt-5">
-  <button
-    disabled={!pagination.hasPrevPage}
-    onClick={() => fetchServices(page - 1)}
-    className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
-  >
-    Previous
-  </button>
+      {/* Pagination */}
+      <div className="flex justify-end items-center mt-5 gap-4">
+        <button
+          disabled={!pagination.hasPrevPage}
+          onClick={() => fetchServices(page - 1)}
+          className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50 hover:bg-gray-300 transition"
+        >
+          Previous
+        </button>
 
-  <span>
-    Page {pagination.currentPage} of {pagination.totalPages}
-  </span>
+        <span className="text-sm">
+          Page {pagination.currentPage} of {pagination.totalPages}
+        </span>
 
-  <button
-    disabled={!pagination.hasNextPage}
-    onClick={() => fetchServices(page + 1)}
-    className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+        <button
+          disabled={!pagination.hasNextPage}
+          onClick={() => fetchServices(page + 1)}
+          className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50 hover:bg-gray-300 transition"
+        >
+          Next
+        </button>
+      </div>
+
+      {/* Service Specialization Mapping */}
+     {showMappingForm && (
+  <div
+    ref={mappingRef}
+    style={{ scrollMarginTop: "120px" }}
   >
-    Next
-  </button>
-</div>
+    <ServiceSpecializationMapping
+      selectedServiceId={selectedServiceForMapping}
+      onServiceSelect={(serviceId) => {
+        setSelectedServiceForMapping(serviceId);
+      }}
+    />
+  </div>
+)}
     </div>
-    
   );
 };
 

@@ -23,6 +23,8 @@ import notificationRoute from "./notification.route.js"
 import assessmentquestionsRoute from "./assessmentquestion.route.js"
 import helpdeskRoute from "./help.route.js"
 import contactRoute from "./contact.route.js"
+import specializationRoute from "./specialization.route.js";
+import servicespecializationRoute from "./servicespecialization.route.js";
 
 const router = express.Router(); 
 
@@ -74,6 +76,10 @@ router.use("/assessmentquestions", assessmentquestionsRoute)
 router.use("/help",helpdeskRoute);
 //contactus
 router.use("/contact",contactRoute);
+
+router.use("/specialization", specializationRoute);
+
+router.use("/servicespecialization", servicespecializationRoute);
 
 
 
