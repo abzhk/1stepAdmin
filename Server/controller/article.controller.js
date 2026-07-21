@@ -4,7 +4,6 @@ import Category from "../model/Article/category.model.js";
 import { errorHandler } from "../utils/error.js";
 import { FeaturedArticles } from "../utils/article.utils.js";
 import MasterData from "../model/Master/masterData.model.js";
-import sanitizeHtml from "sanitize-html";
 
 // Create new article
 export const createArticle = async (req, res,next) => {
@@ -110,7 +109,7 @@ if (!category.isActive) {
       status = "pending";
     }
 
-    const authorType = req.user.role;
+    let authorType = req.user.role;
 
 
     if (
@@ -124,32 +123,12 @@ if (!category.isActive) {
   await FeaturedArticles(Article);
 }
 
- const cleanContent = sanitizeHtml(content, {
-  allowedTags: [
-    "p",
-    "br",
-    "strong",
-    "b",
-    "em",
-    "i",
-    "ul",
-    "ol",
-    "li",
-    "h1",
-    "h2",
-    "h3",
-    "a"
-  ],
-  allowedAttributes: {
-    a: ["href", "target", "rel"],
-  },
-  allowedStyles: {}, 
-});
+
 
  // Create article
     const article = new Article({
       title,
-        content: cleanContent,
+        content,
       excerpt,
      featuredImage: featuredImage || [],
 category: category.name,
@@ -1095,7 +1074,7 @@ export const updateArticleAdmin = async (req, res) => {
     }
 
     if (
-  !["Admin", "Super Admin", "content_admin"].includes(article.authorType)
+  !["1step","Admin", "Super Admin", "content_admin"].includes(article.authorType)
 ) {
   return res.status(403).json({
     message: "Only admin-created articles can be edit",
@@ -1144,27 +1123,7 @@ if (!Array.isArray(featuredImage) || featuredImage.length === 0) {
 // }
 
 
-const cleanContent = sanitizeHtml(content, {
-  allowedTags: [
-    "p",
-    "br",
-    "strong",
-    "b",
-    "em",
-    "i",
-    "ul",
-    "ol",
-    "li",
-    "h1",
-    "h2",
-    "h3",
-    "a"
-  ],
-  allowedAttributes: {
-    a: ["href", "target", "rel"],
-  },
-  allowedStyles: {},
-});
+
     if (position !== undefined) {
   // Allow null (to remove position)
   if (position !== null) {
@@ -1226,7 +1185,7 @@ if (!category || !category.isActive) {
 // }
 
     article.title = title;
-    article.content = cleanContent;
+    article.content = content;
     article.excerpt = excerpt;
     article.featuredImage = Array.isArray(featuredImage)
   ? featuredImage
@@ -1283,7 +1242,7 @@ export const deleteArticlebyAdmin = async (req, res) => {
       });
     }
 
-   if (article.authorType !== "Admin" && article.authorType !== "Super Admin") {
+   if (article.authorType !== "Admin" && article.authorType !== "Super Admin" && article.authorType !== "1step") {
   return res.status(403).json({
     message: "Only admin-created articles can be edited here",
   });

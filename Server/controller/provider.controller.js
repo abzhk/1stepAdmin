@@ -1044,18 +1044,29 @@ export const getCentresForAdmin = async (req, res, next) => {
       totalProviders: countMap[c._id.toString()] || 0,
     }));
 
-    const totalProviders = finalCentres.reduce(
-      (sum, c) => sum + c.totalProviders,
-      0
-    );
+    const totalProvidersResult = await Invitation.aggregate([
+  {
+    $match: {
+      status: "accepted",
+    },
+  },
+  {
+    $count: "totalProviders",
+  },
+]);
 
-    res.status(200).json({
-      success: true,
-      totalCount,
-      totalCentres: finalCentres.length,
-      totalProviders,
-      centres: finalCentres,
-    });
+const totalProviders =
+  totalProvidersResult.length > 0
+    ? totalProvidersResult[0].totalProviders
+    : 0;
+
+   res.status(200).json({
+  success: true,
+  totalCount,
+  totalCentres: totalCount,
+  totalProviders,
+  centres: finalCentres,
+});
   } catch (error) {
     next(error);
   }
