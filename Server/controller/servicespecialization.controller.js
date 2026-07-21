@@ -1,4 +1,4 @@
-import ServiceSpecialization from "../model/serviceSpecialization.model.js";
+import ServiceSpecialization from "../model/servicespecialization.model.js";
 import MasterData from "../model/Master/masterData.model.js";
 import Specialization from "../model/specialization.model.js";
 
