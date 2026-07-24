@@ -106,14 +106,17 @@ export const updateSpecialization = async (req, res) => {
     }
 
 
-    const existingOrder = await Specialization.findOne({ order });
+    const existingOrder = await Specialization.findOne({
+  order,
+  _id: { $ne: req.params.id }, 
+});
 
-    if (existingOrder) {
-      return res.status(400).json({
-        success: false,
-        message: "Order already exists",
-      });
-    }
+if (existingOrder) {
+  return res.status(400).json({
+    success: false,
+    message: "Order already exists",
+  });
+}
 
 
     const specialization = await Specialization.findByIdAndUpdate(
@@ -156,6 +159,55 @@ export const deleteSpecialization = async (req, res) => {
     res.json({
       success: true,
       message: "Specialization deleted successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const getSpecializationsWithPagination = async (req, res) => {
+  try {
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+
+    const skip = (page - 1) * limit;
+
+    const search = req.query.search?.trim() || "";
+
+    const filter = {};
+
+    if (search) {
+      filter.$or = [
+        { name: { $regex: search, $options: "i" } },
+        { code: { $regex: search, $options: "i" } },
+        { description: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    const totalRecords = await Specialization.countDocuments(filter);
+
+    const specializations = await Specialization.find(filter)
+      .sort({ order: 1, createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    const totalPages = Math.ceil(totalRecords / limit);
+
+    res.status(200).json({
+      success: true,
+      count: specializations.length,
+      data: specializations,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalRecords,
+        limit,
+        hasPrevPage: page > 1,
+        hasNextPage: page < totalPages,
+      },
     });
   } catch (error) {
     res.status(500).json({

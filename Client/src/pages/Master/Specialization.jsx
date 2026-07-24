@@ -39,7 +39,7 @@ const Specialization = () => {
   const fetchSpecializations = async (pageNo = page) => {
     try {
       const res = await api(
-        `/api/specialization?page=${pageNo}&limit=${limit}`
+        `/api/specialization/pagination?page=${pageNo}&limit=${limit}`
       );
 
       setSpecializations(res.data || []);
