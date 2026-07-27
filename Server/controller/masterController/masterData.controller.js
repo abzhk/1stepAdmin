@@ -338,6 +338,14 @@ export const getAllOptionsByTypeAdmin = async (req, res) => {
       type,
     };
 
+     if (search) {
+      query.$or = [
+        { label: { $regex: search, $options: "i" } },
+        { code: { $regex: search, $options: "i" } },
+        { description: { $regex: search, $options: "i" } },
+      ];
+    }
+
     const [data, total] = await Promise.all([
       MasterData.find(query)
         .sort({ order: 1 })

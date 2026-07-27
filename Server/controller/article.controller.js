@@ -94,7 +94,7 @@ if (!category.isActive) {
 }
 
     let providerId = null;
-    let providerName = "Admin";
+    let providerName = "1STEP";
     let status = "approved";
 
     const provider = await Provider.findOne({ userRef: req.user.id });
@@ -110,14 +110,6 @@ if (!category.isActive) {
     }
 
     let authorType = req.user.role;
-
-
-    if (
-  ["Admin", "Super Admin", "content_admin"].includes(authorType)
-) {
-  authorType = "1step";
-}
-
 
    if (featured) {
   await FeaturedArticles(Article);
@@ -1073,11 +1065,10 @@ export const updateArticleAdmin = async (req, res) => {
       });
     }
 
-    if (
-  !["1step","Admin", "Super Admin", "content_admin"].includes(article.authorType)
-) {
+   if (article.providerName !== "1STEP") {
   return res.status(403).json({
-    message: "Only admin-created articles can be edit",
+    success: false,
+    message: "Only admin-created articles can be edited",
   });
 }
 

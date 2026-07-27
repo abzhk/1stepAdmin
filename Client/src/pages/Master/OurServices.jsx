@@ -26,23 +26,23 @@ const OurServices = () => {
   const [deleteId, setDeleteId] = useState(null);
 
   useEffect(() => {
-    fetchServices(page);
-  }, [page]);
+  fetchServices(page);
+}, [page, searchTerm]);
 
   const fetchServices = async (pageNo = page) => {
-    try {
-      const res = await api(
-        `/api/services/admin/ourServices?page=${pageNo}&limit=${limit}`
-      );
+  try {
+    const res = await api(
+      `/api/services/admin/ourServices?page=${pageNo}&limit=${limit}&search=${encodeURIComponent(searchTerm)}`
+    );
 
-      setServices(res.data || []);
-      setPagination(res.pagination);
-      setPage(pageNo);
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to fetch services");
-    }
-  };
+    setServices(res.data || []);
+    setPagination(res.pagination);
+    setPage(pageNo);
+  } catch (error) {
+    console.error(error);
+    toast.error("Failed to fetch services");
+  }
+};
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;

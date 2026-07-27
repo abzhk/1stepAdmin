@@ -30,26 +30,25 @@ const Specialization = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
 
-  useEffect(() => {
-    fetchSpecializations(page);
-  }, [page]);
-
+useEffect(() => {
+  fetchSpecializations(page);
+}, [page, searchTerm]);
   // FETCH
 
-  const fetchSpecializations = async (pageNo = page) => {
-    try {
-      const res = await api(
-        `/api/specialization/pagination?page=${pageNo}&limit=${limit}`
-      );
+ const fetchSpecializations = async (pageNo = page) => {
+  try {
+    const res = await api(
+      `/api/specialization/pagination?page=${pageNo}&limit=${limit}&search=${encodeURIComponent(searchTerm )}`
+    );
 
-      setSpecializations(res.data || []);
-      setPagination(res.pagination || {});
-      setPage(pageNo);
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to load specializations");
-    }
-  };
+    setSpecializations(res.data || []);
+    setPagination(res.pagination || {});
+    setPage(pageNo);
+  } catch (error) {
+    console.error(error);
+    toast.error("Failed to load specializations");
+  }
+};
 
 
   // INPUT CHANGE

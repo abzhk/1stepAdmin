@@ -30,23 +30,23 @@ const mappingRef = useRef(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
 
-  useEffect(() => {
-    fetchServices(page);
-  }, [page]);
+useEffect(() => {
+  fetchServices(page, searchTerm);
+}, [page, searchTerm]);
 
-  const fetchServices = async (pageNo = page) => {
-    try {
-      const res = await api(
-        `/api/services/admin/serviceType?page=${pageNo}&limit=${limit}`
-      );
+  const fetchServices = async (pageNo = page, search = searchTerm) => {
+  try {
+    const res = await api(
+      `/api/services/admin/serviceType?page=${pageNo}&limit=${limit}&search=${encodeURIComponent(search)}`
+    );
 
-      setServices(res.data || []);
-      setPagination(res.pagination);
-      setPage(pageNo);
-    } catch (error) {
-      console.error(error);
-    }
-  };
+    setServices(res.data || []);
+    setPagination(res.pagination);
+    setPage(pageNo);
+  } catch (error) {
+    console.error(error);
+  }
+};
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;

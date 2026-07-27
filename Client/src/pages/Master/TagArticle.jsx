@@ -26,12 +26,12 @@ const formRef = useRef(null);
 
   useEffect(() => {
   fetchTags(page);
-}, [page]);
+}, [page, searchTerm]);
 
   const fetchTags = async (pageNo = page) => {
   try {
     const res = await api(
-      `/api/services/admin/articleTag?page=${pageNo}&limit=${limit}`
+      `/api/services/admin/articleTag?page=${pageNo}&limit=${limit}&search=${encodeURIComponent(searchTerm)}`
     );
 
     setTags(res.data || []);
