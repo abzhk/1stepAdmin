@@ -5,6 +5,7 @@ import PermissionGuard from "../../Components/PermissionGuard.jsx";
 import { MODULES, ACTIONS } from "../../constants/permission.js";
 import { useOutletContext } from "react-router-dom"; 
 import toast from "react-hot-toast";
+import SortableHeader from "../../Components/SortableHeader";
 
 const TagArticle = () => {
   const [tags, setTags] = useState([]);
@@ -16,6 +17,10 @@ const TagArticle = () => {
 const [pagination, setPagination] = useState({});
 const limit = 10;
 const formRef = useRef(null);
+const [sortConfig, setSortConfig] = useState({
+  key: "label",
+  direction: "asc",
+});
 
   const [formData, setFormData] = useState({
     code: "",
@@ -24,14 +29,14 @@ const formRef = useRef(null);
     isActive: true,
   });
 
-  useEffect(() => {
-  fetchTags(page);
-}, [page, searchTerm]);
+useEffect(() => {
+  fetchTags(page, searchTerm, sortConfig);
+}, [page, searchTerm, sortConfig]);
 
-  const fetchTags = async (pageNo = page) => {
+  const fetchTags = async (pageNo = page,search = searchTerm,sort = sortConfig) => {
   try {
     const res = await api(
-      `/api/services/admin/articleTag?page=${pageNo}&limit=${limit}&search=${encodeURIComponent(searchTerm)}`
+      `/api/services/admin/articleTag?page=${pageNo}&limit=${limit}&search=${encodeURIComponent(searchTerm)}&sortBy=${sort.key}&sortOrder=${sort.direction}`
     );
 
     setTags(res.data || []);
@@ -154,6 +159,20 @@ const filteredTags = tags.filter((tag) => {
   );
 });
 
+const handleSort = (key) => {
+  const direction =
+    sortConfig.key === key && sortConfig.direction === "asc"
+      ? "desc"
+      : "asc";
+
+  setPage(1);
+
+  setSortConfig({
+    key,
+    direction,
+  });
+};
+
   return (
     <div className="min-h-screen bg-offwhite">
       <div className=" mx-auto">
@@ -246,19 +265,50 @@ const filteredTags = tags.filter((tag) => {
             <div className="overflow-x-auto">
               <table className="w-full border-collapse">
                 <thead>
-                  <tr className="bg-offwhite text-left text-sm">
-                    <th className="p-3">Sl.no</th>
-                    <th className="p-3">Tag Name</th>
-                    <th className="p-3">Code</th>
-                    <th>Description</th>
-                    <th className="p-3">Status</th>
-                    <th className="p-3">Created At</th>
-                    <th className="p-3">Action</th>
-                  </tr>
-                </thead>
+  <tr className="bg-offwhite text-left text-sm">
+    <th className="p-3">Sl.No</th>
+
+    <SortableHeader
+      title="Tag Name"
+      field="label"
+      sortConfig={sortConfig}
+      handleSort={handleSort}
+    />
+
+    <SortableHeader
+      title="Code"
+      field="code"
+      sortConfig={sortConfig}
+      handleSort={handleSort}
+    />
+
+    <SortableHeader
+      title="Description"
+      field="description"
+      sortConfig={sortConfig}
+      handleSort={handleSort}
+    />
+
+    <SortableHeader
+      title="Status"
+      field="status"
+      sortConfig={sortConfig}
+      handleSort={handleSort}
+    />
+
+    <SortableHeader
+      title="Created At"
+      field="createdAt"
+      sortConfig={sortConfig}
+      handleSort={handleSort}
+    />
+
+    <th className="p-3">Action</th>
+  </tr>
+</thead>
 
                 <tbody>
-                  {filteredTags.map((tag, index) => (
+                  {tags.map((tag, index) => (
                     <tr
                       key={tag._id}
                       className=" hover:bg-offwhite text-table-text"

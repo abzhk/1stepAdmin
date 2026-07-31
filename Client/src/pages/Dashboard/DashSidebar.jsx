@@ -67,7 +67,7 @@ const DashSidebar = () => {
       path.startsWith("/centre")
     )
       setActive("User");
-    else if (path.startsWith("/create-Role")) setActive("Settings");
+    else if (path.startsWith("/create-Role")||  path.startsWith("/admin-profile")) setActive("Settings");
     else if (path.startsWith("/add-plans")) setActive("Plans");
     else if (path.startsWith("/viewcat")) setActive("Add Category");
     else if (path.startsWith("/viewarticle")||  path.startsWith("/add-article")||  path.startsWith("/list-view-article")

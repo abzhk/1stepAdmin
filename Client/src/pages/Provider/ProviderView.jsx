@@ -5,6 +5,7 @@ import { useNavigate, useOutletContext } from "react-router-dom";
 import { api } from "../../utils/api.js";
 import toast from "react-hot-toast";
 
+
 function ProviderView() {
   const navigate = useNavigate();
 
@@ -92,6 +93,10 @@ function ProviderView() {
       toast.error(error.message || "Failed to update status");
     }
   };
+
+
+
+
 
   return (
     <div className="p-4 md:p-6 bg-offwhite min-h-screen">
@@ -263,15 +268,16 @@ function ProviderView() {
         <div className="bg-white rounded-2xl px-6 py-6">
         <div className="bg-white rounded-xl shadow  overflow-hidden">
           <table className="w-full text-sm">
-            <thead className="bg-offwhite text-gray-700  text-cardfooter uppercase">
-              <tr>
-                <th className="p-3 text-left">Provider</th>
-                <th className="p-3 text-left">City</th>
-                <th className="p-3 text-left">Session</th>
-                <th className="p-3 text-left">Status</th>
-                <th className="p-3 text-right">Actions</th>
-              </tr>
-            </thead>
+            <thead className="bg-offwhite  text-cardfooter uppercase text-left">
+  <tr>
+
+   <th className="p-3">Provider</th>
+<th className="p-3">City</th>
+<th className="p-3">Session</th>
+<th className="p-3">Status</th>
+<th className="p-3 text-right">Actions</th>
+</tr>
+</thead>
 
             <tbody>
               {providers.map((provider) => (

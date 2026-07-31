@@ -176,6 +176,8 @@ export const getSpecializationsWithPagination = async (req, res) => {
     const skip = (page - 1) * limit;
 
     const search = req.query.search?.trim() || "";
+    const sortBy = req.query.sortBy || "order";
+const sortOrder = req.query.sortOrder === "desc" ? -1 : 1;
 
     const filter = {};
 
@@ -186,11 +188,25 @@ export const getSpecializationsWithPagination = async (req, res) => {
         { description: { $regex: search, $options: "i" } },
       ];
     }
+const sort = {};
+
+switch (sortBy) {
+  case "status":
+    sort.isActive = sortOrder;
+    break;
+
+  case "createdAt":
+    sort.createdAt = sortOrder;
+    break;
+
+  default:
+    sort[sortBy] = sortOrder;
+}
 
     const totalRecords = await Specialization.countDocuments(filter);
 
     const specializations = await Specialization.find(filter)
-      .sort({ order: 1, createdAt: -1 })
+       .sort(sort)
       .skip(skip)
       .limit(limit);
 

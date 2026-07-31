@@ -6,6 +6,7 @@ import PermissionGuard from "../../Components/PermissionGuard.jsx";
 import { MODULES, ACTIONS } from "../../constants/permission.js";
 import toast from "react-hot-toast";
 import { useOutletContext } from "react-router-dom";
+import SortableHeader from "../../Components/SortableHeader";
 
 const OurServices = () => {
   const [services, setServices] = useState([]);
@@ -24,15 +25,19 @@ const OurServices = () => {
   const [editId, setEditId] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
+  const [sortConfig, setSortConfig] = useState({
+  key: "order",
+  direction: "asc",
+});
 
-  useEffect(() => {
-  fetchServices(page);
-}, [page, searchTerm]);
+ useEffect(() => {
+  fetchServices(page, searchTerm, sortConfig);
+}, [page, searchTerm, sortConfig]);
 
-  const fetchServices = async (pageNo = page) => {
+  const fetchServices = async (pageNo = page, search = searchTerm,sort = sortConfig) => {
   try {
     const res = await api(
-      `/api/services/admin/ourServices?page=${pageNo}&limit=${limit}&search=${encodeURIComponent(searchTerm)}`
+      `/api/services/admin/ourServices?page=${pageNo}&limit=${limit}&search=${encodeURIComponent(searchTerm)}&sortBy=${sort.key}&sortOrder=${sort.direction}`
     );
 
     setServices(res.data || []);
@@ -144,6 +149,21 @@ const OurServices = () => {
     );
   });
 
+
+ const handleSort = (key) => {
+  const direction =
+    sortConfig.key === key && sortConfig.direction === "asc"
+      ? "desc"
+      : "asc";
+
+  setPage(1);
+
+  setSortConfig({
+    key,
+    direction,
+  });
+};
+
   return (
     <div className="min-h-screen bg-offwhite">
       <div className="mx-auto">
@@ -219,20 +239,51 @@ const OurServices = () => {
 
           <div className="overflow-x-auto">
             <table className="w-full border-collapse">
-              <thead>
-                <tr className="bg-offwhite text-left text-sm">
-                  <th className="p-3">Sl.no</th>
-                  <th className="p-3">Service</th>
-                  <th className="p-3">Code</th>
-                  <th className="p-3">Category</th>
-                  <th className="p-3">Order</th>
-                  <th className="p-3">Created At</th>
-                  <th className="p-3">Action</th>
-                </tr>
-              </thead>
+             <thead>
+  <tr className="bg-offwhite text-left text-sm">
+    <th className="p-3">Sl.No</th>
+
+    <SortableHeader
+      title="Service"
+      field="label"
+      sortConfig={sortConfig}
+      handleSort={handleSort}
+    />
+
+    <SortableHeader
+      title="Code"
+      field="code"
+      sortConfig={sortConfig}
+      handleSort={handleSort}
+    />
+
+    <SortableHeader
+      title="Category"
+      field="category"
+      sortConfig={sortConfig}
+      handleSort={handleSort}
+    />
+
+    <SortableHeader
+      title="Order"
+      field="order"
+      sortConfig={sortConfig}
+      handleSort={handleSort}
+    />
+
+    <SortableHeader
+      title="Created At"
+      field="createdAt"
+      sortConfig={sortConfig}
+      handleSort={handleSort}
+    />
+
+    <th className="p-3">Action</th>
+  </tr>
+</thead>
 
               <tbody>
-                {filteredServices.map((service, index) => (
+                {services.map((service, index) => (
                   <tr
                     key={service._id}
                     className="hover:bg-offwhite text-table-text"
@@ -283,7 +334,7 @@ const OurServices = () => {
                   </tr>
                 ))}
 
-                {filteredServices.length === 0 && (
+                {services.length === 0 && (
                   <tr>
                     <td colSpan="8" className="p-4 text-center text-gray-500">
                       No services found

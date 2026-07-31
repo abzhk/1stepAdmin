@@ -241,7 +241,7 @@ function ParentView() {
         <div className="bg-white rounded-xl shadow  overflow-hidden">
           <table className="w-full text-sm">
 
-            <thead className="bg-offwhite text-gray-700  text-cardfooter uppercase">
+            <thead className="bg-offwhite  text-cardfooter uppercase">
               <tr>
                 <th className="p-3 text-left">Parent</th>
                 <th className="p-3 text-left">Child</th>
