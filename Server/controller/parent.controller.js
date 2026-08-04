@@ -247,7 +247,35 @@ export const getallparents = async(req,res,next)=>{
     if (searchFilters.length) query.$and = searchFilters;
 
     const sortQuery = {};
-    sortQuery[sort] = order === "desc" ? -1 : 1;
+
+switch (sort) {
+  case "name":
+  case "parentDetails.fullName":
+    sortQuery["parentDetails.fullName"] = order === "asc" ? 1 : -1;
+    break;
+
+  case "child":
+  case "parentDetails.childName":
+    sortQuery["parentDetails.childName"] = order === "asc" ? 1 : -1;
+    break;
+
+  case "phone":
+  case "parentDetails.phoneNumber":
+    sortQuery["parentDetails.phoneNumber"] = order === "asc" ? 1 : -1;
+    break;
+
+  case "address":
+  case "parentDetails.address":
+    sortQuery["parentDetails.address"] = order === "asc" ? 1 : -1;
+    break;
+
+  case "createdAt":
+    sortQuery.createdAt = order === "asc" ? 1 : -1;
+    break;
+
+  default:
+    sortQuery.createdAt = -1;
+}
 
     const numericLimit = Number(limit);
     const numericStartIndex = Number(startIndex);
@@ -258,6 +286,10 @@ export const getallparents = async(req,res,next)=>{
         match: { isActive: true },
         select: "_id username email profilePicture isActive",
       })
+       .collation({
+    locale: "en",
+    strength: 2,
+  })
       .sort(sortQuery)
       .lean();
 

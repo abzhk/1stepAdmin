@@ -4,6 +4,7 @@ import { FiEdit2, FiGrid, FiList } from "react-icons/fi";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { api } from "../../utils/api.js";
 import toast from "react-hot-toast";
+import SortableHeader from "../../Components/SortableHeader";
 
 
 function ProviderView() {
@@ -21,6 +22,10 @@ function ProviderView() {
 
   const [providerType, setProviderType] = useState("");
   const [viewMode, setViewMode] = useState("grid");
+  const [sortConfig, setSortConfig] = useState({
+  key: "createdAt",
+  direction: "desc",
+});
 
   useEffect(() => {
     const fetchProviders = async () => {
@@ -31,6 +36,8 @@ function ProviderView() {
         const params = new URLSearchParams({
           limit: String(limit),
           startIndex: String((page - 1) * limit),
+           sort: sortConfig.key,
+  order: sortConfig.direction,
         });
 
         if (providerType) {
@@ -53,7 +60,7 @@ function ProviderView() {
     };
 
     fetchProviders();
-  }, [page, searchTerm, providerType]);
+  }, [page, searchTerm, providerType, sortConfig]);
 
   const totalPages = Math.max(1, Math.ceil(totalCount / limit));
 
@@ -94,7 +101,19 @@ function ProviderView() {
     }
   };
 
+const handleSort = (key) => {
+  const direction =
+    sortConfig.key === key && sortConfig.direction === "asc"
+      ? "desc"
+      : "asc";
 
+  setPage(1);
+
+  setSortConfig({
+    key,
+    direction,
+  });
+};
 
 
 
@@ -271,8 +290,21 @@ function ProviderView() {
             <thead className="bg-offwhite  text-cardfooter uppercase text-left">
   <tr>
 
-   <th className="p-3">Provider</th>
-<th className="p-3">City</th>
+  <SortableHeader
+  title="Provider"
+  field="fullName"
+  sortConfig={sortConfig}
+  handleSort={handleSort}
+/>
+
+<SortableHeader
+  title="City"
+  field="city"
+  sortConfig={sortConfig}
+  handleSort={handleSort}
+/>
+
+
 <th className="p-3">Session</th>
 <th className="p-3">Status</th>
 <th className="p-3 text-right">Actions</th>

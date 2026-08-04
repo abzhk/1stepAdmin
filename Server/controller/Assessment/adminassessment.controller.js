@@ -8,34 +8,38 @@ import fs from "fs";
 // Create Assessment
 export const createAssessment = async (req, res, next) => {
   try {
-    const { title, description, category, version,image  } = req.body;
+    const { title, description, category,  test, version,image  } = req.body;
 
     // VALIDATION
-    if (!title || !description || !category) {
+    if (!title || !description || !category || !test) {
       return next(errorHandler(400, "All fields are required"));
     }
 
     if (!mongoose.Types.ObjectId.isValid(category)) {
       return next(errorHandler(400, "Invalid category ID"));
     }
+    if (!mongoose.Types.ObjectId.isValid(test)) {
+  return next(errorHandler(400, "Invalid test ID"));
+}
 
     if (!req.user) {
       return next(errorHandler(401, "Unauthorized"));
     }
 
-    // DUPLICATE CHECK
-    const existing = await Assessment.findOne({
-      title: { $regex: `^${title}$`, $options: "i" },
-    });
+   // DUPLICATE TEST CHECK
+const existingTest = await Assessment.findOne({ test });
 
-    if (existing) {
-      return next(errorHandler(400, "Assessment already exists"));
-    }
+if (existingTest) {
+  return next(
+    errorHandler(400, "An assessment already exists for this test")
+  );
+}
 
     const payload = {
       title: title.trim(),
       description,
       category,
+      test,
        image,
       version: version || 1,
       totalQuestions: 0,
@@ -72,6 +76,7 @@ export const getAssessments = async (req, res, next) => {
 
     const list = await Assessment.find(query)
       .populate("category", "name")
+      .populate("test", "name code")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(Number(limit));
@@ -98,7 +103,7 @@ export const getAssessmentById = async (req, res, next) => {
       return next(errorHandler(400, "Invalid assessment ID"));
     }
 
-    const data = await Assessment.findById(id).populate("category", "name");
+    const data = await Assessment.findById(id).populate("category", "name").populate("test", "name code");
 
     if (!data) {
       return next(errorHandler(404, "Assessment not found"));
@@ -111,14 +116,31 @@ export const getAssessmentById = async (req, res, next) => {
 };
 
 // Update
-export const updateAssessment = async (req, res) => {
+export const updateAssessment = async (req, res, next) => {
   try {
-    const data = await Assessment.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
+    const { test } = req.body;
+
+    // Check if another assessment already uses this test
+    const existingTest = await Assessment.findOne({
+      test,
+      _id: { $ne: req.params.id }, // Exclude current assessment
     });
+
+    if (existingTest) {
+      return next(
+        errorHandler(400, "An assessment already exists for this test")
+      );
+    }
+
+    const data = await Assessment.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
+
     res.json(data);
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    next(errorHandler(500, err.message));
   }
 };
 

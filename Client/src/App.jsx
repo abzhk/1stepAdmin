@@ -248,6 +248,17 @@ const App = () => {
            <Route path="/questions/:id" element={<AssessmentQuestions />}/>
            <Route path ="/admin-help-desk" element={<AdminHelpdesk/>}/>
               <Route path="/contact" element={<AdminInbox />}/>
+              <Route
+  path="/addassessment/:id"
+  element={
+    <PermissionRoute
+      module={MODULES.ASSESSMENT}
+      action={ACTIONS.UPDATE}
+    >
+      <AddAssessmentCategory />
+    </PermissionRoute>
+  }
+/>
         </Route>
       </Routes>
       <Toaster position="top-right" toastOptions={{ duration: 3000 }} />

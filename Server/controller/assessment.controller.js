@@ -3,21 +3,45 @@ import providerAssessment from "../model/Assessment/providerAssessment.js";
 import assessmentResponse from "../model/Assessment/assessmentResponse.js";
 import mongoose from "mongoose";
 import { errorHandler } from "../utils/error.js";
+import AssessmentTest from "../model/Assessment/assessmentTest.model.js";
 
 //Assessment Category Controllers
-export const createCategory = async (req, res,next) => {
+export const createCategory = async (req, res, next) => {
   try {
-    const { name, description, icon, order } = req.body;
+    const {
+      name,
+      description,
+      icon,
+      order,
+      tests = [],
+    } = req.body;
+
+
+    if (!tests || tests.length === 0) {
+  return next(errorHandler(400, "At least one test is required"));
+}
+
+for (const test of tests) {
+  if (!test.code?.trim() || !test.name?.trim()) {
+    return next(
+      errorHandler(400, "Please fill Code and Name for all tests")
+    );
+  }
+}
 
     const existingCategory = await assessmentCategory.findOne({ name });
+
     if (existingCategory) {
       return next(errorHandler(400, "Category already exists"));
     }
-      const existingOrder = await assessmentCategory.findOne({ order });
+
+    const existingOrder = await assessmentCategory.findOne({ order });
+
     if (existingOrder) {
       return next(errorHandler(400, "Order already exists"));
     }
 
+    // Create Category
     const category = new assessmentCategory({
       name,
       description,
@@ -26,8 +50,28 @@ export const createCategory = async (req, res,next) => {
     });
 
     await category.save();
-    res.status(201).json({ success: true, data: category });
+
+    if (tests.length > 0) {
+      const testDocs = tests.map((test) => ({
+        category: category._id,
+        code: test.code.trim().toUpperCase(),
+        name: test.name.trim(),
+        description: test.description || "",
+        isActive:
+          test.isActive === undefined ? true : test.isActive,
+      }));
+
+      await AssessmentTest.insertMany(testDocs);
+    }
+
+    res.status(201).json({
+      success: true,
+      message: "Category and Tests created successfully",
+      data: category,
+    });
+
   } catch (error) {
+    console.error(error);
     return next(errorHandler(500, "Error creating category"));
   }
 };
@@ -43,30 +87,87 @@ export const getCategories = async (req, res,next) => {
   }
 };
 
-export const updateCategory = async (req, res ,next) => {
+export const updateCategory = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { name, description, icon, status, order } = req.body;
+    const { name, description, icon, status, order, tests = [] } = req.body;
 
+    if (!tests.length) {
+      return next(errorHandler(400, "At least one test is required"));
+    }
+
+    for (const test of tests) {
+      if (!test.code?.trim() || !test.name?.trim()) {
+        return next(
+          errorHandler(400, "Please fill Code and Name for all tests")
+        );
+      }
+    }
+
+    // Update category
     const category = await assessmentCategory.findByIdAndUpdate(
       id,
-      { name, description, icon, status, order },
+      {
+        name,
+        description,
+        icon,
+        status,
+        order,
+      },
       { new: true }
     );
 
-    res.status(200).json({ success: true, data: category });
+    // Remove old tests
+    await AssessmentTest.deleteMany({
+      category: id,
+    });
+
+    // Insert updated tests
+    const testDocs = tests.map((test) => ({
+      category: id,
+      code: test.code.trim().toUpperCase(),
+      name: test.name.trim(),
+      description: test.description || "",
+      isActive: test.isActive ?? true,
+    }));
+
+    await AssessmentTest.insertMany(testDocs);
+
+    res.status(200).json({
+      success: true,
+      message: "Category updated successfully",
+      data: category,
+    });
+
   } catch (error) {
-    return next(errorHandler(500, "Error updating category"));
+    next(errorHandler(500, error.message));
   }
 };
 
 export const deleteCategory = async (req, res, next) => {
   try {
     const { id } = req.params;
-    await assessmentCategory.findByIdAndUpdate(id, { status: false });
-    res.status(200).json({ success: true, message: "Category deleted" });
+
+    const category = await assessmentCategory.findById(id);
+
+    if (!category) {
+      return next(errorHandler(404, "Category not found"));
+    }
+
+    // Delete all tests belonging to this category
+    await AssessmentTest.deleteMany({
+      category: id,
+    });
+
+    // Delete category
+    await assessmentCategory.findByIdAndDelete(id);
+
+    res.status(200).json({
+      success: true,
+      message: "Category deleted successfully",
+    });
   } catch (error) {
-    next(error);
+    next(errorHandler(500, error.message));
   }
 };
 
@@ -356,8 +457,7 @@ export const getProviderAssessmentAnalytics = async (req, res) => {
 
 export const getAllCategories = async (req, res) => {
   try {
-
-     const { search } = req.query;
+    const { search } = req.query;
 
     let filter = {};
 
@@ -367,15 +467,49 @@ export const getAllCategories = async (req, res) => {
         { description: { $regex: search, $options: "i" } },
       ];
     }
-    const categories = await assessmentCategory
-      .find(filter)             
-      .sort({ order: 1 });   
 
-    res.status(200).json({ success: true, data: categories });
+    const categories = await assessmentCategory
+      .find(filter)
+      .sort({ order: 1 })
+      .lean();
+
+    const categoryIds = categories.map(c => c._id);
+
+    const tests = await AssessmentTest.find({
+      category: { $in: categoryIds },
+    }).select("category code name");
+
+    const testMap = {};
+
+    tests.forEach(test => {
+      if (!testMap[test.category]) {
+        testMap[test.category] = [];
+      }
+
+      testMap[test.category].push({
+        _id: test._id,
+        code: test.code,
+        name: test.name,
+      });
+    });
+
+    categories.forEach(category => {
+      category.tests = testMap[category._id] || [];
+    });
+
+    res.status(200).json({
+      success: true,
+      data: categories,
+    });
+
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({
+      message: error.message,
+    });
   }
 };
+
+
 //active and inactive status for assessment category for admin
 export const toggleCategory = async (req, res) => {
   try {
@@ -494,5 +628,49 @@ export const getLastOrder = async (req, res) => {
       success: false,
       message: error.message,
     });
+  }
+};
+
+
+export const getTestsByCategory = async (req, res, next) => {
+  try {
+    const { categoryId } = req.params;
+
+    const tests = await AssessmentTest.find({
+      category: categoryId,
+      isActive: true,
+    })
+      .sort({ name: 1 });
+
+    res.status(200).json({
+      success: true,
+      data: tests,
+    });
+  } catch (error) {
+    return next(errorHandler(500, "Failed to fetch tests"));
+  }
+};
+
+export const getCategoryById = async (req, res, next) => {
+  try {
+    const category = await assessmentCategory.findById(req.params.id).lean();
+
+    if (!category) {
+      return next(errorHandler(404, "Category not found"));
+    }
+
+    const tests = await AssessmentTest.find({
+      category: req.params.id,
+    });
+
+    category.tests = tests;
+
+    res.json({
+      success: true,
+      data: category,
+    });
+
+  } catch (err) {
+    next(errorHandler(500, err.message));
   }
 };

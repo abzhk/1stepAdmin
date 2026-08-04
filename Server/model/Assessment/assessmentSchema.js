@@ -22,6 +22,12 @@ const assessmentSchema = new mongoose.Schema(
       required: true,
     },
 
+    test: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "assessmentTest",
+    required: true,
+},
+
     version: {
       type: Number,
       default: 1,

@@ -982,7 +982,12 @@ export const getCentresForAdmin = async (req, res, next) => {
     const {
       limit = 12,
       startIndex = 0,
+       sort = "createdAt",
+  order = "desc",
     } = req.query;
+
+    const sortQuery = {};
+sortQuery[sort] = order === "asc" ? 1 : -1;
 
     const totalCount = await Provider.countDocuments({
       providerType: "centre",
@@ -995,7 +1000,7 @@ export const getCentresForAdmin = async (req, res, next) => {
       isActive: true,
     })
       .populate("userRef", "isActive email profilePicture")
-      .sort({ createdAt: -1 })
+      .sort(sortQuery)
       .skip(Number(startIndex))
       .limit(Number(limit));
 
@@ -1203,7 +1208,47 @@ export const getIndividualProviders = async (req, res, next) => {
     }
 
     const sortStage = {};
-    sortStage[sort] = order === "desc" ? -1 : 1;
+
+switch (sort) {
+  case "fullName":
+    sortStage.fullName = order === "asc" ? 1 : -1;
+    break;
+
+  case "therapytype":
+    sortStage.therapytype = order === "asc" ? 1 : -1;
+    break;
+
+  case "experience":
+    sortStage.experience = order === "asc" ? 1 : -1;
+    break;
+
+  case "regularPrice":
+    sortStage.regularPrice = order === "asc" ? 1 : -1;
+    break;
+
+  case "rating":
+    sortStage["ratingSummary.average"] = order === "asc" ? 1 : -1;
+    break;
+
+  case "city":
+    sortStage["address.city"] = order === "asc" ? 1 : -1;
+    break;
+
+  case "verified":
+    sortStage.verified = order === "asc" ? 1 : -1;
+    break;
+
+  case "status":
+    sortStage["user.isActive"] = order === "asc" ? 1 : -1;
+    break;
+
+  case "createdAt":
+    sortStage.createdAt = order === "asc" ? 1 : -1;
+    break;
+
+  default:
+    sortStage.createdAt = -1;
+}
 
     const providers = await Provider.aggregate([
       {

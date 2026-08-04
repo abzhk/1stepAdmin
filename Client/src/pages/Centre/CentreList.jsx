@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { api } from "../../utils/api";
 import toast from "react-hot-toast";
+import SortableHeader from "../../Components/SortableHeader";
 
 const CentreList = () => {
   const navigate = useNavigate();
@@ -13,6 +14,10 @@ const CentreList = () => {
   const [centres, setCentres] = useState([]);
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
+  const [sortConfig, setSortConfig] = useState({
+  key: "createdAt",
+  direction: "desc",
+});
 
   const limit = 12;
 
@@ -20,9 +25,16 @@ const CentreList = () => {
     try {
       const startIndex = (page - 1) * limit;
 
-      const data = await api(
-        `/api/provider/centre-list?startIndex=${startIndex}&limit=${limit}`,
-      );
+     const params = new URLSearchParams({
+  startIndex,
+  limit,
+  sort: sortConfig.key,
+  order: sortConfig.direction,
+});
+
+const data = await api(
+  `/api/provider/centre-list?${params}`
+);
 
       setCentres(data.centres || []);
       setTotalCount(data.totalCount || 0);
@@ -33,7 +45,7 @@ const CentreList = () => {
 
   useEffect(() => {
     fetchCentres();
-  }, [page]);
+  }, [page, sortConfig]);
 
   const toggleCentreStatus = async (centre) => {
     if (centre.totalProviders > 0 && centre.isActive) {
@@ -70,6 +82,21 @@ const CentreList = () => {
       toast.error("Failed to update status");
     }
   };
+
+
+  const handleSort = (key) => {
+  const direction =
+    sortConfig.key === key && sortConfig.direction === "asc"
+      ? "desc"
+      : "asc";
+
+  setPage(1);
+
+  setSortConfig({
+    key,
+    direction,
+  });
+};
 
   return (
     <div className="p-4 md:p-8 bg-offwhite min-h-screen">
@@ -248,8 +275,18 @@ const CentreList = () => {
             <table className="w-full text-sm">
               <thead className="bg-offwhite text-cardfooter uppercase text-left">
                 <tr>
-                  <th className="p-3 text-left">Centre</th>
-                  <th className="p-3 text-left">Email</th>
+                  <SortableHeader
+  title="Centre"
+  field="fullName"
+  sortConfig={sortConfig}
+  handleSort={handleSort}
+/>
+                 <SortableHeader
+  title="Email"
+  field="email"
+  sortConfig={sortConfig}
+  handleSort={handleSort}
+/>
                   <th className="p-3 text-left">Phone</th>
                   <th className="p-3 text-left">Providers</th>
                   <th className="p-3 text-left">Sessions</th>

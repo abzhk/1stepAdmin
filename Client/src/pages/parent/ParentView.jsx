@@ -4,6 +4,7 @@ import { FiEdit2, FiGrid, FiList } from "react-icons/fi";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { api } from "../../utils/api.js";
 import toast from "react-hot-toast";
+import SortableHeader from "../../Components/SortableHeader";
 
 function ParentView() {
   const navigate = useNavigate();
@@ -20,6 +21,10 @@ function ParentView() {
   const [viewMode, setViewMode] = useState("grid");
 
   const { searchTerm } = useOutletContext();
+  const [sortConfig, setSortConfig] = useState({
+  key: "createdAt",
+  direction: "desc",
+});
 
   const getParents = async () => {
     try {
@@ -29,6 +34,8 @@ function ParentView() {
       const params = new URLSearchParams({
         limit: String(limit),
         startIndex: String((page - 1) * limit),
+          sort: sortConfig.key,
+  order: sortConfig.direction,
       });
 
       if (searchTerm.trim()) params.append("searchTerm", searchTerm);
@@ -47,7 +54,7 @@ function ParentView() {
 
   useEffect(() => {
     getParents();
-  }, [page, searchTerm]);
+  }, [page, searchTerm, sortConfig]);
 
   const fromIndex = parents.length ? (page - 1) * limit + 1 : 0;
   const toIndex = (page - 1) * limit + parents.length;
@@ -80,6 +87,20 @@ function ParentView() {
       setError(err.message || "Failed to update status");
     }
   };
+
+  const handleSort = (key) => {
+  const direction =
+    sortConfig.key === key && sortConfig.direction === "asc"
+      ? "desc"
+      : "asc";
+
+  setPage(1);
+
+  setSortConfig({
+    key,
+    direction,
+  });
+};
 
   return (
     <div className="p-4 md:p-8 bg-offwhite min-h-screen">
@@ -243,9 +264,21 @@ function ParentView() {
 
             <thead className="bg-offwhite  text-cardfooter uppercase">
               <tr>
-                <th className="p-3 text-left">Parent</th>
-                <th className="p-3 text-left">Child</th>
-                <th className="p-3 text-left">Phone</th>
+                <SortableHeader
+  title="Parent"
+  field="parentDetails.fullName"
+  sortConfig={sortConfig}
+  handleSort={handleSort}
+/>
+
+<SortableHeader
+  title="Child"
+  field="parentDetails.childName"
+  sortConfig={sortConfig}
+  handleSort={handleSort}
+/>
+
+                 <th className="p-3 text-left">Phone</th>
                 <th className="p-3 text-left">Status</th>
                 <th className="p-3 text-right">Actions</th>
               </tr>
