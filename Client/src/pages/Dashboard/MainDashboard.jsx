@@ -34,12 +34,20 @@ const MainDashboard = () => {
       label: "Add Article Category",
       color: "bg-purple-50 text-purple-600",
       onClick: () => navigate("/viewcat"),
+       permission:{
+        module: MODULES.ARTICLES,
+        action: ACTIONS.READ,
+      }
     },
     {
       icon: MdArticle,
       label: "Article",
       color: "bg-indigo-50 text-indigo-600",
       onClick: () => navigate("/viewarticle"),
+       permission:{
+        module: MODULES.ARTICLES,
+        action: ACTIONS.READ,
+      }
     },
     {
       icon: MdRateReview,

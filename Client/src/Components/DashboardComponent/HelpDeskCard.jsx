@@ -45,6 +45,7 @@ const HelpDeskCard = () => {
   }, []);
 
   return (
+     <PermissionGuard module={MODULES.HELP} action={ACTIONS.READ}>
     <div className="h-[380px] bg-white rounded-3xl shadow-md p-6 flex flex-col">
       {/* HEADER */}
       <div className="flex justify-between items-center mb-5">
@@ -92,16 +93,17 @@ const HelpDeskCard = () => {
 
       {/* FOOTER */}
       <div className="pt-4 flex justify-end">
-        <PermissionGuard module={MODULES.HELP} action={ACTIONS.READ}>
+       
         <button
           onClick={() => navigate("/admin-help-desk")}
           className="bg-gradient-to-r from-[#2d4a36] to-[#426b50] text-white p-3 rounded-full hover:scale-105 transition shadow-md"
         >
           <FiArrowRight />
         </button>
-        </PermissionGuard>
+        
       </div>
     </div>
+    </PermissionGuard>
   );
 };
 
