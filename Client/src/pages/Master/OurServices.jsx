@@ -381,7 +381,7 @@ const OurServices = () => {
         <button
           disabled={!pagination.hasPrevPage}
           onClick={() => fetchServices(page - 1)}
-          className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50 hover:bg-gray-300 transition"
+          className="px-4 py-2 bg-gray-200 rounded-2xl disabled:opacity-50 hover:bg-gray-300 transition"
         >
           Previous
         </button>
@@ -393,7 +393,7 @@ const OurServices = () => {
         <button
           disabled={!pagination.hasNextPage}
           onClick={() => fetchServices(page + 1)}
-          className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50 hover:bg-gray-300 transition"
+          className="px-4 py-2 bg-gray-200 rounded-2xl disabled:opacity-50 hover:bg-gray-300 transition"
         >
           Next
         </button>

@@ -24,6 +24,7 @@ const [sortConfig, setSortConfig] = useState({
   key: "order",
   direction: "asc",
 });
+  const [loading, setLoading] = useState(false);
 
 
   const [formData, setFormData] = useState({
@@ -42,11 +43,15 @@ useEffect(() => {
   fetchServices(page, searchTerm, sortConfig);
 }, [page, searchTerm, sortConfig]);
 
-  const fetchServices = async (
+const fetchServices = async (
   pageNo = page,
   search = searchTerm,
   sort = sortConfig
 ) => {
+  if (loading) return;
+
+  setLoading(true);
+
   try {
     const res = await api(
       `/api/services/admin/serviceType?page=${pageNo}&limit=${limit}&search=${encodeURIComponent(
@@ -56,9 +61,10 @@ useEffect(() => {
 
     setServices(res.data || []);
     setPagination(res.pagination);
-    setPage(pageNo);
   } catch (error) {
     console.error(error);
+  } finally {
+    setLoading(false);
   }
 };
 
@@ -479,28 +485,51 @@ const handleSort = (key) => {
       )}
 
       {/* Pagination */}
-      <div className="flex justify-end items-center mt-5 gap-4">
-        <button
-          disabled={!pagination.hasPrevPage}
-          onClick={() => fetchServices(page - 1)}
-          className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50 hover:bg-gray-300 transition"
-        >
-          Previous
-        </button>
+      <div className="flex justify-between items-center mt-5">
+  <span className="text-sm text-gray-600">
+    Showing{" "}
+    <span className="font-medium">
+      {pagination.totalItems || pagination.total
+        ? (pagination.currentPage - 1) * limit + 1
+        : 0}
+    </span>{" "}
+    to{" "}
+    <span className="font-medium">
+      {pagination.totalItems || pagination.total
+        ? Math.min(
+            pagination.currentPage * limit,
+            pagination.totalItems || pagination.total
+          )
+        : 0}
+    </span>{" "}
+    of{" "}
+    <span className="font-medium">
+      {pagination.totalItems || pagination.total || 0}
+    </span>
+  </span>
 
-        <span className="text-sm">
-          Page {pagination.currentPage} of {pagination.totalPages}
-        </span>
+  <div className="flex items-center gap-4">
+    <button
+      disabled={!pagination.hasPrevPage || loading}
+      onClick={() => setPage((prev) => prev - 1)}
+      className="px-4 py-2 bg-gray-200 rounded-2xl disabled:opacity-50 hover:bg-gray-300 transition"
+    >
+      Previous
+    </button>
 
-        <button
-          disabled={!pagination.hasNextPage}
-          onClick={() => fetchServices(page + 1)}
-          className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50 hover:bg-gray-300 transition"
-        >
-          Next
-        </button>
-      </div>
+    <span className="text-sm">
+      Page {pagination.currentPage} of {pagination.totalPages}
+    </span>
 
+    <button
+      disabled={!pagination.hasNextPage || loading}
+      onClick={() => setPage((prev) => prev + 1)}
+      className="px-4 py-2 bg-gray-200 rounded-2xl disabled:opacity-50 hover:bg-gray-300 transition"
+    >
+      Next
+    </button>
+  </div>
+</div>
       {/* Service Specialization Mapping */}
      {showMappingForm && (
   <div

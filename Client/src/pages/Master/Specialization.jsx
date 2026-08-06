@@ -15,6 +15,7 @@ const Specialization = () => {
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState({});
   const limit = 10;
+  const [loading, setLoading] = useState(false);
 
   const formRef = useRef(null);
   const [sortConfig, setSortConfig] = useState({
@@ -40,24 +41,29 @@ useEffect(() => {
 }, [page, searchTerm, sortConfig]);
   // FETCH
 
- const fetchSpecializations = async (pageNo = page,  search = searchTerm,
-  sort = sortConfig) => {
+ const fetchSpecializations = async (
+  pageNo = page,
+  search = searchTerm,
+  sort = sortConfig
+) => {
+  setLoading(true);
+
   try {
-   const res = await api(
-  `/api/specialization/pagination?page=${pageNo}&limit=${limit}&search=${encodeURIComponent(search)}&sortBy=${sort.key}&sortOrder=${sort.direction}`
-);
+    const res = await api(
+      `/api/specialization/pagination?page=${pageNo}&limit=${limit}&search=${encodeURIComponent(
+        search
+      )}&sortBy=${sort.key}&sortOrder=${sort.direction}`
+    );
 
     setSpecializations(res.data || []);
     setPagination(res.pagination || {});
-    setPage(pageNo);
   } catch (error) {
     console.error(error);
     toast.error("Failed to load specializations");
+  } finally {
+    setLoading(false);
   }
 };
-
-
-  // INPUT CHANGE
 
 
   const handleChange = (e) => {
@@ -497,14 +503,14 @@ const handleSort = (key) => {
           </div>
         )}
 
-        {/* ================= PAGINATION ================= */}
+        {/* PAGINATION */}
 
         <div className="flex justify-end items-center gap-4 mt-5">
 
           <button
-            disabled={!pagination.hasPrevPage}
-            onClick={() => fetchSpecializations(page - 1)}
-            className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+            disabled={!pagination.hasPrevPage  || loading}
+            onClick={() => setPage((prev) => prev - 1)}
+            className="px-4 py-2 bg-gray-200 rounded-2xl disabled:opacity-50"
           >
             Previous
           </button>
@@ -515,9 +521,9 @@ const handleSort = (key) => {
           </span>
 
           <button
-            disabled={!pagination.hasNextPage}
-            onClick={() => fetchSpecializations(page + 1)}
-            className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+            disabled={!pagination.hasNextPage || loading}
+            onClick={() => setPage((prev) => prev + 1)}
+            className="px-4 py-2 bg-gray-200 rounded-2xl disabled:opacity-50"
           >
             Next
           </button>

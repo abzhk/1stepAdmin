@@ -412,7 +412,7 @@ const handleSort = (key) => {
   <button
     disabled={!pagination.hasPrevPage}
     onClick={() => fetchTags(page - 1)}
-    className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+    className="px-4 py-2 bg-gray-200 rounded-2xl disabled:opacity-50"
   >
     Previous
   </button>
@@ -424,7 +424,7 @@ const handleSort = (key) => {
   <button
     disabled={!pagination.hasNextPage}
     onClick={() => fetchTags(page + 1)}
-    className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+    className="px-4 py-2 bg-gray-200 rounded-2xl disabled:opacity-50"
   >
     Next
   </button>
