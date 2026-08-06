@@ -135,25 +135,33 @@ export default function TicketsPanel({ tickets,search,
 </p>
 
   <div className="flex items-center gap-2">
-    <button
-      disabled={!pagination?.hasPrevPage}
-      onClick={() => setPage((prev) => prev - 1)}
+   <button
+  disabled={!pagination?.hasPrevPage}
+  onClick={() => {
+    if (pagination.hasPrevPage) {
+      setPage(pagination.page - 1)}  }}
       className="px-4 py-2 bg-[#2d4a36] text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
-    >
-      Prev
-    </button>
+    
+
+>
+  Prev
+</button>
 
     <span className="px-4 py-2 bg-[#F6F4F0] text-[#2d4a36] rounded-lg">
       {pagination?.page || 1} of {pagination?.totalPages || 1}
     </span>
 
     <button
-      disabled={!pagination?.hasNextPage}
-      onClick={() => setPage((prev) => prev + 1)}
-      className="px-4 py-2 bg-[#2d4a36] text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
-    >
-      Next
-    </button>
+  disabled={!pagination?.hasNextPage}
+  onClick={() => {
+    if (pagination.hasNextPage) {
+      setPage(pagination.page + 1);
+    }
+  }}
+  className="px-4 py-2 bg-[#2d4a36] text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+>
+  Next
+</button>
   </div>
 </div>
     </div>

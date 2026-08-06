@@ -58,6 +58,10 @@ const App = () => {
   const dispatch = useDispatch();
   const loading = useSelector((state) => state.auth.loading);
 
+  const isAuthenticated = useSelector(
+  (state) => state.auth.isAuthenticated
+);
+
   useEffect(() => {
     const restoreSession = async () => {
       try {
@@ -86,7 +90,16 @@ const App = () => {
     <>
       <Routes>
         <Route path="/" element={<Navigate to="/log" />} />
-        <Route path="/log" element={<Login />} />
+        <Route
+  path="/log"
+  element={
+    isAuthenticated ? (
+      <Navigate to="/dashboard" replace />
+    ) : (
+      <Login />
+    )
+  }
+/>
 
         <Route
           element={

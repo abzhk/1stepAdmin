@@ -9,6 +9,7 @@ import { useDispatch } from "react-redux";
 import { setUser } from "../redux/slice/authSlice";
 import toast from "react-hot-toast";
 import {api} from "../utils/api.js"
+import { useSelector } from "react-redux";
 
 const messages = [
   "Welcome — please login to access your account",
@@ -20,12 +21,19 @@ const Login = () => {
   const [idx, setIdx] = useState(0);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
 
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+  if (user) {
+    navigate("/dashboard", { replace: true });
+  }
+}, [user, navigate]);
 
 
   useEffect(() => {
@@ -53,7 +61,7 @@ const Login = () => {
 
      dispatch(setUser(data.user));
       toast.success("Login successful ");
-      navigate("/dashboard");
+      navigate("/dashboard", { replace: true });
     } catch (err) {
     console.error("Login error:", err);
 

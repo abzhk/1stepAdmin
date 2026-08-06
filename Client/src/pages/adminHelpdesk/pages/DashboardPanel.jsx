@@ -4,10 +4,10 @@ import { AGENTS, AGENT_COLOR_MAP, ac } from "../data/mockData";
 
 //UI designed By Gokul
 export default function DashboardPanel({ tickets,  stats, onViewAll, onTicketClick }) {
-  const open = tickets.filter(t => t.status === "Open").length;
-  const inP = tickets.filter(t => t.status === "In progress").length;
-  const res = tickets.filter(t => t.status === "Resolved").length;
-  const high = tickets.filter(t => t.priority === "High").length;
+  const open = stats.open;
+const inP = stats.inProgress;
+const res = stats.resolved;
+const high = stats.highPriority;
 
   return (
     <div className="animate-in fade-in duration-500">

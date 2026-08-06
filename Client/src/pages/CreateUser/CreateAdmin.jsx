@@ -372,7 +372,7 @@ const handleStatus = async (user) => {
 </select>
   </div>
   <div className="overflow-x-auto rounded-xl border border-gray-200">
-    <table className="w-full">
+    <table className="w-full text-left">
       <thead className="bg-offwhite">
         <tr>
           <th className="px-4 py-3 text-cardfooter uppercase">S.No</th>
@@ -390,7 +390,7 @@ const handleStatus = async (user) => {
         {users.length > 0 ? (
           users.map((user, index) => (
             <tr key={user._id} className=" hover:bg-offwhite">
-              <td className="px-4 py-3 text-table-text">{(page - 1) * limit + index + 1}</td>
+              <td className="px-4 py-3 text-table-text ">{(page - 1) * limit + index + 1}</td>
 
               <td className="px-4 py-3">
                 <img
