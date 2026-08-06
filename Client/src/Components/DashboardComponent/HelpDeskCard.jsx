@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { FiArrowRight } from "react-icons/fi";
 import { api } from "../../utils/api.js";
 import  formatdatateUtils from "../../utils/dateFormatUtils.js";
+import PermissionGuard from "../../Components/PermissionGuard";
+import { MODULES, ACTIONS } from "../../constants/permission";
 
 const StatusBadge = ({ status }) => {
   const styles = {
@@ -90,12 +92,14 @@ const HelpDeskCard = () => {
 
       {/* FOOTER */}
       <div className="pt-4 flex justify-end">
+        <PermissionGuard module={MODULES.HELP} action={ACTIONS.READ}>
         <button
           onClick={() => navigate("/admin-help-desk")}
           className="bg-gradient-to-r from-[#2d4a36] to-[#426b50] text-white p-3 rounded-full hover:scale-105 transition shadow-md"
         >
           <FiArrowRight />
         </button>
+        </PermissionGuard>
       </div>
     </div>
   );

@@ -120,10 +120,9 @@ export const updateAssessment = async (req, res, next) => {
   try {
     const { test } = req.body;
 
-    // Check if another assessment already uses this test
     const existingTest = await Assessment.findOne({
       test,
-      _id: { $ne: req.params.id }, // Exclude current assessment
+      _id: { $ne: req.params.id },
     });
 
     if (existingTest) {
@@ -251,13 +250,14 @@ export const publishAssessmentVersion = async (req, res, next) => {
 
     const { assessment } = req.body;
 
-    const assessmentChanged =
-      currentAssessment.title !== assessment.title ||
-      currentAssessment.description !== assessment.description ||
-      currentAssessment.image !== assessment.image ||
-      String(currentAssessment.category) !== String(assessment.category) ||
-      currentAssessment.scoringType !== assessment.scoringType ||
-      currentAssessment.status !== assessment.status;
+   const assessmentChanged =
+  currentAssessment.title !== assessment.title ||
+  currentAssessment.description !== assessment.description ||
+  currentAssessment.image !== assessment.image ||
+  String(currentAssessment.category) !== String(assessment.category) ||
+  String(currentAssessment.test) !== String(assessment.test) ||
+  currentAssessment.scoringType !== assessment.scoringType ||
+  currentAssessment.status !== assessment.status;
 
     if (!assessmentChanged) {
       return res.status(200).json({
@@ -281,6 +281,7 @@ export const publishAssessmentVersion = async (req, res, next) => {
       currentAssessment.image = assessment.image;
       currentAssessment.category = assessment.category;
       currentAssessment.scoringType = assessment.scoringType;
+      currentAssessment.test = assessment.test;
       currentAssessment.status = assessment.status;
       currentAssessment.totalQuestions = totalQuestions;
       currentAssessment.isLatestVersion = true;
@@ -305,6 +306,7 @@ export const publishAssessmentVersion = async (req, res, next) => {
       description: assessment.description,
       image: assessment.image,
       category: assessment.category,
+       test: assessment.test,
       scoringType: assessment.scoringType,
       totalQuestions,
       version: currentAssessment.version + 1,
