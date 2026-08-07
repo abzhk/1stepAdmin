@@ -64,7 +64,7 @@ const DashSidebar = () => {
     else if (
       path.startsWith("/allproviders") ||
       path.startsWith("/view-parent") ||
-      path.startsWith("/centre")
+      path.startsWith("/centre") ||path.startsWith("/provider-stats") ||path.startsWith("/parent-stats-card")
     )
       setActive("User");
     else if (path.startsWith("/create-Role")||  path.startsWith("/admin-profile")) setActive("Settings");

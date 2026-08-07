@@ -31,8 +31,8 @@ const DashboardNavbar = ({ searchTerm, setSearchTerm }) => {
 
   if (path.startsWith("/dashboard")) return "Dashboard";
   if (path.startsWith("/users")) return "Users";
-  if (path.startsWith("/allproviders")||path.startsWith("/inactive-providers")) return "Providers";
-  if (path.startsWith("/view-parent") ||path.startsWith("/inactive-parents")) return "Parents";
+  if (path.startsWith("/allproviders")||path.startsWith("/inactive-providers") || path.startsWith("/provider-stats")) return "Providers";
+  if (path.startsWith("/view-parent") ||path.startsWith("/inactive-parents")  ||path.startsWith("/parent-stats-card"))  return "Parents";
   if (path.startsWith("/add-plans")||path.startsWith("/view-plans")) return "Plans";
   if (path.startsWith("/create-Role")) return "Roles";
   if (path.startsWith("/reports")) return "Reports";

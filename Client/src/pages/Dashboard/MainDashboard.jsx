@@ -84,7 +84,7 @@ const MainDashboard = () => {
       label: "Master Data",
       color: "bg-gray-100 text-gray-600  border border-greenmuted/20",
       onClick: () => navigate("/master"),
-      permissioon:{
+      permission:{
         module: MODULES.MASTER_DATA,  
       action: ACTIONS.READ,
       }

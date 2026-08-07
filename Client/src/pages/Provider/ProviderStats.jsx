@@ -287,14 +287,21 @@ function ProviderStats() {
             className="w-20 border border-gray-300 rounded-lg px-2 py-1 bg-white text-sm"
           />
 
-          {useMonthlyStats && (
-            <button
-              onClick={() => setUseMonthlyStats(false)}
-              className="px-3 py-1 bg-[#2d4a36] text-white rounded-lg text-sm hover:bg-green-900 transition"
-            >
-              View All-Time Stats
-            </button>
-          )}
+        {useMonthlyStats ? (
+  <button
+    onClick={() => setUseMonthlyStats(false)}
+    className="px-3 py-1 bg-[#2d4a36] text-white rounded-lg text-sm hover:bg-green-900 transition"
+  >
+    View All-Time Stats
+  </button>
+) : (
+  <button
+    onClick={() => setUseMonthlyStats(true)}
+    className="px-3 py-1 bg-[#2d4a36] text-white rounded-lg text-sm hover:bg-green-900 transition"
+  >
+    View Monthly Stats
+  </button>
+)}
         </div>
       </div>
 
@@ -425,8 +432,8 @@ function ProviderStats() {
                           "/default-avatar.png"
                         }
                         alt={
-                          bookingdata.patientDetails?.username ||
-                          bookingdata.patientName
+                          bookingdata.patientDetails?.username
+                         
                         }
                         className="w-10 h-10 rounded-full object-cover border border-gray-200"
                       />
