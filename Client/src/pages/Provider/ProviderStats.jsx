@@ -7,6 +7,7 @@ import {api} from "../../utils/api.js"
 import InvitedProviders from "./InvitedProviders.jsx";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
+import dateFormatUtils from "../../utils/dateFormatUtils.js"
 
 const MONTHS = [
   { value: 1, label: "Jan" },
@@ -126,6 +127,7 @@ function ProviderStats() {
         const data = await api(
           `/api/booking/getbookingbyprovider/${id}?${params.toString()}`
         );
+        console.log(data.bookingDetails);
 
         setBookings(data.bookingDetails || []);
       } catch (err) {
@@ -442,8 +444,13 @@ function ProviderStats() {
                     </td>
 
                     <td className="px-6 py-4 whitespace-nowrap text-table-text">
-                      {bookingdata.scheduledTime?.slot && ` ${bookingdata.scheduledTime.slot}`}
-                    </td>
+  <div className="flex flex-col">
+    <span>{dateFormatUtils(bookingdata.scheduledTime?.date)}</span>
+    <span className="text-sm text-gray-500">
+      {bookingdata.scheduledTime?.slot}
+    </span>
+  </div>
+</td>
 
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span
