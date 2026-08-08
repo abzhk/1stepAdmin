@@ -10,6 +10,7 @@ import { BookedSlots } from "../model/booking.model.js";
 import UserSubscription from "../model/subscription.model.js";
 import Invitation from "../model/Centre/invitation.model.js";
 import Stats from "../model/stats.model.js";
+import CentreProvider from "../model/Centre/centreprovider.model.js";
 
 
 //validator
@@ -1016,27 +1017,24 @@ sortQuery[sort] = order === "asc" ? 1 : -1;
       userMap[u._id.toString()] = u;
     });
 
-    const centreIds = centres.map((c) => c._id.toString());
+    const centreIds = centres.map((c) => c._id);
 
-    const providerCounts = await Invitation.aggregate([
-      {
-        $addFields: {
-          centreIdStr: { $toString: "$centreId" },
-        },
+    const providerCounts = await CentreProvider.aggregate([
+  {
+    $match: {
+      centreId: { $in: centreIds },
+      isActive: true,
+    },
+  },
+  {
+    $group: {
+      _id: "$centreId",
+      totalProviders: {
+        $sum: 1,
       },
-      {
-        $match: {
-          centreIdStr: { $in: centreIds },
-          status: "accepted",
-        },
-      },
-      {
-        $group: {
-          _id: "$centreIdStr",
-          totalProviders: { $sum: 1 },
-        },
-      },
-    ]);
+    },
+  },
+]);
 
     const countMap = {};
     providerCounts.forEach((item) => {
@@ -1049,21 +1047,9 @@ sortQuery[sort] = order === "asc" ? 1 : -1;
       totalProviders: countMap[c._id.toString()] || 0,
     }));
 
-    const totalProvidersResult = await Invitation.aggregate([
-  {
-    $match: {
-      status: "accepted",
-    },
-  },
-  {
-    $count: "totalProviders",
-  },
-]);
-
-const totalProviders =
-  totalProvidersResult.length > 0
-    ? totalProvidersResult[0].totalProviders
-    : 0;
+    const totalProviders = await CentreProvider.countDocuments({
+  isActive: true,
+});
 
    res.status(200).json({
   success: true,

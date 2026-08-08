@@ -48,7 +48,7 @@ import Help from "./pages/HelpDesk/Help.jsx";
 import AllComplaints from "./pages/HelpDesk/AllComplaints.jsx";
 import PermissionRoute from "./pages/PermissionRoute.jsx";
 import { MODULES, ACTIONS } from "./constants/permission.js";
-import Asssessmentquestionary from "./pages/Assessment/AssessmentCreation.jsx"
+import Asssessmentquestionary from "./pages/Assessment/AssessmentCreation.jsx";
 import AssessmentList from "./pages/Assessment/AssessmentList.jsx";
 import AssessmentQuestions from "./pages/Assessment/AssessmentQuestion.jsx";
 import AdminHelpdesk from "./pages/adminHelpdesk/AdminHelpdesk.jsx";
@@ -58,9 +58,7 @@ const App = () => {
   const dispatch = useDispatch();
   const loading = useSelector((state) => state.auth.loading);
 
-  const isAuthenticated = useSelector(
-  (state) => state.auth.isAuthenticated
-);
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
 
   useEffect(() => {
     const restoreSession = async () => {
@@ -91,15 +89,11 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Navigate to="/log" />} />
         <Route
-  path="/log"
-  element={
-    isAuthenticated ? (
-      <Navigate to="/dashboard" replace />
-    ) : (
-      <Login />
-    )
-  }
-/>
+          path="/log"
+          element={
+            isAuthenticated ? <Navigate to="/dashboard" replace /> : <Login />
+          }
+        />
 
         <Route
           element={
@@ -148,31 +142,63 @@ const App = () => {
               </PermissionRoute>
             }
           />
-          <Route path="/allproviders" element={<PermissionRoute
-                module={MODULES.Roles}
-                action={ACTIONS.READ}
-              ><ViewProvider /></PermissionRoute>} />
-          <Route path="/provider-stats/:id" element={<PermissionRoute
-                module={MODULES.Roles}
-                action={ACTIONS.READ}><ProviderStats /></PermissionRoute>} />
-          <Route path="/view-parent" element={<PermissionRoute
-                module={MODULES.Roles}
-                action={ACTIONS.READ}
-              ><ViewParent /></PermissionRoute>} />
-          <Route path="/parent-stats-card/:userId" element={<PermissionRoute
-                module={MODULES.Roles}
-                action={ACTIONS.READ}
-              ><ParentStats /></PermissionRoute>} />
-          <Route path="/providers/edit/:id" element={<PermissionRoute
-                module={MODULES.Roles}
-                action={ACTIONS.UPDATE}
-              ><EditProvider /></PermissionRoute>} />
-          <Route path="/parent/edit/:parentId" element={<PermissionRoute
-                module={MODULES.Roles}
-                action={ACTIONS.UPDATE}
-              ><EditParent /></PermissionRoute>} />
+          <Route
+            path="/allproviders"
+            element={
+              <PermissionRoute module={MODULES.Roles} action={ACTIONS.READ}>
+                <ViewProvider />
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path="/provider-stats/:id"
+            element={
+              <PermissionRoute module={MODULES.Roles} action={ACTIONS.READ}>
+                <ProviderStats />
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path="/view-parent"
+            element={
+              <PermissionRoute module={MODULES.Roles} action={ACTIONS.READ}>
+                <ViewParent />
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path="/parent-stats-card/:userId"
+            element={
+              <PermissionRoute module={MODULES.Roles} action={ACTIONS.READ}>
+                <ParentStats />
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path="/providers/edit/:id"
+            element={
+              <PermissionRoute module={MODULES.Roles} action={ACTIONS.UPDATE}>
+                <EditProvider />
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path="/parent/edit/:parentId"
+            element={
+              <PermissionRoute module={MODULES.Roles} action={ACTIONS.UPDATE}>
+                <EditParent />
+              </PermissionRoute>
+            }
+          />
 
-          <Route path="/create-admin" element={<CreateAdmin />} />
+          <Route
+            path="/create-admin"
+            element={
+              <PermissionRoute module={MODULES.Roles} action={ACTIONS.CREATE}>
+                <CreateAdmin />
+              </PermissionRoute>
+            }
+          />
           {/* <Route path="/create-admin-role" element={<UserTab />} /> */}
           <Route
             path="/create-Role"
@@ -201,14 +227,54 @@ const App = () => {
               </PermissionRoute>
             }
           />
-          <Route path="/addplans/:id" element={ <PermissionRoute module={MODULES.PLANS} action={ACTIONS.CREATE}><Addplans /></PermissionRoute>} />
-          <Route path="/inactive-parents" element={<PermissionRoute module={MODULES.Roles} action={ACTIONS.READ}><InactiveParents /></PermissionRoute>} />
-          <Route path="/inactive-providers" element={<PermissionRoute module={MODULES.Roles} action={ACTIONS.READ}><InactiveProviders /></PermissionRoute>} />
-          <Route path="/list-view-article" element={<ListViewArticle />} />
-          <Route path="/master-data" element={<MasterData />} />
-          <Route path="/report" element={<UserReport />} />
-          <Route path="/reportdashboard" element={<ReportDashboard />} />
-          <Route path="/center-report" element={<CenterReport />} />
+          <Route
+            path="/addplans/:id"
+            element={
+              <PermissionRoute module={MODULES.PLANS} action={ACTIONS.CREATE}>
+                <Addplans />
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path="/inactive-parents"
+            element={
+              <PermissionRoute module={MODULES.Roles} action={ACTIONS.READ}>
+                <InactiveParents />
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path="/inactive-providers"
+            element={
+              <PermissionRoute module={MODULES.Roles} action={ACTIONS.READ}>
+                <InactiveProviders />
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path="/list-view-article"
+            element={
+              <PermissionRoute module={MODULES.ARTICLES} action={ACTIONS.READ}>
+                <ListViewArticle />
+              </PermissionRoute>
+            }
+          />
+          <Route path="/master-data" element={<PermissionRoute
+                module={MODULES.MASTER_DATA}
+                action={ACTIONS.READ}
+              ><MasterData /> </PermissionRoute>} />
+          <Route path="/report" element={<PermissionRoute
+                module={MODULES.REPORTS}
+                action={ACTIONS.READ}
+              ><UserReport /> </PermissionRoute>} />
+          <Route path="/reportdashboard" element={<PermissionRoute
+                module={MODULES.REPORTS}
+                action={ACTIONS.READ}
+              ><ReportDashboard /></PermissionRoute>} />
+          <Route path="/center-report" element={<PermissionRoute
+                module={MODULES.REPORTS}
+                action={ACTIONS.READ}
+              ><CenterReport /> </PermissionRoute>} />
           <Route
             path="/add-article"
             element={
@@ -253,13 +319,62 @@ const App = () => {
               </PermissionRoute>
             }
           />
-          <Route path="/centre" element={<PermissionRoute module={MODULES.Roles} action={ACTIONS.READ}><CentreDashBoard /></PermissionRoute>} />
-          <Route path="/centre-list" element={<PermissionRoute module={MODULES.Roles} action={ACTIONS.READ}><CentreList /></PermissionRoute>} />
-          <Route path="/centre-detail/:id" element={<PermissionRoute module={MODULES.Roles} action={ACTIONS.READ}><CentreDetail /></PermissionRoute>} />
-          <Route path="/upcoming-session" element={<PermissionRoute module={MODULES.Roles} action={ACTIONS.READ}><UpcomingSession /></PermissionRoute>} />
-          <Route path="/edit-centre/:id" element={<PermissionRoute module={MODULES.Roles} action={ACTIONS.UPDATE}><EditCentre /></PermissionRoute>} />
-          <Route path="/inactive-centre" element={<PermissionRoute module={MODULES.Roles} action={ACTIONS.READ}><InactiveCentre /></PermissionRoute>} />
-          <Route path="/admin-verify" element={<AdminVerificationPanel />} />
+          <Route
+            path="/centre"
+            element={
+              <PermissionRoute module={MODULES.Roles} action={ACTIONS.READ}>
+                <CentreDashBoard />
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path="/centre-list"
+            element={
+              <PermissionRoute module={MODULES.Roles} action={ACTIONS.READ}>
+                <CentreList />
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path="/centre-detail/:id"
+            element={
+              <PermissionRoute module={MODULES.Roles} action={ACTIONS.READ}>
+                <CentreDetail />
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path="/upcoming-session"
+            element={
+              <PermissionRoute module={MODULES.Roles} action={ACTIONS.READ}>
+                <UpcomingSession />
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path="/edit-centre/:id"
+            element={
+              <PermissionRoute module={MODULES.Roles} action={ACTIONS.UPDATE}>
+                <EditCentre />
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path="/inactive-centre"
+            element={
+              <PermissionRoute module={MODULES.Roles} action={ACTIONS.READ}>
+                <InactiveCentre />
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path="/admin-verify"
+            element={
+              <PermissionRoute module={MODULES.SETTINGS} action={ACTIONS.READ}>
+                <AdminVerificationPanel />
+              </PermissionRoute>
+            }
+          />
           <Route
             path="/admin-profile"
             element={
@@ -268,27 +383,74 @@ const App = () => {
               </PermissionRoute>
             }
           />
-          <Route path="/profile-settings" element={<ProfileSettings />} />
+          {/* <Route path="/profile-settings" element={<ProfileSettings />} />
           <Route path="/help" element={<Help />} />
-          <Route path="/all-complaints" element={<AllComplaints />} />
-          <Route path="/create-assessment" element={<PermissionRoute module={MODULES.ASSESSMENT} action={ACTIONS.CREATE}><Asssessmentquestionary /></PermissionRoute>}/>
-          <Route path="/create-assessment/:id" element={<Asssessmentquestionary />} />
-           <Route path="/assessment-list" element={ <PermissionRoute module={MODULES.ASSESSMENT} action={ACTIONS.READ}><AssessmentList /> </PermissionRoute> }/>
-            {/* <Route path="/help-desk" element={<AdminHelpdesk />}/> */}
-           <Route path="/questions/:id" element={<AssessmentQuestions />}/>
-           <Route path ="/admin-help-desk" element={ <PermissionRoute module={MODULES.HELP} action={ACTIONS.READ}><AdminHelpdesk/> </PermissionRoute>}/>
-              <Route path="/contact" element={<AdminInbox />}/>
-              <Route
-  path="/addassessment/:id"
-  element={
-    <PermissionRoute
-      module={MODULES.ASSESSMENT}
-      action={ACTIONS.UPDATE}
-    >
-      <AddAssessmentCategory />
-    </PermissionRoute>
-  }
-/>
+          <Route path="/all-complaints" element={<AllComplaints />} /> */}
+          <Route
+            path="/create-assessment"
+            element={
+              <PermissionRoute
+                module={MODULES.ASSESSMENT}
+                action={ACTIONS.CREATE}
+              >
+                <Asssessmentquestionary />
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path="/create-assessment/:id"
+            element={
+              <PermissionRoute
+                module={MODULES.ASSESSMENT}
+                action={ACTIONS.CREATE}
+              >
+                <Asssessmentquestionary />
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path="/assessment-list"
+            element={
+              <PermissionRoute
+                module={MODULES.ASSESSMENT}
+                action={ACTIONS.READ}
+              >
+                <AssessmentList />{" "}
+              </PermissionRoute>
+            }
+          />
+          {/* <Route path="/help-desk" element={<AdminHelpdesk />}/> */}
+          <Route path="/questions/:id" element={<PermissionRoute
+                module={MODULES.ASSESSMENT}
+                action={ACTIONS.READ}
+              ><AssessmentQuestions /> </PermissionRoute>} />
+          <Route
+            path="/admin-help-desk"
+            element={
+              <PermissionRoute module={MODULES.HELP} action={ACTIONS.READ}>
+                <AdminHelpdesk />{" "}
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path="/contact"
+            element={
+              <PermissionRoute module={MODULES.HELP} action={ACTIONS.READ}>
+                <AdminInbox />{" "}
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path="/addassessment/:id"
+            element={
+              <PermissionRoute
+                module={MODULES.ASSESSMENT}
+                action={ACTIONS.UPDATE}
+              >
+                <AddAssessmentCategory />
+              </PermissionRoute>
+            }
+          />
         </Route>
       </Routes>
       <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
