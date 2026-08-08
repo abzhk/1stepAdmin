@@ -74,7 +74,7 @@ const pageTitle = getPageTitle();
         await api("/api/admin/admin/logout", { method: "POST" });
         dispatch(logout());
         toast.success("Logged out successfully");
-        navigate("/log");
+        navigate("/log", { replace: true });
       } catch (err) {
         console.error(err);
       }
