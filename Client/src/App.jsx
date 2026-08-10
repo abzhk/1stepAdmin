@@ -204,7 +204,7 @@ const App = () => {
             path="/create-Role"
             element={
               <PermissionRoute
-                module={MODULES.SETTINGS}
+                module={MODULES.Roles}
                 action={ACTIONS.CREATE}
               >
                 <RoleTab />
@@ -370,7 +370,7 @@ const App = () => {
           <Route
             path="/admin-verify"
             element={
-              <PermissionRoute module={MODULES.SETTINGS} action={ACTIONS.READ}>
+              <PermissionRoute module={MODULES.Roles} action={ACTIONS.READ}>
                 <AdminVerificationPanel />
               </PermissionRoute>
             }

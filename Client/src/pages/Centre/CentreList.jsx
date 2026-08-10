@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { AiFillEye } from "react-icons/ai";
 import { FiEdit2, FiGrid, FiList } from "react-icons/fi";
-import { useNavigate } from "react-router-dom";
+import { useNavigate,useOutletContext  } from "react-router-dom";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { api } from "../../utils/api";
 import toast from "react-hot-toast";
@@ -9,6 +9,7 @@ import SortableHeader from "../../Components/SortableHeader";
 
 const CentreList = () => {
   const navigate = useNavigate();
+  const { searchTerm } = useOutletContext();
 
   const [viewMode, setViewMode] = useState("grid");
   const [centres, setCentres] = useState([]);
@@ -19,7 +20,9 @@ const CentreList = () => {
   direction: "desc",
 });
 
+
   const limit = 12;
+  
 
   const fetchCentres = async () => {
     try {
@@ -30,6 +33,7 @@ const CentreList = () => {
   limit,
   sort: sortConfig.key,
   order: sortConfig.direction,
+   searchTerm,
 });
 
 const data = await api(
@@ -43,9 +47,13 @@ const data = await api(
     }
   };
 
-  useEffect(() => {
-    fetchCentres();
-  }, [page, sortConfig]);
+ useEffect(() => {
+  setPage(1);
+}, [searchTerm]);
+
+useEffect(() => {
+  fetchCentres();
+}, [page, sortConfig, searchTerm]);
 
   const toggleCentreStatus = async (centre) => {
     if (centre.totalProviders > 0 && centre.isActive) {

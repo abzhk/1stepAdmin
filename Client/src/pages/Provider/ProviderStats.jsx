@@ -248,15 +248,18 @@ function ProviderStats() {
       </button>
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
         <div>
-          <h1 className=" mb-1 text-subheading">WELCOME BACK</h1>
-          <p className="text-cardfooter">
-            Showing stats for{" "}
-            <span className="font-semibold">
-              {currentMonthLabel} {year}
-            </span>{" "}
-            ({useMonthlyStats ? "Monthly view" : "All time view "})
-          </p>
-        </div>
+  <h1 className="mb-1 text-subheading">WELCOME BACK</h1>
+
+  <p className="text-cardfooter">
+    Showing stats for{" "}
+    <span className="font-semibold">
+      {useMonthlyStats
+        ? `${currentMonthLabel} ${year}`
+        : year}
+    </span>{" "}
+    ({useMonthlyStats ? "Monthly view" : "All time view"})
+  </p>
+</div>
 
         <div className="flex flex-wrap items-center gap-2">
           <select

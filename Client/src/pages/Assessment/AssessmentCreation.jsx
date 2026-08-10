@@ -424,8 +424,7 @@ const AssessmentCreation = () => {
 
   const handlePublishVersion = async () => {
     try {
-      console.log("FORM BEFORE PUBLISH", form);
-      console.log("IMAGE BEFORE PUBLISH", form.image);
+    
 
       // GET CURRENT ASSESSMENT
       const current = await api(

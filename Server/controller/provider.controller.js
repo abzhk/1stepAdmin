@@ -983,81 +983,128 @@ export const getCentresForAdmin = async (req, res, next) => {
     const {
       limit = 12,
       startIndex = 0,
-       sort = "createdAt",
-  order = "desc",
+      sort = "createdAt",
+      order = "desc",
+      searchTerm = "",
     } = req.query;
 
     const sortQuery = {};
-sortQuery[sort] = order === "asc" ? 1 : -1;
 
-    const totalCount = await Provider.countDocuments({
+    sortQuery[sort] = order === "asc" ? 1 : -1;
+
+    const centreQuery = {
       providerType: "centre",
       isActive: true,
-    });
+    };
 
-    // 1. Get centres
-    const centres = await Provider.find({
-      providerType: "centre",
-      isActive: true,
-    })
-      .populate("userRef", "isActive email profilePicture")
+
+    if (searchTerm.trim()) {
+      centreQuery.$or = [
+        {
+          fullName: {
+            $regex: searchTerm.trim(),
+            $options: "i",
+          },
+        },
+        {
+          phone: {
+            $regex: searchTerm.trim(),
+            $options: "i",
+          },
+        },
+      ];
+    }
+
+
+    const totalCount = await Provider.countDocuments(
+      centreQuery
+    );
+
+    const centres = await Provider.find(centreQuery)
+      .populate(
+        "userRef",
+        "isActive email profilePicture"
+      )
       .sort(sortQuery)
       .skip(Number(startIndex))
       .limit(Number(limit));
 
-    // 2. Users
-    const userIds = centres.map((c) => c.userRef);
+
+    const userIds = centres
+      .map((c) => c.userRef)
+      .filter(Boolean);
 
     const users = await User.find({
       _id: { $in: userIds },
-    }).select("username email profilePicture");
+    }).select(
+      "username email profilePicture"
+    );
+
 
     const userMap = {};
+
     users.forEach((u) => {
       userMap[u._id.toString()] = u;
     });
 
-    const centreIds = centres.map((c) => c._id);
 
-    const providerCounts = await CentreProvider.aggregate([
-  {
-    $match: {
-      centreId: { $in: centreIds },
-      isActive: true,
-    },
-  },
-  {
-    $group: {
-      _id: "$centreId",
-      totalProviders: {
-        $sum: 1,
-      },
-    },
-  },
-]);
+    const centreIds = centres.map(
+      (c) => c._id
+    );
+
+
+    const providerCounts =
+      await CentreProvider.aggregate([
+        {
+          $match: {
+            centreId: {
+              $in: centreIds,
+            },
+            isActive: true,
+          },
+        },
+        {
+          $group: {
+            _id: "$centreId",
+            totalProviders: {
+              $sum: 1,
+            },
+          },
+        },
+      ]);
+
 
     const countMap = {};
+
     providerCounts.forEach((item) => {
-      countMap[item._id] = item.totalProviders;
+      countMap[item._id.toString()] =
+        item.totalProviders;
     });
+
 
     const finalCentres = centres.map((c) => ({
       ...c.toObject(),
-      user: userMap[c.userRef?.toString()] || null,
-      totalProviders: countMap[c._id.toString()] || 0,
+
+      user:
+        userMap[c.userRef?.toString()] || null,
+
+      totalProviders:
+        countMap[c._id.toString()] || 0,
     }));
 
-    const totalProviders = await CentreProvider.countDocuments({
-  isActive: true,
-});
 
-   res.status(200).json({
-  success: true,
-  totalCount,
-  totalCentres: totalCount,
-  totalProviders,
-  centres: finalCentres,
-});
+    const totalProviders =
+      await CentreProvider.countDocuments({
+        isActive: true,
+      });
+
+    res.status(200).json({
+      success: true,
+      totalCount,
+      totalCentres: totalCount,
+      totalProviders,
+      centres: finalCentres,
+    });
   } catch (error) {
     next(error);
   }
