@@ -55,7 +55,7 @@ const high = stats.highPriority;
 />
 
 <span className="text-[13px] text-label">
-  {t.user?.username}
+  {t.displayName}
 </span>
                       {/* <span className="text-[13px] font-bold text-[#2d4a36]">{t.user.username ? t.user.username.split(" ")[0] : t.user}</span> */}
                     </div>

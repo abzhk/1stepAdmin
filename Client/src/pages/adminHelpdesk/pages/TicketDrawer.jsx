@@ -65,7 +65,7 @@ export default function TicketDrawer({ ticket, idx, onClose, onUpdate }) {
   size="md"
 />
           <div>
-            <div className="text-[13px] font-bold text-[#2d4a36]">{ticket.user.username}</div>
+            <div className="text-[13px] font-bold text-[#2d4a36]">{ticket.displayName}</div>
             <div className="text-[11px] font-medium text-[#8fa797]">{ticket.email}</div>
           </div>
           <div className="ml-auto text-right">

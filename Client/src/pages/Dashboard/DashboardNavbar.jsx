@@ -26,6 +26,21 @@ const DashboardNavbar = ({ searchTerm, setSearchTerm }) => {
   const notifRef = useRef(null);
   const location = useLocation();
 
+  const hideSearchRoutes = [
+  "/dashboard",
+  "/create-admin",
+  "/admin-profile",
+  "/admin-help-desk",
+  "/create-Role",
+  "/add-plans",
+  "/viewarticle",
+  "/contact",
+];
+
+const hideSearch = hideSearchRoutes.some((route) =>
+  location.pathname.startsWith(route)
+);
+
   const getPageTitle = () => {
   const path = location.pathname;
 
@@ -91,10 +106,12 @@ const pageTitle = getPageTitle();
         <div className="flex items-center gap-6">
           
           {/* Search Input */}
-         <NavSearch 
-  searchTerm={searchTerm}
-  setSearchTerm={setSearchTerm}
-/>
+        {!hideSearch && (
+  <NavSearch
+    searchTerm={searchTerm}
+    setSearchTerm={setSearchTerm}
+  />
+)}
 
 
           {/* Notification Bell & Dropdown */}

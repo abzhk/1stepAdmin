@@ -3,6 +3,8 @@ import { errorHandler } from "../utils/error.js";
 import nodemailer from "nodemailer";
 import {ticketReplyEmail} from "../utils/emailTemplates.js"
 import  User from "../model/user.model.js";
+import Parent from "../model/parent.model.js";
+import Provider from "../model/provider.model.js";
 
 const VALID_CATEGORIES = [
   "Account & Access",
@@ -381,90 +383,170 @@ export const getAllTickets = async (req, res, next) => {
     if (status && status !== "All") {
       query.status = status;
     }
+
     let userIds = [];
 
-   if (search) {
-  const users = await User.find({
-    username: { $regex: search, $options: "i" },
-  }).select("_id");
+    if (search) {
+      // Search User.username
+      const users = await User.find({
+        username: { $regex: search, $options: "i" },
+      }).select("_id");
 
-  userIds = users.map((u) => u._id);
+      userIds = users.map((u) => u._id);
 
-  query.$or = [
-    { ticketId: { $regex: search, $options: "i" } },
-    { title: { $regex: search, $options: "i" } },
-    { email: { $regex: search, $options: "i" } },
-    { category: { $regex: search, $options: "i" } }, 
-    { user: { $in: userIds } }, 
-  ];
-}
+      query.$or = [
+        { ticketId: { $regex: search, $options: "i" } },
+        { title: { $regex: search, $options: "i" } },
+        { email: { $regex: search, $options: "i" } },
+        { category: { $regex: search, $options: "i" } },
+        { user: { $in: userIds } },
+      ];
+    }
 
     const pageNumber = Number(page);
     const limitNumber = Number(limit);
     const skip = (pageNumber - 1) * limitNumber;
 
-    const [tickets, totalTickets,stats] = await Promise.all([
+
+    const [tickets, totalTickets, stats] = await Promise.all([
       Help.find(query)
-      .populate({
-      path: "user",
-      select: "username email profilePicture role",
-      populate: {
-        path: "role",
-        select: "role", 
-      },
-    })
+        .populate({
+          path: "user",
+          select: "username email profilePicture role",
+          populate: {
+            path: "role",
+            select: "role",
+          },
+        })
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limitNumber)
         .lean(),
+
       Help.countDocuments(query),
 
- Help.aggregate([
-    {
-      $group: {
-        _id: null,
-        open: {
-          $sum: {
-            $cond: [{ $eq: ["$status", "Open"] }, 1, 0],
-          },
-        },
-        inProgress: {
-          $sum: {
-            $cond: [{ $eq: ["$status", "In progress"] }, 1, 0],
-          },
-        },
-        resolved: {
-          $sum: {
-            $cond: [{ $eq: ["$status", "Resolved"] }, 1, 0],
-          },
-        },
-        highPriority: {
-          $sum: {
-            $cond: [{ $eq: ["$priority", "High"] }, 1, 0],
-          },
-        },
-      },
-    },
-  ]),
+      Help.aggregate([
+        {
+          $group: {
+            _id: null,
 
+            open: {
+              $sum: {
+                $cond: [{ $eq: ["$status", "Open"] }, 1, 0],
+              },
+            },
+
+            inProgress: {
+              $sum: {
+                $cond: [{ $eq: ["$status", "In progress"] }, 1, 0],
+              },
+            },
+
+            resolved: {
+              $sum: {
+                $cond: [{ $eq: ["$status", "Resolved"] }, 1, 0],
+              },
+            },
+
+            highPriority: {
+              $sum: {
+                $cond: [{ $eq: ["$priority", "High"] }, 1, 0],
+              },
+            },
+          },
+        },
+      ]),
     ]);
+
+
+    const ticketUserIds = tickets
+      .map((ticket) => ticket.user?._id)
+      .filter(Boolean);
+
+
+    const [parents, providers] = await Promise.all([
+      Parent.find({
+        userRef: { $in: ticketUserIds },
+      }).lean(),
+
+      Provider.find({
+        userRef: { $in: ticketUserIds },
+      }).lean(),
+    ]);
+
+
+    const parentMap = new Map(
+      parents.map((parent) => [
+        parent.userRef.toString(),
+        parent,
+      ])
+    );
+
+    const providerMap = new Map(
+      providers.map((provider) => [
+        provider.userRef.toString(),
+        provider,
+      ])
+    );
+
+
+    const formattedTickets = tickets.map((ticket) => {
+      const userId = ticket.user?._id?.toString();
+
+      const parent = userId
+        ? parentMap.get(userId)
+        : null;
+
+      const provider = userId
+        ? providerMap.get(userId)
+        : null;
+
+      let displayName = ticket.user?.username || "";
+
+      // Parent
+      if (parent) {
+        displayName =
+          parent.parentDetails?.fullName ||
+          displayName;
+      }
+
+      // Provider / Centre
+      else if (provider) {
+        displayName =
+          provider.fullName ||
+          displayName;
+      }
+
+      return {
+        ...ticket,
+        displayName,
+      };
+    });
+
 
     res.status(200).json({
       success: true,
-      tickets,
-       stats: stats[0] || {
-    open: 0,
-    inProgress: 0,
-    resolved: 0,
-    highPriority: 0,
-  },
+
+      tickets: formattedTickets,
+
+      stats: stats[0] || {
+        open: 0,
+        inProgress: 0,
+        resolved: 0,
+        highPriority: 0,
+      },
+
       pagination: {
         total: totalTickets,
         page: pageNumber,
         limit: limitNumber,
-        totalPages: Math.ceil(totalTickets / limitNumber),
-        hasNextPage: pageNumber * limitNumber < totalTickets,
-        hasPrevPage: pageNumber > 1,
+        totalPages: Math.ceil(
+          totalTickets / limitNumber
+        ),
+        hasNextPage:
+          pageNumber * limitNumber < totalTickets,
+        hasPrevPage:
+          pageNumber > 1,
       },
     });
   } catch (error) {

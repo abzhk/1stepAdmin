@@ -84,7 +84,7 @@ export default function TicketsPanel({ tickets,search,
 />
                           {/* <Av initials={t.email?.charAt(0).toUpperCase()} cc={ac(i)} size="sm"/> */}
                           <div>
-                            <div className="text-[12px] font-bold text-[#2d4a36] whitespace-nowrap">{t.user?.username}</div>
+                            <div className="text-[12px] font-bold text-[#2d4a36] whitespace-nowrap">{t.displayName}</div>
                             <div className="text-[10px] font-medium text-[#8fa797]">{t.email}</div>
                           </div>
                         </div>
