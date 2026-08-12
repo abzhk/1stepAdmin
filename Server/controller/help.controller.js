@@ -502,24 +502,35 @@ export const getAllTickets = async (req, res, next) => {
         : null;
 
       let displayName = ticket.user?.username || "";
+       let displayProfilePicture = ticket.user?.profilePicture || "";
 
       // Parent
       if (parent) {
         displayName =
           parent.parentDetails?.fullName ||
           displayName;
-      }
+      
+
+      displayProfilePicture =
+      ticket.user?.profilePicture || "";
+  }
 
       // Provider / Centre
       else if (provider) {
         displayName =
           provider.fullName ||
           displayName;
-      }
+      
+       displayProfilePicture =
+      provider.profilePicture ||
+      ticket.user?.profilePicture ||
+      "";
+  }
 
       return {
         ...ticket,
         displayName,
+         displayProfilePicture,
       };
     });
 

@@ -77,7 +77,7 @@ export default function TicketsPanel({ tickets,search,
                       <td className="px-4 py-4">
                         <div className="flex items-center gap-3">
                           <Av
-  image={t.user?.profilePicture}
+  image={t.displayProfilePicture}
   initials={t.user?.username?.charAt(0) || "G"}
   cc={ac(i)}
   size="sm"

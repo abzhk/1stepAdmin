@@ -76,7 +76,7 @@ const HelpDeskCard = () => {
                   {item.user?.email}
                 </p>
                 <p className="text-sm font-medium text-gray-800 group-hover:text-black">
-                  {item.user?.username }
+                  {item.displayName}
                 </p>
               </div>
             </div>
