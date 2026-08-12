@@ -143,8 +143,31 @@ if (existingTicket.status === "Resolved") {
     
 
     if (!ticket) {
-      return next(errorHandler(404, "Ticket not found."));
-    }
+  return next(errorHandler(404, "Ticket not found."));
+}
+
+// Get parent/provider profile
+const parent = await Parent.findOne({
+  userRef: ticket.user?._id,
+}).lean();
+
+const provider = await Provider.findOne({
+  userRef: ticket.user?._id,
+}).lean();
+
+let displayName = ticket.user?.username || "";
+let displayProfilePicture = ticket.user?.profilePicture || "";
+
+if (parent) {
+  displayName =
+    parent.parentDetails?.fullName || displayName;
+} else if (provider) {
+  displayName =
+    provider.fullName || displayName;
+
+  displayProfilePicture =
+    provider.profilePicture || displayProfilePicture;
+}
 
       try {
       await transporter.sendMail({
@@ -350,7 +373,14 @@ Thank you for choosing 1Step. We're always here to help.
         emailError
       );
     }
-    res.status(200).json({ success: true, ticket });
+    res.status(200).json({
+  success: true,
+  ticket: {
+    ...ticket.toObject(),
+    displayName,
+    displayProfilePicture,
+  },
+});
   } catch (error) {
     next(error);
   }
