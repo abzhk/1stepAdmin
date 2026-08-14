@@ -1,6 +1,5 @@
 import assessmentCategory from "../model/Assessment/assessmentCategory.js";
 import providerAssessment from "../model/Assessment/providerAssessment.js";
-import assessmentResponse from "../model/Assessment/assessmentResponse.js";
 import mongoose from "mongoose";
 import { errorHandler } from "../utils/error.js";
 import AssessmentTest from "../model/Assessment/assessmentTest.model.js";

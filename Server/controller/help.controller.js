@@ -136,10 +136,17 @@ if (existingTicket.status === "Resolved") {
 }
 
     const ticket = await Help.findByIdAndUpdate(
-      req.params.id,
-      { $set: update },
-      { new: true }
-    ).populate("user", "username email profilePicture");
+  req.params.id,
+  { $set: update },
+  { new: true }
+).populate({
+  path: "user",
+  select: "username email profilePicture role",
+  populate: {
+    path: "role",
+    select: "role",
+  },
+});
     
 
     if (!ticket) {
