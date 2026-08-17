@@ -59,7 +59,7 @@ const [stats, setStats] = useState({
 
   const NAV = [
     { id: "dashboard", label: "Dashboard", icon: <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 16 16"><rect x="1" y="1" width="6" height="6" rx="1.5" /><rect x="9" y="1" width="6" height="6" rx="1.5" /><rect x="1" y="9" width="6" height="6" rx="1.5" /><rect x="9" y="9" width="6" height="6" rx="1.5" /></svg> },
-    { id: "tickets", label: "Tickets", badge: tickets.filter(t => t.status === "Open").length, icon: <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 16 16"><rect x="2" y="2" width="12" height="12" rx="2" /><path d="M5 6h6M5 9h4" /></svg> },
+    { id: "tickets", label: "Tickets",  badge: stats.open, icon: <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 16 16"><rect x="2" y="2" width="12" height="12" rx="2" /><path d="M5 6h6M5 9h4" /></svg> },
     // { id: "agents", label: "Agents", icon: <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 16 16"><circle cx="8" cy="5" r="2.5" /><path d="M3 13c0-2.76 2.24-5 5-5s5 2.24 5 5" /></svg> },
     // { id: "reports", label: "Reports", icon: <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 16 16"><path d="M2 12V8M6 12V5M10 12V7M14 12V3" /></svg> },
   ];
