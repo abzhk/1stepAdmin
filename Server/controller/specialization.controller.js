@@ -1,4 +1,4 @@
-import Specialization from "../model/specialization.model.js";
+import Specialization from "../model/Master/specialization.model.js";
 
 export const createSpecialization = async (req, res) => {
   try {

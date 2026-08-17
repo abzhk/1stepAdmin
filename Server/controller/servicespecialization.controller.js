@@ -1,6 +1,6 @@
-import ServiceSpecialization from "../model/servicespecialization.model.js";
+import ServiceSpecialization from "../model/Master/servicespecialization.model.js";
 import MasterData from "../model/Master/masterData.model.js";
-import Specialization from "../model/specialization.model.js";
+import Specialization from "../model/Master/specialization.model.js";
 
 
 // CREATE RELATION
