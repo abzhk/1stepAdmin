@@ -28,6 +28,7 @@ const [stats, setStats] = useState({
   resolved: 0,
   highPriority: 0,
 });
+const [filter, setFilter] = useState("All");
 
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(null), 3000); };
 
@@ -71,8 +72,8 @@ const fetchTickets = async () => {
     setLoading(true);
 
     const data = await api(
-      `/api/help/all-tickets?search=${search}&page=${page}&limit=10`
-    );
+  `/api/help/all-tickets?search=${search}&status=${filter}&page=${page}&limit=10`
+);
 console.log(data.pagination);
     setTickets(data.tickets);
      setPagination(data.pagination);
@@ -86,7 +87,7 @@ console.log(data.pagination);
 
 useEffect(() => {
   fetchTickets();
-}, [search,page]);
+}, [search,filter,page]);
 
   return (
     <div className="flex h-screen bg-[#F6F4F0] overflow-hidden text-[#2d4a36] selection:bg-greenmuted rounded-t-2xl" >
@@ -128,7 +129,8 @@ useEffect(() => {
         
         <main className="flex-1 overflow-y-auto p-8 relative">
           {panel === "dashboard" && <DashboardPanel tickets={tickets}  stats={stats} onViewAll={() => setPanel("tickets")} onTicketClick={(t, i) => setDrawer({ ticket: t, idx: i })} />}
-          {panel === "tickets" && <TicketsPanel tickets={tickets}  search={search} page={page}
+          {panel === "tickets" && <TicketsPanel tickets={tickets}  search={search} page={page}  filter={filter}
+  setFilter={setFilter}
   setPage={setPage}
   pagination={pagination}
   setSearch={setSearch} onTicketClick={(t, i) => setDrawer({ ticket: t, idx: i })} onUpdateTicket={updateTicket} />}

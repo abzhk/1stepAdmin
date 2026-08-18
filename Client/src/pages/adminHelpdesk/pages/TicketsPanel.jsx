@@ -6,15 +6,13 @@ import formatdatateUtils from "../../../utils/dateFormatUtils.js";
 
 //UI designed By Gokul
 export default function TicketsPanel({ tickets,search,
-  setSearch, page,
+  setSearch, page,  filter,setFilter,
   setPage,
   pagination,onTicketClick, onUpdateTicket }) {
-  const [filter, setFilter] = useState("All");
+
   const [selected, setSelected] = useState(new Set());
 
- const filtered = tickets.filter(
-  t => filter === "All" || t.status === filter
-);
+ const filtered = tickets;
 
   const toggle = id => setSelected(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
   const bulkClose = () => { selected.forEach(id => { const t = tickets.find(t => t._id === id); if (t) onUpdateTicket({ ...t, status: "Closed" }); }); setSelected(new Set()); };
@@ -43,7 +41,10 @@ export default function TicketsPanel({ tickets,search,
           {["All", "Open", "In progress", "Resolved"].map((f) => (
   <button
     key={f}
-    onClick={() => setFilter(f)}
+    onClick={() => {
+  setFilter(f);
+  setPage(1);
+}}
     className={`text-[12px] px-4 py-1.5 rounded-full font-bold transition-all border ${
       filter === f
         ? "bg-[#2d4a36] text-[#F6F4F0] border-[#2d4a36] shadow-md"
