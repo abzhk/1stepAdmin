@@ -8,6 +8,7 @@ import InvitedProviders from "./InvitedProviders.jsx";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 import dateFormatUtils from "../../utils/dateFormatUtils.js"
+import {formatDate,formatTimeAMPM} from "../../utils/dateHelpers.js";
 
 const MONTHS = [
   { value: 1, label: "Jan" },
@@ -343,7 +344,7 @@ function ProviderStats() {
           </div>
 
           <p className="text-cardfooter text-center mt-4">
-            {allTime.approved} approved out of {allTime.total} bookings
+             {allTime.completed} completed out of {allTime.total} bookings
           </p>
         </div>
 
@@ -397,6 +398,9 @@ function ProviderStats() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-offwhite border-b-2 border-gray-200">
               <tr>
+                 <th className="px-6 py-3 text-left  text-cardfooter uppercase tracking-wider">
+                  Sl.no
+                </th>
                 <th className="px-6 py-3 text-left  text-cardfooter uppercase tracking-wider">
                   Patient
                 </th>
@@ -423,11 +427,14 @@ function ProviderStats() {
                   </td>
                 </tr>
               ) : (
-                bookings.map((bookingdata) => (
+                bookings.map((bookingdata, index) => (
                   <tr
                     key={bookingdata._id}
                     className="hover:bg-offwhite/50 transition duration-150 ease-in-out"
                   >
+                     <td className="px-6 py-4 whitespace-nowrap text-table-text">
+      {index + 1}
+    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-table-text flex items-center gap-3">
                       <img
                         src={
@@ -453,11 +460,14 @@ function ProviderStats() {
                         : bookingdata.service || "-"}
                     </td>
 
-                    <td className="px-6 py-4 whitespace-nowrap text-table-text">
+                   <td className="px-6 py-4 whitespace-nowrap text-table-text">
   <div className="flex flex-col">
-    <span>{dateFormatUtils(bookingdata.scheduledTime?.date)}</span>
+    <span>
+      {formatDate(bookingdata.scheduledTime?.date, "long")}
+    </span>
+
     <span className="text-sm text-gray-500">
-      {bookingdata.scheduledTime?.slot}
+      {formatTimeAMPM(bookingdata.scheduledTime?.slot)}
     </span>
   </div>
 </td>
