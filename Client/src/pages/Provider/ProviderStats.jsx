@@ -8,7 +8,7 @@ import InvitedProviders from "./InvitedProviders.jsx";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 import dateFormatUtils from "../../utils/dateFormatUtils.js"
-import {formatDate,formatTimeAMPM} from "../../utils/dateHelpers.js";
+import {formatDate,formatTimeAMPM, formatTimeRangeAMPM} from "../../utils/dateHelpers.js";
 
 const MONTHS = [
   { value: 1, label: "Jan" },
@@ -228,7 +228,7 @@ function ProviderStats() {
 
   const percentage = useMemo(() => {
     if (!allTime.total) return 0;
-    return Math.round((allTime.approved / allTime.total) * 100);
+    return Math.round((allTime.completed / allTime.total) * 100);
   }, [allTime]);
 
   const currentMonthLabel =
@@ -467,7 +467,13 @@ function ProviderStats() {
     </span>
 
     <span className="text-sm text-gray-500">
-      {formatTimeAMPM(bookingdata.scheduledTime?.slot)}
+      {bookingdata.appointment?.startTime
+  ? formatTimeRangeAMPM(
+      bookingdata.appointment.startTime,
+      bookingdata.appointment.durationMinutes || 30
+    )
+ 
+    : "—"}
     </span>
   </div>
 </td>

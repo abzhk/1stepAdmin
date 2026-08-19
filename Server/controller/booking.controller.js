@@ -17,6 +17,7 @@ export const booking = async (req, res, next) => {
     patient,
     provider,
     scheduledTime: { date, slot },
+    appointment,
   } = req.body;
   try {
     const patientExist = await User.findById(patient);
@@ -196,6 +197,7 @@ export const getBookingProvider = async (req, res, next) => {
           createdAt: 1,
           note: 1,
           scheduledTime: 1,
+          appointment: 1,
           status: 1,
           sessionType: 1,
           service: 1,
@@ -363,9 +365,9 @@ export const getUpcomingSessions = async (req, res) => {
     const aggregation = [
       {
         $match: {
-          patient: new mongoose.Types.ObjectId(parentId),
-          "scheduledTime.date": { $gte: new Date().toISOString() }, // only future sessions
-        },
+  patient: new mongoose.Types.ObjectId(parentId),
+  "appointment.startAt": { $gte: new Date() },
+},
       },
       {
         $lookup: {
@@ -378,7 +380,7 @@ export const getUpcomingSessions = async (req, res) => {
       { $unwind: "$providerDetails" },
 
       {
-        $sort: { "scheduledTime.date": 1 }, // soonest session first
+      $sort: { "appointment.startAt": 1 },
       },
       {
         $limit: parseInt(limit), // apply limit
@@ -392,6 +394,7 @@ export const getUpcomingSessions = async (req, res) => {
           "providerDetails.address.state": 1,
           "providerDetails.address.pincode": 1,
           scheduledTime: 1,
+           appointment: 1,
           sessionType: 1,
           service: 1,
           bookingId: 1,
@@ -586,6 +589,7 @@ export const getAllRecentBookings = async (req, res) => {
           bookingId: 1,
           createdAt: 1,
           scheduledTime: 1,
+          appointment: 1,
           service: 1,
           sessionType: 1,
           status: 1,

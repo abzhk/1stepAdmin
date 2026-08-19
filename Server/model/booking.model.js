@@ -93,6 +93,25 @@ const bookingSchema = new mongoose.Schema(
       type: Number,
       default: null,
     },
+
+    /**
+     * Structured appointment timing — NEW field alongside legacy scheduledTime.
+     *
+     * dateStr      : YYYY-MM-DD in IST — timezone-safe, for display/date grouping
+     * startTime    : "HH:mm" in IST   — for UI display ("9:30 AM")
+     * durationMinutes: snapshot at booking time so frontend can compute endTime
+     * startAt      : full UTC Date    — for DB sort & ascending list queries
+     * endAt        : full UTC Date    — for cron "has session ended?" comparisons
+     *
+     * Old scheduledTime is kept untouched; new code should use `appointment`.
+     */
+    appointment: {
+      dateStr:         { type: String, index: true },  // "2026-08-11"
+      startTime:       { type: String },               // "09:30"
+      durationMinutes: { type: Number },               // 30
+      startAt:         { type: Date,   index: true },  // UTC
+      endAt:           { type: Date,   index: true },  // UTC
+    },
   },
   { timestamps: true }
 );
@@ -104,6 +123,14 @@ bookingSchema.index({ sessionType: 1, "scheduledTime.date": 1 });
 // Centre-scoped dashboard queries: get all bookings for a provider under a specific centre
 bookingSchema.index({ centreId: 1, provider: 1, "scheduledTime.date": 1 });
 bookingSchema.index({ centreId: 1, status: 1, createdAt: -1 });
+
+// ── NEW: appointment-time-based indexes ──────────────────────────────────────
+// Sort provider list by appointment time ascending (soonest appointment first)
+bookingSchema.index({ provider: 1, "appointment.startAt": 1, status: 1 });
+// Sort parent list by appointment time ascending
+bookingSchema.index({ patient: 1, "appointment.startAt": 1, status: 1 });
+// Cron: find approved/pending bookings whose appointment has ended
+bookingSchema.index({ status: 1, "appointment.endAt": 1 });
 
 const bookedSlotSchema = new mongoose.Schema({
   provider: {

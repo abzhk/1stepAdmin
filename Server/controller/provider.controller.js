@@ -932,6 +932,7 @@ export const getCentreAppointments = async (req, res, next) => {
           service: 1,
           sessionType: 1,
           scheduledTime: 1,
+          appointment: 1,
           createdAt: 1,
 
           "providerDetails.fullName": 1,
@@ -1552,7 +1553,7 @@ export const getAllCentreDashboardStats = async (req, res, next) => {
       })
       .limit(10)
       .select(
-        "bookingId scheduledTime status provider centreId patientName service sessionType providerSnapshot patientSnapshot"
+        "bookingId scheduledTime appointment status provider centreId patientName service sessionType providerSnapshot patientSnapshot"
       );
 
 

@@ -216,11 +216,12 @@ export const formatTimeAMPM = (timeStr) => {
     const ampm = hours >= 12 ? 'PM' : 'AM';
     hours = hours % 12;
     hours = hours ? hours : 12; 
-    return `${hours}:${minutes} ${ampm}`;
+    const hStr = hours < 10 ? `0${hours}` : `${hours}`;
+    return `${hStr}:${minutes} ${ampm}`;
 };
 
 /**
- * Returns a time range "3:30 PM - 4:00 PM"
+ * Returns a time range "03:30 PM - 04:00 PM"
  * Accepts startTime "15:30" and duration (default 30) or end time.
  */
 export const formatTimeRangeAMPM = (startTime, durationMinutesOrEndTime = 30) => {
@@ -244,7 +245,8 @@ export const formatTimeRangeAMPM = (startTime, durationMinutesOrEndTime = 30) =>
         const ampm = h >= 12 ? 'PM' : 'AM';
         h = h % 12;
         h = h ? h : 12; 
-        return `${h}:${m} ${ampm}`;
+        const hStr = h < 10 ? `0${h}` : `${h}`;
+        return `${hStr}:${m} ${ampm}`;
     };
     
     return `${formatTime(startDate)} - ${formatTime(endDate)}`;
