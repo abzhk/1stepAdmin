@@ -89,8 +89,12 @@ export const getBookingProvider = async (req, res, next) => {
   try {
     const providerId = new mongoose.Types.ObjectId(req.params.id);
 
-    const limit = parseInt(req.query.limit) || 8;
-    const startIndex = parseInt(req.query.startIndex) || 0;
+    const { page = 1, limit = 8 } = req.query;
+
+const pageNumber = parseInt(page);
+const limitNumber = parseInt(limit);
+
+const skip = (pageNumber - 1) * limitNumber;
 
     const startOfCurrentMonth = moment().startOf("month").toDate();
     const endOfCurrentMonth = moment().endOf("month").toDate();
@@ -204,15 +208,25 @@ export const getBookingProvider = async (req, res, next) => {
         },
       },
       { $sort: { createdAt: -1 } },
-      { $skip: startIndex },
-      { $limit: limit },
+{ $skip: skip },
+{ $limit: limitNumber },
     ]);
 
     const providerCount = await Booking.countDocuments({
       provider: providerId,
     });
+    const totalPages = Math.ceil(providerCount / limitNumber);
 
-    res.status(200).json({ bookingDetails, providerCount, stats });
+    res.status(200).json({ bookingDetails, providerCount, stats,
+       pagination: {
+    currentPage: pageNumber,
+    limit: limitNumber,
+    totalPages,
+    totalItems: providerCount,
+    hasNextPage: pageNumber < totalPages,
+    hasPreviousPage: pageNumber > 1,
+  },
+     });
   } catch (error) {
     console.error(error);
     next(error);

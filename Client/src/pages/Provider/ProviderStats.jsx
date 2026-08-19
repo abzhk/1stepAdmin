@@ -42,8 +42,10 @@ function ProviderStats() {
   const [providerType, setProviderType] = useState("");
 
   // bookings pagination constants
-  const limit = 8;
-  const startIndex = 0;
+// Bookings pagination
+const bookingLimit = 8;
+const [bookingPage, setBookingPage] = useState(1);
+const [bookingTotalPages, setBookingTotalPages] = useState(1);
 
   // Articles pagination state
   const [articlePage, setArticlePage] = useState(1);
@@ -75,11 +77,9 @@ function ProviderStats() {
         
 
         const params = new URLSearchParams({
-          month: String(month),
-          year: String(year),
-          limit: String(limit),
-          startIndex: String(startIndex),
-        });
+  month: String(month),
+  year: String(year),
+});
 
         const data = await api(`/api/provider/getallbooking/${id}?${params.toString()}`);
        
@@ -114,31 +114,42 @@ function ProviderStats() {
 }, [id]);
 
   useEffect(() => {
-    if (!id) return;
+  if (!id) return;
 
-    const fetchBookings = async () => {
-      try {
-        setTableLoading(true);
-        setTableError("");
+  const fetchBookings = async () => {
+    try {
+      setTableLoading(true);
+      setTableError("");
 
-        const params = new URLSearchParams({
-          limit: String(limit),
-          startIndex: String(startIndex),
-        });
-        const data = await api(
-          `/api/booking/getbookingbyprovider/${id}?${params.toString()}`
-        );
-        console.log(data.bookingDetails);
+      const params = new URLSearchParams({
+        page: String(bookingPage),
+        limit: String(bookingLimit),
+      });
 
-        setBookings(data.bookingDetails || []);
-      } catch (err) {
-        setTableError(err.message || "Something went wrong");
-      } finally {
-        setTableLoading(false);
-      }
-    };
-    fetchBookings();
-  }, [id, limit, startIndex]);
+      const data = await api(
+        `/api/booking/getbookingbyprovider/${id}?${params.toString()}`
+      );
+
+      console.log("Booking response:", data);
+
+      setBookings(data.bookingDetails || []);
+
+      setBookingTotalPages(
+        data.pagination?.totalPages || 1
+      );
+    } catch (err) {
+      setTableError(err.message || "Something went wrong");
+    } finally {
+      setTableLoading(false);
+    }
+  };
+
+  fetchBookings();
+}, [id, bookingPage]);
+
+useEffect(() => {
+  setBookingPage(1);
+}, [id]);
 
   useEffect(() => {
     if (!id) return;
@@ -420,7 +431,7 @@ function ProviderStats() {
               {bookings.length === 0 && !tableLoading ? (
                 <tr>
                   <td
-                    colSpan={4}
+                    colSpan={5}
                     className="px-6 py-8 text-center text-md text-gray-500 font-medium"
                   >
                     No recent bookings found.
@@ -433,7 +444,7 @@ function ProviderStats() {
                     className="hover:bg-offwhite/50 transition duration-150 ease-in-out"
                   >
                      <td className="px-6 py-4 whitespace-nowrap text-table-text">
-      {index + 1}
+      {(bookingPage - 1) * bookingLimit + index + 1}
     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-table-text flex items-center gap-3">
                       <img
@@ -499,9 +510,42 @@ function ProviderStats() {
               )}
             </tbody>
           </table>
-        </div>
+          </div>
+
+<div className="flex items-center justify-end gap-3 mt-4">
+  <button
+    onClick={() =>
+      setBookingPage((prev) => Math.max(1, prev - 1))
+    }
+    disabled={bookingPage === 1}
+    className="px-3 py-1 border rounded disabled:opacity-50"
+  >
+    Prev
+  </button>
+
+  <span className="text-sm">
+    Page {bookingPage} of {bookingTotalPages}
+  </span>
+
+  <button
+    onClick={() =>
+      setBookingPage((prev) =>
+        Math.min(bookingTotalPages, prev + 1)
+      )
+    }
+    disabled={bookingPage === bookingTotalPages}
+    className="px-3 py-1 border rounded disabled:opacity-50"
+  >
+    Next
+  </button>
+</div>
+
+</div>
+          
+        
        
-      </div>
+     
+      
         )}
            
 
