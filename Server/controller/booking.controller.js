@@ -89,19 +89,39 @@ export const getBookingProvider = async (req, res, next) => {
   try {
     const providerId = new mongoose.Types.ObjectId(req.params.id);
 
-    const { page = 1, limit = 8 } = req.query;
+    const {
+      page = 1,
+      limit = 8,
+      status = "all",
+    } = req.query;
 
-const pageNumber = parseInt(page);
-const limitNumber = parseInt(limit);
+    const pageNumber = parseInt(page);
+    const limitNumber = parseInt(limit);
 
-const skip = (pageNumber - 1) * limitNumber;
+    const skip = (pageNumber - 1) * limitNumber;
 
+    // -----------------------------------
+    // STATUS FILTER
+    // -----------------------------------
+    const bookingMatch = {
+      provider: providerId,
+    };
+
+    if (status && status !== "all") {
+      bookingMatch.status = status;
+    }
+
+    // -----------------------------------
+    // MONTH STATS
+    // -----------------------------------
     const startOfCurrentMonth = moment().startOf("month").toDate();
     const endOfCurrentMonth = moment().endOf("month").toDate();
+
     const startOfLastMonth = moment()
       .subtract(1, "months")
       .startOf("month")
       .toDate();
+
     const endOfLastMonth = moment()
       .subtract(1, "months")
       .endOf("month")
@@ -112,23 +132,38 @@ const skip = (pageNumber - 1) * limitNumber;
         {
           $match: {
             provider: providerId,
-            createdAt: { $gte: start, $lte: end },
+            createdAt: {
+              $gte: start,
+              $lte: end,
+            },
           },
         },
-        { $group: { _id: "$status", count: { $sum: 1 } } },
+        {
+          $group: {
+            _id: "$status",
+            count: { $sum: 1 },
+          },
+        },
       ]);
 
       const totalCount = await Booking.countDocuments({
         provider: providerId,
-        createdAt: { $gte: start, $lte: end },
+        createdAt: {
+          $gte: start,
+          $lte: end,
+        },
       });
 
       return {
         total: totalCount,
-        pending: counts.find((c) => c._id === "pending")?.count || 0,
-        completed: counts.find((c) => c._id === "completed")?.count || 0,
-        approved: counts.find((c) => c._id === "approved")?.count || 0,
-        rejected: counts.find((c) => c._id === "rejected")?.count || 0,
+        pending:
+          counts.find((c) => c._id === "pending")?.count || 0,
+        completed:
+          counts.find((c) => c._id === "completed")?.count || 0,
+        approved:
+          counts.find((c) => c._id === "approved")?.count || 0,
+        rejected:
+          counts.find((c) => c._id === "rejected")?.count || 0,
       };
     };
 
@@ -136,11 +171,19 @@ const skip = (pageNumber - 1) * limitNumber;
       startOfCurrentMonth,
       endOfCurrentMonth
     );
-    const lastCounts = await getCounts(startOfLastMonth, endOfLastMonth);
+
+    const lastCounts = await getCounts(
+      startOfLastMonth,
+      endOfLastMonth
+    );
 
     const calculateChange = (current, previous) => {
-      if (!previous) return current ? "1.00" : "0.00";
+      if (!previous) {
+        return current ? "1.00" : "0.00";
+      }
+
       const multiplier = (current / previous).toFixed(2);
+
       return `${multiplier}`;
     };
 
@@ -152,6 +195,7 @@ const skip = (pageNumber - 1) * limitNumber;
           lastCounts.total || 0
         ),
       },
+
       completedAppointments: {
         count: currentCounts.completed || 0,
         change: calculateChange(
@@ -159,6 +203,7 @@ const skip = (pageNumber - 1) * limitNumber;
           lastCounts.completed || 0
         ),
       },
+
       pendingAppointments: {
         count: currentCounts.pending || 0,
         change: calculateChange(
@@ -166,6 +211,7 @@ const skip = (pageNumber - 1) * limitNumber;
           lastCounts.pending || 0
         ),
       },
+
       rejectedAppointments: {
         count: currentCounts.rejected || 0,
         change: calculateChange(
@@ -173,6 +219,7 @@ const skip = (pageNumber - 1) * limitNumber;
           lastCounts.rejected || 0
         ),
       },
+
       approveAppointments: {
         count: currentCounts.approved || 0,
         change: calculateChange(
@@ -182,8 +229,15 @@ const skip = (pageNumber - 1) * limitNumber;
       },
     };
 
+    // -----------------------------------
+    // BOOKINGS
+    // -----------------------------------
+
     const bookingDetails = await Booking.aggregate([
-      { $match: { provider: providerId } },
+      {
+        $match: bookingMatch,
+      },
+
       {
         $lookup: {
           from: "users",
@@ -192,7 +246,11 @@ const skip = (pageNumber - 1) * limitNumber;
           as: "patientDetails",
         },
       },
-      { $unwind: "$patientDetails" },
+
+      {
+        $unwind: "$patientDetails",
+      },
+
       {
         $project: {
           "patientDetails.profilePicture": 1,
@@ -207,26 +265,53 @@ const skip = (pageNumber - 1) * limitNumber;
           service: 1,
         },
       },
-      { $sort: { createdAt: -1 } },
-{ $skip: skip },
-{ $limit: limitNumber },
+
+      {
+        $sort: {
+          createdAt: -1,
+        },
+      },
+
+      {
+        $skip: skip,
+      },
+
+      {
+        $limit: limitNumber,
+      },
     ]);
 
-    const providerCount = await Booking.countDocuments({
-      provider: providerId,
-    });
-    const totalPages = Math.ceil(providerCount / limitNumber);
+    // -----------------------------------
+    // FILTERED TOTAL COUNT
+    // -----------------------------------
 
-    res.status(200).json({ bookingDetails, providerCount, stats,
-       pagination: {
-    currentPage: pageNumber,
-    limit: limitNumber,
-    totalPages,
-    totalItems: providerCount,
-    hasNextPage: pageNumber < totalPages,
-    hasPreviousPage: pageNumber > 1,
-  },
-     });
+    const providerCount = await Booking.countDocuments(
+      bookingMatch
+    );
+
+    const totalPages = Math.ceil(
+      providerCount / limitNumber
+    );
+
+    // -----------------------------------
+    // RESPONSE
+    // -----------------------------------
+
+    res.status(200).json({
+      bookingDetails,
+      providerCount,
+      stats,
+
+      pagination: {
+        currentPage: pageNumber,
+        limit: limitNumber,
+        totalPages,
+        totalItems: providerCount,
+        hasNextPage: pageNumber < totalPages,
+        hasPreviousPage: pageNumber > 1,
+      },
+    });
+
   } catch (error) {
     console.error(error);
     next(error);

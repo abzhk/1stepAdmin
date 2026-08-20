@@ -48,7 +48,7 @@ function ProviderView() {
           params.append("searchTerm", searchTerm.trim());
         }
 
-        const data = await api(`/api/provider/individual-list?${params}`);
+        const data = await api(`/api/provider/admin-individual-list?${params}`);
 
         setProviders(data.providers || []);
         setTotalCount(data.totalCount || 0);

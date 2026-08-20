@@ -1994,3 +1994,308 @@ export const getInactiveCentres = async (req, res, next) => {
   }
 };
 
+export const individualProvidersforAdmin = async (req, res, next) => {
+  try {
+    const {
+      limit = 12,
+      startIndex = 0,
+      searchTerm = "",
+      address = "",
+      sort = "createdAt",
+      order = "desc",
+    } = req.query;
+
+    const parsedLimit = Math.min(
+      Math.max(Number(limit) || 12, 1),
+      50
+    );
+
+    const parsedStartIndex = Math.max(
+      Number(startIndex) || 0,
+      0
+    );
+
+    const query = {
+      providerType: "individual",
+    };
+
+    /*
+     * SEARCH
+     */
+
+    const cleanedSearchTerm = searchTerm
+      .trim()
+      .replace(/\s+/g, " ");
+
+    if (cleanedSearchTerm) {
+      query.$or = [
+        {
+          fullName: {
+            $regex: cleanedSearchTerm,
+            $options: "i",
+          },
+        },
+        {
+          name: {
+            $regex: cleanedSearchTerm,
+            $options: "i",
+          },
+        },
+        {
+          "address.city": {
+            $regex: cleanedSearchTerm,
+            $options: "i",
+          },
+        },
+        {
+          "address.state": {
+            $regex: cleanedSearchTerm,
+            $options: "i",
+          },
+        },
+        {
+          therapytype: {
+            $regex: cleanedSearchTerm,
+            $options: "i",
+          },
+        },
+      ];
+    }
+
+    /*
+     * ADDRESS
+     */
+
+    if (address.trim()) {
+      const cleanedAddress = address.trim();
+
+      if (isNaN(cleanedAddress)) {
+        query["address.city"] = {
+          $regex: `^${cleanedAddress}`,
+          $options: "i",
+        };
+      } else {
+        query["address.pincode"] = Number(
+          cleanedAddress
+        );
+      }
+    }
+
+    /*
+     * SORT
+     */
+
+    const sortFieldMap = {
+      fullName: "fullName",
+      therapytype: "therapytype",
+      experience: "experience",
+      regularPrice: "regularPrice",
+      rating: "ratingSummary.average",
+      city: "address.city",
+      verified: "verified",
+      createdAt: "createdAt",
+    };
+
+    const sortField =
+      sortFieldMap[sort] || "createdAt";
+
+    const sortDirection =
+      order === "asc" ? 1 : -1;
+
+    /*
+     * MAIN QUERY
+     */
+
+    const result = await Provider.aggregate([
+      {
+        $match: query,
+      },
+
+      /*
+       * Only lookup active user.
+       * Do NOT bring the entire user document.
+       */
+
+      {
+        $lookup: {
+          from: "users",
+          let: {
+            userId: "$userRef",
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    {
+                      $eq: [
+                        "$_id",
+                        "$$userId",
+                      ],
+                    },
+                    {
+                      $eq: [
+                        "$isActive",
+                        true,
+                      ],
+                    },
+                  ],
+                },
+              },
+            },
+            {
+              $project: {
+                _id: 1,
+              },
+            },
+          ],
+          as: "activeUser",
+        },
+      },
+
+      /*
+       * Keep only providers whose user is active.
+       */
+
+      {
+        $match: {
+          "activeUser.0": {
+            $exists: true,
+          },
+        },
+      },
+
+      /*
+       * SORT
+       */
+
+      {
+        $sort: {
+          [sortField]: sortDirection,
+          _id: 1,
+        },
+      },
+
+      /*
+       * PAGINATION + COUNT
+       */
+
+      {
+        $facet: {
+          data: [
+            {
+              $skip: parsedStartIndex,
+            },
+            {
+              $limit: parsedLimit,
+            },
+            {
+              $project: {
+                _id: 1,
+                fullName: 1,
+                name: 1,
+                "address.city": 1,
+                profilePicture: 1,
+                therapytype: 1,
+                createdAt: 1,
+                verified: 1,
+                userRef: 1,
+              },
+            },
+          ],
+
+          total: [
+            {
+              $count: "count",
+            },
+          ],
+        },
+      },
+    ]);
+
+    const providerList =
+      result[0]?.data || [];
+
+    const totalCount =
+      result[0]?.total?.[0]?.count || 0;
+
+    /*
+     * BOOKINGS
+     */
+
+    const providerIds =
+      providerList.map(
+        (provider) => provider._id
+      );
+
+    let bookingMap = new Map();
+
+    if (providerIds.length > 0) {
+      const last48hrs = new Date(
+        Date.now() - 48 * 60 * 60 * 1000
+      );
+
+      const bookings =
+        await Booking.aggregate([
+          {
+            $match: {
+              provider: {
+                $in: providerIds,
+              },
+              createdAt: {
+                $gte: last48hrs,
+              },
+            },
+          },
+
+          {
+            $group: {
+              _id: "$provider",
+              count: {
+                $sum: 1,
+              },
+            },
+          },
+        ]);
+
+      bookingMap = new Map(
+        bookings.map((booking) => [
+          booking._id.toString(),
+          booking.count,
+        ])
+      );
+    }
+
+    /*
+     * FINAL RESPONSE
+     */
+
+    const providers =
+      providerList.map((provider) => ({
+        ...provider,
+        isActive: true,
+        totalBookings:
+          bookingMap.get(
+            provider._id.toString()
+          ) || 0,
+      }));
+
+    return res.status(200).json({
+      success: true,
+      providers,
+      totalCount,
+    });
+  } catch (error) {
+    console.error(
+      "getIndividualProviders error:",
+      error
+    );
+
+    next(
+      errorHandler(
+        500,
+        "Failed to fetch providers"
+      )
+    );
+  }
+};

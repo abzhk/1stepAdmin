@@ -46,6 +46,7 @@ function ProviderStats() {
 const bookingLimit = 8;
 const [bookingPage, setBookingPage] = useState(1);
 const [bookingTotalPages, setBookingTotalPages] = useState(1);
+const [bookingStatus, setBookingStatus] = useState("all");
 
   // Articles pagination state
   const [articlePage, setArticlePage] = useState(1);
@@ -122,9 +123,10 @@ const [bookingTotalPages, setBookingTotalPages] = useState(1);
       setTableError("");
 
       const params = new URLSearchParams({
-        page: String(bookingPage),
-        limit: String(bookingLimit),
-      });
+  page: String(bookingPage),
+  limit: String(bookingLimit),
+  status: bookingStatus,
+});
 
       const data = await api(
         `/api/booking/getbookingbyprovider/${id}?${params.toString()}`
@@ -145,11 +147,11 @@ const [bookingTotalPages, setBookingTotalPages] = useState(1);
   };
 
   fetchBookings();
-}, [id, bookingPage]);
+}, [id, bookingPage,bookingStatus]);
 
 useEffect(() => {
   setBookingPage(1);
-}, [id]);
+}, [bookingStatus]);
 
   useEffect(() => {
     if (!id) return;
@@ -390,10 +392,32 @@ useEffect(() => {
         </div>
       </div>
 {providerType === "individual" && (
-      <div className="mb-8 mt-8 bg-white rounded-3xl shadow-lg p-6 border border-gray-100">
-        <h2 className="text-subheading mb-4 pb-2">
-          Recent Appointments
-        </h2>
+   <div className="mb-8 mt-8 bg-white rounded-3xl shadow-lg p-6 border border-gray-100">
+
+  <div className="flex items-center justify-between mb-4 pb-2">
+    
+    <h2 className="text-subheading">
+      Recent Appointments
+    </h2>
+
+    <select
+      value={bookingStatus}
+      onChange={(e) => {
+        setBookingStatus(e.target.value);
+        setBookingPage(1);
+      }}
+      className="border border-gray-300 rounded-lg px-3 py-2 bg-white text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2d4a36]/20"
+    >
+      <option value="all">All Status</option>
+      <option value="pending">Pending</option>
+      <option value="approved">Approved</option>
+      <option value="completed">Completed</option>
+       <option value="expired">Expired</option>
+        <option value="cancelled">Cancelled</option>
+      <option value="rejected">Rejected</option>
+    </select>
+
+  </div>
 
         {tableError && (
           <div className="mb-4 text-red-700 bg-red-100 border border-red-300 px-4 py-3 rounded-lg text-sm">
