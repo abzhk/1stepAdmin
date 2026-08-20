@@ -1,58 +1,194 @@
-import React from "react";
+import React, { lazy, Suspense, useEffect } from "react";
+
 import { Route, Routes, Navigate } from "react-router-dom";
-import Login from "./pages/Login.jsx";
-import MainDashboard from "./pages/Dashboard/MainDashboard.jsx";
+
 import Layout from "./Components/Layout.jsx";
-import Categories from "./pages/ArticleCategories/AddCategories.jsx";
-import ViewCategories from "./pages/ArticleCategories/ViewCategories.jsx";
-import ViewArticle from "./pages/Article/ViewArticle.jsx";
-import AddAssessmentCategory from "./pages/Assessment/AddAssessmentCategory.jsx";
-import ProviderAssessment from "./pages/Assessment/ProviderAssessment.jsx";
-import ViewProvider from "./pages/Provider/ProviderView.jsx";
-import ProviderStats from "./pages/Provider/ProviderStats.jsx";
-import ViewParent from "./pages/parent/ParentView.jsx";
-import ParentStats from "./pages/parent/ParentStatsCard.jsx";
-import EditProvider from "./pages/Provider/ProviderEdit.jsx";
-import EditParent from "./pages/parent/ParentEdit.jsx";
-import PrivateRoute from "./pages/PrivateRoute.jsx";
-import CreateAdmin from "./pages/CreateUser/CreateAdmin.jsx";
-// import UserTab from "./pages/CreateUser/UserTab.jsx";
+
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect } from "react";
 import { setUser, logout } from "./redux/slice/authSlice.js";
-import RoleTab from "./pages/RoleAccess/RoleTab.jsx";
-import Plans from "./pages/Subscription/ViewPlans.jsx";
-import Addplans from "./pages/Subscription/Addplans.jsx";
+
 import { Toaster } from "react-hot-toast";
-import InactiveParents from "./pages/parent/ParentInactive.jsx";
-import InactiveProviders from "./pages/Provider/ProviderInactive.jsx";
-import ListViewArticle from "./pages/Article/ListViewArticle.jsx";
-import MasterData from "./pages/Master/MasterData.jsx";
-import UserReport from "./pages/Reports/UserReport.jsx";
-import ReportDashboard from "./pages/Reports/ReportDashboard.jsx";
-import CenterReport from "./pages/Reports/CenterReport.jsx";
-import AddArticle from "./pages/Article/AddArticle.jsx";
-import TagArticle from "./pages/Master/TagArticle.jsx";
-import MasterPage from "./pages/Master/MasterTab.jsx";
+
 import { api } from "./utils/api.js";
-import CentreDashBoard from "./pages/Centre/CentreDashBoard.jsx";
-import CentreList from "./pages/Centre/CentreList.jsx";
-import CentreDetail from "./pages/Centre/CentreDetails.jsx";
-import UpcomingSession from "./pages/Centre/UpcomingSession.jsx";
-import EditCentre from "./pages/Centre/CentreEdit.jsx";
-import InactiveCentre from "./pages/Centre/CentreInActive.jsx";
-import AdminVerificationPanel from "./pages/VerificationPanel/AdminVerificationPanel.jsx";
-import AdminProfile from "./pages/Settings/AdminProfile.jsx";
-import ProfileSettings from "./pages/Settings/ProfileSettings.jsx";
-import Help from "./pages/HelpDesk/Help.jsx";
-import AllComplaints from "./pages/HelpDesk/AllComplaints.jsx";
+
+import PrivateRoute from "./pages/PrivateRoute.jsx";
 import PermissionRoute from "./pages/PermissionRoute.jsx";
+
 import { MODULES, ACTIONS } from "./constants/permission.js";
-import Asssessmentquestionary from "./pages/Assessment/AssessmentCreation.jsx";
-import AssessmentList from "./pages/Assessment/AssessmentList.jsx";
-import AssessmentQuestions from "./pages/Assessment/AssessmentQuestion.jsx";
-import AdminHelpdesk from "./pages/adminHelpdesk/AdminHelpdesk.jsx";
-import AdminInbox from "./pages/ContactUs/InboxQuery.jsx";
+
+
+
+const Login = lazy(() =>
+  import("./pages/Login.jsx")
+);
+
+const MainDashboard = lazy(() =>
+  import("./pages/Dashboard/MainDashboard.jsx")
+);
+
+const Categories = lazy(() =>
+  import("./pages/ArticleCategories/AddCategories.jsx")
+);
+
+const ViewCategories = lazy(() =>
+  import("./pages/ArticleCategories/ViewCategories.jsx")
+);
+
+const ViewArticle = lazy(() =>
+  import("./pages/Article/ViewArticle.jsx")
+);
+
+const AddAssessmentCategory = lazy(() =>
+  import("./pages/Assessment/AddAssessmentCategory.jsx")
+);
+
+const ProviderAssessment = lazy(() =>
+  import("./pages/Assessment/ProviderAssessment.jsx")
+);
+
+const ViewProvider = lazy(() =>
+  import("./pages/Provider/ProviderView.jsx")
+);
+
+const ProviderStats = lazy(() =>
+  import("./pages/Provider/ProviderStats.jsx")
+);
+
+const ViewParent = lazy(() =>
+  import("./pages/parent/ParentView.jsx")
+);
+
+const ParentStats = lazy(() =>
+  import("./pages/parent/ParentStatsCard.jsx")
+);
+
+const EditProvider = lazy(() =>
+  import("./pages/Provider/ProviderEdit.jsx")
+);
+
+const EditParent = lazy(() =>
+  import("./pages/parent/ParentEdit.jsx")
+);
+
+const CreateAdmin = lazy(() =>
+  import("./pages/CreateUser/CreateAdmin.jsx")
+);
+
+const RoleTab = lazy(() =>
+  import("./pages/RoleAccess/RoleTab.jsx")
+);
+
+const Plans = lazy(() =>
+  import("./pages/Subscription/ViewPlans.jsx")
+);
+
+const Addplans = lazy(() =>
+  import("./pages/Subscription/Addplans.jsx")
+);
+
+const InactiveParents = lazy(() =>
+  import("./pages/parent/ParentInactive.jsx")
+);
+
+const InactiveProviders = lazy(() =>
+  import("./pages/Provider/ProviderInactive.jsx")
+);
+
+const ListViewArticle = lazy(() =>
+  import("./pages/Article/ListViewArticle.jsx")
+);
+
+const MasterData = lazy(() =>
+  import("./pages/Master/MasterData.jsx")
+);
+
+const UserReport = lazy(() =>
+  import("./pages/Reports/UserReport.jsx")
+);
+
+const ReportDashboard = lazy(() =>
+  import("./pages/Reports/ReportDashboard.jsx")
+);
+
+const CenterReport = lazy(() =>
+  import("./pages/Reports/CenterReport.jsx")
+);
+
+const AddArticle = lazy(() =>
+  import("./pages/Article/AddArticle.jsx")
+);
+
+const TagArticle = lazy(() =>
+  import("./pages/Master/TagArticle.jsx")
+);
+
+const MasterPage = lazy(() =>
+  import("./pages/Master/MasterTab.jsx")
+);
+
+const CentreDashBoard = lazy(() =>
+  import("./pages/Centre/CentreDashBoard.jsx")
+);
+
+const CentreList = lazy(() =>
+  import("./pages/Centre/CentreList.jsx")
+);
+
+const CentreDetail = lazy(() =>
+  import("./pages/Centre/CentreDetails.jsx")
+);
+
+const UpcomingSession = lazy(() =>
+  import("./pages/Centre/UpcomingSession.jsx")
+);
+
+const EditCentre = lazy(() =>
+  import("./pages/Centre/CentreEdit.jsx")
+);
+
+const InactiveCentre = lazy(() =>
+  import("./pages/Centre/CentreInActive.jsx")
+);
+
+const AdminVerificationPanel = lazy(() =>
+  import("./pages/VerificationPanel/AdminVerificationPanel.jsx")
+);
+
+const AdminProfile = lazy(() =>
+  import("./pages/Settings/AdminProfile.jsx")
+);
+
+const ProfileSettings = lazy(() =>
+  import("./pages/Settings/ProfileSettings.jsx")
+);
+
+const Help = lazy(() =>
+  import("./pages/HelpDesk/Help.jsx")
+);
+
+const AllComplaints = lazy(() =>
+  import("./pages/HelpDesk/AllComplaints.jsx")
+);
+
+const Asssessmentquestionary = lazy(() =>
+  import("./pages/Assessment/AssessmentCreation.jsx")
+);
+
+const AssessmentList = lazy(() =>
+  import("./pages/Assessment/AssessmentList.jsx")
+);
+
+const AssessmentQuestions = lazy(() =>
+  import("./pages/Assessment/AssessmentQuestion.jsx")
+);
+
+const AdminHelpdesk = lazy(() =>
+  import("./pages/adminHelpdesk/AdminHelpdesk.jsx")
+);
+
+const AdminInbox = lazy(() =>
+  import("./pages/ContactUs/InboxQuery.jsx")
+);
 
 const App = () => {
   const dispatch = useDispatch();
@@ -86,6 +222,13 @@ const App = () => {
 
   return (
     <>
+      <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-offwhite">
+          <p className="text-gray-500">Loading...</p>
+        </div>
+      }
+    >
       <Routes>
         <Route path="/" element={<Navigate to="/log" />} />
         <Route
@@ -453,6 +596,7 @@ const App = () => {
           />
         </Route>
       </Routes>
+      </Suspense>
       <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
     </>
   );
