@@ -155,7 +155,7 @@ useEffect(() => {
       {viewMode === "grid" ? (
         <div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {centres.map((centre) => (
+            {centres.map((centre,index) => (
               <div
                 key={centre._id}
                 className="group bg-white/80 backdrop-blur-md border border-gray-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col"
@@ -165,6 +165,8 @@ useEffect(() => {
                   <img
                     src={centre.profilePicture}
                     alt={centre.fullName}
+                     fetchPriority={index < 4 ? "high" : "auto"}
+                     loading={index < 4 ? "eager" : "lazy"}
                      decoding="async"
                     className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
                   />
@@ -305,11 +307,13 @@ useEffect(() => {
               </thead>
 
               <tbody>
-                {centres.map((centre) => (
+                {centres.map((centre,index) => (
                   <tr key={centre._id} className=" hover:bg-offwhite/50 text-table-text ">
                     <td className="p-3 flex items-center gap-3">
                       <img
                         src={centre.profilePicture}
+                         fetchPriority={index < 4 ? "high" : "auto"}
+                         loading={index < 4 ? "eager" : "lazy"}
                          decoding="async"
                         className="w-10 h-10 rounded-lg object-cover"
                       />
