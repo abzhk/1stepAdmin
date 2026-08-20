@@ -205,6 +205,8 @@ const handleSort = (key) => {
                       <img
                         src={provider.profilePicture}
                         alt={provider.fullName}
+                        loading="lazy"
+                         decoding="async"
                         className="w-full h-52 object-cover rounded-t-xl"
                       />
                     )}
@@ -317,6 +319,8 @@ const handleSort = (key) => {
                   <td className="p-3 flex items-center gap-3">
                     <img
                       src={provider.profilePicture}
+                      loading="lazy"
+                         decoding="async"
                       className="w-10 h-10 rounded-lg object-cover"
                     />
                     {provider.fullName}

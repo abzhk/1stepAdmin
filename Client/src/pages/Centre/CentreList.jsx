@@ -165,6 +165,8 @@ useEffect(() => {
                   <img
                     src={centre.profilePicture}
                     alt={centre.fullName}
+                    loading="lazy"
+                     decoding="async"
                     className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
                   />
 
@@ -309,6 +311,8 @@ useEffect(() => {
                     <td className="p-3 flex items-center gap-3">
                       <img
                         src={centre.profilePicture}
+                        loading="lazy"
+                         decoding="async"
                         className="w-10 h-10 rounded-lg object-cover"
                       />
                       {centre.fullName}
