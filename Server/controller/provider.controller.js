@@ -2017,11 +2017,8 @@ export const individualProvidersforAdmin = async (req, res, next) => {
 
     const query = {
       providerType: "individual",
+      isActive: true,
     };
-
-    /*
-     * SEARCH
-     */
 
     const cleanedSearchTerm = searchTerm
       .trim()
@@ -2062,10 +2059,6 @@ export const individualProvidersforAdmin = async (req, res, next) => {
       ];
     }
 
-    /*
-     * ADDRESS
-     */
-
     if (address.trim()) {
       const cleanedAddress = address.trim();
 
@@ -2075,16 +2068,9 @@ export const individualProvidersforAdmin = async (req, res, next) => {
           $options: "i",
         };
       } else {
-        query["address.pincode"] = Number(
-          cleanedAddress
-        );
+        query["address.pincode"] = Number(cleanedAddress);
       }
     }
-
-    /*
-     * SORT
-     */
-
     const sortFieldMap = {
       fullName: "fullName",
       therapytype: "therapytype",
@@ -2102,192 +2088,35 @@ export const individualProvidersforAdmin = async (req, res, next) => {
     const sortDirection =
       order === "asc" ? 1 : -1;
 
-    /*
-     * MAIN QUERY
-     */
+    const sortQuery = {
+      [sortField]: sortDirection,
+      _id: 1,
+    };
 
-    const result = await Provider.aggregate([
-      {
-        $match: query,
-      },
 
-      /*
-       * Only lookup active user.
-       * Do NOT bring the entire user document.
-       */
+    const [providers, totalCount] = await Promise.all([
+      Provider.find(query)
+        .sort(sortQuery)
+        .skip(parsedStartIndex)
+        .limit(parsedLimit)
+        .select(
+          "_id fullName name address.city profilePicture therapytype createdAt verified userRef isActive"
+        )
+        .lean(),
 
-      {
-        $lookup: {
-          from: "users",
-          let: {
-            userId: "$userRef",
-          },
-          pipeline: [
-            {
-              $match: {
-                $expr: {
-                  $and: [
-                    {
-                      $eq: [
-                        "$_id",
-                        "$$userId",
-                      ],
-                    },
-                    {
-                      $eq: [
-                        "$isActive",
-                        true,
-                      ],
-                    },
-                  ],
-                },
-              },
-            },
-            {
-              $project: {
-                _id: 1,
-              },
-            },
-          ],
-          as: "activeUser",
-        },
-      },
-
-      /*
-       * Keep only providers whose user is active.
-       */
-
-      {
-        $match: {
-          "activeUser.0": {
-            $exists: true,
-          },
-        },
-      },
-
-      /*
-       * SORT
-       */
-
-      {
-        $sort: {
-          [sortField]: sortDirection,
-          _id: 1,
-        },
-      },
-
-      /*
-       * PAGINATION + COUNT
-       */
-
-      {
-        $facet: {
-          data: [
-            {
-              $skip: parsedStartIndex,
-            },
-            {
-              $limit: parsedLimit,
-            },
-            {
-              $project: {
-                _id: 1,
-                fullName: 1,
-                name: 1,
-                "address.city": 1,
-                profilePicture: 1,
-                therapytype: 1,
-                createdAt: 1,
-                verified: 1,
-                userRef: 1,
-              },
-            },
-          ],
-
-          total: [
-            {
-              $count: "count",
-            },
-          ],
-        },
-      },
+      Provider.countDocuments(query),
     ]);
 
-    const providerList =
-      result[0]?.data || [];
-
-    const totalCount =
-      result[0]?.total?.[0]?.count || 0;
-
-    /*
-     * BOOKINGS
-     */
-
-    const providerIds =
-      providerList.map(
-        (provider) => provider._id
-      );
-
-    let bookingMap = new Map();
-
-    if (providerIds.length > 0) {
-      const last48hrs = new Date(
-        Date.now() - 48 * 60 * 60 * 1000
-      );
-
-      const bookings =
-        await Booking.aggregate([
-          {
-            $match: {
-              provider: {
-                $in: providerIds,
-              },
-              createdAt: {
-                $gte: last48hrs,
-              },
-            },
-          },
-
-          {
-            $group: {
-              _id: "$provider",
-              count: {
-                $sum: 1,
-              },
-            },
-          },
-        ]);
-
-      bookingMap = new Map(
-        bookings.map((booking) => [
-          booking._id.toString(),
-          booking.count,
-        ])
-      );
-    }
-
-    /*
-     * FINAL RESPONSE
-     */
-
-    const providers =
-      providerList.map((provider) => ({
-        ...provider,
-        isActive: true,
-        totalBookings:
-          bookingMap.get(
-            provider._id.toString()
-          ) || 0,
-      }));
 
     return res.status(200).json({
       success: true,
       providers,
       totalCount,
     });
+
   } catch (error) {
     console.error(
-      "getIndividualProviders error:",
+      "individualProvidersforAdmin error:",
       error
     );
 

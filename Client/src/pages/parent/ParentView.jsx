@@ -153,10 +153,42 @@ function ParentView() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-10 gap-y-14">
 
           {loading ? (
-            <div className="col-span-full text-center py-10 text-gray-500 font-medium text-lg">
-              Loading parents...
-            </div>
-          ) : parents.length > 0 ? (
+  <div className="col-span-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-10 gap-y-14">
+    {Array.from({ length: 12 }).map((_, index) => (
+      <div
+        key={index}
+        className="bg-white rounded-xl border border-gray-100 overflow-hidden animate-pulse"
+      >
+        {/* Profile image */}
+        <div className="w-full h-52 bg-gray-200" />
+
+        <div className="p-4">
+
+          {/* Name + Status */}
+          <div className="flex items-start justify-between gap-3 mb-5">
+            <div className="h-5 bg-gray-200 rounded w-3/4" />
+
+            <div className="h-6 bg-gray-200 rounded-full w-20" />
+          </div>
+
+          {/* Client Name */}
+          <div className="h-4 bg-gray-200 rounded w-2/3 mb-3" />
+
+          {/* Phone */}
+          <div className="h-4 bg-gray-200 rounded w-1/2 mb-6" />
+
+          {/* Buttons */}
+          <div className="flex gap-2">
+            <div className="h-10 bg-gray-200 rounded-xl flex-1" />
+
+            <div className="h-10 w-10 bg-gray-200 rounded-xl" />
+          </div>
+
+        </div>
+      </div>
+    ))}
+  </div>
+) : parents.length > 0 ? (
             parents.map((parent) => (
               <div
                 key={parent._id}

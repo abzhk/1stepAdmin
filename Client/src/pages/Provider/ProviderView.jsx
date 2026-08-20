@@ -184,10 +184,27 @@ const handleSort = (key) => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-10 gap-y-14">
 
           {loading ? (
-            <div className="col-span-full text-center py-10 text-xl text-gray-500 font-medium">
-              Loading providers...
-            </div>
-          ) : providers.length > 0 ? (
+  <div className="col-span-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-10 gap-y-14">
+    {Array.from({ length: 12 }).map((_, index) => (
+      <div
+        key={index}
+        className="bg-white rounded-xl border border-gray-100 overflow-hidden animate-pulse"
+      >
+        <div className="w-full h-52 bg-gray-200" />
+
+        <div className="p-4">
+          <div className="h-5 bg-gray-200 rounded w-3/4 mb-4" />
+
+          <div className="h-4 bg-gray-200 rounded w-1/2 mb-3" />
+
+          <div className="h-4 bg-gray-200 rounded w-2/3 mb-6" />
+
+          <div className="h-10 bg-gray-200 rounded-xl" />
+        </div>
+      </div>
+    ))}
+  </div>
+) : providers.length > 0 ? (
             providers.map((provider) => {
               const therapies = Array.isArray(provider.therapytype)
                 ? provider.therapytype
