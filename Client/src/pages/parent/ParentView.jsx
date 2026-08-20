@@ -157,7 +157,7 @@ function ParentView() {
               Loading parents...
             </div>
           ) : parents.length > 0 ? (
-            parents.map((parent,index) => (
+            parents.map((parent) => (
               <div
                 key={parent._id}
                 className="bg-white rounded-xl shadow-lg hover:shadow-xl transition flex flex-col justify-between border-gray-100"
@@ -170,8 +170,7 @@ function ParentView() {
                       <img
                         src={parent.userRef?.profilePicture}
                         alt={parent.parentDetails?.fullName}
-                         fetchPriority={index < 4 ? "high" : "auto"}
-                         loading={index < 4 ? "eager" : "lazy"}
+                         loading="lazy"
                          decoding="async"
                         className="w-full h-52 object-cover"
                       />
@@ -288,7 +287,7 @@ function ParentView() {
             </thead>
 
             <tbody>
-              {parents.map((parent,index) => (
+              {parents.map((parent) => (
                 <tr
                   key={parent._id}
                   className=" hover:bg-offwhite text-table-text"
@@ -297,8 +296,7 @@ function ParentView() {
                   <td className="p-3 flex items-center gap-3">
                     <img
                       src={parent.userRef?.profilePicture}
-                       fetchPriority={index < 4 ? "high" : "auto"}
-                       loading={index < 4 ? "eager" : "lazy"}
+                       loading="lazy"
                          decoding="async"
                       className="w-10 h-10 rounded-lg object-cover"
                     />

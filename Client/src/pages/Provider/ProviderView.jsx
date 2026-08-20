@@ -188,7 +188,7 @@ const handleSort = (key) => {
               Loading providers...
             </div>
           ) : providers.length > 0 ? (
-            providers.map((provider,index) => {
+            providers.map((provider) => {
               const therapies = Array.isArray(provider.therapytype)
                 ? provider.therapytype
                 : provider.therapytype
@@ -205,8 +205,7 @@ const handleSort = (key) => {
                       <img
                         src={provider.profilePicture}
                         alt={provider.fullName}
-                         fetchPriority={index < 4 ? "high" : "auto"}
-                        loading={index < 4 ? "eager" : "lazy"}
+                         loading="lazy"
                          decoding="async"
                         className="w-full h-52 object-cover rounded-t-xl"
                       />
@@ -315,13 +314,12 @@ const handleSort = (key) => {
 </thead>
 
             <tbody>
-              {providers.map((provider,index) => (
+              {providers.map((provider) => (
                 <tr key={provider._id} className=" hover:bg-offwhite text-table-text">
                   <td className="p-3 flex items-center gap-3">
                     <img
                       src={provider.profilePicture}
-                       fetchPriority={index < 4 ? "high" : "auto"}
-                       loading={index < 4 ? "eager" : "lazy"}
+                      loading="lazy"
                          decoding="async"
                       className="w-10 h-10 rounded-lg object-cover"
                     />
