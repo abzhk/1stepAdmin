@@ -170,7 +170,6 @@ function ParentView() {
                       <img
                         src={parent.userRef?.profilePicture}
                         alt={parent.parentDetails?.fullName}
-                        loading="lazy"
                          decoding="async"
                         className="w-full h-52 object-cover"
                       />
@@ -296,7 +295,6 @@ function ParentView() {
                   <td className="p-3 flex items-center gap-3">
                     <img
                       src={parent.userRef?.profilePicture}
-                      loading="lazy"
                          decoding="async"
                       className="w-10 h-10 rounded-lg object-cover"
                     />
