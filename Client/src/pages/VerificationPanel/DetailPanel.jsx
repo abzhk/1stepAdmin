@@ -208,13 +208,21 @@ const DetailPanel = ({
   const [confirmCategory, setConfirmCategory] = useState("");
 
   const totalDocs = applicant.docs.length;
-  const verifiedDocs = applicant.docs.filter(
-    (d) => d.status === "accepted",
-  ).length;
-  const progress =
-    totalDocs > 0 ? Math.round((verifiedDocs / totalDocs) * 100) : 0;
 
-  const isClaimLocked =
+const verifiedDocs = applicant.docs.filter(
+  (d) => d.status === "accepted"
+).length;
+
+const progress =
+  totalDocs > 0
+    ? Math.round((verifiedDocs / totalDocs) * 100)
+    : 0;
+
+const allDocsApproved =
+  totalDocs > 0 &&
+  verifiedDocs === totalDocs;
+
+const isClaimLocked =
   applicant.status === "approved" ||
   applicant.status === "rejected";
 
@@ -636,10 +644,6 @@ const canReview =
               ""
             );
 
-            showToast(
-              "Claim approved",
-              "success"
-            );
           } catch (err) {
             showToast(
               err?.message || "Failed to approve claim",
@@ -668,27 +672,38 @@ const canReview =
 
       {/* REQUEST FIX */}
       <button
-        onClick={() =>
-          setConfirmAction("request_fix")
-        }
-        className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-bold bg-[#ffd333] text-[#2d4a36] rounded-xl hover:bg-[#ffd333]/80 active:scale-95 transition-all"
-      >
-        <svg
-          className="w-4 h-4"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={2.5}
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0"
-          />
-        </svg>
+  disabled={allDocsApproved}
+  onClick={() => {
+    if (allDocsApproved) {
+      return;
+    }
 
-        Request Fix
-      </button>
+    setConfirmAction("request_fix");
+  }}
+  className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-bold rounded-xl transition-all
+    ${
+      allDocsApproved
+        ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+        : "bg-[#ffd333] text-[#2d4a36] hover:bg-[#ffd333]/80 active:scale-95"
+    }
+  `}
+>
+  <svg
+    className="w-4 h-4"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={2.5}
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0"
+    />
+  </svg>
+
+  {allDocsApproved ? "All Documents are Verified" : "Request Fix"}
+</button>
 
       {/* REJECT */}
       <button
