@@ -34,7 +34,7 @@ function CheckRow({ label, status, onCycle }) {
       <span className="text-xs text-[#2d4a36]/80">{label}</span>
       <div className="flex items-center gap-1.5">
         <StatusBadge status={status} small />
-        {onCycle && <CycleBtn onClick={onCycle} />}
+        {/* {onCycle && <CycleBtn onClick={onCycle} />} */}
       </div>
     </div>
   );

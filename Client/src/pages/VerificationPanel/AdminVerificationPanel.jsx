@@ -75,6 +75,7 @@ export default function AdminVerificationPanel() {
   const [data, setData] = useState([]);
   const [selectedDetail, setSelectedDetail] = useState(null);
 const [detailLoading, setDetailLoading] = useState(false);
+const [decisionLoading, setDecisionLoading] = useState(false);
 
 //fetch claim profiles
   const fetchClaims = async () => {
@@ -107,7 +108,9 @@ const [detailLoading, setDetailLoading] = useState(false);
 
         priority: "medium",
 
-        overall:
+        status: claim.status,
+
+overall:
   claim.status === "submitted" || claim.status === "under_review"
     ? "pending"
     : claim.status === "fix_requested"
@@ -157,9 +160,13 @@ useEffect(() => {
   };
 
 //final approve
- const handleDecision = async (id, decision, reason,category) => {
+const handleDecision = async (id, decision, reason, category) => {
+  if (decisionLoading) return;
+
+  setDecisionLoading(true);
+
   try {
-    await api(`/api/claim/admin/${id}/review`, {
+    const response = await api(`/api/claim/admin/${id}/review`, {
       method: "PATCH",
       body: JSON.stringify({
         action: decision,
@@ -168,17 +175,23 @@ useEffect(() => {
       }),
     });
 
-
     showToast("Claim updated successfully", "success");
 
+    // Refresh list
     await fetchClaims();
 
+    // Refresh selected claim
     if (selectedId === id) {
       await fetchClaimDetail(id);
     }
+
+    return response;
   } catch (err) {
-    console.error(err);
-    showToast("Failed to update claim", "error");
+    console.error("Claim decision error:", err);
+    showToast(err?.message || "Failed to update claim", "error");
+    throw err;
+  } finally {
+    setDecisionLoading(false);
   }
 };
 
