@@ -99,9 +99,9 @@ const filtered = applicants.filter(a => {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-1 mb-0.5">
                   <p className="text-xs font-bold text-[#2d4a36] truncate">{a.name}</p>
-                  <PriorityBadge priority={a.priority} />
+                  {/* <PriorityBadge priority={a.priority} /> */}
                 </div>
-                <p className="text-[10px] font-medium text-[#2d4a36]/60 truncate">{a.role} · {a.city}</p>
+                <p className="text-[10px] font-medium text-[#2d4a36]/60 truncate">{a.role} </p>
                 <div className="flex items-center justify-between mt-1.5">
                   <StatusBadge status={a.overall} small />
                   <span className="text-[9px] font-medium text-[#8fa797]">{timeAgo(a.submittedTs)}</span>

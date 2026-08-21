@@ -372,7 +372,7 @@ const canReview =
                 <h2 className="text-base font-bold text-[#2d4a36]">
                   {applicant.name}
                 </h2>
-                <PriorityBadge
+                {/* <PriorityBadge
                   priority={applicant.priority}
                   onClick={() => {
                     const order = ["low", "medium", "high"];
@@ -383,7 +383,7 @@ const canReview =
                     onPriorityChange(applicant.id, next);
                     showToast(`Priority → ${next}`, "info");
                   }}
-                />
+                /> */}
                 {isClaimLocked && (
                   <span className="text-[10px] text-[#8fa797] italic">
                     Locked
@@ -391,7 +391,7 @@ const canReview =
                 )}
               </div>
               <p className="text-xs font-medium text-[#2d4a36]/60 mt-0.5">
-                {applicant.role} · {applicant.city}
+                {applicant.role} 
               </p>
               <div className="flex items-center gap-3 mt-1 flex-wrap">
                 <span className="text-[10px] text-[#8fa797]">

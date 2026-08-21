@@ -123,7 +123,8 @@ const getCombinedStatus = (types) => {
 
         <KVRow label="Degree" value={q.degree || "-"} />
         <KVRow label="University" value={q.university || "-"} />
-        <KVRow label="Year" value={q.yearOfCompletion || "-"} />
+        {/* <KVRow label="Year" value={q.yearOfCompletion || "-"} /> */}
+        <KVRow label="Start Year" value={q.startDate || "-"}/>
 
         <CheckRow
           label="Degree certificate"
