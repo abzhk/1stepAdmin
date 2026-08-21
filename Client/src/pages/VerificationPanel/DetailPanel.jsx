@@ -9,7 +9,7 @@ import ConfirmModal from "../../Components/Verification/ConfirmModal";
 import MessageModal from "../../Components/Verification/MessageModel";
 import { api } from "../../utils/api";
 
-function DocViewerModal({ doc, onClose, onStatusChange,  canChangeStatus, }) {
+function DocViewerModal({ doc, onClose, onStatusChange,  canChangeStatus, isClaimLocked, }) {
   const activeCls = "bg-[#2d4a36] text-[#F6F4F0] border-transparent";
   const dotColors = {
     accepted: "bg-[#8fa797]",
@@ -86,21 +86,30 @@ function DocViewerModal({ doc, onClose, onStatusChange,  canChangeStatus, }) {
     </p>
 
     <div className="flex gap-2 flex-wrap">
-      {DOC_STATUSES.map((s) => (
-        <button
-          key={s}
-          onClick={() => onStatusChange(s)}
-          className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold capitalize border transition
-            ${
-              doc.status === s
-                ? activeCls
-                : "border-[#8fa797]/30 text-[#2d4a36]/70 hover:bg-[#F6F4F0]"
-            }`}
-        >
-          <span className={`w-2 h-2 rounded-full ${dotColors[s]}`} />
-          {s}
-        </button>
-      ))}
+    {DOC_STATUSES.map((s) => (
+  <button
+    key={s}
+    disabled={isClaimLocked}
+    onClick={() => {
+      if (isClaimLocked) return;
+      onStatusChange(s);
+    }}
+    className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold capitalize border transition
+      ${
+        doc.status === s
+          ? `${activeCls}`
+          : "border-[#8fa797]/30 text-[#2d4a36]/70 hover:bg-[#F6F4F0]"
+      }
+      ${
+        isClaimLocked
+          ? "opacity-50 cursor-not-allowed"
+          : "cursor-pointer"
+      }`}
+  >
+    <span className={`w-2 h-2 rounded-full ${dotColors[s]}`} />
+    {s}
+  </button>
+))}
     </div>
   </>
 ) : (
@@ -205,7 +214,7 @@ const DetailPanel = ({
   const progress =
     totalDocs > 0 ? Math.round((verifiedDocs / totalDocs) * 100) : 0;
 
-  const isLocked =
+  const isClaimLocked =
   applicant.status === "approved" ||
   applicant.status === "rejected";
 
@@ -318,6 +327,8 @@ const canReview =
       {liveViewingDoc && (
         <DocViewerModal
           doc={liveViewingDoc}
+          isClaimLocked={isClaimLocked}
+           canChangeStatus={!isClaimLocked}
           onClose={() => setViewingDoc(null)}
           onStatusChange={(s) => {
             onDocStatusChange(applicant.id, liveViewingDoc.id, s);
@@ -373,7 +384,7 @@ const canReview =
                     showToast(`Priority → ${next}`, "info");
                   }}
                 />
-                {isLocked && (
+                {isClaimLocked && (
                   <span className="text-[10px] text-[#8fa797] italic">
                     Locked
                   </span>
@@ -505,7 +516,7 @@ const canReview =
           {activeTab === "overview" && (
             <Overview
               applicant={applicant}
-              isLocked={isLocked}
+              isLocked={isClaimLocked}
               cycleField={cycleField}
               expandedSections={expandedSections}
               toggleSection={toggleSection}
@@ -539,7 +550,7 @@ const canReview =
         <div className="px-6 py-4 border-t border-[#8fa797]/20 bg-white flex-shrink-0">
 
   {/* APPROVED / REJECTED */}
-  {isLocked ? (
+  {isClaimLocked ? (
     <div className="flex items-center justify-between">
       <p className="text-xs font-medium text-[#8fa797] italic">
         This claim is{" "}

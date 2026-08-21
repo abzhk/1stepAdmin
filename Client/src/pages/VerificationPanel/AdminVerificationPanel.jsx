@@ -282,6 +282,10 @@ const handleDocStatusChange = async (appId, docId, newStatus) => {
     setData(prev => prev.map(a => a.id === appId ? { ...a, priority } : a));
   };
 
+  console.log("SELECTED LIST:", selected);
+console.log("SELECTED DETAIL:", selectedDetail);
+console.log("CLAIM STATUS:", selectedDetail?.claim?.status);
+
   return (
     <div className="h-screen bg-[#F6F4F0] flex flex-col font-sans overflow-hidden rounded-3xl">
       <Toast toasts={toasts} />
@@ -303,6 +307,8 @@ const handleDocStatusChange = async (appId, docId, newStatus) => {
   setSearch={setSearch}
 />
         </div>
+
+        
 
         {/* Detail pane */}
         <div className="flex-1 bg-white flex flex-col overflow-hidden">
