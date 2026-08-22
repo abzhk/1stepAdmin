@@ -13,6 +13,7 @@ import {
   reviewClaimFinal,
   addAdminNote,
   sendMessageToApplicant,
+  reopenClaim,
 } from "../controller/claimProfile.controller.js";
 import { verifyToken } from "../utils/verifyUser.js";
 import { verifyAdminToken } from "../middlewares/authMiddleware.js";
@@ -44,5 +45,7 @@ router.patch("/admin/:id/review", verifyAdminToken,reviewClaimFinal);
 router.patch("/admin/:id/note",verifyAdminToken, addAdminNote);
 //mail
 router.post("/admin/:id/message",verifyAdminToken, sendMessageToApplicant);
+
+router.patch("/admin/:id/reopen",reopenClaim);
 
 export default router;

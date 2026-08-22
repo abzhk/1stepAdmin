@@ -484,20 +484,11 @@ export const updateDocumentStatus = async (req, res, next) => {
 //final review by Admin
 export const reviewClaimFinal = async (req, res, next) => {
   try {
-  
-
     const { id } = req.params;
-    const { action, reason, category } = req.body;
+    const { reason, category } = req.body;
 
-    const allowedActions = [
-      "approve",
-      "request_fix",
-      "reject",
-      "reopen",
-    ];
-
-    if (!allowedActions.includes(action)) {
-      return next(errorHandler(400, "Invalid action"));
+    if (!reason?.trim()) {
+      return next(errorHandler(400, "Reason required"));
     }
 
     const claim = await TherapistClaimRequest.findById(id);
@@ -506,86 +497,22 @@ export const reviewClaimFinal = async (req, res, next) => {
       return next(errorHandler(404, "Claim not found"));
     }
 
-    if (
-      action !== "reopen" &&
-      !["submitted", "under_review"].includes(claim.status)
-    ) {
+    // Request Fix is only allowed while admin is reviewing
+    if (!["submitted", "under_review"].includes(claim.status)) {
       return next(
-        errorHandler(400, "Claim cannot be reviewed in current state")
+        errorHandler(
+          400,
+          "Claim cannot be requested for fix in current state"
+        )
       );
     }
 
     const previousStatus = claim.status;
 
-  if (action === "approve") {
-  const totalDocs = await TherapistDocument.countDocuments({
-    claimId: id,
-    isActive: true,
-  });
-
-  if (totalDocs === 0) {
-    return next(
-      errorHandler(400, "No documents uploaded. Cannot approve claim.")
-    );
-  }
-
-  const unverifiedDocs = await TherapistDocument.countDocuments({
-    claimId: id,
-    isActive: true,
-    docStatus: { $ne: "accepted" },
-  });
-
-  if (unverifiedDocs > 0) {
-    return next(
-      errorHandler(400, "All documents must be verified before approval")
-    );
-  }
-
-  claim.status = "approved";
-  claim.approvedAt = new Date();
-  claim.isLocked = true;
-  claim.rejectionReason = null;
-  claim.rejectionCategory = null;
-}
-
- 
-    if (action === "request_fix") {
-      if (!reason?.trim()) {
-        return next(errorHandler(400, "Reason required"));
-      }
-
-      claim.status = "fix_requested";
-      claim.isLocked = false;
-      claim.rejectionReason = reason.trim();
-      claim.rejectionCategory = category || "incomplete_profile";
-    }
-
-
-    if (action === "reject") {
-      if (!reason?.trim()) {
-        return next(errorHandler(400, "Reason required"));
-      }
-
-      claim.status = "rejected";
-      claim.isLocked = false;
-      claim.rejectionReason = reason.trim();
-      claim.rejectionCategory = category || "other";
-    }
-
-
-    if (action === "reopen") {
-      if (!["approved", "rejected", "fix_requested"].includes(claim.status)) {
-        return next(
-          errorHandler(400, "Only approved/rejected/fix requested claims can be reopened")
-        );
-      }
-
-      claim.status = "under_review";
-      claim.isLocked = false;
-      claim.rejectionReason = reason?.trim() || null;
-      claim.rejectionCategory = null;
-      claim.approvedAt = null;
-    }
+    claim.status = "fix_requested";
+    claim.isLocked = false;
+    claim.rejectionReason = reason.trim();
+    claim.rejectionCategory = category || "incomplete_profile";
 
     claim.reviewedBy = req.user.id;
     claim.reviewedAt = new Date();
@@ -596,14 +523,7 @@ export const reviewClaimFinal = async (req, res, next) => {
       claimId: claim._id,
       userId: claim.userId,
       performedBy: req.user.id,
-      action:
-        action === "approve"
-          ? "claim_approved"
-          : action === "request_fix"
-          ? "claim_fix_requested"
-          : action === "reject"
-          ? "claim_rejected"
-          : "claim_reopened",
+      action: "claim_fix_requested",
       previousStatus,
       newStatus: claim.status,
       req,
@@ -615,7 +535,7 @@ export const reviewClaimFinal = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      message: `Claim ${action} completed successfully`,
+      message: "Claim fix requested successfully",
       claim,
     });
   } catch (error) {
@@ -706,5 +626,68 @@ export const sendMessageToApplicant = async (req, res, next) => {
     });
   } catch (err) {
     next(err);
+  }
+};
+
+//reopen claim profile 
+
+export const reopenClaim = async (req, res, next) => {
+  try {
+    if (!req.user.isAdmin) {
+      return next(errorHandler(403, "Admin access required"));
+    }
+
+    const claim = await TherapistClaimRequest.findById(req.params.id);
+
+    if (!claim) {
+      return next(errorHandler(404, "Claim not found"));
+    }
+    
+
+    if (!["approved", "rejected", "fix_requested"].includes(claim.status)) {
+      return next(
+        errorHandler(
+          400,
+          "Only approved, rejected or fix requested claims can be reopened"
+        )
+      );
+    }
+
+    const io = req.app.get("io");
+    const previousStatus = claim.status;
+
+    claim.status = "under_review";
+    claim.isLocked = false;
+    claim.rejectionReason = null;
+    claim.rejectionCategory = null;
+    claim.approvedAt = null;
+    claim.reviewedBy = req.user.id;
+    claim.reviewedAt = new Date();
+
+    await claim.save();
+
+    await audit({
+      claimId: claim._id,
+      userId: claim.userId,
+      performedBy: req.user.id,
+      action: "claim_reopened",
+      previousStatus,
+      newStatus: "under_review",
+      req,
+    });
+
+    await NotificationService.sendClaimNotification(io, {
+      claimRequest: claim,
+      status: "under_review",
+      recipientId: claim.userId.toString(),
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Claim reopened successfully",
+      claim,
+    });
+  } catch (error) {
+    next(error);
   }
 };

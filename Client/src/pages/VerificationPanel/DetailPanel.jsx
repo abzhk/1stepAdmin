@@ -185,9 +185,10 @@ function KVRow({ label, value, mono }) {
 
 const DetailPanel = ({
   applicant,
-   onApprove,
+  onApprove,
   onReject,
-  // onDecision,
+  onReopen,
+  onRequestFix,
   onDocStatusChange,
   onNoteAdd,
   onFieldStatusChange,
@@ -251,6 +252,13 @@ const canReview =
         rejectionReason: confirmReason,
         rejectionCategory: confirmCategory,
         adminNotes: "",
+      });
+    }
+
+    if (confirmAction === "request_fix") {
+      await onRequestFix({
+        reason: confirmReason,
+        category: confirmCategory,
       });
     }
 
@@ -582,27 +590,20 @@ const canReview =
       </p>
 
       <button
-        onClick={async () => {
-          try {
-            await onDecision(
-              applicant.id,
-              "reopen",
-              "pending",
-              "Reopened for further review"
-            );
-
-            // showToast("Claim reopened", "info");
-          } catch (err) {
-            showToast(
-              err?.message || "Failed to reopen claim",
-              "error"
-            );
-          }
-        }}
-        className="px-4 py-2 text-xs font-bold border border-[#8fa797]/30 rounded-xl text-[#2d4a36]/80 hover:bg-[#F6F4F0] transition"
-      >
-        Reopen
-      </button>
+  onClick={async () => {
+    try {
+      await onReopen();
+    } catch (err) {
+      showToast(
+        err?.message || "Failed to reopen claim",
+        "error"
+      );
+    }
+  }}
+  className="px-4 py-2 text-xs font-bold border border-[#8fa797]/30 rounded-xl text-[#2d4a36]/80 hover:bg-[#F6F4F0] transition"
+>
+  Reopen
+</button>
     </div>
 
   ) : isWaitingForProvider ? (

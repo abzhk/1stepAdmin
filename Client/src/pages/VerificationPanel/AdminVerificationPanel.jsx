@@ -242,6 +242,59 @@ const handleReject = async ({
   }
 };
 
+
+const handleReopen = async () => {
+  try {
+    setDecisionLoading(true);
+
+    await api(`/api/claim/admin/${selectedId}/reopen`, {
+      method: "PATCH",
+    });
+
+    showToast("Claim reopened successfully", "success");
+
+    await fetchClaims();
+    await fetchClaimDetail(selectedId);
+  } catch (error) {
+    showToast(
+      error?.message || "Failed to reopen claim",
+      "error"
+    );
+  } finally {
+    setDecisionLoading(false);
+  }
+};
+
+const handleRequestFix = async ({
+  reason,
+  category,
+}) => {
+  try {
+    setDecisionLoading(true);
+
+    await api(`/api/claim/admin/${selectedId}/review`, {
+      method: "PATCH",
+      body: JSON.stringify({
+        reason,
+        category,
+      }),
+    });
+
+    showToast("Fix requested successfully", "success");
+
+    await fetchClaims();
+    await fetchClaimDetail(selectedId);
+  } catch (error) {
+    showToast(
+      error?.message || "Failed to request fix",
+      "error"
+    );
+    throw error;
+  } finally {
+    setDecisionLoading(false);
+  }
+};
+
 const handleDocStatusChange = async (appId, docId, newStatus) => {
   try {
     await api(`/api/claim/admin/document/${docId}/status`, {
@@ -329,9 +382,6 @@ const handleDocStatusChange = async (appId, docId, newStatus) => {
     setData(prev => prev.map(a => a.id === appId ? { ...a, priority } : a));
   };
 
-  console.log("SELECTED LIST:", selected);
-console.log("SELECTED DETAIL:", selectedDetail);
-console.log("CLAIM STATUS:", selectedDetail?.claim?.status);
 
   return (
     <div className="h-screen bg-[#F6F4F0] flex flex-col font-sans overflow-hidden rounded-3xl">
@@ -394,6 +444,8 @@ docs: (selectedDetail?.documents || []).map((doc) => ({
 }}
               onApprove={handleApprove}
               onReject={handleReject}
+              onReopen={handleReopen}
+               onRequestFix={handleRequestFix}
               onDocStatusChange={handleDocStatusChange}
               onNoteAdd={handleNoteAdd}
               onFieldStatusChange={handleFieldStatusChange}
