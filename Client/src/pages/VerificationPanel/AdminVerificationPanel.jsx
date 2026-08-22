@@ -160,36 +160,83 @@ useEffect(() => {
   };
 
 //final approve
-const handleDecision = async (id, decision, reason, category) => {
-  if (decisionLoading) return;
+// const handleDecision = async (id, decision, reason, category) => {
+//   if (decisionLoading) return;
 
-  setDecisionLoading(true);
+//   setDecisionLoading(true);
 
+//   try {
+//     const response = await api(`/api/claim/admin/${id}/review`, {
+//       method: "PATCH",
+//       body: JSON.stringify({
+//         action: decision,
+//         reason,
+//         category,
+//       }),
+//     });
+
+//     showToast("Claim updated successfully", "success");
+
+//     // Refresh list
+//     await fetchClaims();
+
+//     // Refresh selected claim
+//     if (selectedId === id) {
+//       await fetchClaimDetail(id);
+//     }
+
+//     return response;
+//   } catch (err) {
+//     console.error("Claim decision error:", err);
+//     showToast(err?.message || "Failed to update claim", "error");
+//     throw err;
+//   } finally {
+//     setDecisionLoading(false);
+//   }
+// };
+
+const handleApprove = async () => {
   try {
-    const response = await api(`/api/claim/admin/${id}/review`, {
+    setDecisionLoading(true);
+
+    await api(`/api/claim/admin/${selectedId}/approve`, {
+      method: "PATCH",
+    });
+
+    showToast("Claim approved successfully", "success");
+
+    await fetchClaims();
+    await fetchClaimDetail(selectedId);
+  } catch (error) {
+    showToast(error?.message || "Failed to approve claim", "error");
+  } finally {
+    setDecisionLoading(false);
+  }
+};
+
+const handleReject = async ({
+  rejectionReason,
+  rejectionCategory,
+  adminNotes,
+}) => {
+  try {
+    setDecisionLoading(true);
+
+    await api(`/api/claim/admin/${selectedId}/reject`, {
       method: "PATCH",
       body: JSON.stringify({
-        action: decision,
-        reason,
-        category,
+        rejectionReason,
+        rejectionCategory,
+        adminNotes,
       }),
     });
 
-    showToast("Claim updated successfully", "success");
+    showToast("Claim rejected successfully", "success");
 
-    // Refresh list
     await fetchClaims();
-
-    // Refresh selected claim
-    if (selectedId === id) {
-      await fetchClaimDetail(id);
-    }
-
-    return response;
-  } catch (err) {
-    console.error("Claim decision error:", err);
-    showToast(err?.message || "Failed to update claim", "error");
-    throw err;
+    await fetchClaimDetail(selectedId);
+  } catch (error) {
+    showToast(error?.message || "Failed to reject claim", "error");
   } finally {
     setDecisionLoading(false);
   }
@@ -345,7 +392,8 @@ docs: (selectedDetail?.documents || []).map((doc) => ({
   ts: log.createdAt,
 })),
 }}
-              onDecision={handleDecision}
+              onApprove={handleApprove}
+              onReject={handleReject}
               onDocStatusChange={handleDocStatusChange}
               onNoteAdd={handleNoteAdd}
               onFieldStatusChange={handleFieldStatusChange}

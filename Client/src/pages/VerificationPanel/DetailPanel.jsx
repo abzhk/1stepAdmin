@@ -185,7 +185,9 @@ function KVRow({ label, value, mono }) {
 
 const DetailPanel = ({
   applicant,
-  onDecision,
+   onApprove,
+  onReject,
+  // onDecision,
   onDocStatusChange,
   onNoteAdd,
   onFieldStatusChange,
@@ -242,12 +244,23 @@ const canReview =
     onFieldStatusChange(applicant.id, section, field, next);
   };
 
-  const handleConfirm = () => {
-    onDecision(applicant.id, confirmAction, confirmReason, confirmCategory);
+  const handleConfirm = async () => {
+  try {
+    if (confirmAction === "reject") {
+      await onReject({
+        rejectionReason: confirmReason,
+        rejectionCategory: confirmCategory,
+        adminNotes: "",
+      });
+    }
+
     setConfirmAction(null);
     setConfirmReason("");
     setConfirmCategory("");
-  };
+  } catch (error) {
+    console.error("Decision error:", error);
+  }
+};
 
   const handleNoteSubmit = () => {
     if (!note.trim()) return;
@@ -578,7 +591,7 @@ const canReview =
               "Reopened for further review"
             );
 
-            showToast("Claim reopened", "info");
+            // showToast("Claim reopened", "info");
           } catch (err) {
             showToast(
               err?.message || "Failed to reopen claim",
@@ -618,57 +631,47 @@ const canReview =
     <div className="flex gap-2">
 
       {/* APPROVE */}
-      <button
-        onClick={async () => {
-          const totalDocs = applicant.docs.length;
+     <button
+  disabled={!allDocsApproved}
+  onClick={async () => {
+    if (!allDocsApproved) {
+      return showToast(
+        "Approve all documents first",
+        "error"
+      );
+    }
 
-          const verifiedDocs = applicant.docs.filter(
-            (d) => d.status === "accepted"
-          ).length;
+    try {
+      await onApprove();
+    } catch (err) {
+      showToast(
+        err?.message || "Failed to approve claim",
+        "error"
+      );
+    }
+  }}
+  className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-bold rounded-xl transition-all ${
+    allDocsApproved
+      ? "bg-[#8fa797] text-[#2d4a36] hover:bg-[#8fa797]/80 active:scale-95"
+      : "bg-gray-200 text-gray-400 cursor-not-allowed"
+  }`}
+>
+  <svg
+    className="w-4 h-4"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={2.5}
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M5 13l4 4L19 7"
+    />
+  </svg>
 
-          const allDocsApproved =
-            totalDocs > 0 &&
-            verifiedDocs === totalDocs;
-
-          if (!allDocsApproved) {
-            return showToast(
-              "Approve all documents first",
-              "error"
-            );
-          }
-
-          try {
-            await onDecision(
-              applicant.id,
-              "approve",
-              ""
-            );
-
-          } catch (err) {
-            showToast(
-              err?.message || "Failed to approve claim",
-              "error"
-            );
-          }
-        }}
-        className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-bold bg-[#8fa797] text-[#2d4a36] rounded-xl hover:bg-[#8fa797]/80 active:scale-95 transition-all"
-      >
-        <svg
-          className="w-4 h-4"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={2.5}
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M5 13l4 4L19 7"
-          />
-        </svg>
-
-        Approve
-      </button>
+  Approve
+</button>
 
       {/* REQUEST FIX */}
       <button
