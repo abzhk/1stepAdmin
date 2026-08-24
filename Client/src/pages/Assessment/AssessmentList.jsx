@@ -91,12 +91,13 @@ const handleDelete = async (id) => {
       <div className="bg-white rounded-xl shadow  overflow-hidden">
         
         {/* TABLE HEADER */}
-        <div className="grid grid-cols-6 bg-offwhite px-6 py-3 text-table-text">
+        <div className="grid grid-cols-7 bg-offwhite px-6 py-3 text-cardfooter">
           <div>SL.NO</div>
           <div>Title</div>
           <div>Version</div>
           <div>Status</div>
           <div>Category</div>
+           <div>Assessment Code</div>
           <div className="text-center">Actions</div>
         </div>
 
@@ -104,7 +105,7 @@ const handleDelete = async (id) => {
         {list.map((a, index) => (
           <div
             key={a._id}
-            className="grid grid-cols-6 px-6 py-4 items-center hover:bg-offwhite transition"
+            className="grid grid-cols-7 px-6 py-4 items-center hover:bg-offwhite transition"
           >
             <div className="text-table-text">{index + 1}</div>
 
@@ -128,6 +129,10 @@ const handleDelete = async (id) => {
 
             <div className="text-table-text">
               {a.category?.name || "-"}
+            </div>
+
+             <div className="text-table-text">
+               {a.test?.code || "-"}
             </div>
 
             {/* ACTIONS */}

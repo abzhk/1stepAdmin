@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { api } from "../../utils/api";
 import dateFormatUtils from "../../utils/dateFormatUtils";
+import { IoSend } from "react-icons/io5";
 
 const TAG_STYLES = {
   new: "bg-[#ffd333]/30 text-[#2d4a36] border border-[#ffd333]/50",
@@ -526,23 +527,21 @@ export default function AdminInbox() {
                         disabled={sending}
                       />
                     </div>
-                    <button
-                      onClick={() => sendReply(active?.id)}
-                      disabled={!replyText.trim() || sending}
-                      className={`p-3 rounded-full transition-all flex-shrink-0 ${
-                        replyText.trim() && !sending
-                          ? 'bg-[#2d4a36] hover:bg-[#8fa797] shadow-lg shadow-[#2d4a36]/20 active:scale-[0.95]' 
-                          : 'bg-[#8fa797]/30 cursor-not-allowed'
-                      }`}
-                    >
-                      {sending ? (
-                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      ) : (
-                        <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                        </svg>
-                      )}
-                    </button>
+                   <button
+  onClick={() => sendReply(active?.id)}
+  disabled={!replyText.trim() || sending}
+  className={`self-start mt-2 p-3 rounded-full transition-all flex-shrink-0 ${
+    replyText.trim() && !sending
+      ? "bg-[#2d4a36] hover:bg-[#8fa797] shadow-lg shadow-[#2d4a36]/20 active:scale-[0.95]"
+      : "bg-[#8fa797]/30 cursor-not-allowed"
+  }`}
+>
+  {sending ? (
+    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+  ) : (
+    <IoSend className="w-5 h-5 text-white" />
+  )}
+</button>
                   </div>
                   {replyMessageId && (
                     <p className="text-[10px] text-[#8fa797] mt-2">

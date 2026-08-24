@@ -1,28 +1,44 @@
 import React, { useEffect, useState } from "react";
 import { AiFillEye } from "react-icons/ai";
 import { FiEdit2, FiGrid, FiList } from "react-icons/fi";
-import { useNavigate } from "react-router-dom";
+import { useNavigate,useOutletContext  } from "react-router-dom";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { api } from "../../utils/api";
 import toast from "react-hot-toast";
+import SortableHeader from "../../Components/SortableHeader";
 
 const CentreList = () => {
   const navigate = useNavigate();
+  const { searchTerm } = useOutletContext();
 
   const [viewMode, setViewMode] = useState("grid");
   const [centres, setCentres] = useState([]);
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
+  const [sortConfig, setSortConfig] = useState({
+  key: "createdAt",
+  direction: "desc",
+});
+
 
   const limit = 12;
+  
 
   const fetchCentres = async () => {
     try {
       const startIndex = (page - 1) * limit;
 
-      const data = await api(
-        `/api/provider/centre-list?startIndex=${startIndex}&limit=${limit}`,
-      );
+     const params = new URLSearchParams({
+  startIndex,
+  limit,
+  sort: sortConfig.key,
+  order: sortConfig.direction,
+   searchTerm,
+});
+
+const data = await api(
+  `/api/provider/centre-list?${params}`
+);
 
       setCentres(data.centres || []);
       setTotalCount(data.totalCount || 0);
@@ -31,9 +47,13 @@ const CentreList = () => {
     }
   };
 
-  useEffect(() => {
-    fetchCentres();
-  }, [page]);
+ useEffect(() => {
+  setPage(1);
+}, [searchTerm]);
+
+useEffect(() => {
+  fetchCentres();
+}, [page, sortConfig, searchTerm]);
 
   const toggleCentreStatus = async (centre) => {
     if (centre.totalProviders > 0 && centre.isActive) {
@@ -70,6 +90,21 @@ const CentreList = () => {
       toast.error("Failed to update status");
     }
   };
+
+
+  const handleSort = (key) => {
+  const direction =
+    sortConfig.key === key && sortConfig.direction === "asc"
+      ? "desc"
+      : "asc";
+
+  setPage(1);
+
+  setSortConfig({
+    key,
+    direction,
+  });
+};
 
   return (
     <div className="p-4 md:p-8 bg-offwhite min-h-screen">
@@ -130,6 +165,8 @@ const CentreList = () => {
                   <img
                     src={centre.profilePicture}
                     alt={centre.fullName}
+                     loading="lazy"
+                     decoding="async"
                     className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
                   />
 
@@ -248,8 +285,18 @@ const CentreList = () => {
             <table className="w-full text-sm">
               <thead className="bg-offwhite text-cardfooter uppercase text-left">
                 <tr>
-                  <th className="p-3 text-left">Centre</th>
-                  <th className="p-3 text-left">Email</th>
+                  <SortableHeader
+  title="Centre"
+  field="fullName"
+  sortConfig={sortConfig}
+  handleSort={handleSort}
+/>
+                 <SortableHeader
+  title="Email"
+  field="email"
+  sortConfig={sortConfig}
+  handleSort={handleSort}
+/>
                   <th className="p-3 text-left">Phone</th>
                   <th className="p-3 text-left">Providers</th>
                   <th className="p-3 text-left">Sessions</th>
@@ -264,6 +311,8 @@ const CentreList = () => {
                     <td className="p-3 flex items-center gap-3">
                       <img
                         src={centre.profilePicture}
+                         loading="lazy"
+                         decoding="async"
                         className="w-10 h-10 rounded-lg object-cover"
                       />
                       {centre.fullName}

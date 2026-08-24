@@ -4,6 +4,8 @@ import { FiEdit2, FiGrid, FiList } from "react-icons/fi";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { api } from "../../utils/api.js";
 import toast from "react-hot-toast";
+import SortableHeader from "../../Components/SortableHeader";
+
 
 function ProviderView() {
   const navigate = useNavigate();
@@ -20,6 +22,10 @@ function ProviderView() {
 
   const [providerType, setProviderType] = useState("");
   const [viewMode, setViewMode] = useState("grid");
+  const [sortConfig, setSortConfig] = useState({
+  key: "createdAt",
+  direction: "desc",
+});
 
   useEffect(() => {
     const fetchProviders = async () => {
@@ -30,6 +36,8 @@ function ProviderView() {
         const params = new URLSearchParams({
           limit: String(limit),
           startIndex: String((page - 1) * limit),
+           sort: sortConfig.key,
+  order: sortConfig.direction,
         });
 
         if (providerType) {
@@ -40,7 +48,7 @@ function ProviderView() {
           params.append("searchTerm", searchTerm.trim());
         }
 
-        const data = await api(`/api/provider/individual-list?${params}`);
+        const data = await api(`/api/provider/admin-individual-list?${params}`);
 
         setProviders(data.providers || []);
         setTotalCount(data.totalCount || 0);
@@ -52,7 +60,7 @@ function ProviderView() {
     };
 
     fetchProviders();
-  }, [page, searchTerm, providerType]);
+  }, [page, searchTerm, providerType, sortConfig]);
 
   const totalPages = Math.max(1, Math.ceil(totalCount / limit));
 
@@ -92,6 +100,22 @@ function ProviderView() {
       toast.error(error.message || "Failed to update status");
     }
   };
+
+const handleSort = (key) => {
+  const direction =
+    sortConfig.key === key && sortConfig.direction === "asc"
+      ? "desc"
+      : "asc";
+
+  setPage(1);
+
+  setSortConfig({
+    key,
+    direction,
+  });
+};
+
+
 
   return (
     <div className="p-4 md:p-6 bg-offwhite min-h-screen">
@@ -160,10 +184,27 @@ function ProviderView() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-10 gap-y-14">
 
           {loading ? (
-            <div className="col-span-full text-center py-10 text-xl text-gray-500 font-medium">
-              Loading providers...
-            </div>
-          ) : providers.length > 0 ? (
+  <div className="col-span-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-10 gap-y-14">
+    {Array.from({ length: 12 }).map((_, index) => (
+      <div
+        key={index}
+        className="bg-white rounded-xl border border-gray-100 overflow-hidden animate-pulse"
+      >
+        <div className="w-full h-52 bg-gray-200" />
+
+        <div className="p-4">
+          <div className="h-5 bg-gray-200 rounded w-3/4 mb-4" />
+
+          <div className="h-4 bg-gray-200 rounded w-1/2 mb-3" />
+
+          <div className="h-4 bg-gray-200 rounded w-2/3 mb-6" />
+
+          <div className="h-10 bg-gray-200 rounded-xl" />
+        </div>
+      </div>
+    ))}
+  </div>
+) : providers.length > 0 ? (
             providers.map((provider) => {
               const therapies = Array.isArray(provider.therapytype)
                 ? provider.therapytype
@@ -181,6 +222,8 @@ function ProviderView() {
                       <img
                         src={provider.profilePicture}
                         alt={provider.fullName}
+                         loading="lazy"
+                         decoding="async"
                         className="w-full h-52 object-cover rounded-t-xl"
                       />
                     )}
@@ -263,15 +306,29 @@ function ProviderView() {
         <div className="bg-white rounded-2xl px-6 py-6">
         <div className="bg-white rounded-xl shadow  overflow-hidden">
           <table className="w-full text-sm">
-            <thead className="bg-offwhite text-gray-700  text-cardfooter uppercase">
-              <tr>
-                <th className="p-3 text-left">Provider</th>
-                <th className="p-3 text-left">City</th>
-                <th className="p-3 text-left">Session</th>
-                <th className="p-3 text-left">Status</th>
-                <th className="p-3 text-right">Actions</th>
-              </tr>
-            </thead>
+            <thead className="bg-offwhite  text-cardfooter uppercase text-left">
+  <tr>
+
+  <SortableHeader
+  title="Provider"
+  field="fullName"
+  sortConfig={sortConfig}
+  handleSort={handleSort}
+/>
+
+<SortableHeader
+  title="City"
+  field="city"
+  sortConfig={sortConfig}
+  handleSort={handleSort}
+/>
+
+
+<th className="p-3">Session</th>
+<th className="p-3">Status</th>
+<th className="p-3 text-right">Actions</th>
+</tr>
+</thead>
 
             <tbody>
               {providers.map((provider) => (
@@ -279,6 +336,8 @@ function ProviderView() {
                   <td className="p-3 flex items-center gap-3">
                     <img
                       src={provider.profilePicture}
+                      loading="lazy"
+                         decoding="async"
                       className="w-10 h-10 rounded-lg object-cover"
                     />
                     {provider.fullName}

@@ -26,8 +26,20 @@ export default function TicketDrawer({ ticket, idx, onClose, onUpdate }) {
       <div className="w-[520px] bg-white h-full flex flex-col shadow-[-10px_0_40px_rgba(45,74,54,0.1)] border-l border-[#8fa797]/20" onClick={e => e.stopPropagation()}>
         <div className="px-6 py-5 border-b border-[#8fa797]/10 flex items-start justify-between gap-4 bg-[#F6F4F0]/30">
           <div className="flex-1 min-w-0">
-            <div className="font-mono text-[11px] font-bold text-[#8fa797] mb-1.5">{ticket.ticketId}</div>
-            <div className="text-[16px] font-bold text-[#2d4a36] leading-snug tracking-tight">{ticket.category}</div>
+            <div className="font-mono text-[11px] font-bold text-[#8fa797] mb-1.5">
+  {ticket.ticketId}
+</div>
+
+<div className="flex items-center gap-2">
+  <div className="text-[16px] font-bold text-[#2d4a36] leading-snug tracking-tight">
+    {ticket.category}
+  </div>
+
+  <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-[#2d4a36]/10 text-[#2d4a36] text-[10px] font-bold border border-[#2d4a36]/20">
+    {ticket.user?.role?.role || "Unknown"}
+  </span>
+</div>
+
             {/* <div className="px-0 py-0 border-b border-[#8fa797]/10 bg-[#F6F4F0]/20"> */}
   {/* <div className="text-[10px] font-bold text-[#8fa797] uppercase tracking-widest mb-2">
     Description
@@ -59,13 +71,13 @@ export default function TicketDrawer({ ticket, idx, onClose, onUpdate }) {
         
         <div className="px-6 py-1 border-b border-[#8fa797]/10 flex items-center gap-3">
           <Av
-  image={ticket.user?.profilePicture}
+  image={ticket.displayProfilePicture}
   initials={ticket.user?.username?.charAt(0) || "G"}
   cc={ac(idx)}
   size="md"
 />
           <div>
-            <div className="text-[13px] font-bold text-[#2d4a36]">{ticket.user.username}</div>
+            <div className="text-[13px] font-bold text-[#2d4a36]">{ticket.displayName}</div>
             <div className="text-[11px] font-medium text-[#8fa797]">{ticket.email}</div>
           </div>
           <div className="ml-auto text-right">

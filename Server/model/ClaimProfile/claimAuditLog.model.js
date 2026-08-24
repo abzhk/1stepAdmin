@@ -27,10 +27,13 @@ const claimAuditLogSchema = new mongoose.Schema(
         "review_started",
         "claim_approved",
         "claim_rejected",
-        "claim_fix_requested",
+        "claim_fix_requested",      // written by this app's reviewClaimFinal
         "claim_reopened",
+        "claim_reapplied",          // written by 1stepdev's reapplyClaim
         "claim_resubmitted",
         "admin_note_added",
+        "admin_message_sent",       // written by sendMessageToApplicant
+        "document_viewed_by_user",
       ],
       required: true,
     },

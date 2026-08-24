@@ -25,20 +25,41 @@ const counts = FILTERS.reduce((acc, f) => {
   return acc;
 }, {});
 
-const filtered = applicants.filter(a => {
-  if (filter !== "all" && a.overall !== filter) return false;
-
-  if (search.trim()) {
-    const q = search.toLowerCase();
-    return (
-      a.name.toLowerCase().includes(q) ||
-      a.role.toLowerCase().includes(q) ||
-      a.city.toLowerCase().includes(q) ||
-      a.email.toLowerCase().includes(q)
-    );
+const filtered = applicants.filter((a) => {
+  if (filter !== "all" && a.overall !== filter) {
+    return false;
   }
 
-  return true;
+  if (!search.trim()) {
+    return true;
+  }
+
+  const q = search.trim().toLowerCase();
+
+  const name =
+    a.name ||
+    a.userId?.username ||
+    "";
+
+  const email =
+    a.email ||
+    a.userId?.email ||
+    "";
+
+  const role =
+    a.role ||
+    "";
+
+  const city =
+    a.city ||
+    "";
+
+  return (
+    name.toLowerCase().includes(q) ||
+    email.toLowerCase().includes(q) ||
+    role.toLowerCase().includes(q) ||
+    city.toLowerCase().includes(q)
+  );
 });
   return (
     <div>
@@ -65,12 +86,12 @@ const filtered = applicants.filter(a => {
             </button>
           )}
         </div>
-        <select value={sortBy} onChange={e => setSortBy(e.target.value)}
+        {/* <select value={sortBy} onChange={e => setSortBy(e.target.value)}
           className="w-full px-2.5 py-1.5 text-xs font-bold border border-[#8fa797]/30 rounded-lg bg-white text-[#2d4a36]/70 focus:outline-none focus:ring-2 focus:ring-[#8fa797]/50">
           <option value="newest">Newest first</option>
           <option value="oldest">Oldest first</option>
           <option value="priority">By priority</option>
-        </select>
+        </select> */}
       </div>
 
       <div className="px-3 py-2 border-b border-[#8fa797]/20 flex gap-1.5 overflow-x-auto">
@@ -99,9 +120,9 @@ const filtered = applicants.filter(a => {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-1 mb-0.5">
                   <p className="text-xs font-bold text-[#2d4a36] truncate">{a.name}</p>
-                  <PriorityBadge priority={a.priority} />
+                  {/* <PriorityBadge priority={a.priority} /> */}
                 </div>
-                <p className="text-[10px] font-medium text-[#2d4a36]/60 truncate">{a.role} · {a.city}</p>
+                <p className="text-[10px] font-medium text-[#2d4a36]/60 truncate">{a.role} </p>
                 <div className="flex items-center justify-between mt-1.5">
                   <StatusBadge status={a.overall} small />
                   <span className="text-[9px] font-medium text-[#8fa797]">{timeAgo(a.submittedTs)}</span>

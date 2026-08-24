@@ -6,15 +6,13 @@ import formatdatateUtils from "../../../utils/dateFormatUtils.js";
 
 //UI designed By Gokul
 export default function TicketsPanel({ tickets,search,
-  setSearch, page,
+  setSearch, page,  filter,setFilter,
   setPage,
   pagination,onTicketClick, onUpdateTicket }) {
-  const [filter, setFilter] = useState("All");
+
   const [selected, setSelected] = useState(new Set());
 
- const filtered = tickets.filter(
-  t => filter === "All" || t.status === filter
-);
+ const filtered = tickets;
 
   const toggle = id => setSelected(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
   const bulkClose = () => { selected.forEach(id => { const t = tickets.find(t => t._id === id); if (t) onUpdateTicket({ ...t, status: "Closed" }); }); setSelected(new Set()); };
@@ -43,7 +41,10 @@ export default function TicketsPanel({ tickets,search,
           {["All", "Open", "In progress", "Resolved"].map((f) => (
   <button
     key={f}
-    onClick={() => setFilter(f)}
+    onClick={() => {
+  setFilter(f);
+  setPage(1);
+}}
     className={`text-[12px] px-4 py-1.5 rounded-full font-bold transition-all border ${
       filter === f
         ? "bg-[#2d4a36] text-[#F6F4F0] border-[#2d4a36] shadow-md"
@@ -77,14 +78,14 @@ export default function TicketsPanel({ tickets,search,
                       <td className="px-4 py-4">
                         <div className="flex items-center gap-3">
                           <Av
-  image={t.user?.profilePicture}
+  image={t.displayProfilePicture}
   initials={t.user?.username?.charAt(0) || "G"}
   cc={ac(i)}
   size="sm"
 />
                           {/* <Av initials={t.email?.charAt(0).toUpperCase()} cc={ac(i)} size="sm"/> */}
                           <div>
-                            <div className="text-[12px] font-bold text-[#2d4a36] whitespace-nowrap">{t.user?.username}</div>
+                            <div className="text-[12px] font-bold text-[#2d4a36] whitespace-nowrap">{t.displayName}</div>
                             <div className="text-[10px] font-medium text-[#8fa797]">{t.email}</div>
                           </div>
                         </div>
@@ -135,25 +136,33 @@ export default function TicketsPanel({ tickets,search,
 </p>
 
   <div className="flex items-center gap-2">
-    <button
-      disabled={!pagination?.hasPrevPage}
-      onClick={() => setPage((prev) => prev - 1)}
+   <button
+  disabled={!pagination?.hasPrevPage}
+  onClick={() => {
+    if (pagination.hasPrevPage) {
+      setPage(pagination.page - 1)}  }}
       className="px-4 py-2 bg-[#2d4a36] text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
-    >
-      Prev
-    </button>
+    
+
+>
+  Prev
+</button>
 
     <span className="px-4 py-2 bg-[#F6F4F0] text-[#2d4a36] rounded-lg">
       {pagination?.page || 1} of {pagination?.totalPages || 1}
     </span>
 
     <button
-      disabled={!pagination?.hasNextPage}
-      onClick={() => setPage((prev) => prev + 1)}
-      className="px-4 py-2 bg-[#2d4a36] text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
-    >
-      Next
-    </button>
+  disabled={!pagination?.hasNextPage}
+  onClick={() => {
+    if (pagination.hasNextPage) {
+      setPage(pagination.page + 1);
+    }
+  }}
+  className="px-4 py-2 bg-[#2d4a36] text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+>
+  Next
+</button>
   </div>
 </div>
     </div>

@@ -4,7 +4,6 @@ import Category from "../model/Article/category.model.js";
 import { errorHandler } from "../utils/error.js";
 import { FeaturedArticles } from "../utils/article.utils.js";
 import MasterData from "../model/Master/masterData.model.js";
-import sanitizeHtml from "sanitize-html";
 
 // Create new article
 export const createArticle = async (req, res,next) => {
@@ -82,7 +81,7 @@ if (!category.isActive) {
   return next(errorHandler(400, "This category is not currently active"));
 }
 
-    if (position !== null && position !== undefined) {
+    if (position !== null && position !== undefined && position !== "") {
   if (position < 1 || position > 10) {
     return next(errorHandler (400, "Position must be between 1 and 10"))
   }
@@ -95,7 +94,7 @@ if (!category.isActive) {
 }
 
     let providerId = null;
-    let providerName = "Admin";
+    let providerName = "1STEP";
     let status = "approved";
 
     const provider = await Provider.findOne({ userRef: req.user.id });
@@ -110,46 +109,18 @@ if (!category.isActive) {
       status = "pending";
     }
 
-    const authorType = req.user.role;
-
-
-    if (
-  ["Admin", "Super Admin", "content_admin"].includes(authorType)
-) {
-  authorType = "1step";
-}
-
+    let authorType = req.user.role;
 
    if (featured) {
   await FeaturedArticles(Article);
 }
 
- const cleanContent = sanitizeHtml(content, {
-  allowedTags: [
-    "p",
-    "br",
-    "strong",
-    "b",
-    "em",
-    "i",
-    "ul",
-    "ol",
-    "li",
-    "h1",
-    "h2",
-    "h3",
-    "a"
-  ],
-  allowedAttributes: {
-    a: ["href", "target", "rel"],
-  },
-  allowedStyles: {}, 
-});
+
 
  // Create article
     const article = new Article({
       title,
-        content: cleanContent,
+        content,
       excerpt,
      featuredImage: featuredImage || [],
 category: category.name,
@@ -998,7 +969,7 @@ export const toggleArticleCategoryStatus = async (req, res) => {
 
 export const getAllArticles = async (req, res) => {
   try {
-    const { page = 1, limit = 10, status ,search} = req.query;
+    const { page = 1, limit = 10, status ,search, sortBy = "createdAt",sortOrder = "desc",} = req.query;
 
     const filter = {};
 
@@ -1013,10 +984,29 @@ export const getAllArticles = async (req, res) => {
       ];
     }
 
+    const sort = {};
+
+switch (sortBy) {
+  case "providerName":
+    sort.providerName = sortOrder === "asc" ? 1 : -1;
+    break;
+
+  case "categoryName":
+    sort.categoryName = sortOrder === "asc" ? 1 : -1;
+    break;
+
+  case "featured":
+    sort.featured = sortOrder === "asc" ? 1 : -1;
+    break;
+
+  default:
+    sort[sortBy] = sortOrder === "asc" ? 1 : -1;
+}
+
     const articles = await Article.find(filter)
       .populate("providerId", "fullName email profilePicture")
       .populate("categoryId", "name slug icon color")
-      .sort({ createdAt: -1 })
+      .sort(sort)
       .limit(Number(limit))
       .skip((page - 1) * limit);
 
@@ -1034,6 +1024,8 @@ export const getAllArticles = async (req, res) => {
     res.status(500).json({ message: "Error fetching articles" });
   }
 };
+
+
 //featured article
 export const toggleFeaturedArticle = async (req, res) => {
   try {
@@ -1094,11 +1086,10 @@ export const updateArticleAdmin = async (req, res) => {
       });
     }
 
-    if (
-  !["Admin", "Super Admin", "content_admin"].includes(article.authorType)
-) {
+   if (article.providerName !== "1STEP") {
   return res.status(403).json({
-    message: "Only admin-created articles can be edit",
+    success: false,
+    message: "Only admin-created articles can be edited",
   });
 }
 
@@ -1144,27 +1135,7 @@ if (!Array.isArray(featuredImage) || featuredImage.length === 0) {
 // }
 
 
-const cleanContent = sanitizeHtml(content, {
-  allowedTags: [
-    "p",
-    "br",
-    "strong",
-    "b",
-    "em",
-    "i",
-    "ul",
-    "ol",
-    "li",
-    "h1",
-    "h2",
-    "h3",
-    "a"
-  ],
-  allowedAttributes: {
-    a: ["href", "target", "rel"],
-  },
-  allowedStyles: {},
-});
+
     if (position !== undefined) {
   // Allow null (to remove position)
   if (position !== null) {
@@ -1226,7 +1197,7 @@ if (!category || !category.isActive) {
 // }
 
     article.title = title;
-    article.content = cleanContent;
+    article.content = content;
     article.excerpt = excerpt;
     article.featuredImage = Array.isArray(featuredImage)
   ? featuredImage
@@ -1283,7 +1254,7 @@ export const deleteArticlebyAdmin = async (req, res) => {
       });
     }
 
-   if (article.authorType !== "Admin" && article.authorType !== "Super Admin") {
+   if (article.authorType !== "Admin" && article.authorType !== "Super Admin" && article.authorType !== "1step") {
   return res.status(403).json({
     message: "Only admin-created articles can be edited here",
   });

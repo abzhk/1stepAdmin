@@ -28,6 +28,7 @@ const [stats, setStats] = useState({
   resolved: 0,
   highPriority: 0,
 });
+const [filter, setFilter] = useState("All");
 
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(null), 3000); };
 
@@ -59,7 +60,7 @@ const [stats, setStats] = useState({
 
   const NAV = [
     { id: "dashboard", label: "Dashboard", icon: <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 16 16"><rect x="1" y="1" width="6" height="6" rx="1.5" /><rect x="9" y="1" width="6" height="6" rx="1.5" /><rect x="1" y="9" width="6" height="6" rx="1.5" /><rect x="9" y="9" width="6" height="6" rx="1.5" /></svg> },
-    { id: "tickets", label: "Tickets", badge: tickets.filter(t => t.status === "Open").length, icon: <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 16 16"><rect x="2" y="2" width="12" height="12" rx="2" /><path d="M5 6h6M5 9h4" /></svg> },
+    { id: "tickets", label: "Tickets",  badge: stats.open, icon: <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 16 16"><rect x="2" y="2" width="12" height="12" rx="2" /><path d="M5 6h6M5 9h4" /></svg> },
     // { id: "agents", label: "Agents", icon: <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 16 16"><circle cx="8" cy="5" r="2.5" /><path d="M3 13c0-2.76 2.24-5 5-5s5 2.24 5 5" /></svg> },
     // { id: "reports", label: "Reports", icon: <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 16 16"><path d="M2 12V8M6 12V5M10 12V7M14 12V3" /></svg> },
   ];
@@ -71,8 +72,8 @@ const fetchTickets = async () => {
     setLoading(true);
 
     const data = await api(
-      `/api/help/all-tickets?search=${search}&page=${page}&limit=10`
-    );
+  `/api/help/all-tickets?search=${search}&status=${filter}&page=${page}&limit=10`
+);
 console.log(data.pagination);
     setTickets(data.tickets);
      setPagination(data.pagination);
@@ -86,7 +87,7 @@ console.log(data.pagination);
 
 useEffect(() => {
   fetchTickets();
-}, [search,page]);
+}, [search,filter,page]);
 
   return (
     <div className="flex h-screen bg-[#F6F4F0] overflow-hidden text-[#2d4a36] selection:bg-greenmuted rounded-t-2xl" >
@@ -128,7 +129,8 @@ useEffect(() => {
         
         <main className="flex-1 overflow-y-auto p-8 relative">
           {panel === "dashboard" && <DashboardPanel tickets={tickets}  stats={stats} onViewAll={() => setPanel("tickets")} onTicketClick={(t, i) => setDrawer({ ticket: t, idx: i })} />}
-          {panel === "tickets" && <TicketsPanel tickets={tickets}  search={search} page={page}
+          {panel === "tickets" && <TicketsPanel tickets={tickets}  search={search} page={page}  filter={filter}
+  setFilter={setFilter}
   setPage={setPage}
   pagination={pagination}
   setSearch={setSearch} onTicketClick={(t, i) => setDrawer({ ticket: t, idx: i })} onUpdateTicket={updateTicket} />}

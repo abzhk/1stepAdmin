@@ -75,6 +75,7 @@ export default function AdminVerificationPanel() {
   const [data, setData] = useState([]);
   const [selectedDetail, setSelectedDetail] = useState(null);
 const [detailLoading, setDetailLoading] = useState(false);
+const [decisionLoading, setDecisionLoading] = useState(false);
 
 //fetch claim profiles
   const fetchClaims = async () => {
@@ -107,12 +108,19 @@ const [detailLoading, setDetailLoading] = useState(false);
 
         priority: "medium",
 
+        status: claim.status,
+
+        // Normalise both soft-reject statuses to "issues" for the list UI
         overall:
-  claim.status === "submitted" || claim.status === "under_review"
-    ? "pending"
-    : claim.status === "fix_requested"
-    ? "issues"
-    : claim.status,
+          claim.status === "submitted" || claim.status === "under_review"
+            ? "pending"
+            : claim.status === "fix_requested" || claim.status === "action_required"
+            ? "issues"
+            : claim.status === "approved"
+            ? "approved"
+            : claim.status === "rejected"
+            ? "rejected"
+            : "pending",
 
         docs: [],
         notes: [],
@@ -121,6 +129,7 @@ const [detailLoading, setDetailLoading] = useState(false);
     );
   } catch (err) {
     console.error(err);
+    showToast("Failed to load claims — please refresh", "error");
   }
 };
 
@@ -157,28 +166,138 @@ useEffect(() => {
   };
 
 //final approve
- const handleDecision = async (id, decision, reason,category) => {
+// const handleDecision = async (id, decision, reason, category) => {
+//   if (decisionLoading) return;
+
+//   setDecisionLoading(true);
+
+//   try {
+//     const response = await api(`/api/claim/admin/${id}/review`, {
+//       method: "PATCH",
+//       body: JSON.stringify({
+//         action: decision,
+//         reason,
+//         category,
+//       }),
+//     });
+
+//     showToast("Claim updated successfully", "success");
+
+//     // Refresh list
+//     await fetchClaims();
+
+//     // Refresh selected claim
+//     if (selectedId === id) {
+//       await fetchClaimDetail(id);
+//     }
+
+//     return response;
+//   } catch (err) {
+//     console.error("Claim decision error:", err);
+//     showToast(err?.message || "Failed to update claim", "error");
+//     throw err;
+//   } finally {
+//     setDecisionLoading(false);
+//   }
+// };
+
+const handleApprove = async () => {
   try {
-    await api(`/api/claim/admin/${id}/review`, {
+    setDecisionLoading(true);
+
+    await api(`/api/claim/admin/${selectedId}/approve`, {
+      method: "PATCH",
+    });
+
+    showToast("Claim approved successfully", "success");
+
+    await fetchClaims();
+    await fetchClaimDetail(selectedId);
+  } catch (error) {
+    showToast(error?.message || "Failed to approve claim", "error");
+  } finally {
+    setDecisionLoading(false);
+  }
+};
+
+const handleReject = async ({
+  rejectionReason,
+  rejectionCategory,
+  adminNotes,
+}) => {
+  try {
+    setDecisionLoading(true);
+
+    await api(`/api/claim/admin/${selectedId}/reject`, {
       method: "PATCH",
       body: JSON.stringify({
-        action: decision,
+        rejectionReason,
+        rejectionCategory,
+        adminNotes,
+      }),
+    });
+
+    showToast("Claim rejected successfully", "success");
+
+    await fetchClaims();
+    await fetchClaimDetail(selectedId);
+  } catch (error) {
+    showToast(error?.message || "Failed to reject claim", "error");
+  } finally {
+    setDecisionLoading(false);
+  }
+};
+
+
+const handleReopen = async () => {
+  try {
+    setDecisionLoading(true);
+
+    await api(`/api/claim/admin/${selectedId}/reopen`, {
+      method: "PATCH",
+    });
+
+    showToast("Claim reopened successfully", "success");
+
+    await fetchClaims();
+    await fetchClaimDetail(selectedId);
+  } catch (error) {
+    showToast(
+      error?.message || "Failed to reopen claim",
+      "error"
+    );
+  } finally {
+    setDecisionLoading(false);
+  }
+};
+
+const handleRequestFix = async ({
+  reason,
+  category,
+}) => {
+  try {
+    setDecisionLoading(true);
+
+    await api(`/api/claim/admin/${selectedId}/review`, {
+      method: "PATCH",
+      body: JSON.stringify({
         reason,
         category,
       }),
     });
 
-
-    showToast("Claim updated successfully", "success");
+    showToast("Fix requested successfully", "success");
 
     await fetchClaims();
-
-    if (selectedId === id) {
-      await fetchClaimDetail(id);
-    }
-  } catch (err) {
-    console.error(err);
-    showToast("Failed to update claim", "error");
+    await fetchClaimDetail(selectedId);
+  } catch (error) {
+    showToast(
+      error?.message || "Failed to request fix",
+      "error"
+    );
+    throw error;
+  } finally {
+    setDecisionLoading(false);
   }
 };
 
@@ -269,6 +388,7 @@ const handleDocStatusChange = async (appId, docId, newStatus) => {
     setData(prev => prev.map(a => a.id === appId ? { ...a, priority } : a));
   };
 
+
   return (
     <div className="h-screen bg-[#F6F4F0] flex flex-col font-sans overflow-hidden rounded-3xl">
       <Toast toasts={toasts} />
@@ -290,6 +410,8 @@ const handleDocStatusChange = async (appId, docId, newStatus) => {
   setSearch={setSearch}
 />
         </div>
+
+        
 
         {/* Detail pane */}
         <div className="flex-1 bg-white flex flex-col overflow-hidden">
@@ -326,7 +448,10 @@ docs: (selectedDetail?.documents || []).map((doc) => ({
   ts: log.createdAt,
 })),
 }}
-              onDecision={handleDecision}
+              onApprove={handleApprove}
+              onReject={handleReject}
+              onReopen={handleReopen}
+               onRequestFix={handleRequestFix}
               onDocStatusChange={handleDocStatusChange}
               onNoteAdd={handleNoteAdd}
               onFieldStatusChange={handleFieldStatusChange}

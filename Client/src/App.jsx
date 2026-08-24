@@ -1,62 +1,200 @@
-import React from "react";
+import React, { lazy, Suspense, useEffect } from "react";
+
 import { Route, Routes, Navigate } from "react-router-dom";
-import Login from "./pages/Login.jsx";
-import MainDashboard from "./pages/Dashboard/MainDashboard.jsx";
+
 import Layout from "./Components/Layout.jsx";
-import Categories from "./pages/ArticleCategories/AddCategories.jsx";
-import ViewCategories from "./pages/ArticleCategories/ViewCategories.jsx";
-import ViewArticle from "./pages/Article/ViewArticle.jsx";
-import AddAssessmentCategory from "./pages/Assessment/AddAssessmentCategory.jsx";
-import ProviderAssessment from "./pages/Assessment/ProviderAssessment.jsx";
-import ViewProvider from "./pages/Provider/ProviderView.jsx";
-import ProviderStats from "./pages/Provider/ProviderStats.jsx";
-import ViewParent from "./pages/parent/ParentView.jsx";
-import ParentStats from "./pages/parent/ParentStatsCard.jsx";
-import EditProvider from "./pages/Provider/ProviderEdit.jsx";
-import EditParent from "./pages/parent/ParentEdit.jsx";
-import PrivateRoute from "./pages/PrivateRoute.jsx";
-import CreateAdmin from "./pages/CreateUser/CreateAdmin.jsx";
-// import UserTab from "./pages/CreateUser/UserTab.jsx";
+
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect } from "react";
 import { setUser, logout } from "./redux/slice/authSlice.js";
-import RoleTab from "./pages/RoleAccess/RoleTab.jsx";
-import Plans from "./pages/Subscription/ViewPlans.jsx";
-import Addplans from "./pages/Subscription/Addplans.jsx";
+
 import { Toaster } from "react-hot-toast";
-import InactiveParents from "./pages/parent/ParentInactive.jsx";
-import InactiveProviders from "./pages/Provider/ProviderInactive.jsx";
-import ListViewArticle from "./pages/Article/ListViewArticle.jsx";
-import MasterData from "./pages/Master/MasterData.jsx";
-import UserReport from "./pages/Reports/UserReport.jsx";
-import ReportDashboard from "./pages/Reports/ReportDashboard.jsx";
-import CenterReport from "./pages/Reports/CenterReport.jsx";
-import AddArticle from "./pages/Article/AddArticle.jsx";
-import TagArticle from "./pages/Master/TagArticle.jsx";
-import MasterPage from "./pages/Master/MasterTab.jsx";
+
 import { api } from "./utils/api.js";
-import CentreDashBoard from "./pages/Centre/CentreDashBoard.jsx";
-import CentreList from "./pages/Centre/CentreList.jsx";
-import CentreDetail from "./pages/Centre/CentreDetails.jsx";
-import UpcomingSession from "./pages/Centre/UpcomingSession.jsx";
-import EditCentre from "./pages/Centre/CentreEdit.jsx";
-import InactiveCentre from "./pages/Centre/CentreInActive.jsx";
-import AdminVerificationPanel from "./pages/VerificationPanel/AdminVerificationPanel.jsx";
-import AdminProfile from "./pages/Settings/AdminProfile.jsx";
-import ProfileSettings from "./pages/Settings/ProfileSettings.jsx";
-import Help from "./pages/HelpDesk/Help.jsx";
-import AllComplaints from "./pages/HelpDesk/AllComplaints.jsx";
+
+import PrivateRoute from "./pages/PrivateRoute.jsx";
 import PermissionRoute from "./pages/PermissionRoute.jsx";
+
 import { MODULES, ACTIONS } from "./constants/permission.js";
-import Asssessmentquestionary from "./pages/Assessment/AssessmentCreation.jsx"
-import AssessmentList from "./pages/Assessment/AssessmentList.jsx";
-import AssessmentQuestions from "./pages/Assessment/AssessmentQuestion.jsx";
-import AdminHelpdesk from "./pages/adminHelpdesk/AdminHelpdesk.jsx";
-import AdminInbox from "./pages/ContactUs/InboxQuery.jsx";
+
+
+
+const Login = lazy(() =>
+  import("./pages/Login.jsx")
+);
+
+const MainDashboard = lazy(() =>
+  import("./pages/Dashboard/MainDashboard.jsx")
+);
+
+const Categories = lazy(() =>
+  import("./pages/ArticleCategories/AddCategories.jsx")
+);
+
+const ViewCategories = lazy(() =>
+  import("./pages/ArticleCategories/ViewCategories.jsx")
+);
+
+const ViewArticle = lazy(() =>
+  import("./pages/Article/ViewArticle.jsx")
+);
+
+const AddAssessmentCategory = lazy(() =>
+  import("./pages/Assessment/AddAssessmentCategory.jsx")
+);
+
+const ProviderAssessment = lazy(() =>
+  import("./pages/Assessment/ProviderAssessment.jsx")
+);
+
+const ViewProvider = lazy(() =>
+  import("./pages/Provider/ProviderView.jsx")
+);
+
+const ProviderStats = lazy(() =>
+  import("./pages/Provider/ProviderStats.jsx")
+);
+
+const ViewParent = lazy(() =>
+  import("./pages/parent/ParentView.jsx")
+);
+
+const ParentStats = lazy(() =>
+  import("./pages/parent/ParentStatsCard.jsx")
+);
+
+const EditProvider = lazy(() =>
+  import("./pages/Provider/ProviderEdit.jsx")
+);
+
+const EditParent = lazy(() =>
+  import("./pages/parent/ParentEdit.jsx")
+);
+
+const CreateAdmin = lazy(() =>
+  import("./pages/CreateUser/CreateAdmin.jsx")
+);
+
+const RoleTab = lazy(() =>
+  import("./pages/RoleAccess/RoleTab.jsx")
+);
+
+const Plans = lazy(() =>
+  import("./pages/Subscription/ViewPlans.jsx")
+);
+
+const Addplans = lazy(() =>
+  import("./pages/Subscription/Addplans.jsx")
+);
+
+const InactiveParents = lazy(() =>
+  import("./pages/parent/ParentInactive.jsx")
+);
+
+const InactiveProviders = lazy(() =>
+  import("./pages/Provider/ProviderInactive.jsx")
+);
+
+const ListViewArticle = lazy(() =>
+  import("./pages/Article/ListViewArticle.jsx")
+);
+
+const MasterData = lazy(() =>
+  import("./pages/Master/MasterData.jsx")
+);
+
+const UserReport = lazy(() =>
+  import("./pages/Reports/UserReport.jsx")
+);
+
+const ReportDashboard = lazy(() =>
+  import("./pages/Reports/ReportDashboard.jsx")
+);
+
+const CenterReport = lazy(() =>
+  import("./pages/Reports/CenterReport.jsx")
+);
+
+const AddArticle = lazy(() =>
+  import("./pages/Article/AddArticle.jsx")
+);
+
+const TagArticle = lazy(() =>
+  import("./pages/Master/TagArticle.jsx")
+);
+
+const MasterPage = lazy(() =>
+  import("./pages/Master/MasterTab.jsx")
+);
+
+const CentreDashBoard = lazy(() =>
+  import("./pages/Centre/CentreDashBoard.jsx")
+);
+
+const CentreList = lazy(() =>
+  import("./pages/Centre/CentreList.jsx")
+);
+
+const CentreDetail = lazy(() =>
+  import("./pages/Centre/CentreDetails.jsx")
+);
+
+const UpcomingSession = lazy(() =>
+  import("./pages/Centre/UpcomingSession.jsx")
+);
+
+const EditCentre = lazy(() =>
+  import("./pages/Centre/CentreEdit.jsx")
+);
+
+const InactiveCentre = lazy(() =>
+  import("./pages/Centre/CentreInActive.jsx")
+);
+
+const AdminVerificationPanel = lazy(() =>
+  import("./pages/VerificationPanel/AdminVerificationPanel.jsx")
+);
+
+const AdminProfile = lazy(() =>
+  import("./pages/Settings/AdminProfile.jsx")
+);
+
+const ProfileSettings = lazy(() =>
+  import("./pages/Settings/ProfileSettings.jsx")
+);
+
+const Help = lazy(() =>
+  import("./pages/HelpDesk/Help.jsx")
+);
+
+const AllComplaints = lazy(() =>
+  import("./pages/HelpDesk/AllComplaints.jsx")
+);
+
+const Asssessmentquestionary = lazy(() =>
+  import("./pages/Assessment/AssessmentCreation.jsx")
+);
+
+const AssessmentList = lazy(() =>
+  import("./pages/Assessment/AssessmentList.jsx")
+);
+
+const AssessmentQuestions = lazy(() =>
+  import("./pages/Assessment/AssessmentQuestion.jsx")
+);
+
+const AdminHelpdesk = lazy(() =>
+  import("./pages/adminHelpdesk/AdminHelpdesk.jsx")
+);
+
+const AdminInbox = lazy(() =>
+  import("./pages/ContactUs/InboxQuery.jsx")
+);
 
 const App = () => {
   const dispatch = useDispatch();
   const loading = useSelector((state) => state.auth.loading);
+
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
 
   useEffect(() => {
     const restoreSession = async () => {
@@ -84,9 +222,21 @@ const App = () => {
 
   return (
     <>
+      <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-offwhite">
+          <p className="text-gray-500">Loading...</p>
+        </div>
+      }
+    >
       <Routes>
         <Route path="/" element={<Navigate to="/log" />} />
-        <Route path="/log" element={<Login />} />
+        <Route
+          path="/log"
+          element={
+            isAuthenticated ? <Navigate to="/dashboard" replace /> : <Login />
+          }
+        />
 
         <Route
           element={
@@ -135,20 +285,69 @@ const App = () => {
               </PermissionRoute>
             }
           />
-          <Route path="/allproviders" element={<ViewProvider />} />
-          <Route path="/provider-stats/:id" element={<ProviderStats />} />
-          <Route path="/view-parent" element={<ViewParent />} />
-          <Route path="/parent-stats-card/:userId" element={<ParentStats />} />
-          <Route path="/providers/edit/:id" element={<EditProvider />} />
-          <Route path="/parent/edit/:parentId" element={<EditParent />} />
+          <Route
+            path="/allproviders"
+            element={
+              <PermissionRoute module={MODULES.Roles} action={ACTIONS.READ}>
+                <ViewProvider />
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path="/provider-stats/:id"
+            element={
+              <PermissionRoute module={MODULES.Roles} action={ACTIONS.READ}>
+                <ProviderStats />
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path="/view-parent"
+            element={
+              <PermissionRoute module={MODULES.Roles} action={ACTIONS.READ}>
+                <ViewParent />
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path="/parent-stats-card/:userId"
+            element={
+              <PermissionRoute module={MODULES.Roles} action={ACTIONS.READ}>
+                <ParentStats />
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path="/providers/edit/:id"
+            element={
+              <PermissionRoute module={MODULES.Roles} action={ACTIONS.UPDATE}>
+                <EditProvider />
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path="/parent/edit/:parentId"
+            element={
+              <PermissionRoute module={MODULES.Roles} action={ACTIONS.UPDATE}>
+                <EditParent />
+              </PermissionRoute>
+            }
+          />
 
-          <Route path="/create-admin" element={<CreateAdmin />} />
+          <Route
+            path="/create-admin"
+            element={
+              <PermissionRoute module={MODULES.Roles} action={ACTIONS.CREATE}>
+                <CreateAdmin />
+              </PermissionRoute>
+            }
+          />
           {/* <Route path="/create-admin-role" element={<UserTab />} /> */}
           <Route
             path="/create-Role"
             element={
               <PermissionRoute
-                module={MODULES.SETTINGS}
+                module={MODULES.Roles}
                 action={ACTIONS.CREATE}
               >
                 <RoleTab />
@@ -166,19 +365,59 @@ const App = () => {
           <Route
             path="/add-plans"
             element={
-              <PermissionRoute module={MODULES.PLANS} action={ACTIONS.READ}>
+              <PermissionRoute module={MODULES.PLANS} action={ACTIONS.CREATE}>
                 <Addplans />
               </PermissionRoute>
             }
           />
-          <Route path="/addplans/:id" element={<Addplans />} />
-          <Route path="/inactive-parents" element={<InactiveParents />} />
-          <Route path="/inactive-providers" element={<InactiveProviders />} />
-          <Route path="/list-view-article" element={<ListViewArticle />} />
-          <Route path="/master-data" element={<MasterData />} />
-          <Route path="/report" element={<UserReport />} />
-          <Route path="/reportdashboard" element={<ReportDashboard />} />
-          <Route path="/center-report" element={<CenterReport />} />
+          <Route
+            path="/addplans/:id"
+            element={
+              <PermissionRoute module={MODULES.PLANS} action={ACTIONS.CREATE}>
+                <Addplans />
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path="/inactive-parents"
+            element={
+              <PermissionRoute module={MODULES.Roles} action={ACTIONS.READ}>
+                <InactiveParents />
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path="/inactive-providers"
+            element={
+              <PermissionRoute module={MODULES.Roles} action={ACTIONS.READ}>
+                <InactiveProviders />
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path="/list-view-article"
+            element={
+              <PermissionRoute module={MODULES.ARTICLES} action={ACTIONS.READ}>
+                <ListViewArticle />
+              </PermissionRoute>
+            }
+          />
+          <Route path="/master-data" element={<PermissionRoute
+                module={MODULES.MASTER_DATA}
+                action={ACTIONS.READ}
+              ><MasterData /> </PermissionRoute>} />
+          <Route path="/report" element={<PermissionRoute
+                module={MODULES.REPORTS}
+                action={ACTIONS.READ}
+              ><UserReport /> </PermissionRoute>} />
+          <Route path="/reportdashboard" element={<PermissionRoute
+                module={MODULES.REPORTS}
+                action={ACTIONS.READ}
+              ><ReportDashboard /></PermissionRoute>} />
+          <Route path="/center-report" element={<PermissionRoute
+                module={MODULES.REPORTS}
+                action={ACTIONS.READ}
+              ><CenterReport /> </PermissionRoute>} />
           <Route
             path="/add-article"
             element={
@@ -223,13 +462,62 @@ const App = () => {
               </PermissionRoute>
             }
           />
-          <Route path="/centre" element={<CentreDashBoard />} />
-          <Route path="/centre-list" element={<CentreList />} />
-          <Route path="/centre-detail/:id" element={<CentreDetail />} />
-          <Route path="/upcoming-session" element={<UpcomingSession />} />
-          <Route path="/edit-centre/:id" element={<EditCentre />} />
-          <Route path="/inactive-centre" element={<InactiveCentre />} />
-          <Route path="/admin-verify" element={<AdminVerificationPanel />} />
+          <Route
+            path="/centre"
+            element={
+              <PermissionRoute module={MODULES.Roles} action={ACTIONS.READ}>
+                <CentreDashBoard />
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path="/centre-list"
+            element={
+              <PermissionRoute module={MODULES.Roles} action={ACTIONS.READ}>
+                <CentreList />
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path="/centre-detail/:id"
+            element={
+              <PermissionRoute module={MODULES.Roles} action={ACTIONS.READ}>
+                <CentreDetail />
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path="/upcoming-session"
+            element={
+              <PermissionRoute module={MODULES.Roles} action={ACTIONS.READ}>
+                <UpcomingSession />
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path="/edit-centre/:id"
+            element={
+              <PermissionRoute module={MODULES.Roles} action={ACTIONS.UPDATE}>
+                <EditCentre />
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path="/inactive-centre"
+            element={
+              <PermissionRoute module={MODULES.Roles} action={ACTIONS.READ}>
+                <InactiveCentre />
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path="/admin-verify"
+            element={
+              <PermissionRoute module={MODULES.Roles} action={ACTIONS.READ}>
+                <AdminVerificationPanel />
+              </PermissionRoute>
+            }
+          />
           <Route
             path="/admin-profile"
             element={
@@ -238,18 +526,77 @@ const App = () => {
               </PermissionRoute>
             }
           />
-          <Route path="/profile-settings" element={<ProfileSettings />} />
+          {/* <Route path="/profile-settings" element={<ProfileSettings />} />
           <Route path="/help" element={<Help />} />
-          <Route path="/all-complaints" element={<AllComplaints />} />
-          <Route path="/create-assessment" element={<PermissionRoute module={MODULES.ASSESSMENT} action={ACTIONS.CREATE}><Asssessmentquestionary /></PermissionRoute>}/>
-          <Route path="/create-assessment/:id" element={<Asssessmentquestionary />} />
-           <Route path="/assessment-list" element={ <PermissionRoute module={MODULES.ASSESSMENT} action={ACTIONS.READ}><AssessmentList /> </PermissionRoute> }/>
-            {/* <Route path="/help-desk" element={<AdminHelpdesk />}/> */}
-           <Route path="/questions/:id" element={<AssessmentQuestions />}/>
-           <Route path ="/admin-help-desk" element={<AdminHelpdesk/>}/>
-              <Route path="/contact" element={<AdminInbox />}/>
+          <Route path="/all-complaints" element={<AllComplaints />} /> */}
+          <Route
+            path="/create-assessment"
+            element={
+              <PermissionRoute
+                module={MODULES.ASSESSMENT}
+                action={ACTIONS.CREATE}
+              >
+                <Asssessmentquestionary />
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path="/create-assessment/:id"
+            element={
+              <PermissionRoute
+                module={MODULES.ASSESSMENT}
+                action={ACTIONS.CREATE}
+              >
+                <Asssessmentquestionary />
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path="/assessment-list"
+            element={
+              <PermissionRoute
+                module={MODULES.ASSESSMENT}
+                action={ACTIONS.READ}
+              >
+                <AssessmentList />{" "}
+              </PermissionRoute>
+            }
+          />
+          {/* <Route path="/help-desk" element={<AdminHelpdesk />}/> */}
+          <Route path="/questions/:id" element={<PermissionRoute
+                module={MODULES.ASSESSMENT}
+                action={ACTIONS.READ}
+              ><AssessmentQuestions /> </PermissionRoute>} />
+          <Route
+            path="/admin-help-desk"
+            element={
+              <PermissionRoute module={MODULES.HELP} action={ACTIONS.READ}>
+                <AdminHelpdesk />{" "}
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path="/contact"
+            element={
+              <PermissionRoute module={MODULES.HELP} action={ACTIONS.READ}>
+                <AdminInbox />{" "}
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path="/addassessment/:id"
+            element={
+              <PermissionRoute
+                module={MODULES.ASSESSMENT}
+                action={ACTIONS.UPDATE}
+              >
+                <AddAssessmentCategory />
+              </PermissionRoute>
+            }
+          />
         </Route>
       </Routes>
+      </Suspense>
       <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
     </>
   );

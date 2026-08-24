@@ -10,6 +10,7 @@ import { BookedSlots } from "../model/booking.model.js";
 import UserSubscription from "../model/subscription.model.js";
 import Invitation from "../model/Centre/invitation.model.js";
 import Stats from "../model/stats.model.js";
+import CentreProvider from "../model/Centre/centreprovider.model.js";
 
 
 //validator
@@ -931,6 +932,7 @@ export const getCentreAppointments = async (req, res, next) => {
           service: 1,
           sessionType: 1,
           scheduledTime: 1,
+          appointment: 1,
           createdAt: 1,
 
           "providerDetails.fullName": 1,
@@ -982,77 +984,125 @@ export const getCentresForAdmin = async (req, res, next) => {
     const {
       limit = 12,
       startIndex = 0,
+      sort = "createdAt",
+      order = "desc",
+      searchTerm = "",
     } = req.query;
 
-    const totalCount = await Provider.countDocuments({
-      providerType: "centre",
-      isActive: true,
-    });
+    const sortQuery = {};
 
-    // 1. Get centres
-    const centres = await Provider.find({
+    sortQuery[sort] = order === "asc" ? 1 : -1;
+
+    const centreQuery = {
       providerType: "centre",
       isActive: true,
-    })
-      .populate("userRef", "isActive email profilePicture")
-      .sort({ createdAt: -1 })
+    };
+
+
+    if (searchTerm.trim()) {
+      centreQuery.$or = [
+        {
+          fullName: {
+            $regex: searchTerm.trim(),
+            $options: "i",
+          },
+        },
+        {
+          phone: {
+            $regex: searchTerm.trim(),
+            $options: "i",
+          },
+        },
+      ];
+    }
+
+
+    const totalCount = await Provider.countDocuments(
+      centreQuery
+    );
+
+    const centres = await Provider.find(centreQuery)
+      .populate(
+        "userRef",
+        "isActive email profilePicture"
+      )
+      .sort(sortQuery)
       .skip(Number(startIndex))
       .limit(Number(limit));
 
-    // 2. Users
-    const userIds = centres.map((c) => c.userRef);
+
+    const userIds = centres
+      .map((c) => c.userRef)
+      .filter(Boolean);
 
     const users = await User.find({
       _id: { $in: userIds },
-    }).select("username email profilePicture");
+    }).select(
+      "username email profilePicture"
+    );
+
 
     const userMap = {};
+
     users.forEach((u) => {
       userMap[u._id.toString()] = u;
     });
 
-    const centreIds = centres.map((c) => c._id.toString());
 
-    const providerCounts = await Invitation.aggregate([
-      {
-        $addFields: {
-          centreIdStr: { $toString: "$centreId" },
+    const centreIds = centres.map(
+      (c) => c._id
+    );
+
+
+    const providerCounts =
+      await CentreProvider.aggregate([
+        {
+          $match: {
+            centreId: {
+              $in: centreIds,
+            },
+            isActive: true,
+          },
         },
-      },
-      {
-        $match: {
-          centreIdStr: { $in: centreIds },
-          status: "accepted",
+        {
+          $group: {
+            _id: "$centreId",
+            totalProviders: {
+              $sum: 1,
+            },
+          },
         },
-      },
-      {
-        $group: {
-          _id: "$centreIdStr",
-          totalProviders: { $sum: 1 },
-        },
-      },
-    ]);
+      ]);
+
 
     const countMap = {};
+
     providerCounts.forEach((item) => {
-      countMap[item._id] = item.totalProviders;
+      countMap[item._id.toString()] =
+        item.totalProviders;
     });
+
 
     const finalCentres = centres.map((c) => ({
       ...c.toObject(),
-      user: userMap[c.userRef?.toString()] || null,
-      totalProviders: countMap[c._id.toString()] || 0,
+
+      user:
+        userMap[c.userRef?.toString()] || null,
+
+      totalProviders:
+        countMap[c._id.toString()] || 0,
     }));
 
-    const totalProviders = finalCentres.reduce(
-      (sum, c) => sum + c.totalProviders,
-      0
-    );
+
+    const totalProviders =
+      await CentreProvider.countDocuments({
+        isActive: true,
+      });
 
     res.status(200).json({
       success: true,
       totalCount,
-      totalCentres: finalCentres.length,
+      totalCentres: totalCount,
       totalProviders,
       centres: finalCentres,
     });
@@ -1192,7 +1242,47 @@ export const getIndividualProviders = async (req, res, next) => {
     }
 
     const sortStage = {};
-    sortStage[sort] = order === "desc" ? -1 : 1;
+
+switch (sort) {
+  case "fullName":
+    sortStage.fullName = order === "asc" ? 1 : -1;
+    break;
+
+  case "therapytype":
+    sortStage.therapytype = order === "asc" ? 1 : -1;
+    break;
+
+  case "experience":
+    sortStage.experience = order === "asc" ? 1 : -1;
+    break;
+
+  case "regularPrice":
+    sortStage.regularPrice = order === "asc" ? 1 : -1;
+    break;
+
+  case "rating":
+    sortStage["ratingSummary.average"] = order === "asc" ? 1 : -1;
+    break;
+
+  case "city":
+    sortStage["address.city"] = order === "asc" ? 1 : -1;
+    break;
+
+  case "verified":
+    sortStage.verified = order === "asc" ? 1 : -1;
+    break;
+
+  case "status":
+    sortStage["user.isActive"] = order === "asc" ? 1 : -1;
+    break;
+
+  case "createdAt":
+    sortStage.createdAt = order === "asc" ? 1 : -1;
+    break;
+
+  default:
+    sortStage.createdAt = -1;
+}
 
     const providers = await Provider.aggregate([
       {
@@ -1290,46 +1380,76 @@ export const getIndividualProviders = async (req, res, next) => {
     next(errorHandler(500, "Failed to fetch providers"));
   }
 };
+
 export const getAllCentreDashboardStats = async (req, res, next) => {
   try {
 
-    const acceptedProviders = await Invitation.find({
-      status: "accepted",
-    }).select("providerId");
+    const relationships = await CentreProvider.find({
+      isActive: true,
+    })
+      .select("centreId providerId")
+      .lean();
 
-    const providerIds = acceptedProviders
-      .map((p) => p.providerId)
-      .filter(Boolean);
-
-
-    if (!providerIds.length) {
+    if (!relationships.length) {
       return res.json({
         success: true,
-        stats: { total: 0, today: 0, week: 0, month: 0 },
+        stats: {
+          total: 0,
+          today: 0,
+          week: 0,
+          month: 0,
+        },
         upcoming: [],
       });
     }
 
+
+
+    const relationshipPairs = relationships.map((relationship) => ({
+      centreId: relationship.centreId,
+      provider: relationship.providerId,
+    }));
+
+
+
+    const bookings = await Booking.find({
+  $or: relationshipPairs,
+});
+
+
+
     const now = new Date();
 
-   
     const IST_OFFSET = 5.5 * 60 * 60 * 1000;
 
-    const nowIST = new Date(now.getTime() + IST_OFFSET);
+    const nowIST = new Date(
+      now.getTime() + IST_OFFSET
+    );
 
+    // TODAY
     const startOfTodayIST = new Date(nowIST);
     startOfTodayIST.setHours(0, 0, 0, 0);
 
-    const endOfTodayIST = new Date(startOfTodayIST);
+    const endOfTodayIST = new Date(nowIST);
     endOfTodayIST.setHours(23, 59, 59, 999);
 
+    // WEEK
     const startOfWeekIST = new Date(startOfTodayIST);
-    startOfWeekIST.setDate(startOfTodayIST.getDate() - startOfTodayIST.getDay());
+
+    startOfWeekIST.setDate(
+      startOfWeekIST.getDate() -
+        startOfWeekIST.getDay()
+    );
 
     const endOfWeekIST = new Date(startOfWeekIST);
-    endOfWeekIST.setDate(startOfWeekIST.getDate() + 6);
+
+    endOfWeekIST.setDate(
+      endOfWeekIST.getDate() + 6
+    );
+
     endOfWeekIST.setHours(23, 59, 59, 999);
 
+    // MONTH
     const startOfMonthIST = new Date(
       startOfTodayIST.getFullYear(),
       startOfTodayIST.getMonth(),
@@ -1341,133 +1461,227 @@ export const getAllCentreDashboardStats = async (req, res, next) => {
       startOfTodayIST.getMonth() + 1,
       0
     );
+
     endOfMonthIST.setHours(23, 59, 59, 999);
 
-    const startOfToday = new Date(startOfTodayIST.getTime() - IST_OFFSET);
-    const endOfToday = new Date(endOfTodayIST.getTime() - IST_OFFSET);
+    // UTC conversion
+    const startOfToday = new Date(
+      startOfTodayIST.getTime() - IST_OFFSET
+    );
 
-    const startOfWeek = new Date(startOfWeekIST.getTime() - IST_OFFSET);
-    const endOfWeek = new Date(endOfWeekIST.getTime() - IST_OFFSET);
+    const endOfToday = new Date(
+      endOfTodayIST.getTime() - IST_OFFSET
+    );
 
-    const startOfMonth = new Date(startOfMonthIST.getTime() - IST_OFFSET);
-    const endOfMonth = new Date(endOfMonthIST.getTime() - IST_OFFSET);
+    const startOfWeek = new Date(
+      startOfWeekIST.getTime() - IST_OFFSET
+    );
 
-  
-    const bookings = await Booking.find({
-      provider: { $in: providerIds },
-      status: { $in: ["completed", "approved"] },
-    });
+    const endOfWeek = new Date(
+      endOfWeekIST.getTime() - IST_OFFSET
+    );
+
+    const startOfMonth = new Date(
+      startOfMonthIST.getTime() - IST_OFFSET
+    );
+
+    const endOfMonth = new Date(
+      endOfMonthIST.getTime() - IST_OFFSET
+    );
+
+ 
 
     let today = 0;
     let week = 0;
     let month = 0;
-    let total = bookings.length;
 
-    bookings.forEach((b) => {
-      const sessionDate = new Date(b?.scheduledTime?.date);
-      if (!sessionDate) return;
+    const total = bookings.length;
 
+    bookings.forEach((booking) => {
+      const sessionDate = new Date(
+        booking?.scheduledTime?.date
+      );
 
-      if (sessionDate >= startOfToday && sessionDate <= endOfToday) {
+      if (isNaN(sessionDate.getTime())) {
+        return;
+      }
+
+      if (
+        sessionDate >= startOfToday &&
+        sessionDate <= endOfToday
+      ) {
         today++;
       }
 
-      if (sessionDate >= startOfWeek && sessionDate <= endOfWeek) {
+      if (
+        sessionDate >= startOfWeek &&
+        sessionDate <= endOfWeek
+      ) {
         week++;
       }
 
-
-      if (sessionDate >= startOfMonth && sessionDate <= endOfMonth) {
+      if (
+        sessionDate >= startOfMonth &&
+        sessionDate <= endOfMonth
+      ) {
         month++;
       }
     });
 
+
     const upcoming = await Booking.find({
-      provider: { $in: providerIds },
-      "scheduledTime.date": { $gte: now },
-    })
-      .populate("provider", "fullName providerType")
-      .sort({ "scheduledTime.date": 1 })
+  $or: relationshipPairs,
+
+  "scheduledTime.date": {
+    $gte: startOfToday,
+  },
+
+  status: {
+    $in: ["pending", "approved",],
+  },
+})
+      .populate(
+        "provider",
+        "fullName providerType"
+      )
+      .populate(
+        "centreId",
+        "fullName providerType"
+      )
+      .sort({
+        "scheduledTime.date": 1,
+      })
       .limit(10)
       .select(
-        "bookingId scheduledTime status provider patientName service sessionType providerSnapshot patientSnapshot"
+        "bookingId scheduledTime appointment status provider centreId patientName service sessionType providerSnapshot patientSnapshot"
       );
 
 
-    res.json({
+    return res.json({
       success: true,
+
       stats: {
         total,
         today,
         week,
         month,
       },
+
       upcoming,
     });
   } catch (error) {
-    console.log(error);
-     return next(errorHandler(500, "Failed to fetch dashboard stats"));
+    console.error(
+      "getAllCentreDashboardStats:",
+      error
+    );
+
+    return next(
+      errorHandler(
+        500,
+        "Failed to fetch dashboard stats"
+      )
+    );
   }
 };
 
 
-export const getMonthlyAppointments = async (req, res,next) => {
+export const getMonthlyAppointments = async (req, res, next) => {
   try {
 
-    const acceptedProviders = await Invitation.find({
-      status: "accepted",
-    }).select("providerId");
 
-    const providerIds = acceptedProviders
-      .map((p) => p.providerId)
-      .filter(Boolean);
 
-    if (!providerIds.length) {
+    const relationships = await CentreProvider.find({
+      isActive: true,
+    })
+      .select("centreId providerId")
+      .lean();
+
+    if (!relationships.length) {
       return res.json({
         success: true,
         data: [],
       });
     }
 
+
+
+    const relationshipPairs = relationships.map((relationship) => ({
+      centreId: relationship.centreId,
+      provider: relationship.providerId,
+    }));
+
+
+
     const data = await Booking.aggregate([
       {
         $match: {
-          provider: { $in: providerIds },
-          status: { $in: ["completed", "approved"] },
+          $or: relationshipPairs,
+
+          status: {
+            $in: ["completed", "approved","rejected", "completed", "expired", "cancelled", "rescheduled"],
+          },
         },
       },
+
       {
         $group: {
-          _id: { $month: "$scheduledTime.date" },
-          count: { $sum: 1 },
+          _id: {
+            $month: "$scheduledTime.date",
+          },
+          count: {
+            $sum: 1,
+          },
         },
       },
+
       {
-        $sort: { _id: 1 },
+        $sort: {
+          _id: 1,
+        },
       },
     ]);
 
 
+
     const monthNames = [
-      "Jan","Feb","Mar","Apr","May","Jun",
-      "Jul","Aug","Sep","Oct","Nov","Dec"
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
     ];
 
-    const fullYear = monthNames.map((m, i) => {
-      const found = data.find((d) => d._id === i + 1);
+    const fullYear = monthNames.map((month, index) => {
+      const found = data.find(
+        (item) => item._id === index + 1
+      );
+
       return {
-        month: m,
+        month,
         appointments: found ? found.count : 0,
       };
     });
 
-    res.json({
+    return res.json({
       success: true,
       data: fullYear,
     });
   } catch (err) {
-    console.error(err);
-    return next(errorHandler(500,"Failed to fetch monthly report"))
+    console.error("getMonthlyAppointments:", err);
+
+    return next(
+      errorHandler(
+        500,
+        "Failed to fetch monthly report"
+      )
+    );
   }
 };
 
@@ -1513,12 +1727,17 @@ export const getCentreFullDetails = async (req, res, next) => {
 }
 
 
-    const invitations = await Invitation.find({
-      centreId: id,
-      status: "accepted",
-    }).lean();
+    const relationships = await CentreProvider.find({
+  centreId: id,
+  isActive: true,
+})
+  .select("providerId")
+  .lean();
 
-    const providerIds = invitations.map((i) => i.providerId);
+const providerIds = relationships
+  .map((r) => r.providerId)
+  .filter(Boolean);
+
 
     const providers = await Provider.find({
       _id: { $in: providerIds },
@@ -1534,8 +1753,9 @@ export const getCentreFullDetails = async (req, res, next) => {
           .lean();
 
         const sessions = await Booking.countDocuments({
-          provider: p._id,
-        });
+  provider: p._id,
+  centreId: id,
+});
 
         return {
           _id: p._id,
@@ -1549,8 +1769,9 @@ export const getCentreFullDetails = async (req, res, next) => {
     );
 
     const totalSessions = await Booking.countDocuments({
-      provider: { $in: providerIds },
-    });
+  centreId: id,
+  provider: { $in: providerIds },
+});
 
     res.status(200).json({
       success: true,
@@ -1773,3 +1994,137 @@ export const getInactiveCentres = async (req, res, next) => {
   }
 };
 
+export const individualProvidersforAdmin = async (req, res, next) => {
+  try {
+    const {
+      limit = 12,
+      startIndex = 0,
+      searchTerm = "",
+      address = "",
+      sort = "createdAt",
+      order = "desc",
+    } = req.query;
+
+    const parsedLimit = Math.min(
+      Math.max(Number(limit) || 12, 1),
+      50
+    );
+
+    const parsedStartIndex = Math.max(
+      Number(startIndex) || 0,
+      0
+    );
+
+    const query = {
+      providerType: "individual",
+      isActive: true,
+    };
+
+    const cleanedSearchTerm = searchTerm
+      .trim()
+      .replace(/\s+/g, " ");
+
+    if (cleanedSearchTerm) {
+      query.$or = [
+        {
+          fullName: {
+            $regex: cleanedSearchTerm,
+            $options: "i",
+          },
+        },
+        {
+          name: {
+            $regex: cleanedSearchTerm,
+            $options: "i",
+          },
+        },
+        {
+          "address.city": {
+            $regex: cleanedSearchTerm,
+            $options: "i",
+          },
+        },
+        {
+          "address.state": {
+            $regex: cleanedSearchTerm,
+            $options: "i",
+          },
+        },
+        {
+          therapytype: {
+            $regex: cleanedSearchTerm,
+            $options: "i",
+          },
+        },
+      ];
+    }
+
+    if (address.trim()) {
+      const cleanedAddress = address.trim();
+
+      if (isNaN(cleanedAddress)) {
+        query["address.city"] = {
+          $regex: `^${cleanedAddress}`,
+          $options: "i",
+        };
+      } else {
+        query["address.pincode"] = Number(cleanedAddress);
+      }
+    }
+    const sortFieldMap = {
+      fullName: "fullName",
+      therapytype: "therapytype",
+      experience: "experience",
+      regularPrice: "regularPrice",
+      rating: "ratingSummary.average",
+      city: "address.city",
+      verified: "verified",
+      createdAt: "createdAt",
+    };
+
+    const sortField =
+      sortFieldMap[sort] || "createdAt";
+
+    const sortDirection =
+      order === "asc" ? 1 : -1;
+
+    const sortQuery = {
+      [sortField]: sortDirection,
+      _id: 1,
+    };
+
+
+    const [providers, totalCount] = await Promise.all([
+      Provider.find(query)
+        .sort(sortQuery)
+        .skip(parsedStartIndex)
+        .limit(parsedLimit)
+        .select(
+          "_id fullName name address.city profilePicture therapytype createdAt verified userRef isActive"
+        )
+        .lean(),
+
+      Provider.countDocuments(query),
+    ]);
+
+
+    return res.status(200).json({
+      success: true,
+      providers,
+      totalCount,
+    });
+
+  } catch (error) {
+    console.error(
+      "individualProvidersforAdmin error:",
+      error
+    );
+
+    next(
+      errorHandler(
+        500,
+        "Failed to fetch providers"
+      )
+    );
+  }
+};

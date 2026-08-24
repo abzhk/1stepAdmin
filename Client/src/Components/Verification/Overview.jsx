@@ -34,7 +34,7 @@ function CheckRow({ label, status, onCycle }) {
       <span className="text-xs text-[#2d4a36]/80">{label}</span>
       <div className="flex items-center gap-1.5">
         <StatusBadge status={status} small />
-        {onCycle && <CycleBtn onClick={onCycle} />}
+        {/* {onCycle && <CycleBtn onClick={onCycle} />} */}
       </div>
     </div>
   );
@@ -123,7 +123,8 @@ const getCombinedStatus = (types) => {
 
         <KVRow label="Degree" value={q.degree || "-"} />
         <KVRow label="University" value={q.university || "-"} />
-        <KVRow label="Year" value={q.yearOfCompletion || "-"} />
+        {/* <KVRow label="Year" value={q.yearOfCompletion || "-"} /> */}
+        <KVRow label="Start Year" value={q.startDate || "-"}/>
 
         <CheckRow
           label="Degree certificate"
@@ -192,7 +193,9 @@ const getCombinedStatus = (types) => {
           </span>
 
           <span className="px-2 py-0.5 bg-[#F6F4F0] rounded text-[10px]">
-            {p.consultationType || "-"}
+            {Array.isArray(p.consultationType)
+              ? p.consultationType.join(", ")
+              : p.consultationType || "-"}
           </span>
         </div>
 

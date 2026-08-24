@@ -4,6 +4,7 @@ import { FiEdit2, FiGrid, FiList } from "react-icons/fi";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { api } from "../../utils/api.js";
 import toast from "react-hot-toast";
+import SortableHeader from "../../Components/SortableHeader";
 
 function ParentView() {
   const navigate = useNavigate();
@@ -20,6 +21,10 @@ function ParentView() {
   const [viewMode, setViewMode] = useState("grid");
 
   const { searchTerm } = useOutletContext();
+  const [sortConfig, setSortConfig] = useState({
+  key: "createdAt",
+  direction: "desc",
+});
 
   const getParents = async () => {
     try {
@@ -29,6 +34,8 @@ function ParentView() {
       const params = new URLSearchParams({
         limit: String(limit),
         startIndex: String((page - 1) * limit),
+          sort: sortConfig.key,
+  order: sortConfig.direction,
       });
 
       if (searchTerm.trim()) params.append("searchTerm", searchTerm);
@@ -47,7 +54,7 @@ function ParentView() {
 
   useEffect(() => {
     getParents();
-  }, [page, searchTerm]);
+  }, [page, searchTerm, sortConfig]);
 
   const fromIndex = parents.length ? (page - 1) * limit + 1 : 0;
   const toIndex = (page - 1) * limit + parents.length;
@@ -80,6 +87,20 @@ function ParentView() {
       setError(err.message || "Failed to update status");
     }
   };
+
+  const handleSort = (key) => {
+  const direction =
+    sortConfig.key === key && sortConfig.direction === "asc"
+      ? "desc"
+      : "asc";
+
+  setPage(1);
+
+  setSortConfig({
+    key,
+    direction,
+  });
+};
 
   return (
     <div className="p-4 md:p-8 bg-offwhite min-h-screen">
@@ -132,10 +153,42 @@ function ParentView() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-10 gap-y-14">
 
           {loading ? (
-            <div className="col-span-full text-center py-10 text-gray-500 font-medium text-lg">
-              Loading parents...
-            </div>
-          ) : parents.length > 0 ? (
+  <div className="col-span-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-10 gap-y-14">
+    {Array.from({ length: 12 }).map((_, index) => (
+      <div
+        key={index}
+        className="bg-white rounded-xl border border-gray-100 overflow-hidden animate-pulse"
+      >
+        {/* Profile image */}
+        <div className="w-full h-52 bg-gray-200" />
+
+        <div className="p-4">
+
+          {/* Name + Status */}
+          <div className="flex items-start justify-between gap-3 mb-5">
+            <div className="h-5 bg-gray-200 rounded w-3/4" />
+
+            <div className="h-6 bg-gray-200 rounded-full w-20" />
+          </div>
+
+          {/* Client Name */}
+          <div className="h-4 bg-gray-200 rounded w-2/3 mb-3" />
+
+          {/* Phone */}
+          <div className="h-4 bg-gray-200 rounded w-1/2 mb-6" />
+
+          {/* Buttons */}
+          <div className="flex gap-2">
+            <div className="h-10 bg-gray-200 rounded-xl flex-1" />
+
+            <div className="h-10 w-10 bg-gray-200 rounded-xl" />
+          </div>
+
+        </div>
+      </div>
+    ))}
+  </div>
+) : parents.length > 0 ? (
             parents.map((parent) => (
               <div
                 key={parent._id}
@@ -149,6 +202,8 @@ function ParentView() {
                       <img
                         src={parent.userRef?.profilePicture}
                         alt={parent.parentDetails?.fullName}
+                         loading="lazy"
+                         decoding="async"
                         className="w-full h-52 object-cover"
                       />
                     )}
@@ -241,11 +296,23 @@ function ParentView() {
         <div className="bg-white rounded-xl shadow  overflow-hidden">
           <table className="w-full text-sm">
 
-            <thead className="bg-offwhite text-gray-700  text-cardfooter uppercase">
+            <thead className="bg-offwhite  text-cardfooter uppercase">
               <tr>
-                <th className="p-3 text-left">Parent</th>
-                <th className="p-3 text-left">Child</th>
-                <th className="p-3 text-left">Phone</th>
+                <SortableHeader
+  title="Parent"
+  field="parentDetails.fullName"
+  sortConfig={sortConfig}
+  handleSort={handleSort}
+/>
+
+<SortableHeader
+  title="Child"
+  field="parentDetails.childName"
+  sortConfig={sortConfig}
+  handleSort={handleSort}
+/>
+
+                 <th className="p-3 text-left">Phone</th>
                 <th className="p-3 text-left">Status</th>
                 <th className="p-3 text-right">Actions</th>
               </tr>
@@ -261,6 +328,8 @@ function ParentView() {
                   <td className="p-3 flex items-center gap-3">
                     <img
                       src={parent.userRef?.profilePicture}
+                       loading="lazy"
+                         decoding="async"
                       className="w-10 h-10 rounded-lg object-cover"
                     />
                     {parent.parentDetails?.fullName}
