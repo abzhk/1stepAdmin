@@ -419,16 +419,16 @@ const canReview =
                   </span>
                 )}
               </div>
-              <p className="text-xs font-medium text-[#2d4a36]/60 mt-0.5">
+              {/* <p className="text-xs font-medium text-[#2d4a36]/60 mt-0.5">
                 {applicant.role} 
-              </p>
+              </p> */}
               <div className="flex items-center gap-3 mt-1 flex-wrap">
                 <span className="text-[10px] text-[#8fa797]">
                   {applicant.email}
                 </span>
-                <span className="text-[10px] text-[#8fa797]">
+                {/* <span className="text-[10px] text-[#8fa797]">
                   {applicant.phone}
-                </span>
+                </span> */}
               </div>
             </div>
             <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
