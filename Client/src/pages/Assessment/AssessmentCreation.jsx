@@ -14,16 +14,17 @@ const AssessmentCreation = () => {
   const [step, setStep] = useState(1);
   const [categories, setCategories] = useState([]);
   const [assessmentId, setAssessmentId] = useState(id || null);
-
+   const [tests, setTests] = useState([]);
   const [form, setForm] = useState({
     title: "",
     description: "",
     category: "",
+     test: "",
     image: "",
     scoringType: "sum",
     status: "draft",
   });
-
+ 
   const [questions, setQuestions] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -84,34 +85,50 @@ const AssessmentCreation = () => {
     fetchCategories();
   }, []);
 
+  const fetchTests = async (categoryId) => {
+  try {
+    const res = await api(
+      `/api/assessment/category/${categoryId}`
+    );
+
+    setTests(res.data || []);
+  } catch (error) {
+    console.error(error);
+  }
+};
+
   // FETCH ASSESSMENT
 
   useEffect(() => {
-    if (!assessmentId) return;
+  if (!assessmentId) return;
 
-    const fetchAssessment = async () => {
-      try {
-        const res = await api(
-          `/api/assessmentquestions/get-by/${assessmentId}`,
-        );
+  const fetchAssessment = async () => {
+    try {
+      const data = await api(
+        `/api/assessmentquestions/get-by/${assessmentId}`
+      );
 
-        const data = res;
-
-        setForm({
-          title: data.title || "",
-          description: data.description || "",
-          image: data.image || "",
-          category: data.category?._id || "",
-          scoringType: data.scoringType || "sum",
-          status: data.status || "draft",
-        });
-      } catch (err) {
-        console.error(err);
+      // Load the tests for the selected category
+      if (data.category?._id) {
+        await fetchTests(data.category._id);
       }
-    };
 
-    fetchAssessment();
-  }, [assessmentId]);
+      setForm({
+        title: data.title || "",
+        description: data.description || "",
+        image: data.image || "",
+        category: data.category?._id || "",
+        test: data.test?._id || data.test || "",
+        scoringType: data.scoringType || "sum",
+        status: data.status || "draft",
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  fetchAssessment();
+}, [assessmentId]);
 
   // FETCH QUESTIONS
 
@@ -407,8 +424,7 @@ const AssessmentCreation = () => {
 
   const handlePublishVersion = async () => {
     try {
-      console.log("FORM BEFORE PUBLISH", form);
-      console.log("IMAGE BEFORE PUBLISH", form.image);
+    
 
       // GET CURRENT ASSESSMENT
       const current = await api(
@@ -646,15 +662,20 @@ const AssessmentCreation = () => {
                     <label className="mb-2 block text-label">Category</label>
 
                     <select
-                      value={form.category}
-                      className="w-full rounded-xl border-2 border-greenmuted p-3"
-                      onChange={(e) =>
-                        setForm({
-                          ...form,
-                          category: e.target.value,
-                        })
-                      }
-                    >
+  value={form.category}
+  className="w-full rounded-xl border-2 border-greenmuted p-3"
+  onChange={async (e) => {
+    const categoryId = e.target.value;
+
+    setForm((prev) => ({
+      ...prev,
+      category: categoryId,
+      test: "",
+    }));
+
+    await fetchTests(categoryId);
+  }}
+>
                       <option value="">Select Category</option>
 
                       {categories.map((c) => (
@@ -664,6 +685,29 @@ const AssessmentCreation = () => {
                       ))}
                     </select>
                   </div>
+
+                  <div>
+  <label className="mb-2 block text-label">Assessment Code</label>
+
+  <select
+    value={form.test}
+    className="w-full rounded-xl border-2 border-greenmuted p-3"
+    onChange={(e) =>
+      setForm({
+        ...form,
+        test: e.target.value,
+      })
+    }
+  >
+    <option value="">Select Test</option>
+
+    {tests.map((test) => (
+      <option key={test._id} value={test._id}>
+        {test.code}
+      </option>
+    ))}
+  </select>
+</div>
 
                   <div>
                     <label className="mb-2 block text-label">Image</label>

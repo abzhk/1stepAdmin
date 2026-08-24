@@ -81,7 +81,7 @@ if (!category.isActive) {
   return next(errorHandler(400, "This category is not currently active"));
 }
 
-    if (position !== null && position !== undefined) {
+    if (position !== null && position !== undefined && position !== "") {
   if (position < 1 || position > 10) {
     return next(errorHandler (400, "Position must be between 1 and 10"))
   }
@@ -94,7 +94,7 @@ if (!category.isActive) {
 }
 
     let providerId = null;
-    let providerName = "Admin";
+    let providerName = "1STEP";
     let status = "approved";
 
     const provider = await Provider.findOne({ userRef: req.user.id });
@@ -110,14 +110,6 @@ if (!category.isActive) {
     }
 
     let authorType = req.user.role;
-
-
-    if (
-  ["Admin", "Super Admin", "content_admin"].includes(authorType)
-) {
-  authorType = "1step";
-}
-
 
    if (featured) {
   await FeaturedArticles(Article);
@@ -977,7 +969,7 @@ export const toggleArticleCategoryStatus = async (req, res) => {
 
 export const getAllArticles = async (req, res) => {
   try {
-    const { page = 1, limit = 10, status ,search} = req.query;
+    const { page = 1, limit = 10, status ,search, sortBy = "createdAt",sortOrder = "desc",} = req.query;
 
     const filter = {};
 
@@ -992,10 +984,29 @@ export const getAllArticles = async (req, res) => {
       ];
     }
 
+    const sort = {};
+
+switch (sortBy) {
+  case "providerName":
+    sort.providerName = sortOrder === "asc" ? 1 : -1;
+    break;
+
+  case "categoryName":
+    sort.categoryName = sortOrder === "asc" ? 1 : -1;
+    break;
+
+  case "featured":
+    sort.featured = sortOrder === "asc" ? 1 : -1;
+    break;
+
+  default:
+    sort[sortBy] = sortOrder === "asc" ? 1 : -1;
+}
+
     const articles = await Article.find(filter)
       .populate("providerId", "fullName email profilePicture")
       .populate("categoryId", "name slug icon color")
-      .sort({ createdAt: -1 })
+      .sort(sort)
       .limit(Number(limit))
       .skip((page - 1) * limit);
 
@@ -1013,6 +1024,8 @@ export const getAllArticles = async (req, res) => {
     res.status(500).json({ message: "Error fetching articles" });
   }
 };
+
+
 //featured article
 export const toggleFeaturedArticle = async (req, res) => {
   try {
@@ -1073,11 +1086,10 @@ export const updateArticleAdmin = async (req, res) => {
       });
     }
 
-    if (
-  !["1step","Admin", "Super Admin", "content_admin"].includes(article.authorType)
-) {
+   if (article.providerName !== "1STEP") {
   return res.status(403).json({
-    message: "Only admin-created articles can be edit",
+    success: false,
+    message: "Only admin-created articles can be edited",
   });
 }
 

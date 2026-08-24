@@ -8,34 +8,38 @@ import fs from "fs";
 // Create Assessment
 export const createAssessment = async (req, res, next) => {
   try {
-    const { title, description, category, version,image  } = req.body;
+    const { title, description, category,  test, version,image  } = req.body;
 
     // VALIDATION
-    if (!title || !description || !category) {
+    if (!title || !description || !category || !test) {
       return next(errorHandler(400, "All fields are required"));
     }
 
     if (!mongoose.Types.ObjectId.isValid(category)) {
       return next(errorHandler(400, "Invalid category ID"));
     }
+    if (!mongoose.Types.ObjectId.isValid(test)) {
+  return next(errorHandler(400, "Invalid test ID"));
+}
 
     if (!req.user) {
       return next(errorHandler(401, "Unauthorized"));
     }
 
-    // DUPLICATE CHECK
-    const existing = await Assessment.findOne({
-      title: { $regex: `^${title}$`, $options: "i" },
-    });
+   // DUPLICATE TEST CHECK
+const existingTest = await Assessment.findOne({ test });
 
-    if (existing) {
-      return next(errorHandler(400, "Assessment already exists"));
-    }
+if (existingTest) {
+  return next(
+    errorHandler(400, "An assessment already exists for this test")
+  );
+}
 
     const payload = {
       title: title.trim(),
       description,
       category,
+      test,
        image,
       version: version || 1,
       totalQuestions: 0,
@@ -72,6 +76,7 @@ export const getAssessments = async (req, res, next) => {
 
     const list = await Assessment.find(query)
       .populate("category", "name")
+      .populate("test", "name code")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(Number(limit));
@@ -98,7 +103,7 @@ export const getAssessmentById = async (req, res, next) => {
       return next(errorHandler(400, "Invalid assessment ID"));
     }
 
-    const data = await Assessment.findById(id).populate("category", "name");
+    const data = await Assessment.findById(id).populate("category", "name").populate("test", "name code");
 
     if (!data) {
       return next(errorHandler(404, "Assessment not found"));
@@ -111,14 +116,30 @@ export const getAssessmentById = async (req, res, next) => {
 };
 
 // Update
-export const updateAssessment = async (req, res) => {
+export const updateAssessment = async (req, res, next) => {
   try {
-    const data = await Assessment.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
+    const { test } = req.body;
+
+    const existingTest = await Assessment.findOne({
+      test,
+      _id: { $ne: req.params.id },
     });
+
+    if (existingTest) {
+      return next(
+        errorHandler(400, "An assessment already exists for this test")
+      );
+    }
+
+    const data = await Assessment.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
+
     res.json(data);
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    next(errorHandler(500, err.message));
   }
 };
 
@@ -229,13 +250,14 @@ export const publishAssessmentVersion = async (req, res, next) => {
 
     const { assessment } = req.body;
 
-    const assessmentChanged =
-      currentAssessment.title !== assessment.title ||
-      currentAssessment.description !== assessment.description ||
-      currentAssessment.image !== assessment.image ||
-      String(currentAssessment.category) !== String(assessment.category) ||
-      currentAssessment.scoringType !== assessment.scoringType ||
-      currentAssessment.status !== assessment.status;
+   const assessmentChanged =
+  currentAssessment.title !== assessment.title ||
+  currentAssessment.description !== assessment.description ||
+  currentAssessment.image !== assessment.image ||
+  String(currentAssessment.category) !== String(assessment.category) ||
+  String(currentAssessment.test) !== String(assessment.test) ||
+  currentAssessment.scoringType !== assessment.scoringType ||
+  currentAssessment.status !== assessment.status;
 
     if (!assessmentChanged) {
       return res.status(200).json({
@@ -259,6 +281,7 @@ export const publishAssessmentVersion = async (req, res, next) => {
       currentAssessment.image = assessment.image;
       currentAssessment.category = assessment.category;
       currentAssessment.scoringType = assessment.scoringType;
+      currentAssessment.test = assessment.test;
       currentAssessment.status = assessment.status;
       currentAssessment.totalQuestions = totalQuestions;
       currentAssessment.isLatestVersion = true;
@@ -283,6 +306,7 @@ export const publishAssessmentVersion = async (req, res, next) => {
       description: assessment.description,
       image: assessment.image,
       category: assessment.category,
+       test: assessment.test,
       scoringType: assessment.scoringType,
       totalQuestions,
       version: currentAssessment.version + 1,

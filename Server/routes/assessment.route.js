@@ -8,6 +8,9 @@ import {
   getProviderAssessmentbyId,
    getActiveCategories,
    getLastOrder,
+   getTestsByCategory,
+   getCategoryById,
+   updateCategory,
 } from "../controller/assessment.controller.js";
 
 import { verifyAdminToken } from '../middlewares/authMiddleware.js';
@@ -24,12 +27,21 @@ router.post(
   createCategory
 );
 
+
+
 // READ
 router.get(
   "/category/getall",
   verifyAdminToken,
   canAccess(MODULES.ASSESSMENT, ACTIONS.READ),
   getAllCategories
+);
+
+router.put(
+  "/category/:id",
+  verifyAdminToken,
+  canAccess(MODULES.ASSESSMENT, ACTIONS.UPDATE),
+  updateCategory
 );
 
 // DELETE
@@ -68,5 +80,17 @@ router.get(
 );
 
 router.get("/last-order",verifyAdminToken, getLastOrder);
+
+router.get(
+  "/category/edit/:id",
+  verifyAdminToken,
+  canAccess(MODULES.ASSESSMENT, ACTIONS.READ),
+  getCategoryById
+);
+
+router.get(
+  "/category/:categoryId",
+  getTestsByCategory
+);
 
 export default router;

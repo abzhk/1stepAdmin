@@ -7,6 +7,8 @@ import {api} from "../../utils/api.js"
 import InvitedProviders from "./InvitedProviders.jsx";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
+import dateFormatUtils from "../../utils/dateFormatUtils.js"
+import {formatDate,formatTimeAMPM, formatTimeRangeAMPM} from "../../utils/dateHelpers.js";
 
 const MONTHS = [
   { value: 1, label: "Jan" },
@@ -40,8 +42,11 @@ function ProviderStats() {
   const [providerType, setProviderType] = useState("");
 
   // bookings pagination constants
-  const limit = 8;
-  const startIndex = 0;
+// Bookings pagination
+const bookingLimit = 8;
+const [bookingPage, setBookingPage] = useState(1);
+const [bookingTotalPages, setBookingTotalPages] = useState(1);
+const [bookingStatus, setBookingStatus] = useState("all");
 
   // Articles pagination state
   const [articlePage, setArticlePage] = useState(1);
@@ -73,11 +78,9 @@ function ProviderStats() {
         
 
         const params = new URLSearchParams({
-          month: String(month),
-          year: String(year),
-          limit: String(limit),
-          startIndex: String(startIndex),
-        });
+  month: String(month),
+  year: String(year),
+});
 
         const data = await api(`/api/provider/getallbooking/${id}?${params.toString()}`);
        
@@ -112,30 +115,43 @@ function ProviderStats() {
 }, [id]);
 
   useEffect(() => {
-    if (!id) return;
+  if (!id) return;
 
-    const fetchBookings = async () => {
-      try {
-        setTableLoading(true);
-        setTableError("");
+  const fetchBookings = async () => {
+    try {
+      setTableLoading(true);
+      setTableError("");
 
-        const params = new URLSearchParams({
-          limit: String(limit),
-          startIndex: String(startIndex),
-        });
-        const data = await api(
-          `/api/booking/getbookingbyprovider/${id}?${params.toString()}`
-        );
+      const params = new URLSearchParams({
+  page: String(bookingPage),
+  limit: String(bookingLimit),
+  status: bookingStatus,
+});
 
-        setBookings(data.bookingDetails || []);
-      } catch (err) {
-        setTableError(err.message || "Something went wrong");
-      } finally {
-        setTableLoading(false);
-      }
-    };
-    fetchBookings();
-  }, [id, limit, startIndex]);
+      const data = await api(
+        `/api/booking/getbookingbyprovider/${id}?${params.toString()}`
+      );
+
+      console.log("Booking response:", data);
+
+      setBookings(data.bookingDetails || []);
+
+      setBookingTotalPages(
+        data.pagination?.totalPages || 1
+      );
+    } catch (err) {
+      setTableError(err.message || "Something went wrong");
+    } finally {
+      setTableLoading(false);
+    }
+  };
+
+  fetchBookings();
+}, [id, bookingPage,bookingStatus]);
+
+useEffect(() => {
+  setBookingPage(1);
+}, [bookingStatus]);
 
   useEffect(() => {
     if (!id) return;
@@ -225,7 +241,7 @@ function ProviderStats() {
 
   const percentage = useMemo(() => {
     if (!allTime.total) return 0;
-    return Math.round((allTime.approved / allTime.total) * 100);
+    return Math.round((allTime.completed / allTime.total) * 100);
   }, [allTime]);
 
   const currentMonthLabel =
@@ -246,15 +262,18 @@ function ProviderStats() {
       </button>
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
         <div>
-          <h1 className=" mb-1 text-subheading">WELCOME BACK</h1>
-          <p className="text-cardfooter">
-            Showing stats for{" "}
-            <span className="font-semibold">
-              {currentMonthLabel} {year}
-            </span>{" "}
-            ({useMonthlyStats ? "Monthly view" : "All time view "})
-          </p>
-        </div>
+  <h1 className="mb-1 text-subheading">WELCOME BACK</h1>
+
+  <p className="text-cardfooter">
+    Showing stats for{" "}
+    <span className="font-semibold">
+      {useMonthlyStats
+        ? `${currentMonthLabel} ${year}`
+        : year}
+    </span>{" "}
+    ({useMonthlyStats ? "Monthly view" : "All time view"})
+  </p>
+</div>
 
         <div className="flex flex-wrap items-center gap-2">
           <select
@@ -285,14 +304,21 @@ function ProviderStats() {
             className="w-20 border border-gray-300 rounded-lg px-2 py-1 bg-white text-sm"
           />
 
-          {useMonthlyStats && (
-            <button
-              onClick={() => setUseMonthlyStats(false)}
-              className="px-3 py-1 bg-[#2d4a36] text-white rounded-lg text-sm hover:bg-green-900 transition"
-            >
-              View All-Time Stats
-            </button>
-          )}
+        {useMonthlyStats ? (
+  <button
+    onClick={() => setUseMonthlyStats(false)}
+    className="px-3 py-1 bg-[#2d4a36] text-white rounded-lg text-sm hover:bg-green-900 transition"
+  >
+    View All-Time Stats
+  </button>
+) : (
+  <button
+    onClick={() => setUseMonthlyStats(true)}
+    className="px-3 py-1 bg-[#2d4a36] text-white rounded-lg text-sm hover:bg-green-900 transition"
+  >
+    View Monthly Stats
+  </button>
+)}
         </div>
       </div>
 
@@ -331,7 +357,7 @@ function ProviderStats() {
           </div>
 
           <p className="text-cardfooter text-center mt-4">
-            {allTime.approved} approved out of {allTime.total} bookings
+             {allTime.completed} completed out of {allTime.total} bookings
           </p>
         </div>
 
@@ -366,10 +392,32 @@ function ProviderStats() {
         </div>
       </div>
 {providerType === "individual" && (
-      <div className="mb-8 mt-8 bg-white rounded-3xl shadow-lg p-6 border border-gray-100">
-        <h2 className="text-subheading mb-4 pb-2">
-          Recent Appointments
-        </h2>
+   <div className="mb-8 mt-8 bg-white rounded-3xl shadow-lg p-6 border border-gray-100">
+
+  <div className="flex items-center justify-between mb-4 pb-2">
+    
+    <h2 className="text-subheading">
+      Recent Appointments
+    </h2>
+
+    <select
+      value={bookingStatus}
+      onChange={(e) => {
+        setBookingStatus(e.target.value);
+        setBookingPage(1);
+      }}
+      className="border border-gray-300 rounded-lg px-3 py-2 bg-white text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2d4a36]/20"
+    >
+      <option value="all">All Status</option>
+      <option value="pending">Pending</option>
+      <option value="approved">Approved</option>
+      <option value="completed">Completed</option>
+       <option value="expired">Expired</option>
+        <option value="cancelled">Cancelled</option>
+      <option value="rejected">Rejected</option>
+    </select>
+
+  </div>
 
         {tableError && (
           <div className="mb-4 text-red-700 bg-red-100 border border-red-300 px-4 py-3 rounded-lg text-sm">
@@ -385,6 +433,9 @@ function ProviderStats() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-offwhite border-b-2 border-gray-200">
               <tr>
+                 <th className="px-6 py-3 text-left  text-cardfooter uppercase tracking-wider">
+                  Sl.no
+                </th>
                 <th className="px-6 py-3 text-left  text-cardfooter uppercase tracking-wider">
                   Patient
                 </th>
@@ -404,18 +455,21 @@ function ProviderStats() {
               {bookings.length === 0 && !tableLoading ? (
                 <tr>
                   <td
-                    colSpan={4}
+                    colSpan={5}
                     className="px-6 py-8 text-center text-md text-gray-500 font-medium"
                   >
                     No recent bookings found.
                   </td>
                 </tr>
               ) : (
-                bookings.map((bookingdata) => (
+                bookings.map((bookingdata, index) => (
                   <tr
                     key={bookingdata._id}
                     className="hover:bg-offwhite/50 transition duration-150 ease-in-out"
                   >
+                     <td className="px-6 py-4 whitespace-nowrap text-table-text">
+      {(bookingPage - 1) * bookingLimit + index + 1}
+    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-table-text flex items-center gap-3">
                       <img
                         src={
@@ -423,8 +477,8 @@ function ProviderStats() {
                           "/default-avatar.png"
                         }
                         alt={
-                          bookingdata.patientDetails?.username ||
-                          bookingdata.patientName
+                          bookingdata.patientDetails?.username
+                         
                         }
                         className="w-10 h-10 rounded-full object-cover border border-gray-200"
                       />
@@ -441,9 +495,23 @@ function ProviderStats() {
                         : bookingdata.service || "-"}
                     </td>
 
-                    <td className="px-6 py-4 whitespace-nowrap text-table-text">
-                      {bookingdata.scheduledTime?.slot && ` ${bookingdata.scheduledTime.slot}`}
-                    </td>
+                   <td className="px-6 py-4 whitespace-nowrap text-table-text">
+  <div className="flex flex-col">
+    <span>
+      {formatDate(bookingdata.scheduledTime?.date, "long")}
+    </span>
+
+    <span className="text-sm text-gray-500">
+      {bookingdata.appointment?.startTime
+  ? formatTimeRangeAMPM(
+      bookingdata.appointment.startTime,
+      bookingdata.appointment.durationMinutes || 30
+    )
+ 
+    : "—"}
+    </span>
+  </div>
+</td>
 
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span
@@ -466,9 +534,42 @@ function ProviderStats() {
               )}
             </tbody>
           </table>
-        </div>
+          </div>
+
+<div className="flex items-center justify-end gap-3 mt-4">
+  <button
+    onClick={() =>
+      setBookingPage((prev) => Math.max(1, prev - 1))
+    }
+    disabled={bookingPage === 1}
+    className="px-3 py-1 border rounded disabled:opacity-50"
+  >
+    Prev
+  </button>
+
+  <span className="text-sm">
+    Page {bookingPage} of {bookingTotalPages}
+  </span>
+
+  <button
+    onClick={() =>
+      setBookingPage((prev) =>
+        Math.min(bookingTotalPages, prev + 1)
+      )
+    }
+    disabled={bookingPage === bookingTotalPages}
+    className="px-3 py-1 border rounded disabled:opacity-50"
+  >
+    Next
+  </button>
+</div>
+
+</div>
+          
+        
        
-      </div>
+     
+      
         )}
            
 

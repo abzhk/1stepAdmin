@@ -26,13 +26,28 @@ const DashboardNavbar = ({ searchTerm, setSearchTerm }) => {
   const notifRef = useRef(null);
   const location = useLocation();
 
+  const hideSearchRoutes = [
+  "/dashboard",
+  "/create-admin",
+  "/admin-profile",
+  "/admin-help-desk",
+  "/create-Role",
+  "/add-plans",
+  "/viewarticle",
+  "/contact",
+];
+
+const hideSearch = hideSearchRoutes.some((route) =>
+  location.pathname.startsWith(route)
+);
+
   const getPageTitle = () => {
   const path = location.pathname;
 
   if (path.startsWith("/dashboard")) return "Dashboard";
   if (path.startsWith("/users")) return "Users";
-  if (path.startsWith("/allproviders")||path.startsWith("/inactive-providers")) return "Providers";
-  if (path.startsWith("/view-parent") ||path.startsWith("/inactive-parents")) return "Parents";
+  if (path.startsWith("/allproviders")||path.startsWith("/inactive-providers") || path.startsWith("/provider-stats")) return "Providers";
+  if (path.startsWith("/view-parent") ||path.startsWith("/inactive-parents")  ||path.startsWith("/parent-stats-card"))  return "Parents";
   if (path.startsWith("/add-plans")||path.startsWith("/view-plans")) return "Plans";
   if (path.startsWith("/create-Role")) return "Roles";
   if (path.startsWith("/reports")) return "Reports";
@@ -74,7 +89,7 @@ const pageTitle = getPageTitle();
         await api("/api/admin/admin/logout", { method: "POST" });
         dispatch(logout());
         toast.success("Logged out successfully");
-        navigate("/log");
+        navigate("/log", { replace: true });
       } catch (err) {
         console.error(err);
       }
@@ -91,10 +106,12 @@ const pageTitle = getPageTitle();
         <div className="flex items-center gap-6">
           
           {/* Search Input */}
-         <NavSearch 
-  searchTerm={searchTerm}
-  setSearchTerm={setSearchTerm}
-/>
+        {!hideSearch && (
+  <NavSearch
+    searchTerm={searchTerm}
+    setSearchTerm={setSearchTerm}
+  />
+)}
 
 
           {/* Notification Bell & Dropdown */}

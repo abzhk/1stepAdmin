@@ -6,6 +6,9 @@ import { MODULES, ACTIONS } from "../../constants/permission.js";
 import toast from "react-hot-toast";
 import { useOutletContext } from "react-router-dom";
 import ServiceSpecializationMapping from "./ServiceSpecializationMapping.jsx";
+import { FaSort, FaSortUp, FaSortDown } from "react-icons/fa";
+import SortableHeader from "../../Components/SortableHeader.jsx";
+
 
 const MasterData = () => {
   const [services, setServices] = useState([]);
@@ -17,6 +20,12 @@ const MasterData = () => {
   const [selectedServiceForMapping, setSelectedServiceForMapping] = useState(null);
   const [showMappingForm, setShowMappingForm] = useState(false);
 const mappingRef = useRef(null);
+const [sortConfig, setSortConfig] = useState({
+  key: "order",
+  direction: "asc",
+});
+  const [loading, setLoading] = useState(false);
+
 
   const [formData, setFormData] = useState({
     code: "",
@@ -30,23 +39,34 @@ const mappingRef = useRef(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
 
-  useEffect(() => {
-    fetchServices(page);
-  }, [page]);
+useEffect(() => {
+  fetchServices(page, searchTerm, sortConfig);
+}, [page, searchTerm, sortConfig]);
 
-  const fetchServices = async (pageNo = page) => {
-    try {
-      const res = await api(
-        `/api/services/admin/serviceType?page=${pageNo}&limit=${limit}`
-      );
+const fetchServices = async (
+  pageNo = page,
+  search = searchTerm,
+  sort = sortConfig
+) => {
+  if (loading) return;
 
-      setServices(res.data || []);
-      setPagination(res.pagination);
-      setPage(pageNo);
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  setLoading(true);
+
+  try {
+    const res = await api(
+      `/api/services/admin/serviceType?page=${pageNo}&limit=${limit}&search=${encodeURIComponent(
+        search
+      )}&sortBy=${sort.key}&sortOrder=${sort.direction}`
+    );
+
+    setServices(res.data || []);
+    setPagination(res.pagination);
+  } catch (error) {
+    console.error(error);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -174,6 +194,23 @@ const mappingRef = useRef(null);
   setEditId(null);
 };
 
+
+const handleSort = (key) => {
+  const direction =
+    sortConfig.key === key && sortConfig.direction === "asc"
+      ? "desc"
+      : "asc";
+
+  const newSort = {
+    key,
+    direction,
+  };
+
+  setSortConfig(newSort);
+
+  fetchServices(1, searchTerm, newSort);
+};
+
   return (
     <div className="min-h-screen bg-offwhite">
       <div className="mx-auto">
@@ -286,21 +323,60 @@ const mappingRef = useRef(null);
 
           <div className="overflow-x-auto">
             <table className="w-full border-collapse">
-              <thead>
-                <tr className="bg-offwhite text-left text-sm">
-                  <th className="p-3">Sl.no</th>
-                  <th className="p-3">Service</th>
-                  <th className="p-3">Code</th>
-                  <th className="p-3">Order</th>
-                  <th className="p-3">Billable</th>
-                  <th className="p-3">Status</th>
-                  <th className="p-3">Created At</th>
-                  <th className="p-3">Action</th>
-                </tr>
-              </thead>
+             <thead>
+  <tr className="bg-offwhite text-left text-sm">
+    <th className="p-3">Sl.No</th>
+   <SortableHeader
+  title="Services"
+  field="label"
+  sortConfig={sortConfig}
+  handleSort={handleSort}
+/>
+    <SortableHeader
+  title="Code"
+  field="code"
+  sortConfig={sortConfig}
+  handleSort={handleSort}
+/>
+
+<SortableHeader
+  title="Order"
+  field="order"
+  sortConfig={sortConfig}
+  handleSort={handleSort}
+/>
+
+<SortableHeader
+  title="Billable"
+  field="billable"
+  sortConfig={sortConfig}
+  handleSort={handleSort}
+/>
+
+<SortableHeader
+  title="Status"
+  field="status"
+  sortConfig={sortConfig}
+  handleSort={handleSort}
+/>
+
+<SortableHeader
+  title="Created At"
+  field="createdAt"
+  sortConfig={sortConfig}
+  handleSort={handleSort}
+/>
+
+    
+
+
+    
+    <th className="p-3">Action</th>
+  </tr>
+</thead>
 
               <tbody>
-                {filteredServices.map((service, index) => (
+                 {services.map((service, index) => (
                   <tr
                     key={service._id}
                     className="hover:bg-offwhite text-table-text cursor-pointer"
@@ -409,28 +485,51 @@ const mappingRef = useRef(null);
       )}
 
       {/* Pagination */}
-      <div className="flex justify-end items-center mt-5 gap-4">
-        <button
-          disabled={!pagination.hasPrevPage}
-          onClick={() => fetchServices(page - 1)}
-          className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50 hover:bg-gray-300 transition"
-        >
-          Previous
-        </button>
+      <div className="flex justify-between items-center mt-5">
+  <span className="text-sm text-gray-600">
+    Showing{" "}
+    <span className="font-medium">
+      {pagination.totalItems || pagination.total
+        ? (pagination.currentPage - 1) * limit + 1
+        : 0}
+    </span>{" "}
+    to{" "}
+    <span className="font-medium">
+      {pagination.totalItems || pagination.total
+        ? Math.min(
+            pagination.currentPage * limit,
+            pagination.totalItems || pagination.total
+          )
+        : 0}
+    </span>{" "}
+    of{" "}
+    <span className="font-medium">
+      {pagination.totalItems || pagination.total || 0}
+    </span>
+  </span>
 
-        <span className="text-sm">
-          Page {pagination.currentPage} of {pagination.totalPages}
-        </span>
+  <div className="flex items-center gap-4">
+    <button
+      disabled={!pagination.hasPrevPage || loading}
+      onClick={() => setPage((prev) => prev - 1)}
+      className="px-4 py-2 bg-gray-200 rounded-2xl disabled:opacity-50 hover:bg-gray-300 transition"
+    >
+      Previous
+    </button>
 
-        <button
-          disabled={!pagination.hasNextPage}
-          onClick={() => fetchServices(page + 1)}
-          className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50 hover:bg-gray-300 transition"
-        >
-          Next
-        </button>
-      </div>
+    <span className="text-sm">
+      Page {pagination.currentPage} of {pagination.totalPages}
+    </span>
 
+    <button
+      disabled={!pagination.hasNextPage || loading}
+      onClick={() => setPage((prev) => prev + 1)}
+      className="px-4 py-2 bg-gray-200 rounded-2xl disabled:opacity-50 hover:bg-gray-300 transition"
+    >
+      Next
+    </button>
+  </div>
+</div>
       {/* Service Specialization Mapping */}
      {showMappingForm && (
   <div

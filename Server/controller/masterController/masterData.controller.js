@@ -329,7 +329,8 @@ export const bulkToggleActive = async (req, res) => {
 export const getAllOptionsByTypeAdmin = async (req, res) => {
   try {
     const { type } = req.params;
-     const { page = 1, limit = 10, search = "" } = req.query;
+     const { page = 1, limit = 10, search = "",sortBy = "order",
+  sortOrder = "asc", } = req.query;
 
     const pageNumber = parseInt(page);
     const limitNumber = parseInt(limit);
@@ -338,9 +339,36 @@ export const getAllOptionsByTypeAdmin = async (req, res) => {
       type,
     };
 
+const sort = {};
+
+switch (sortBy) {
+  case "billable":
+    sort["metadata.billable"] = sortOrder === "asc" ? 1 : -1;
+    break;
+
+  case "status":
+    sort["isActive"] = sortOrder === "asc" ? 1 : -1;
+    break;
+
+  case "createdAt":
+    sort["createdAt"] = sortOrder === "asc" ? 1 : -1;
+    break;
+
+  default:
+    sort[sortBy] = sortOrder === "asc" ? 1 : -1;
+}
+
+     if (search) {
+      query.$or = [
+        { label: { $regex: search, $options: "i" } },
+        { code: { $regex: search, $options: "i" } },
+        { description: { $regex: search, $options: "i" } },
+      ];
+    }
+
     const [data, total] = await Promise.all([
       MasterData.find(query)
-        .sort({ order: 1 })
+         .sort(sort)
         .skip(skip)
         .limit(limitNumber),
 

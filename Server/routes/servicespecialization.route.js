@@ -7,7 +7,7 @@ import {
   getServicesBySpecialization,
   updateServiceSpecialization,
   deleteServiceSpecialization,
-} from "../controller/serviceSpecialization.controller.js";
+} from "../controller/servicespecialization.controller.js";
 
 const router = express.Router();
 

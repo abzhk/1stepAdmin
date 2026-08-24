@@ -7,6 +7,8 @@ import { api } from "../../utils/api";
 import { useEffect, useState } from "react";
 import CentreCard from "./CentreCard";
 import  dateFormatUtils  from "../../utils/dateFormatUtils";
+import {formatTimeRangeAMPM,} from "../../utils/dateHelpers";
+
 
 const CentreDashBoard = () => {
   const navigate = useNavigate();
@@ -212,8 +214,13 @@ const CentreDashBoard = () => {
 
         {/* Time */}
         <td className="px-4 text-gray-700">
-          {s.scheduledTime?.slot || "-"}
-        </td>
+  {s.appointment?.startTime
+  ? formatTimeRangeAMPM(
+      s.appointment.startTime,
+      s.appointment.durationMinutes || 30
+    )
+  : "—"}
+</td>
 
         {/* Status */}
         <td className="px-4">

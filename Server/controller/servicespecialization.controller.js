@@ -1,42 +1,47 @@
-import ServiceSpecialization from "../model/serviceSpecialization.model.js";
+import ServiceSpecialization from "../model/Master/servicespecialization.model.js";
 import MasterData from "../model/Master/masterData.model.js";
-import Specialization from "../model/specialization.model.js";
+import Specialization from "../model/Master/specialization.model.js";
 
 
 // CREATE RELATION
 
 export const createServiceSpecialization = async (req, res) => {
   try {
-    const {
+    let {
       serviceId,
       specializationId,
       isPrimary = false,
-      displayOrder = 0,
+      displayOrder,
     } = req.body;
+    // Validate required fields
 
+    if (!serviceId) {
+      return res.status(400).json({
+        success: false,
+        message: "Service is required.",
+      });
+    }
+
+    if (!specializationId) {
+      return res.status(400).json({
+        success: false,
+        message: "Specialization is required.",
+      });
+    }
 
     if (
-  displayOrder === undefined ||
-  displayOrder === null ||
-  displayOrder === ""
-) {
-  return res.status(400).json({
-    success: false,
-    message: "Display Order is required",
-  });
-}
+      displayOrder === undefined ||
+      displayOrder === null ||
+      displayOrder === "" ||
+      isNaN(displayOrder)
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Display Order is required.",
+      });
+    }
 
-const existingDisplayOrder = await ServiceSpecialization.findOne({
-  serviceId,
-  displayOrder: Number(displayOrder),
-});
-
-if (existingDisplayOrder) {
-  return res.status(400).json({
-    success: false,
-    message: "Display Order already exists for this service.",
-  });
-}
+    displayOrder = Number(displayOrder);
 
     // Validate Service
     const service = await MasterData.findOne({
@@ -52,6 +57,7 @@ if (existingDisplayOrder) {
     }
 
     // Validate Specialization
+
     const specialization = await Specialization.findById(specializationId);
 
     if (!specialization) {
@@ -61,19 +67,37 @@ if (existingDisplayOrder) {
       });
     }
 
-    // Prevent duplicate relationship
-    const exists = await ServiceSpecialization.findOne({
+
+    // Check Duplicate Mapping
+
+    const existingMapping = await ServiceSpecialization.findOne({
       serviceId,
       specializationId,
     });
 
-    if (exists) {
+    if (existingMapping) {
       return res.status(400).json({
         success: false,
-        message: "This relationship already exists.",
+        message: "This specialization is already mapped to this service.",
       });
     }
 
+    // Check Duplicate Display Order
+
+    const existingDisplayOrder = await ServiceSpecialization.findOne({
+      serviceId,
+      displayOrder,
+    });
+
+    if (existingDisplayOrder) {
+      return res.status(400).json({
+        success: false,
+        message: `Display Order ${displayOrder} is already used for this service.`,
+      });
+    }
+
+
+    // Create Mapping
     const relation = await ServiceSpecialization.create({
       serviceId,
       specializationId,
@@ -81,18 +105,32 @@ if (existingDisplayOrder) {
       displayOrder,
     });
 
-    res.status(201).json({
+    const populated = await ServiceSpecialization.findById(relation._id)
+      .populate("serviceId", "label code")
+      .populate("specializationId", "name code");
+
+    return res.status(201).json({
       success: true,
-      data: relation,
+      message: "Service specialization mapped successfully.",
+      data: populated,
     });
 
   } catch (error) {
 
-    res.status(500).json({
+
+    if (error.code === 11000) {
+      return res.status(400).json({
+        success: false,
+        message: "This mapping already exists.",
+      });
+    }
+
+    console.error(error);
+
+    return res.status(500).json({
       success: false,
       message: error.message,
     });
-
   }
 };
 

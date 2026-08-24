@@ -5,6 +5,7 @@ import PermissionGuard from "../../Components/PermissionGuard.jsx";
 import { MODULES, ACTIONS } from "../../constants/permission.js";
 import toast from "react-hot-toast";
 import { useOutletContext } from "react-router-dom";
+import SortableHeader from "../../Components/SortableHeader";
 
 const Specialization = () => {
   const [specializations, setSpecializations] = useState([]);
@@ -14,8 +15,13 @@ const Specialization = () => {
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState({});
   const limit = 10;
+  const [loading, setLoading] = useState(false);
 
   const formRef = useRef(null);
+  const [sortConfig, setSortConfig] = useState({
+  key: "order",
+  direction: "asc",
+});
 
  const [formData, setFormData] = useState({
   code: "",
@@ -30,29 +36,34 @@ const Specialization = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
 
-  useEffect(() => {
-    fetchSpecializations(page);
-  }, [page]);
-
+useEffect(() => {
+  fetchSpecializations(page, searchTerm, sortConfig);
+}, [page, searchTerm, sortConfig]);
   // FETCH
 
-  const fetchSpecializations = async (pageNo = page) => {
-    try {
-      const res = await api(
-        `/api/specialization?page=${pageNo}&limit=${limit}`
-      );
+ const fetchSpecializations = async (
+  pageNo = page,
+  search = searchTerm,
+  sort = sortConfig
+) => {
+  setLoading(true);
 
-      setSpecializations(res.data || []);
-      setPagination(res.pagination || {});
-      setPage(pageNo);
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to load specializations");
-    }
-  };
+  try {
+    const res = await api(
+      `/api/specialization/pagination?page=${pageNo}&limit=${limit}&search=${encodeURIComponent(
+        search
+      )}&sortBy=${sort.key}&sortOrder=${sort.direction}`
+    );
 
-
-  // INPUT CHANGE
+    setSpecializations(res.data || []);
+    setPagination(res.pagination || {});
+  } catch (error) {
+    console.error(error);
+    toast.error("Failed to load specializations");
+  } finally {
+    setLoading(false);
+  }
+};
 
 
   const handleChange = (e) => {
@@ -166,6 +177,23 @@ setFormData((prev) => ({
       (item.isActive ? "active" : "inactive").includes(search)
     );
   });
+
+const handleSort = (key) => {
+  const direction =
+    sortConfig.key === key && sortConfig.direction === "asc"
+      ? "desc"
+      : "asc";
+
+  const newSort = {
+    key,
+    direction,
+  };
+
+  setSortConfig(newSort);
+
+  fetchSpecializations(1, searchTerm, newSort);
+};
+
     return (
     <div className="min-h-screen bg-offwhite">
       <div className="mx-auto">
@@ -310,21 +338,52 @@ setFormData((prev) => ({
           <div className="overflow-x-auto">
             <table className="w-full border-collapse">
 
-              <thead>
-                <tr className="bg-offwhite text-left text-sm">
-                  <th className="p-3">Sl.No</th>
-                  <th className="p-3">Specialization</th>
-                  <th className="p-3">Code</th>
-                  <th className="p-3">Order</th>
-                  <th className="p-3">Status</th>
-                  <th className="p-3">Created At</th>
-                  <th className="p-3">Action</th>
-                </tr>
-              </thead>
+            <thead>
+  <tr className="bg-offwhite text-left text-sm">
+    <th className="p-3">Sl.No</th>
+
+    <SortableHeader
+      title="Specialization"
+      field="name"
+      sortConfig={sortConfig}
+      handleSort={handleSort}
+    />
+
+    <SortableHeader
+      title="Code"
+      field="code"
+      sortConfig={sortConfig}
+      handleSort={handleSort}
+    />
+
+    <SortableHeader
+      title="Order"
+      field="order"
+      sortConfig={sortConfig}
+      handleSort={handleSort}
+    />
+
+    <SortableHeader
+      title="Status"
+      field="status"
+      sortConfig={sortConfig}
+      handleSort={handleSort}
+    />
+
+    <SortableHeader
+      title="Created At"
+      field="createdAt"
+      sortConfig={sortConfig}
+      handleSort={handleSort}
+    />
+
+    <th className="p-3">Action</th>
+  </tr>
+</thead>
 
               <tbody>
 
-                {filteredSpecializations.map((item, index) => (
+                {specializations.map((item, index) => (
                   <tr
                     key={item._id}
                     className="hover:bg-offwhite text-table-text"
@@ -388,7 +447,7 @@ setFormData((prev) => ({
                   </tr>
                 ))}
 
-                {filteredSpecializations.length === 0 && (
+                {specializations.length === 0 && (
                   <tr>
                     <td
                       colSpan="7"
@@ -444,14 +503,14 @@ setFormData((prev) => ({
           </div>
         )}
 
-        {/* ================= PAGINATION ================= */}
+        {/* PAGINATION */}
 
         <div className="flex justify-end items-center gap-4 mt-5">
 
           <button
-            disabled={!pagination.hasPrevPage}
-            onClick={() => fetchSpecializations(page - 1)}
-            className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+            disabled={!pagination.hasPrevPage  || loading}
+            onClick={() => setPage((prev) => prev - 1)}
+            className="px-4 py-2 bg-gray-200 rounded-2xl disabled:opacity-50"
           >
             Previous
           </button>
@@ -462,9 +521,9 @@ setFormData((prev) => ({
           </span>
 
           <button
-            disabled={!pagination.hasNextPage}
-            onClick={() => fetchSpecializations(page + 1)}
-            className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+            disabled={!pagination.hasNextPage || loading}
+            onClick={() => setPage((prev) => prev + 1)}
+            className="px-4 py-2 bg-gray-200 rounded-2xl disabled:opacity-50"
           >
             Next
           </button>

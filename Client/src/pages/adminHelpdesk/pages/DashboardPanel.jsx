@@ -4,10 +4,10 @@ import { AGENTS, AGENT_COLOR_MAP, ac } from "../data/mockData";
 
 //UI designed By Gokul
 export default function DashboardPanel({ tickets,  stats, onViewAll, onTicketClick }) {
-  const open = tickets.filter(t => t.status === "Open").length;
-  const inP = tickets.filter(t => t.status === "In progress").length;
-  const res = tickets.filter(t => t.status === "Resolved").length;
-  const high = tickets.filter(t => t.priority === "High").length;
+  const open = stats.open;
+const inP = stats.inProgress;
+const res = stats.resolved;
+const high = stats.highPriority;
 
   return (
     <div className="animate-in fade-in duration-500">
@@ -48,14 +48,14 @@ export default function DashboardPanel({ tickets,  stats, onViewAll, onTicketCli
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                     <Av
-  image={t.user?.profilePicture}
+  image={t.displayProfilePicture}
   initials={t.user?.username?.charAt(0) || "G"}
   cc={ac(i)}
   size="sm"
 />
 
 <span className="text-[13px] text-label">
-  {t.user?.username}
+  {t.displayName}
 </span>
                       {/* <span className="text-[13px] font-bold text-[#2d4a36]">{t.user.username ? t.user.username.split(" ")[0] : t.user}</span> */}
                     </div>

@@ -14,6 +14,7 @@ getCentreFullDetails,
 updateCentreByAdmin,setCentreActiveStatus,
 getInactiveCentres,
 deleteCentre,
+individualProvidersforAdmin
 } from "../controller/provider.controller.js";
 import { verifyAdminToken } from "../middlewares/authMiddleware.js";
 
@@ -35,6 +36,7 @@ router.get("/centre-appointments", verifyAdminToken, getCentreAppointments);
 router.get("/centre-list",verifyAdminToken,getCentresForAdmin);
 router.get("/centre-stats", verifyAdminToken, getCentreStats);
 router.get("/individual-list", verifyAdminToken, getIndividualProviders);
+router.get("/admin-individual-list", verifyAdminToken, individualProvidersforAdmin);
 router.get("/centre-session", verifyAdminToken, getAllCentreDashboardStats);
 
 router.get("/appointments/monthly", verifyAdminToken, getMonthlyAppointments);

@@ -2,12 +2,14 @@ import React, { useEffect, useState } from "react";
 import {api} from "../../utils/api.js";
 import toast from "react-hot-toast";
 import { useOutletContext } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const ViewAssessment = () => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const { searchTerm } = useOutletContext();
+  const navigate = useNavigate();
 
   const PAGE_SIZE = 5;
   const [currentPage, setCurrentPage] = useState(1);
@@ -72,6 +74,28 @@ const ViewAssessment = () => {
   }
 };
 
+
+const handleDelete = async (id) => {
+  const confirmDelete = window.confirm(
+    "Are you sure you want to delete this category and all its tests?"
+  );
+
+  if (!confirmDelete) return;
+
+  try {
+    const data = await api(`/api/assessment/category/${id}`, {
+      method: "DELETE",
+    });
+
+    toast.success(data.message || "Category deleted successfully");
+
+    fetchCategories();
+  } catch (err) {
+    console.error(err);
+    toast.error(err.message || "Failed to delete category");
+  }
+};
+
   return (
     <div className="w-full bg-secondary mt-8">
       <div className="bg-white rounded-2xl shadow p-6 border border-gray-200">
@@ -114,9 +138,9 @@ const ViewAssessment = () => {
                     <th className="px-4 py-3 text-left uppercase text-cardfooter ">
                       Order
                     </th>
-                    {/* <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 ">
-                      Status
-                    </th> */}
+                    <th className="px-4 py-3 text-left uppercase text-cardfooter ">
+                      Assessment Code
+                    </th>
                     <th className="px-4 py-3 text-center uppercase text-cardfooter ">
                       Actions
                     </th>
@@ -125,7 +149,7 @@ const ViewAssessment = () => {
 
                 <tbody>
                   {visibleCategories.map((assessment, index) => (
-                    <tr key={assessment._id} className="hover:bg-gray-50">
+                    <tr key={assessment._id} className="hover:bg-offwhite">
                       <td className="px-4 py-3 text-table-text font-medium">
                         {startIndex + index + 1}
                       </td>
@@ -143,6 +167,19 @@ const ViewAssessment = () => {
                       <td className="px-4 py-3 text-table-text">
                         {assessment.order}
                       </td>
+
+                     <td className="px-4 py-3 text-table-text">
+  {assessment.tests?.length ? (
+    assessment.tests.map((test, i) => (
+      <span key={test._id}>
+        {test.code}
+        {i < assessment.tests.length - 1 ? ", " : ""}
+      </span>
+    ))
+  ) : (
+    "-"
+  )}
+</td>
                       {/* 
                       <td className="px-4 py-3">
                         <button
@@ -157,13 +194,22 @@ const ViewAssessment = () => {
                       </td> */}
 
                       <td className="px-4 py-3 flex items-center gap-3 justify-center">
-                        {/* <button className="px-5 py-2 text-xs rounded-md bg-primary text-white hover:bg-primary">
-                          Edit
-                        </button> */}
+                        <button
+  onClick={() => navigate(`/addassessment/${assessment._id}`)}
+  className="px-5 py-2 text-sm font-semibold rounded-md bg-darkgreen text-white"
+>
+  Edit
+</button>
+ <button
+  onClick={() => handleDelete(assessment._id)}
+  className="px-5 py-2 text-sm font-semibold rounded-md bg-red-500 text-white hover:bg-red-600"
+>
+  Delete
+</button>
 
                         <button
                           onClick={() => handleToggle(assessment._id)}
-                          className={`px-5 py-2 text-xs rounded-md text-white 
+                          className={`px-5 py-2 text-sm font-semibold rounded-md text-white 
                     ${ assessment.status
                             ? "bg-peach hover:bg-primary"
                       : "bg-red-500 hover:bg-red-600"}`}

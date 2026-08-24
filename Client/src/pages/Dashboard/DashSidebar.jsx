@@ -64,10 +64,10 @@ const DashSidebar = () => {
     else if (
       path.startsWith("/allproviders") ||
       path.startsWith("/view-parent") ||
-      path.startsWith("/centre")
+      path.startsWith("/centre") ||path.startsWith("/provider-stats") ||path.startsWith("/parent-stats-card")
     )
       setActive("User");
-    else if (path.startsWith("/create-Role")) setActive("Settings");
+    else if (path.startsWith("/create-Role")||  path.startsWith("/admin-profile")) setActive("Settings");
     else if (path.startsWith("/add-plans")) setActive("Plans");
     else if (path.startsWith("/viewcat")) setActive("Add Category");
     else if (path.startsWith("/viewarticle")||  path.startsWith("/add-article")||  path.startsWith("/list-view-article")
@@ -99,7 +99,7 @@ const DashSidebar = () => {
       await api("/api/admin/admin/logout", { method: "POST" });
       dispatch(logout());
       toast.success("Logged out ");
-      navigate("/log");
+      navigate("/log", { replace: true });
     } catch (err) {
       console.error(err);
     }
@@ -256,7 +256,7 @@ const DashSidebar = () => {
                     onClick={() => navigate("/assessment-list")}
                     className="p-2 hover:bg-darkgreen hover:text-white rounded-2xl cursor-pointer"
                   >
-                   Add Assessment & Questinary
+                   Manage Assessments
                   </div>
                 </div>
               )}

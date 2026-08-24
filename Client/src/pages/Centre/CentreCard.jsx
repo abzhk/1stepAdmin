@@ -108,7 +108,7 @@ const CentreCard = () => {
           value={stats?.total || 0}
           badge="On Track"
           badgeColor="text-yellow-900 bg-yellow-200"
-          footer={`${stats?.month || 0} this month`}
+          
           icon={<FaCalendarCheck size={20} />}
           delay={0.2}
         />

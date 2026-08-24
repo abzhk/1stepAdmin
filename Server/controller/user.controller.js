@@ -262,7 +262,7 @@ export const getAllUsers = async (req, res, next) => {
     const limitNumber = parseInt(limit);
 
     const adminRoles = await Role.find({
-      role: { $in: ["Admin", "content_admin"] },
+      role: { $in: ["Admin", "Content Admin"] },
     }).select("_id");
 
     const superAdminRole = await Role.findOne({

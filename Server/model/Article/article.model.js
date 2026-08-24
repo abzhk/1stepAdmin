@@ -21,22 +21,29 @@ const articleSchema = new mongoose.Schema(
     excerpt: {
       type: String,
       required: true,
-      maxlength: 300,
+      maxlength: 500,
     },
   featuredImage: [{
       type: String,
       required: true,
     }],
-    category: { type: String},
+     category: { type: String, required: true },
     categoryId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Category",
-
+      required: true,
     },
     tags: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "MasterData",
+      },
+    ],
+    tagSlugs: [
+      {
+        type: String,
+        trim: true,
+        lowercase: true,
       },
     ],
     providerId: {
@@ -65,6 +72,10 @@ const articleSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+        likes: {
+      type: Number,
+      default: 0,
+    },
     readTime: {
       type: Number,
       default: 5,
@@ -90,45 +101,33 @@ const articleSchema = new mongoose.Schema(
 metaDescription: {
   type: String,
   trim: true,
-  maxlength: 300,
+  maxlength: 500,
 },
    authorType: {
     type: String,
-    enum: [ "Admin", "Super Admin","Provider","content_admin","1step"],
+    enum: [ "Admin", "Super Admin","Provider","Content Admin"],
     default: "Admin",
    },
     publishedAt: {
       type: Date,
     },
-//     referenceType: {
-//   type: String,
-//   enum: ["category", "service"],
-//   required: true,
-//   default: "category",
-// },
-
-// serviceId: {
-//   type: mongoose.Schema.Types.ObjectId,
-//   ref: "MasterData",
-// },
   },
   { timestamps: true }
 );
-+
 // Text search index
 articleSchema.index(
   {
     title: "text",
     content: "text",
     excerpt: "text",
-    tags: "text",
+   tagSlugs: "text",
   },
   {
     name: "article_search_index",
     weights: {
       title: 10,
       excerpt: 5,
-      tags: 3,
+      tagSlugs: 3,
       content: 1,
     },
   }
@@ -139,26 +138,45 @@ articleSchema.index({ status: 1, publishedAt: -1 });
 articleSchema.index({ providerId: 1, status: 1 });
 articleSchema.index({ category: 1, status: 1 });
 articleSchema.index({ slug: 1 });
-
+articleSchema.index({ featured: 1, status: 1, publishedAt: -1 });
+articleSchema.index({ tagSlugs: 1, status: 1, publishedAt: -1 });
+articleSchema.index({ tagSlugs: 1, status: 1, views: -1 });
+ 
+articleSchema.pre("save", async function (next) {
+  if (this.isModified("tags")) {
+    try {
+      const MasterData = mongoose.model("MasterData");
+      const tagsData = await MasterData.find({
+        _id: { $in: this.tags },
+        isActive: true,
+      }).select("code");
+      this.tagSlugs = tagsData.map((tag) => tag.code);
+    } catch (err) {
+      console.error("Error auto-populating tagSlugs in Article:", err);
+    }
+  }
+  next();
+});
+ 
 articleSchema.pre("validate", async function (next) {
   if (!this.title) return next();
-
+ 
   const baseSlug = this.title
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
-
+ 
   const regex = new RegExp(`^${baseSlug}(-\\d+)?$`);
-
+ 
   const existing = await mongoose.models.Article.find({ slug: regex }).select(
-    "slug"
+    "slug",
   );
-
+ 
   if (existing.length === 0) {
     this.slug = baseSlug;
     return next();
   }
-
+ 
   // Extract slug numbers
   const numbers = existing
     .map((doc) => {
@@ -166,13 +184,13 @@ articleSchema.pre("validate", async function (next) {
       return match ? parseInt(match[1]) : 0;
     })
     .sort((a, b) => b - a);
-
+ 
   const nextNumber = numbers[0] + 1;
-
+ 
   this.slug = `${baseSlug}-${nextNumber}`;
-
+ 
   next();
 });
-
+ 
 const Article = mongoose.model("Article", articleSchema);
 export default Article;

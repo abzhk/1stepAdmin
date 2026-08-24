@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 import PermissionGuard from "../../Components/PermissionGuard";
 import { MODULES, ACTIONS } from "../../constants/permission";
 import { Plus, X, Save } from "lucide-react";
+import Select from "react-select";
 
 const ServiceSpecializationMapping = ({ selectedServiceId, onServiceSelect }) => {
   const [services, setServices] = useState([]);
@@ -14,6 +15,11 @@ const ServiceSpecializationMapping = ({ selectedServiceId, onServiceSelect }) =>
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [editId, setEditId] = useState(null);
+
+  const specializationOptions = specializations.map((item) => ({
+  value: item._id,
+  label: `${item.name} (${item.code})`,
+}));
 
   // New state for multiple specialization entries
   const [specializationEntries, setSpecializationEntries] = useState([
@@ -322,24 +328,36 @@ const handleUpdate = async () => {
                       <tr key={index} className="border-b border-gray-200">
                         <td className="p-2 text-sm">{index + 1}</td>
                         <td className="p-2">
-                          <select
-                            value={entry.specializationId}
-                            onChange={(e) =>
-                              updateSpecializationEntry(
-                                index,
-                                "specializationId",
-                                e.target.value
-                              )
-                            }
-                            className="rounded-lg bg-white px-3 py-1.5 w-full min-w-[180px] border border-gray-300"
-                          >
-                            <option value="">Select</option>
-                            {specializations.map((item) => (
-                              <option key={item._id} value={item._id}>
-                                {item.name}
-                              </option>
-                            ))}
-                          </select>
+                         <Select
+  options={specializationOptions}
+  value={
+    specializationOptions.find(
+      (option) => option.value === entry.specializationId
+    ) || null
+  }
+  onChange={(selected) =>
+    updateSpecializationEntry(
+      index,
+      "specializationId",
+      selected ? selected.value : ""
+    )
+  }
+  placeholder="Search Specialization..."
+  isSearchable
+  isClearable
+
+  menuPortalTarget={document.body}
+  menuPosition="fixed"
+  menuPlacement="auto"
+  
+
+  styles={{
+    menuPortal: (base) => ({
+      ...base,
+      zIndex: 9999,
+    }),
+  }}
+/>
                         </td>
                         <td className="p-2">
                           <input

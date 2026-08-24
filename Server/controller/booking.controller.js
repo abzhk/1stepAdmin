@@ -17,6 +17,7 @@ export const booking = async (req, res, next) => {
     patient,
     provider,
     scheduledTime: { date, slot },
+    appointment,
   } = req.body;
   try {
     const patientExist = await User.findById(patient);
@@ -88,15 +89,39 @@ export const getBookingProvider = async (req, res, next) => {
   try {
     const providerId = new mongoose.Types.ObjectId(req.params.id);
 
-    const limit = parseInt(req.query.limit) || 8;
-    const startIndex = parseInt(req.query.startIndex) || 0;
+    const {
+      page = 1,
+      limit = 8,
+      status = "all",
+    } = req.query;
 
+    const pageNumber = parseInt(page);
+    const limitNumber = parseInt(limit);
+
+    const skip = (pageNumber - 1) * limitNumber;
+
+    // -----------------------------------
+    // STATUS FILTER
+    // -----------------------------------
+    const bookingMatch = {
+      provider: providerId,
+    };
+
+    if (status && status !== "all") {
+      bookingMatch.status = status;
+    }
+
+    // -----------------------------------
+    // MONTH STATS
+    // -----------------------------------
     const startOfCurrentMonth = moment().startOf("month").toDate();
     const endOfCurrentMonth = moment().endOf("month").toDate();
+
     const startOfLastMonth = moment()
       .subtract(1, "months")
       .startOf("month")
       .toDate();
+
     const endOfLastMonth = moment()
       .subtract(1, "months")
       .endOf("month")
@@ -107,23 +132,38 @@ export const getBookingProvider = async (req, res, next) => {
         {
           $match: {
             provider: providerId,
-            createdAt: { $gte: start, $lte: end },
+            createdAt: {
+              $gte: start,
+              $lte: end,
+            },
           },
         },
-        { $group: { _id: "$status", count: { $sum: 1 } } },
+        {
+          $group: {
+            _id: "$status",
+            count: { $sum: 1 },
+          },
+        },
       ]);
 
       const totalCount = await Booking.countDocuments({
         provider: providerId,
-        createdAt: { $gte: start, $lte: end },
+        createdAt: {
+          $gte: start,
+          $lte: end,
+        },
       });
 
       return {
         total: totalCount,
-        pending: counts.find((c) => c._id === "pending")?.count || 0,
-        completed: counts.find((c) => c._id === "completed")?.count || 0,
-        approved: counts.find((c) => c._id === "approved")?.count || 0,
-        rejected: counts.find((c) => c._id === "rejected")?.count || 0,
+        pending:
+          counts.find((c) => c._id === "pending")?.count || 0,
+        completed:
+          counts.find((c) => c._id === "completed")?.count || 0,
+        approved:
+          counts.find((c) => c._id === "approved")?.count || 0,
+        rejected:
+          counts.find((c) => c._id === "rejected")?.count || 0,
       };
     };
 
@@ -131,11 +171,19 @@ export const getBookingProvider = async (req, res, next) => {
       startOfCurrentMonth,
       endOfCurrentMonth
     );
-    const lastCounts = await getCounts(startOfLastMonth, endOfLastMonth);
+
+    const lastCounts = await getCounts(
+      startOfLastMonth,
+      endOfLastMonth
+    );
 
     const calculateChange = (current, previous) => {
-      if (!previous) return current ? "1.00" : "0.00";
+      if (!previous) {
+        return current ? "1.00" : "0.00";
+      }
+
       const multiplier = (current / previous).toFixed(2);
+
       return `${multiplier}`;
     };
 
@@ -147,6 +195,7 @@ export const getBookingProvider = async (req, res, next) => {
           lastCounts.total || 0
         ),
       },
+
       completedAppointments: {
         count: currentCounts.completed || 0,
         change: calculateChange(
@@ -154,6 +203,7 @@ export const getBookingProvider = async (req, res, next) => {
           lastCounts.completed || 0
         ),
       },
+
       pendingAppointments: {
         count: currentCounts.pending || 0,
         change: calculateChange(
@@ -161,6 +211,7 @@ export const getBookingProvider = async (req, res, next) => {
           lastCounts.pending || 0
         ),
       },
+
       rejectedAppointments: {
         count: currentCounts.rejected || 0,
         change: calculateChange(
@@ -168,6 +219,7 @@ export const getBookingProvider = async (req, res, next) => {
           lastCounts.rejected || 0
         ),
       },
+
       approveAppointments: {
         count: currentCounts.approved || 0,
         change: calculateChange(
@@ -177,8 +229,15 @@ export const getBookingProvider = async (req, res, next) => {
       },
     };
 
+    // -----------------------------------
+    // BOOKINGS
+    // -----------------------------------
+
     const bookingDetails = await Booking.aggregate([
-      { $match: { provider: providerId } },
+      {
+        $match: bookingMatch,
+      },
+
       {
         $lookup: {
           from: "users",
@@ -187,7 +246,11 @@ export const getBookingProvider = async (req, res, next) => {
           as: "patientDetails",
         },
       },
-      { $unwind: "$patientDetails" },
+
+      {
+        $unwind: "$patientDetails",
+      },
+
       {
         $project: {
           "patientDetails.profilePicture": 1,
@@ -196,21 +259,59 @@ export const getBookingProvider = async (req, res, next) => {
           createdAt: 1,
           note: 1,
           scheduledTime: 1,
+          appointment: 1,
           status: 1,
           sessionType: 1,
           service: 1,
         },
       },
-      { $sort: { createdAt: -1 } },
-      { $skip: startIndex },
-      { $limit: limit },
+
+      {
+        $sort: {
+          createdAt: -1,
+        },
+      },
+
+      {
+        $skip: skip,
+      },
+
+      {
+        $limit: limitNumber,
+      },
     ]);
 
-    const providerCount = await Booking.countDocuments({
-      provider: providerId,
+    // -----------------------------------
+    // FILTERED TOTAL COUNT
+    // -----------------------------------
+
+    const providerCount = await Booking.countDocuments(
+      bookingMatch
+    );
+
+    const totalPages = Math.ceil(
+      providerCount / limitNumber
+    );
+
+    // -----------------------------------
+    // RESPONSE
+    // -----------------------------------
+
+    res.status(200).json({
+      bookingDetails,
+      providerCount,
+      stats,
+
+      pagination: {
+        currentPage: pageNumber,
+        limit: limitNumber,
+        totalPages,
+        totalItems: providerCount,
+        hasNextPage: pageNumber < totalPages,
+        hasPreviousPage: pageNumber > 1,
+      },
     });
 
-    res.status(200).json({ bookingDetails, providerCount, stats });
   } catch (error) {
     console.error(error);
     next(error);
@@ -363,9 +464,9 @@ export const getUpcomingSessions = async (req, res) => {
     const aggregation = [
       {
         $match: {
-          patient: new mongoose.Types.ObjectId(parentId),
-          "scheduledTime.date": { $gte: new Date().toISOString() }, // only future sessions
-        },
+  patient: new mongoose.Types.ObjectId(parentId),
+  "appointment.startAt": { $gte: new Date() },
+},
       },
       {
         $lookup: {
@@ -378,7 +479,7 @@ export const getUpcomingSessions = async (req, res) => {
       { $unwind: "$providerDetails" },
 
       {
-        $sort: { "scheduledTime.date": 1 }, // soonest session first
+      $sort: { "appointment.startAt": 1 },
       },
       {
         $limit: parseInt(limit), // apply limit
@@ -392,6 +493,7 @@ export const getUpcomingSessions = async (req, res) => {
           "providerDetails.address.state": 1,
           "providerDetails.address.pincode": 1,
           scheduledTime: 1,
+           appointment: 1,
           sessionType: 1,
           service: 1,
           bookingId: 1,
@@ -586,6 +688,7 @@ export const getAllRecentBookings = async (req, res) => {
           bookingId: 1,
           createdAt: 1,
           scheduledTime: 1,
+          appointment: 1,
           service: 1,
           sessionType: 1,
           status: 1,

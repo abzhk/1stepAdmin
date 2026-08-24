@@ -33,6 +33,6 @@ export const ROLES = {
   PROVIDER: "provider",
   ADMIN: "admin",
   SUPER_ADMIN: "Super Admin",
-  ARTICLE_ADMIN:"content_admin",
+  ARTICLE_ADMIN:"Content Admin",
 };
 

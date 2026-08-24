@@ -1,9 +1,13 @@
 import mongoose from "mongoose";
+import { capitalizeName } from "../utils/stringUtils.js";
+
+
 const providerSchema = new mongoose.Schema(
   {
     fullName: {
       type: String,
       required: true,
+      set: capitalizeName
     },
     providerType: {
       type: String,
@@ -86,14 +90,34 @@ const providerSchema = new mongoose.Schema(
     description: {
       type: String,
       required: true,
+      minlength: [100, "Description must be at least 100 characters"],
+      maxlength: [2000, "Description cannot exceed 2000 characters"],
     },
     profilePicture: {
       type: String,
       default: "./src/assets/defaultprofile.jpg",
       required: true,
     },
+    specialization: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Specialization",
+      }
+    ],
     imageUrls: {
       type: Array,
+    },
+    uploadedFileKeys: {
+      type: Array,
+    },
+    operatingHours: {
+      type: Map,
+      of: new mongoose.Schema({
+        enabled: { type: Boolean, default: false },
+        openTime: { type: String, default: "09:00" },
+        closeTime: { type: String, default: "18:00" }
+      }, { _id: false }),
+      default: {}
     },
 
     userRef: {
@@ -185,6 +209,7 @@ providerSchema.index({ createdAt: -1 }, { name: "created_at_index" });
 
 providerSchema.index({ userRef: 1 }, { name: "user_ref_index" });
 
+providerSchema.index({providerType: 1,isActive: 1,createdAt: -1,_id: 1, },{name: "provider_admin_active_list_index",});
 
 
 providerSchema.post("save", async function (doc) {

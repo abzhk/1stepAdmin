@@ -7,7 +7,7 @@ import toast from "react-hot-toast";
 import PermissionGuard from "../../Components/PermissionGuard.jsx";
 import { MODULES, ACTIONS } from "../../constants/permission.js"
 import { useOutletContext } from "react-router-dom";
-
+import SortableHeader from "../../Components/SortableHeader";
 
 const ListViewArticle = () => {
   const [articles, setArticles] = useState([]);
@@ -20,26 +20,38 @@ const ListViewArticle = () => {
 const [showDeleteModal, setShowDeleteModal] = useState(false);
 const [status, setStatus] = useState("all");
 const {searchTerm}  = useOutletContext();
+const [sortConfig, setSortConfig] = useState({
+  key: "createdAt",
+  direction: "desc",
+});
 
-  const fetchArticles = async () => {
+const fetchArticles = async (
+  pageNo = page,
+  articleStatus = status,
+  search = searchTerm,
+  sort = sortConfig
+) => {
   try {
     setLoading(true);
     setError("");
 
     const params = new URLSearchParams({
-      page,
+      page: pageNo,
       limit: 10,
-      status,
+      status: articleStatus,
+      sortBy: sort.key,
+      sortOrder: sort.direction,
     });
 
-    if (searchTerm?.trim()) {
-      params.append("search", searchTerm.trim());
+    if (search?.trim()) {
+      params.append("search", search.trim());
     }
 
     const data = await api(`/api/article/all?${params}`);
 
     setArticles(data.articles || []);
     setTotalPages(data.totalPages || 1);
+    setPage(pageNo);
   } catch (err) {
     console.error(err);
     setError(err.message || "Something went wrong");
@@ -78,8 +90,24 @@ const {searchTerm}  = useOutletContext();
 };
 
 useEffect(() => {
-  fetchArticles();
-}, [page, status,searchTerm]);
+  fetchArticles(page, status, searchTerm, sortConfig);
+}, [page, status, searchTerm, sortConfig]);
+
+
+const handleSort = (key) => {
+  const direction =
+    sortConfig.key === key && sortConfig.direction === "asc"
+      ? "desc"
+      : "asc";
+
+  setPage(1);
+
+  setSortConfig({
+    key,
+    direction,
+  });
+};
+
 
   return (
     <div className="min-h-screen bg-secondary p-6">
@@ -127,19 +155,60 @@ useEffect(() => {
         {!loading && !error && (
           <div className="overflow-x-auto p-4 ">
             <table className="min-w-full text-sm text-left ">
-              <thead className="bg-offwhite text-cardfooter uppercase ">
-                <tr>
-                  <th className="px-6 py-3">Image</th>
-                  <th className="px-6 py-3">Title</th>
-                  <th className="px-6 py-3">Provider</th>
-                  <th className="px-6 py-3">Position</th>
-                  <th className="px-6 py-3">Category</th>
-                  <th className="px-6 py-3">Read</th>
-                  <th className="px-6 py-3">Created</th>
-                  <th className="px-6 py-3">Featured</th>
-                  <th className="px-6 py-3">Actions</th>
-                </tr>
-              </thead>
+             <thead className="bg-offwhite text-cardfooter uppercase">
+  <tr>
+    <th className="px-6 py-3">Image</th>
+
+    <SortableHeader
+      title="Title"
+      field="title"
+      sortConfig={sortConfig}
+      handleSort={handleSort}
+    />
+
+    <th>
+      <div className="flex items-center gap-2">
+        Provider
+      </div>
+    </th>
+
+    <SortableHeader
+      title="Position"
+      field="position"
+      sortConfig={sortConfig}
+      handleSort={handleSort}
+    />
+
+    <th>
+      <div className="flex items-center gap-2">
+        Category
+      </div>
+    </th>
+
+    <SortableHeader
+      title="Read"
+      field="readTime"
+      sortConfig={sortConfig}
+      handleSort={handleSort}
+    />
+
+    <SortableHeader
+      title="Created"
+      field="createdAt"
+      sortConfig={sortConfig}
+      handleSort={handleSort}
+    />
+
+    <SortableHeader
+      title="Featured"
+      field="featured"
+      sortConfig={sortConfig}
+      handleSort={handleSort}
+    />
+
+    <th className="px-6 py-3">Actions</th>
+  </tr>
+</thead>
 
               <tbody className="divide-y">
                 {articles.map((article) => (

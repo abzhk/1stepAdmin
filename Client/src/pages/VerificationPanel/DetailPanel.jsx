@@ -9,7 +9,7 @@ import ConfirmModal from "../../Components/Verification/ConfirmModal";
 import MessageModal from "../../Components/Verification/MessageModel";
 import { api } from "../../utils/api";
 
-function DocViewerModal({ doc, onClose, onStatusChange }) {
+function DocViewerModal({ doc, onClose, onStatusChange,  canChangeStatus, isClaimLocked, }) {
   const activeCls = "bg-[#2d4a36] text-[#F6F4F0] border-transparent";
   const dotColors = {
     accepted: "bg-[#8fa797]",
@@ -79,26 +79,50 @@ function DocViewerModal({ doc, onClose, onStatusChange }) {
               )}
             </div>
           </div>
-          <p className="text-xs font-semibold text-[#2d4a36]/60 mb-2">
-            Set document status
-          </p>
-          <div className="flex gap-2 flex-wrap">
-            {DOC_STATUSES.map((s) => (
-              <button
-                key={s}
-                onClick={() => onStatusChange(s)}
-                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold capitalize border transition
-                    ${
-                      doc.status === s
-                        ? `${activeCls}`
-                        : "border-[#8fa797]/30 text-[#2d4a36]/70 hover:bg-[#F6F4F0]"
-                    }`}
-              >
-                <span className={`w-2 h-2 rounded-full ${dotColors[s]}`} />
-                {s}
-              </button>
-            ))}
-          </div>
+          {canChangeStatus ? (
+  <>
+    <p className="text-xs font-semibold text-[#2d4a36]/60 mb-2">
+      Set document status
+    </p>
+
+    <div className="flex gap-2 flex-wrap">
+    {DOC_STATUSES.map((s) => (
+  <button
+    key={s}
+    disabled={isClaimLocked}
+    onClick={() => {
+      if (isClaimLocked) return;
+      onStatusChange(s);
+    }}
+    className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold capitalize border transition
+      ${
+        doc.status === s
+          ? `${activeCls}`
+          : "border-[#8fa797]/30 text-[#2d4a36]/70 hover:bg-[#F6F4F0]"
+      }
+      ${
+        isClaimLocked
+          ? "opacity-50 cursor-not-allowed"
+          : "cursor-pointer"
+      }`}
+  >
+    <span className={`w-2 h-2 rounded-full ${dotColors[s]}`} />
+    {s}
+  </button>
+))}
+    </div>
+  </>
+) : (
+  <div className="px-3 py-2.5 rounded-lg bg-[#F6F4F0] border border-[#8fa797]/20">
+    <p className="text-xs font-semibold text-[#2d4a36]">
+      Document status is locked
+    </p>
+
+    <p className="text-[10px] text-[#8fa797] mt-0.5">
+      Document status cannot be changed after this claim decision.
+    </p>
+  </div>
+)}
         </div>
       </div>
     </Backdrop>
@@ -161,7 +185,10 @@ function KVRow({ label, value, mono }) {
 
 const DetailPanel = ({
   applicant,
-  onDecision,
+  onApprove,
+  onReject,
+  onReopen,
+  onRequestFix,
   onDocStatusChange,
   onNoteAdd,
   onFieldStatusChange,
@@ -184,14 +211,30 @@ const DetailPanel = ({
   const [confirmCategory, setConfirmCategory] = useState("");
 
   const totalDocs = applicant.docs.length;
-  const verifiedDocs = applicant.docs.filter(
-    (d) => d.status === "accepted",
-  ).length;
-  const progress =
-    totalDocs > 0 ? Math.round((verifiedDocs / totalDocs) * 100) : 0;
 
-  const isLocked =
-    applicant.overall === "approved" || applicant.overall === "rejected";
+const verifiedDocs = applicant.docs.filter(
+  (d) => d.status === "accepted"
+).length;
+
+const progress =
+  totalDocs > 0
+    ? Math.round((verifiedDocs / totalDocs) * 100)
+    : 0;
+
+const allDocsApproved =
+  totalDocs > 0 &&
+  verifiedDocs === totalDocs;
+
+const isClaimLocked =
+  applicant.status === "approved" ||
+  applicant.status === "rejected";
+
+const isWaitingForProvider =
+  applicant.status === "fix_requested";
+
+const canReview =
+  applicant.status === "submitted" ||
+  applicant.status === "under_review";
 
   const cycleField = (section, field) => {
     const cur = applicant[section][field];
@@ -202,12 +245,30 @@ const DetailPanel = ({
     onFieldStatusChange(applicant.id, section, field, next);
   };
 
-  const handleConfirm = () => {
-    onDecision(applicant.id, confirmAction, confirmReason, confirmCategory);
+  const handleConfirm = async () => {
+  try {
+    if (confirmAction === "reject") {
+      await onReject({
+        rejectionReason: confirmReason,
+        rejectionCategory: confirmCategory,
+        adminNotes: "",
+      });
+    }
+
+    if (confirmAction === "request_fix") {
+      await onRequestFix({
+        reason: confirmReason,
+        category: confirmCategory,
+      });
+    }
+
     setConfirmAction(null);
     setConfirmReason("");
     setConfirmCategory("");
-  };
+  } catch (error) {
+    console.error("Decision error:", error);
+  }
+};
 
   const handleNoteSubmit = () => {
     if (!note.trim()) return;
@@ -295,6 +356,8 @@ const DetailPanel = ({
       {liveViewingDoc && (
         <DocViewerModal
           doc={liveViewingDoc}
+          isClaimLocked={isClaimLocked}
+           canChangeStatus={!isClaimLocked}
           onClose={() => setViewingDoc(null)}
           onStatusChange={(s) => {
             onDocStatusChange(applicant.id, liveViewingDoc.id, s);
@@ -338,7 +401,7 @@ const DetailPanel = ({
                 <h2 className="text-base font-bold text-[#2d4a36]">
                   {applicant.name}
                 </h2>
-                <PriorityBadge
+                {/* <PriorityBadge
                   priority={applicant.priority}
                   onClick={() => {
                     const order = ["low", "medium", "high"];
@@ -349,15 +412,15 @@ const DetailPanel = ({
                     onPriorityChange(applicant.id, next);
                     showToast(`Priority → ${next}`, "info");
                   }}
-                />
-                {isLocked && (
+                /> */}
+                {isClaimLocked && (
                   <span className="text-[10px] text-[#8fa797] italic">
                     Locked
                   </span>
                 )}
               </div>
               <p className="text-xs font-medium text-[#2d4a36]/60 mt-0.5">
-                {applicant.role} · {applicant.city}
+                {applicant.role} 
               </p>
               <div className="flex items-center gap-3 mt-1 flex-wrap">
                 <span className="text-[10px] text-[#8fa797]">
@@ -435,7 +498,7 @@ const DetailPanel = ({
               </svg>
               Add note
             </button>
-            <button
+            {/* <button
               onClick={() => showToast("Profile link copied", "info")}
               className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold border border-[#8fa797]/30 rounded-lg text-[#2d4a36]/80 hover:bg-[#F6F4F0] transition ml-auto"
             >
@@ -453,7 +516,7 @@ const DetailPanel = ({
                 />
               </svg>
               Copy link
-            </button>
+            </button> */}
           </div>
 
           <div className="flex gap-1">
@@ -482,7 +545,7 @@ const DetailPanel = ({
           {activeTab === "overview" && (
             <Overview
               applicant={applicant}
-              isLocked={isLocked}
+              isLocked={isClaimLocked}
               cycleField={cycleField}
               expandedSections={expandedSections}
               toggleSection={toggleSection}
@@ -514,107 +577,176 @@ const DetailPanel = ({
         </div>
 
         <div className="px-6 py-4 border-t border-[#8fa797]/20 bg-white flex-shrink-0">
-          {isLocked ? (
-            <div className="flex items-center justify-between">
-              <p className="text-xs font-medium text-[#8fa797] italic">
-                This claim is{" "}
-                <strong className="text-[#2d4a36]">{applicant.overall}</strong>.
-                Reopen to make changes.
-              </p>
-              <button
-                onClick={() => {
-                  onDecision(
-                    applicant.id,
-                    "reopen",
-                    "pending",
-                    "Reopened for further review",
-                  );
-                  showToast("Claim reopened", "info");
-                }}
-                className="px-4 py-2 text-xs font-bold border border-[#8fa797]/30 rounded-xl text-[#2d4a36]/80 hover:bg-[#F6F4F0] transition"
-              >
-                Reopen
-              </button>
-            </div>
-          ) : (
-            <div className="flex gap-2">
-              <button
+
+  {/* APPROVED / REJECTED */}
+  {isClaimLocked ? (
+    <div className="flex items-center justify-between">
+      <p className="text-xs font-medium text-[#8fa797] italic">
+        This claim is{" "}
+        <strong className="text-[#2d4a36]">
+          {applicant.overall}
+        </strong>
+        . Reopen to make changes.
+      </p>
+
+      <button
   onClick={async () => {
-    const totalDocs = applicant.docs.length;
-    const verifiedDocs = applicant.docs.filter(d => d.status === "accepted").length;
+    try {
+      await onReopen();
+    } catch (err) {
+      showToast(
+        err?.message || "Failed to reopen claim",
+        "error"
+      );
+    }
+  }}
+  className="px-4 py-2 text-xs font-bold border border-[#8fa797]/30 rounded-xl text-[#2d4a36]/80 hover:bg-[#F6F4F0] transition"
+>
+  Reopen
+</button>
+    </div>
 
-    const allDocsApproved = totalDocs > 0 && verifiedDocs === totalDocs;
+  ) : isWaitingForProvider ? (
 
+    /* WAITING FOR PROVIDER */
+    <div className="flex items-center justify-between gap-4">
+      <div>
+        <p className="text-sm font-bold text-[#2d4a36]">
+          Waiting for provider
+        </p>
+
+        <p className="text-xs text-[#8fa797] mt-1">
+          The provider has been asked to fix the requested issues
+          and resubmit the claim.
+        </p>
+      </div>
+
+      <span className="px-3 py-1.5 rounded-lg text-xs font-bold bg-[#ffd333]/20 text-[#2d4a36] border border-[#ffd333]/50">
+        Awaiting Resubmission
+      </span>
+    </div>
+
+  ) : canReview ? (
+
+    /* ADMIN REVIEW ACTIONS */
+    <div className="flex gap-2">
+
+      {/* APPROVE */}
+     <button
+  disabled={!allDocsApproved}
+  onClick={async () => {
     if (!allDocsApproved) {
-      return showToast("Approve all documents first", "error");
+      return showToast(
+        "Approve all documents first",
+        "error"
+      );
     }
 
     try {
-      await onDecision(applicant.id, "approve", "");
-      showToast("Claim approved", "success");
+      await onApprove();
     } catch (err) {
-      showToast(err?.message || "Failed to approve claim", "error");
+      showToast(
+        err?.message || "Failed to approve claim",
+        "error"
+      );
     }
   }}
-  className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-bold bg-[#8fa797] text-[#2d4a36] rounded-xl hover:bg-[#8fa797]/80 active:scale-95 transition-all"
+  className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-bold rounded-xl transition-all ${
+    allDocsApproved
+      ? "bg-[#8fa797] text-[#2d4a36] hover:bg-[#8fa797]/80 active:scale-95"
+      : "bg-gray-200 text-gray-400 cursor-not-allowed"
+  }`}
 >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2.5}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-                Approve
-              </button>
-              <button
-                onClick={() => setConfirmAction("request_fix")}
-                className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-bold bg-[#ffd333] text-[#2d4a36] rounded-xl hover:bg-[#ffd333]/80 active:scale-95 transition-all"
-              >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2.5}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-                Re Submit
-              </button>
-              <button
-                onClick={() => setConfirmAction("reject")}
-                className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-bold bg-[#f2a794] text-[#2d4a36] rounded-xl hover:bg-[#f2a794]/80 active:scale-95 transition-all"
-              >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2.5}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-                Reject
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
+  <svg
+    className="w-4 h-4"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={2.5}
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M5 13l4 4L19 7"
+    />
+  </svg>
+
+  Approve
+</button>
+
+      {/* REQUEST FIX */}
+      <button
+  disabled={allDocsApproved}
+  onClick={() => {
+    if (allDocsApproved) {
+      return;
+    }
+
+    setConfirmAction("request_fix");
+  }}
+  className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-bold rounded-xl transition-all
+    ${
+      allDocsApproved
+        ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+        : "bg-[#ffd333] text-[#2d4a36] hover:bg-[#ffd333]/80 active:scale-95"
+    }
+  `}
+>
+  <svg
+    className="w-4 h-4"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={2.5}
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0"
+    />
+  </svg>
+
+  {allDocsApproved ? "All Documents are Verified" : "Request Fix"}
+</button>
+
+      {/* REJECT */}
+      <button
+        onClick={() =>
+          setConfirmAction("reject")
+        }
+        className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-bold bg-[#f2a794] text-[#2d4a36] rounded-xl hover:bg-[#f2a794]/80 active:scale-95 transition-all"
+      >
+        <svg
+          className="w-4 h-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2.5}
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M6 18L18 6M6 6l12 12"
+          />
+        </svg>
+
+        Reject
+      </button>
+
+    </div>
+
+  ) : (
+
+    /* OTHER STATUS */
+    <div className="flex items-center justify-center">
+      <p className="text-xs text-[#8fa797] italic">
+        This claim is not currently available for review.
+      </p>
+    </div>
+  )}
+
+</div>
+</div>
     </>
   );
 };
