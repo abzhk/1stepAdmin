@@ -15,37 +15,39 @@ import {
   sendMessageToApplicant,
   reopenClaim,
 } from "../controller/claimProfile.controller.js";
-import { verifyToken } from "../utils/verifyUser.js";
 import { verifyAdminToken } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
-// All routes require authentication
-
+// ── All routes require admin auth (applied once at the top) ───────────────────
 router.use(verifyAdminToken);
 
-// ─── Therapist routes ─────────────────────────────────────────────────────────
-router.post("/init",            initClaim);         // POST   /server/claim/init
-router.get("/me",               getMyClaim);        // GET    /server/claim/me
-router.patch("/:id/profile",    saveProfileStep);   // PATCH  /server/claim/:id/profile
-router.patch("/:id/submit",     submitClaim);       // PATCH  /server/claim/:id/submit
+// ─── Therapist-facing routes (proxied through admin server) ───────────────────
+// These exist here because the admin backend shares the same DB.
+// The 1stepdev server is the primary handler — these are for admin visibility only.
+router.post("/init",           initClaim);
+router.get("/me",              getMyClaim);
+router.patch("/:id/profile",   saveProfileStep);
+router.patch("/:id/submit",    submitClaim);
 
-// ─── Admin routes ─────────────────────────────────────────────────────────────
-router.get("/admin/queue",  verifyAdminToken,             getAdminClaimQueue); // GET    /server/claim/admin/queue
-router.patch("/admin/:id/under-review",  markUnderReview);   // PATCH  /server/claim/admin/:id/under-review
-router.patch("/admin/:id/approve",       approveClaim);      // PATCH  /server/claim/admin/:id/approve
-router.patch("/admin/:id/reject",        rejectClaim);       // PATCH  /server/claim/admin/:id/reject
+// ─── Admin review queue ───────────────────────────────────────────────────────
+router.get("/admin/queue", getAdminClaimQueue);
 
-router.get("/admin/:id",verifyAdminToken, getAdminClaimDetail);
+// ─── Claim detail (MUST come before /:id/* routes to avoid conflicts) ─────────
+router.get("/admin/:id", getAdminClaimDetail);
 
-router.patch("/admin/document/:docId/status",verifyAdminToken, updateDocumentStatus);
-//final review
-router.patch("/admin/:id/review", verifyAdminToken,reviewClaimFinal);
-//note
-router.patch("/admin/:id/note",verifyAdminToken, addAdminNote);
-//mail
-router.post("/admin/:id/message",verifyAdminToken, sendMessageToApplicant);
+// ─── Document status update ────────────────────────────────────────────────────
+router.patch("/admin/document/:docId/status", updateDocumentStatus);
 
-router.patch("/admin/:id/reopen",reopenClaim);
+// ─── Claim lifecycle actions ───────────────────────────────────────────────────
+router.patch("/admin/:id/under-review", markUnderReview);
+router.patch("/admin/:id/approve",      approveClaim);
+router.patch("/admin/:id/reject",       rejectClaim);
+router.patch("/admin/:id/review",       reviewClaimFinal);   // soft reject → fix_requested
+router.patch("/admin/:id/reopen",       reopenClaim);
+
+// ─── Admin communication ──────────────────────────────────────────────────────
+router.patch("/admin/:id/note",    addAdminNote);
+router.post("/admin/:id/message",  sendMessageToApplicant);
 
 export default router;

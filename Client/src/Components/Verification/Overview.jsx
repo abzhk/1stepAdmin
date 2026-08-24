@@ -193,7 +193,9 @@ const getCombinedStatus = (types) => {
           </span>
 
           <span className="px-2 py-0.5 bg-[#F6F4F0] rounded text-[10px]">
-            {p.consultationType || "-"}
+            {Array.isArray(p.consultationType)
+              ? p.consultationType.join(", ")
+              : p.consultationType || "-"}
           </span>
         </div>
 

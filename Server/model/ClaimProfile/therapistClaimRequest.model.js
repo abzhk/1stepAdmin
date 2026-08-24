@@ -18,7 +18,7 @@ const therapistClaimRequestSchema = new mongoose.Schema(
     // === State Machine ===
     status: {
       type: String,
-      enum: ["draft", "submitted", "under_review", "approved", "rejected", "fix_requested",],
+      enum: ["draft", "submitted", "under_review", "approved", "rejected", "fix_requested"],
       default: "draft",
       index: true,
     },

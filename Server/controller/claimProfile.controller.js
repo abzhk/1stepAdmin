@@ -349,8 +349,9 @@ export const rejectClaim = async (req, res, next) => {
 
     const claim = await TherapistClaimRequest.findById(req.params.id);
     if (!claim) return next(errorHandler(404, "Claim not found"));
-    if (!["submitted", "under_review"].includes(claim.status)) {
-      return next(errorHandler(400, "Claim cannot be rejected in its current state"));
+    // Also allow rejecting fix_requested / action_required (escalate soft → hard reject)
+    if (!["submitted", "under_review", "fix_requested", "action_required"].includes(claim.status)) {
+      return next(errorHandler(400, `Claim cannot be rejected in its current state: ${claim.status}`));
     }
 
     const io = req.app.get("io");
@@ -358,10 +359,13 @@ export const rejectClaim = async (req, res, next) => {
     claim.status            = "rejected";
     claim.reviewedBy        = req.user.id;
     claim.reviewedAt        = new Date();
-    claim.rejectionReason   = rejectionReason;
+    claim.rejectionReason   = rejectionReason.trim();
     claim.rejectionCategory = rejectionCategory || "other";
-    claim.isLocked          = false; // allow resubmission
-    if (adminNotes) claim.adminNotes = adminNotes;
+    // CRITICAL: isLocked = true for hard rejection.
+    // Therapist must use "Start Fresh Application" (reapplyClaim) — not edit the rejected claim.
+    // isLocked = false here would let requireNotLocked pass on profile-save routes.
+    claim.isLocked = true;
+    if (adminNotes?.trim()) claim.adminNotes = adminNotes.trim();
     await claim.save();
 
     await audit({
@@ -393,37 +397,65 @@ export const getAdminClaimDetail = async (req, res, next) => {
     const claimId = req.params.id;
 
     const claim = await TherapistClaimRequest.findById(claimId)
-      .populate("userId", "username email");
+      .populate("userId", "username email profilePicture phone")
+      .populate("reviewedBy", "username email");
 
     if (!claim) {
       return next(errorHandler(404, "Claim not found"));
     }
 
-   const [profile, rawDocuments, identity, payment, auditLogs] =
-  await Promise.all([
-    TherapistProfile.findOne({ claimId }),
-    TherapistDocument.find({ claimId }),
-    TherapistIdentityVerification.findOne({ claimId }),
-    TherapistPaymentDetail.findOne({ claimId }),
-    ClaimAuditLog.find({ claimId }).sort({ createdAt: -1 }),
-  ]);
+    const [profile, rawDocuments, identity, payment, auditLogs] =
+      await Promise.all([
+        TherapistProfile.findOne({ claimId }).lean(),
+        TherapistDocument.find({ claimId }).lean(),
+        TherapistIdentityVerification.findOne({ claimId }).lean(),
+        TherapistPaymentDetail.findOne({ claimId }).lean(),
+        ClaimAuditLog.find({ claimId })
+          .sort({ createdAt: -1 })
+          .populate("performedBy", "username email")
+          .lean(),
+      ]);
 
-const documents = await Promise.all(
-  rawDocuments.map(async (doc) => {
-    let downloadUrl = null;
+    const documents = await Promise.all(
+      rawDocuments.map(async (doc) => {
+        let downloadUrl = null;
+        try {
+          downloadUrl = await getSignedUrl(doc.fileRef);
+        } catch (err) {
+          console.error("Firebase URL generation failed:", err.message);
+        }
+        return { ...doc, downloadUrl };
+      })
+    );
 
-    try {
-      downloadUrl = await getSignedUrl(doc.fileRef);
-    } catch (err) {
-      console.error("Firebase URL generation failed:", err.message);
-    }
+    // SECURITY: Strip encrypted ciphertext — only send masked display values.
+    // aadhaar.encryptedNumber / pan.encryptedNumber are AES-256 blobs that
+    // the admin UI never needs. Sending them over the wire is unnecessary exposure.
+    const safeIdentity = identity
+      ? {
+          _id:     identity._id,
+          claimId: identity.claimId,
+          aadhaar: { maskedNumber: identity.aadhaar?.maskedNumber || null },
+          pan:     { maskedNumber: identity.pan?.maskedNumber     || null },
+          createdAt: identity.createdAt,
+          updatedAt: identity.updatedAt,
+        }
+      : null;
 
-    return {
-      ...doc.toObject(),
-      downloadUrl,
-    };
-  })
-);
+    const safePayment = payment
+      ? {
+          _id:                 payment._id,
+          claimId:             payment.claimId,
+          accountHolderName:   payment.accountHolderName   || null,
+          accountNumberMasked: payment.accountNumberMasked || null,
+          ifscCode:            payment.ifscCode            || null,
+          consents: Array.isArray(payment.consents)
+            ? payment.consents.map((c) => ({ text: c.text, agreedAt: c.agreedAt }))
+            : [],
+          createdAt: payment.createdAt,
+          updatedAt: payment.updatedAt,
+        }
+      : null;
 
     res.status(200).json({
       success: true,
@@ -431,8 +463,8 @@ const documents = await Promise.all(
         claim,
         profile,
         documents,
-        identity,
-        payment,
+        identity: safeIdentity,
+        payment:  safePayment,
         auditLogs,
       },
     });

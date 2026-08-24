@@ -110,12 +110,17 @@ const [decisionLoading, setDecisionLoading] = useState(false);
 
         status: claim.status,
 
-overall:
-  claim.status === "submitted" || claim.status === "under_review"
-    ? "pending"
-    : claim.status === "fix_requested"
-    ? "issues"
-    : claim.status,
+        // Normalise both soft-reject statuses to "issues" for the list UI
+        overall:
+          claim.status === "submitted" || claim.status === "under_review"
+            ? "pending"
+            : claim.status === "fix_requested" || claim.status === "action_required"
+            ? "issues"
+            : claim.status === "approved"
+            ? "approved"
+            : claim.status === "rejected"
+            ? "rejected"
+            : "pending",
 
         docs: [],
         notes: [],
@@ -124,6 +129,7 @@ overall:
     );
   } catch (err) {
     console.error(err);
+    showToast("Failed to load claims — please refresh", "error");
   }
 };
 
