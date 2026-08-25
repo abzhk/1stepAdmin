@@ -46,9 +46,9 @@ const filtered = applicants.filter((a) => {
     a.userId?.email ||
     "";
 
-  const role =
-    a.role ||
-    "";
+  // const role =
+  //   a.role ||
+  //   "";
 
   const city =
     a.city ||
@@ -57,7 +57,7 @@ const filtered = applicants.filter((a) => {
   return (
     name.toLowerCase().includes(q) ||
     email.toLowerCase().includes(q) ||
-    role.toLowerCase().includes(q) ||
+    // role.toLowerCase().includes(q) ||
     city.toLowerCase().includes(q)
   );
 });
@@ -122,7 +122,7 @@ const filtered = applicants.filter((a) => {
                   <p className="text-xs font-bold text-[#2d4a36] truncate">{a.name}</p>
                   {/* <PriorityBadge priority={a.priority} /> */}
                 </div>
-                <p className="text-[10px] font-medium text-[#2d4a36]/60 truncate">{a.role} </p>
+                {/* <p className="text-[10px] font-medium text-[#2d4a36]/60 truncate">{a.role} </p> */}
                 <div className="flex items-center justify-between mt-1.5">
                   <StatusBadge status={a.overall} small />
                   <span className="text-[9px] font-medium text-[#8fa797]">{timeAgo(a.submittedTs)}</span>
