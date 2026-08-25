@@ -25,42 +25,42 @@ const counts = FILTERS.reduce((acc, f) => {
   return acc;
 }, {});
 
-const filtered = applicants.filter((a) => {
-  if (filter !== "all" && a.overall !== filter) {
-    return false;
-  }
+const filtered = applicants
+  .filter((a) => {
+    if (filter !== "all" && a.overall !== filter) {
+      return false;
+    }
 
-  if (!search.trim()) {
-    return true;
-  }
+    if (!search.trim()) {
+      return true;
+    }
 
-  const q = search.trim().toLowerCase();
+    const q = search.trim().toLowerCase();
 
-  const name =
-    a.name ||
-    a.userId?.username ||
-    "";
+    const name =
+      a.name ||
+      a.userId?.username ||
+      "";
 
-  const email =
-    a.email ||
-    a.userId?.email ||
-    "";
+    const email =
+      a.email ||
+      a.userId?.email ||
+      "";
 
-  // const role =
-  //   a.role ||
-  //   "";
+    const city =
+      a.city ||
+      "";
 
-  const city =
-    a.city ||
-    "";
-
-  return (
-    name.toLowerCase().includes(q) ||
-    email.toLowerCase().includes(q) ||
-    // role.toLowerCase().includes(q) ||
-    city.toLowerCase().includes(q)
-  );
-});
+    return (
+      name.toLowerCase().includes(q) ||
+      email.toLowerCase().includes(q) ||
+      // role.toLowerCase().includes(q) ||
+      city.toLowerCase().includes(q)
+    );
+  })
+  .sort((a, b) => {
+    return b.submittedTs - a.submittedTs;
+  });
   return (
     <div>
 

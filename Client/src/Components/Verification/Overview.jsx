@@ -84,14 +84,31 @@ const getCombinedStatus = (types) => {
 
 <CollapsibleSection title="Identity Verification" icon="🪪"
                 open={expandedSections.identity} onToggle={() => toggleSection("identity")}>
-              <CheckRow
-  label="Aadhaar"
-  status={getCombinedStatus(["aadhaar_front", "aadhaar_back"])}
+                 <CheckRow
+  label="Aadhaar Front"
+  status={getDocStatus("aadhaar_front")}
+/>
+
+<KVRow
+  label="Aadhaar Number"
+  value={applicant.identity?.aadhaar?.maskedNumber || "-"}
+  mono
+/>
+
+<CheckRow
+  label="Aadhaar Back"
+  status={getDocStatus("aadhaar_back")}
 />
 
 <CheckRow
   label="PAN Card"
   status={getDocStatus("pan_card")}
+/>
+
+  <KVRow
+  label="PAN Number"
+  value={applicant.identity?.pan?.maskedNumber || "-"}
+  mono
 />
 
 <CheckRow
@@ -125,6 +142,7 @@ const getCombinedStatus = (types) => {
         <KVRow label="University" value={q.university || "-"} />
         {/* <KVRow label="Year" value={q.yearOfCompletion || "-"} /> */}
         <KVRow label="Start Year" value={q.startDate || "-"}/>
+         {/* <KVRow label="End Year" value={q.endDate || "-"}/> */}
 
         <CheckRow
           label="Degree certificate"
@@ -183,7 +201,11 @@ const getCombinedStatus = (types) => {
 
         {/* Address */}
         <p className="text-[11px] text-[#8fa797] mt-0.5">
-          {p.address?.line1 || "-"}, {p.address?.city || ""}
+          {p.address?.line1 || "-"}, {p.address?.country || ""}
+        </p>
+
+        <p className="text-[11px] text-[#8fa797] mt-0.5">
+          {p.startDate || "-"}
         </p>
 
         {/* Tags */}
@@ -191,6 +213,7 @@ const getCombinedStatus = (types) => {
           <span className="px-2 py-0.5 bg-[#F6F4F0] rounded text-[10px]">
             {p.role || "-"}
           </span>
+
 
           <span className="px-2 py-0.5 bg-[#F6F4F0] rounded text-[10px]">
             {Array.isArray(p.consultationType)
