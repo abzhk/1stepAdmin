@@ -53,9 +53,9 @@ const Notes = ({
       />
 
       <div className="flex items-center justify-between mt-2">
-        <span className="text-[10px] font-medium text-[#8fa797]">
+        {/* <span className="text-[10px] font-medium text-[#8fa797]">
           ⌘/Ctrl+Enter to save
-        </span>
+        </span> */}
 
         <button
           onClick={handleNoteSubmit}

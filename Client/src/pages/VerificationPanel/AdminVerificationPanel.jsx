@@ -424,6 +424,19 @@ docs: (selectedDetail?.documents || []).map((doc) => ({
   by: log.performedBy?.username || "System",
   ts: log.createdAt,
 })),
+  notes: selectedDetail?.claim?.adminNotes
+  ? [
+      {
+        id: selectedDetail.claim._id,
+        text: selectedDetail.claim.adminNotes,
+        by: selectedDetail.claim.reviewedBy?.username || "Admin",
+        ts:
+          selectedDetail.claim.updatedAt ||
+          selectedDetail.claim.reviewedAt ||
+          selectedDetail.claim.createdAt,
+      },
+    ]
+  : [],
 }}
               onApprove={handleApprove}
               onReject={handleReject}
