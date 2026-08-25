@@ -1,5 +1,5 @@
 import { TherapistDocument, TherapistClaimRequest } from "../models/ClaimProfile/index.js";
-import { uploadToStorage, getSignedUrl } from "../config/firebase.js";
+import { uploadToStorage, getSignedUrl, deleteFromStorage } from "../config/firebase.js";
 import { errorHandler } from "../utils/error.js";
 import { audit } from "./claimProfile.controller.js";
 import { fileTypeFromBuffer } from "file-type";
@@ -45,11 +45,18 @@ export const uploadDocument = async (req, res, next) => {
       });
     }
 
-    // Step 1: Deduplication (Soft delete any existing document of the same type and index)
-    await TherapistDocument.updateMany(
-      { claimId, userId, docType, itemIndex: itemIdxVal, isActive: true },
-      { $set: { isActive: false } }
-    );
+    // Step 1: Check existing document
+    const existingDoc = await TherapistDocument.findOne({
+      claimId,
+      userId,
+      docType,
+      itemIndex: itemIdxVal,
+      isActive: true,
+    });
+
+    if (existingDoc && existingDoc.docStatus === "accepted") {
+      return next(errorHandler(400, "Cannot replace a document that has already been accepted."));
+    }
 
     // Step 2: Upload to Firebase Storage using Admin SDK
     const timestamp = Date.now();
@@ -63,39 +70,63 @@ export const uploadDocument = async (req, res, next) => {
       mimeType: file.mimetype, // this was verified by validateMimeType
     });
 
-    // Step 3: Save to MongoDB
-    const newDoc = await TherapistDocument.create({
-      userId,
-      claimId,
-      docType,
-      itemIndex: itemIdxVal,
-      fileRef,
-      fileName: file.originalname,
-      mimeType: file.mimetype,
-      fileSizeBytes: file.size,
-      isActive: true,
-      docStatus: "pending",
-    });
+    // Step 3: Delete old Firebase image if replacing
+    if (existingDoc && existingDoc.fileRef) {
+      try {
+        await deleteFromStorage(existingDoc.fileRef);
+      } catch (err) {
+        console.error("Failed to delete old document from firebase during replacement:", err.message);
+      }
+    }
 
-    // Step 4: Audit Log
+    // Step 4: Save to MongoDB (Update existing instead of duplicating)
+    let docToReturn;
+    if (existingDoc) {
+      existingDoc.fileRef = fileRef;
+      existingDoc.fileName = file.originalname;
+      existingDoc.mimeType = file.mimetype;
+      existingDoc.fileSizeBytes = file.size;
+      existingDoc.docStatus = "pending";
+      existingDoc.docRejectionReason = null;
+      existingDoc.uploadedAt = new Date();
+      await existingDoc.save();
+      docToReturn = existingDoc;
+    } else {
+      docToReturn = await TherapistDocument.create({
+        userId,
+        claimId,
+        docType,
+        itemIndex: itemIdxVal,
+        fileRef,
+        fileName: file.originalname,
+        mimeType: file.mimetype,
+        fileSizeBytes: file.size,
+        isActive: true,
+        docStatus: "pending",
+      });
+    }
+
+    // Step 5: Audit Log
     await audit({
       claimId,
       userId,
       performedBy: userId,
       action: "document_uploaded",
       req,
-      metadata: { docId: newDoc._id, docType, fileSizeBytes: file.size },
+      metadata: { docId: docToReturn._id, docType, fileSizeBytes: file.size, replaced: !!existingDoc },
     });
 
     res.status(201).json({
       success: true,
       document: {
-        docId: newDoc._id,
-        docType: newDoc.docType,
-        itemIndex: newDoc.itemIndex,
-        fileName: newDoc.fileName,
-        fileSizeBytes: newDoc.fileSizeBytes,
-        uploadedAt: newDoc.uploadedAt,
+        docId: docToReturn._id,
+        docType: docToReturn.docType,
+        itemIndex: docToReturn.itemIndex,
+        fileName: docToReturn.fileName,
+        fileSizeBytes: docToReturn.fileSizeBytes,
+        uploadedAt: docToReturn.uploadedAt,
+        docStatus: docToReturn.docStatus,
+        docRejectionReason: docToReturn.docRejectionReason
       },
     });
   } catch (error) {

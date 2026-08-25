@@ -248,29 +248,6 @@ const handleReject = async ({
   }
 };
 
-
-const handleReopen = async () => {
-  try {
-    setDecisionLoading(true);
-
-    await api(`/api/claim/admin/${selectedId}/reopen`, {
-      method: "PATCH",
-    });
-
-    showToast("Claim reopened successfully", "success");
-
-    await fetchClaims();
-    await fetchClaimDetail(selectedId);
-  } catch (error) {
-    showToast(
-      error?.message || "Failed to reopen claim",
-      "error"
-    );
-  } finally {
-    setDecisionLoading(false);
-  }
-};
-
 const handleRequestFix = async ({
   reason,
   category,
@@ -450,13 +427,13 @@ docs: (selectedDetail?.documents || []).map((doc) => ({
 }}
               onApprove={handleApprove}
               onReject={handleReject}
-              onReopen={handleReopen}
-               onRequestFix={handleRequestFix}
+              onRequestFix={handleRequestFix}
               onDocStatusChange={handleDocStatusChange}
               onNoteAdd={handleNoteAdd}
               onFieldStatusChange={handleFieldStatusChange}
               onPriorityChange={handlePriorityChange}
               showToast={showToast}
+              decisionLoading={decisionLoading}
             />
           ) : (
             <div className="flex-1 flex items-center justify-center text-sm font-medium text-[#8fa797]">
