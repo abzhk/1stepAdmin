@@ -9,7 +9,7 @@ import { MODULES, ACTIONS } from "../../constants/permission";
 const StatusBadge = ({ status }) => {
   const styles = {
     Open: "bg-red-50 text-red-500",
-    "In Progress": "bg-yellow-200 text-yellow-600",
+    "In progress": "bg-yellow-100 text-yellow-600",
     Resolved: "bg-green-50 text-green-600",
   };
 
@@ -69,10 +69,10 @@ const HelpDeskCard = () => {
               </div>
 
               <div>
-                <p className="text-sm font-medium text-gray-800 group-hover:text-black">
+                <p className="text-cardfooter  group-hover:text-black">
                   {item.title}
                 </p>
-                <p className="text-xs text-green-700 font-medium">
+                <p className="text-xs text-darkgreen font-medium">
                   {item.user?.email}
                 </p>
                 <p className="text-sm font-medium text-gray-800 group-hover:text-black">
