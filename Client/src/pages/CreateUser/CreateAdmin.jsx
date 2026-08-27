@@ -36,7 +36,7 @@ const [roleFilter, setRoleFilter] = useState("user");
     const res = await api(
       `/api/users/users?page=${page}&limit=${limit}&search=${search}&role=${roleFilter}`
     );
-  console.log("API Response:", res);
+  // console.log("API Response:", res);
     if (res.success) {
       setUsers(res.users);
       setTotalPages(res.pagination.totalPages);

@@ -57,7 +57,7 @@ const Login = () => {
         body: JSON.stringify({ username, password }),
       });
 
-      console.log(data.user);
+      // console.log(data.user);
 
      dispatch(setUser(data.user));
       toast.success("Login successful ");

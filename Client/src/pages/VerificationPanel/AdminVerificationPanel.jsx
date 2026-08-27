@@ -81,7 +81,7 @@ const [decisionLoading, setDecisionLoading] = useState(false);
   const fetchClaims = async () => {
   try {
     const res = await api("/api/claim/admin/queue");
-    console.log(res);
+    // console.log(res);
 
     setData(
       res.data.map((claim) => ({

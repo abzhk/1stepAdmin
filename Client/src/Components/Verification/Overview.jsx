@@ -153,21 +153,26 @@ const getCombinedStatus = (types) => {
               : null
           }
         />
+        <KVRow
+  label="Reg body"
+  value={q.registrationBody || "-"}
+/>
 
-        <div className="flex items-center justify-between py-2">
-          <span className="text-xs text-[#2d4a36]/80">
-            Reg. No.
-            <span className="font-mono text-[10px] text-[#8fa797] ml-1">
-              {q.registrationNumber?.masked || "-"}
-            </span>
-          </span>
+      <div className="flex items-center justify-between py-2">
+  <span className="text-xs text-[#2d4a36]/80">
+    Reg. No.
+  </span>
 
-          <div className="flex items-center gap-1.5">
-            <StatusBadge
-              status={q.registrationVerified ? "verified" : "pending"}
-              small
-            />
-          </div>
+  <span className=" ml-22 flex-1 text-center font-bold text-[12px] ">
+    {q.registrationNumber?.masked || "-"}
+  </span>
+
+  <div className="flex items-center gap-1.5">
+    <StatusBadge
+      status={q.registrationVerified ? "verified" : "pending"}
+      small
+    />
+  </div>
         </div>
       </div>
     ))
@@ -277,9 +282,13 @@ const getCombinedStatus = (types) => {
   /> */}
 
   <KVRow
-    label="Verified"
-    value={applicant.payment?.isVerified ? "Yes" : "No"}
-  />
+  label="Verified"
+  value={
+    getDocStatus("cancelled_cheque") === "verified"
+      ? "Yes"
+      : "No"
+  }
+/>
 </CollapsibleSection>
 
     </div>
