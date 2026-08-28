@@ -10,13 +10,17 @@ import SystemAlert from "../../Components/DashboardComponent/SystemAlert.jsx";
 import HelpDeskCard from "../../Components/DashboardComponent/HelpDeskCard.jsx";
 import {MODULES, ACTIONS} from "../../constants/permission.js";
 import PermissionGuard from "../../Components/PermissionGuard.jsx";
-import DashboardSkeleton from "../../Components/DashboardComponent/DashboardSkeleton.jsx";
 
 const MainDashboard = () => {
   const navigate = useNavigate();
 
 
-  const [loading, setLoading] = useState(true);
+  const [statsLoading, setStatsLoading] = useState(true);
+const [monthlyLoading, setMonthlyLoading] = useState(true);
+const [ticketsLoading, setTicketsLoading] = useState(true);
+const [alertsLoading, setAlertsLoading] = useState(true);
+const [subscriptionLoading, setSubscriptionLoading] = useState(true);
+const [sessionLoading, setSessionLoading] = useState(true);
 
 const [stats, setStats] = useState(null);
 const [subscription, setSubscription] = useState(null);
@@ -25,43 +29,66 @@ const [monthlyData, setMonthlyData] = useState([]);
 const [tickets, setTickets] = useState([]);
 const [alerts, setAlerts] = useState([]);
 
-
-
-
-
-useEffect(() => {
-  loadDashboard();
-}, []);
-
-const loadDashboard = async () => {
+const loadStats = async () => {
   try {
-    setLoading(true);
+    const data = await api("/api/track/stats");
+    setStats(data);
+  } catch (error) {
+    console.error("Stats loading failed:", error);
+  } finally {
+    setStatsLoading(false);
+  }
+};
 
-    const [
-      statsRes,
-      subscriptionRes,
-      sessionRes,
-      monthlyRes,
-      ticketsRes,
-      expiredRes,
-    ] = await Promise.all([
-      api("/api/track/stats"),
-      api("/api/subscription/getcount"),
-      api("/api/booking/sessions/count"),
-      api("/api/track/monthly"),
-      api("/api/help/all-tickets"),
-      api("/api/subscription/expired?days=0"),
-    ]);
+const loadSubscription = async () => {
+  try {
+    const data = await api("/api/subscription/getcount");
+    setSubscription(data);
+  } catch (error) {
+    console.error("Subscription loading failed:", error);
+  } finally {
+    setSubscriptionLoading(false);
+  }
+};
 
-    setStats(statsRes);
-    setSubscription(subscriptionRes);
-    setSessionCount(sessionRes?.totalSessions || 0);
+const loadSessions = async () => {
+  try {
+    const data = await api("/api/booking/sessions/count");
+    setSessionCount(data?.totalSessions || 0);
+  } catch (error) {
+    console.error("Session loading failed:", error);
+  } finally {
+    setSessionLoading(false);
+  }
+};
 
-    setMonthlyData(monthlyRes?.data || []);
+const loadMonthly = async () => {
+  try {
+    const data = await api("/api/track/monthly");
+    setMonthlyData(data?.data || []);
+  } catch (error) {
+    console.error("Monthly statistics loading failed:", error);
+  } finally {
+    setMonthlyLoading(false);
+  }
+};
 
-   setTickets(ticketsRes?.tickets || []);
+const loadTickets = async () => {
+  try {
+    const data = await api("/api/help/latest-tickets");
+    setTickets(data?.tickets || []);
+  } catch (error) {
+    console.error("Tickets loading failed:", error);
+  } finally {
+    setTicketsLoading(false);
+  }
+};
 
-    const expiredUsers = expiredRes?.data || [];
+const loadAlerts = async () => {
+  try {
+    const data = await api("/api/subscription/expired?days=0");
+
+    const expiredUsers = data?.data || [];
 
     const generatedAlerts = expiredUsers.map((item) => ({
       type: "critical",
@@ -76,18 +103,24 @@ const loadDashboard = async () => {
     }
 
     setAlerts(generatedAlerts);
-
   } catch (error) {
-    console.error("Dashboard loading failed:", error);
+    console.error("Alerts loading failed:", error);
   } finally {
-    setLoading(false);
+    setAlertsLoading(false);
   }
 };
 
+useEffect(() => {
+  loadStats();
+  loadSubscription();
+  loadSessions();
+  loadMonthly();
+  loadTickets();
+  loadAlerts();
+}, []);
 
- if (loading) {
-    return <DashboardSkeleton />;
-  }
+
+
   // const [recentBookings, setRecentBookings] = useState([]);
   // useEffect(() => {
   //   fetchRecentBookings();
@@ -171,15 +204,26 @@ const loadDashboard = async () => {
   stats={stats}
   subscription={subscription}
   sessionCount={sessionCount}
+  loading={
+    statsLoading ||
+    subscriptionLoading ||
+    sessionLoading
+  }
 />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
         <div className="lg:col-span-2 space-y-6">
-          <StatisticsCard data={monthlyData} />
+         <StatisticsCard
+  data={monthlyData}
+  loading={monthlyLoading}
+/>
         </div>
 
         <div className="lg:col-span-1">
-         <HelpDeskCard tickets={tickets} />
+         <HelpDeskCard
+  tickets={tickets}
+  loading={ticketsLoading}
+/>
         </div>
       </div>
 
@@ -229,7 +273,10 @@ const loadDashboard = async () => {
 
         {/* system Alert */}
         <div className="space-y-6">
-          <SystemAlert alerts={alerts} />
+          <SystemAlert
+  alerts={alerts}
+  loading={alertsLoading}
+/>
         </div>
       </div>
     </div>

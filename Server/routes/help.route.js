@@ -7,6 +7,7 @@ import {
   deleteTicket,
   getAllTickets,
     replyTicket,
+      getLatestTickets,
 } from "../controller/help.controller.js";
 import { verifyAdminToken } from "../middlewares/authMiddleware.js";
 
@@ -22,6 +23,12 @@ router.post(
   "/reply-ticket/:id",
   verifyAdminToken,
   replyTicket
+);
+
+router.get(
+  "/latest-tickets",
+  verifyAdminToken,
+  getLatestTickets
 );
 
 export default router;
