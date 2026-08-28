@@ -49,7 +49,7 @@ const loadDashboard = async () => {
       api("/api/subscription/getcount"),
       api("/api/booking/sessions/count"),
       api("/api/track/monthly"),
-      api("/api/help/all-tickets"),
+      api("/api/help/dashboard-tickets"),
       api("/api/subscription/expired?days=0"),
     ]);
 
@@ -59,14 +59,7 @@ const loadDashboard = async () => {
 
     setMonthlyData(monthlyRes?.data || []);
 
-    setTickets(
-      [...(ticketsRes?.tickets || [])]
-        .sort(
-          (a, b) =>
-            new Date(b.createdAt) - new Date(a.createdAt)
-        )
-        .slice(0, 3)
-    );
+   setTickets(ticketsRes?.tickets || []);
 
     const expiredUsers = expiredRes?.data || [];
 

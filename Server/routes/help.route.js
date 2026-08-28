@@ -7,6 +7,7 @@ import {
   deleteTicket,
   getAllTickets,
     replyTicket,
+    getDashboardTickets,
 } from "../controller/help.controller.js";
 import { verifyAdminToken } from "../middlewares/authMiddleware.js";
 
@@ -17,11 +18,13 @@ router.get("/my-tickets", verifyAdminToken, getMyTickets);
 router.get("/ticket/:id", verifyAdminToken, getTicket);
 router.put("/update-ticket/:id", verifyAdminToken, updateTicket);
 router.delete("/delete-ticket/:id", verifyAdminToken, deleteTicket);
-router.get("/all-tickets", getAllTickets);
+router.get("/all-tickets",verifyAdminToken, getAllTickets);
 router.post(
   "/reply-ticket/:id",
   verifyAdminToken,
   replyTicket
 );
+
+router.get("/dashboard-tickets",verifyAdminToken,getDashboardTickets);
 
 export default router;

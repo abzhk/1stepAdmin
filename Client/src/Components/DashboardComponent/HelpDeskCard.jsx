@@ -19,7 +19,7 @@ const StatusBadge = ({ status }) => {
   );
 };
 
-const HelpDeskCard = ({ tickets }) => {
+const HelpDeskCard = ({ tickets  = []}) => {
   const navigate = useNavigate();
   
 

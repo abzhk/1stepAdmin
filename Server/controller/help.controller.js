@@ -642,3 +642,91 @@ export const replyTicket = async (req, res, next) => {
     next(error);
   }
 };
+
+
+
+//ticket for dashbaord 
+export const getDashboardTickets = async (req, res, next) => {
+  try {
+    const tickets = await Help.find({})
+      .populate({
+        path: "user",
+        select: "username email profilePicture",
+      })
+      .sort({ createdAt: -1 })
+      .limit(3)
+      .lean();
+
+    const ticketUserIds = tickets
+      .map((ticket) => ticket.user?._id)
+      .filter(Boolean);
+
+    const [parents, providers] = await Promise.all([
+      Parent.find({
+        userRef: { $in: ticketUserIds },
+      })
+        .select("userRef parentDetails.fullName")
+        .lean(),
+
+      Provider.find({
+        userRef: { $in: ticketUserIds },
+      })
+        .select("userRef fullName profilePicture")
+        .lean(),
+    ]);
+
+    const parentMap = new Map(
+      parents.map((parent) => [
+        parent.userRef.toString(),
+        parent,
+      ])
+    );
+
+    const providerMap = new Map(
+      providers.map((provider) => [
+        provider.userRef.toString(),
+        provider,
+      ])
+    );
+
+    const formattedTickets = tickets.map((ticket) => {
+      const userId = ticket.user?._id?.toString();
+
+      const parent = userId
+        ? parentMap.get(userId)
+        : null;
+
+      const provider = userId
+        ? providerMap.get(userId)
+        : null;
+
+      let displayName = ticket.user?.username || "";
+
+      if (parent) {
+        displayName =
+          parent.parentDetails?.fullName ||
+          displayName;
+      } else if (provider) {
+        displayName =
+          provider.fullName ||
+          displayName;
+      }
+
+      return {
+        ...ticket,
+        displayName,
+        displayProfilePicture:
+          provider?.profilePicture ||
+          ticket.user?.profilePicture ||
+          "",
+      };
+    });
+
+    res.status(200).json({
+      success: true,
+      tickets: formattedTickets,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
