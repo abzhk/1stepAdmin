@@ -49,7 +49,7 @@ const loadDashboard = async () => {
       api("/api/subscription/getcount"),
       api("/api/booking/sessions/count"),
       api("/api/track/monthly"),
-      api("/api/help/dashboard-tickets"),
+      api("/api/help/all-tickets"),
       api("/api/subscription/expired?days=0"),
     ]);
 
