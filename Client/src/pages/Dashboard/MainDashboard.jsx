@@ -6,27 +6,108 @@ import { MdRateReview, MdArticle } from "react-icons/md";
 import { api } from "../../utils/api.js";
 import StatisticsCard from "../../Components/DashboardComponent/StatisticsCard.jsx";
 import CardCountDashboard from "../../Components/DashboardComponent/CountCardDashboard.jsx";
-import BarGraph from "../../Components/DashboardComponent/BarGraph.jsx";
 import SystemAlert from "../../Components/DashboardComponent/SystemAlert.jsx";
 import HelpDeskCard from "../../Components/DashboardComponent/HelpDeskCard.jsx";
 import {MODULES, ACTIONS} from "../../constants/permission.js";
 import PermissionGuard from "../../Components/PermissionGuard.jsx";
+import DashboardSkeleton from "../../Components/DashboardComponent/DashboardSkeleton.jsx";
 
 const MainDashboard = () => {
   const navigate = useNavigate();
-  const [recentBookings, setRecentBookings] = useState([]);
-  useEffect(() => {
-    fetchRecentBookings();
-  }, []);
 
-  const fetchRecentBookings = async () => {
-    try {
-      const data = await api("/api/booking/recent");
-      setRecentBookings(data.bookings || []);
-    } catch (err) {
-      console.error("Recent bookings fetch error:", err);
+
+  const [loading, setLoading] = useState(true);
+
+const [stats, setStats] = useState(null);
+const [subscription, setSubscription] = useState(null);
+const [sessionCount, setSessionCount] = useState(0);
+const [monthlyData, setMonthlyData] = useState([]);
+const [tickets, setTickets] = useState([]);
+const [alerts, setAlerts] = useState([]);
+
+
+
+
+
+useEffect(() => {
+  loadDashboard();
+}, []);
+
+const loadDashboard = async () => {
+  try {
+    setLoading(true);
+
+    const [
+      statsRes,
+      subscriptionRes,
+      sessionRes,
+      monthlyRes,
+      ticketsRes,
+      expiredRes,
+    ] = await Promise.all([
+      api("/api/track/stats"),
+      api("/api/subscription/getcount"),
+      api("/api/booking/sessions/count"),
+      api("/api/track/monthly"),
+      api("/api/help/all-tickets"),
+      api("/api/subscription/expired?days=0"),
+    ]);
+
+    setStats(statsRes);
+    setSubscription(subscriptionRes);
+    setSessionCount(sessionRes?.totalSessions || 0);
+
+    setMonthlyData(monthlyRes?.data || []);
+
+    setTickets(
+      [...(ticketsRes?.tickets || [])]
+        .sort(
+          (a, b) =>
+            new Date(b.createdAt) - new Date(a.createdAt)
+        )
+        .slice(0, 3)
+    );
+
+    const expiredUsers = expiredRes?.data || [];
+
+    const generatedAlerts = expiredUsers.map((item) => ({
+      type: "critical",
+      message: `${item.user} has expired the subscription for ${item.days} days`,
+    }));
+
+    if (generatedAlerts.length === 0) {
+      generatedAlerts.push({
+        type: "info",
+        message: "System running normally",
+      });
     }
-  };
+
+    setAlerts(generatedAlerts);
+
+  } catch (error) {
+    console.error("Dashboard loading failed:", error);
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+ if (loading) {
+    return <DashboardSkeleton />;
+  }
+  // const [recentBookings, setRecentBookings] = useState([]);
+  // useEffect(() => {
+  //   fetchRecentBookings();
+  // }, []);
+
+  // const fetchRecentBookings = async () => {
+  //   try {
+  //     const data = await api("/api/booking/recent");
+  //     setRecentBookings(data.bookings || []);
+  //   } catch (err) {
+  //     console.error("Recent bookings fetch error:", err);
+  //   }
+  // };
 
   const quickActions = [
     {
@@ -93,15 +174,19 @@ const MainDashboard = () => {
 
   return (
     <div className="min-h-screen p-4 bg-offwhite">
-      <CardCountDashboard />
+     <CardCountDashboard
+  stats={stats}
+  subscription={subscription}
+  sessionCount={sessionCount}
+/>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
         <div className="lg:col-span-2 space-y-6">
-          <StatisticsCard />
+          <StatisticsCard data={monthlyData} />
         </div>
 
         <div className="lg:col-span-1">
-          <HelpDeskCard />
+         <HelpDeskCard tickets={tickets} />
         </div>
       </div>
 
@@ -151,7 +236,7 @@ const MainDashboard = () => {
 
         {/* system Alert */}
         <div className="space-y-6">
-          <SystemAlert />
+          <SystemAlert alerts={alerts} />
         </div>
       </div>
     </div>

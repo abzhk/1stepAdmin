@@ -1,59 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { AiFillWarning } from "react-icons/ai";
 import { MdInfo } from "react-icons/md";
 import { RiErrorWarningFill } from "react-icons/ri";
-import { api } from "../../utils/api";
-
-const SystemAlert = () => {
-  const [alerts, setAlerts] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchAlerts();
-  }, []);
-
-  const fetchAlerts = async () => {
-    try {
-      setLoading(true);
-
-     const expiredRes = await api("/api/subscription/expired?days=0");
 
 
-      const generatedAlerts = [];
-
-
-      const expiredUsers = expiredRes?.data || [];
-
-      expiredUsers.forEach((item) => {
-        generatedAlerts.push({
-          type: "critical",
-          message: `${item.user} has expired the subscription for ${item.days} days`,
-        });
-      });
-
-
-  
-      if (generatedAlerts.length === 0) {
-        generatedAlerts.push({
-          type: "info",
-          message: "System running normally",
-        });
-      }
-
-      setAlerts(generatedAlerts);
-    } catch (error) {
-      console.error("Alert fetch failed:", error);
-
-      setAlerts([
-        {
-          type: "critical",
-          message: "Failed to load alerts",
-        },
-      ]);
-    } finally {
-      setLoading(false);
-    }
-  };
+const SystemAlert = ({ alerts }) => {
 
   const alertConfig = {
     critical: {
@@ -101,15 +52,11 @@ const SystemAlert = () => {
 
         {/* Alerts List */}
         <div className="space-y-4 max-h-[220px] overflow-y-auto pr-2">
-          {loading ? (
-            <p className="text-gray-500 text-sm flex justify-center mt-20">
-              Loading alerts...
-            </p>
-          ) : alerts.length === 0 ? (
-            <p className="text-gray-500 text-sm flex justify-center mt-20">
-              No alerts
-            </p>
-          ) : (
+  {alerts.length === 0 ? (
+    <p className="text-gray-500 text-sm flex justify-center mt-20">
+      No alerts
+    </p>
+  ) : (
             alerts.map((alert, index) => {
               const config = alertConfig[alert.type];
 
