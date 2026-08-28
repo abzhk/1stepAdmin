@@ -7,7 +7,6 @@ import {
   deleteTicket,
   getAllTickets,
     replyTicket,
-    getDashboardTickets,
 } from "../controller/help.controller.js";
 import { verifyAdminToken } from "../middlewares/authMiddleware.js";
 
@@ -24,7 +23,5 @@ router.post(
   verifyAdminToken,
   replyTicket
 );
-
-router.get("/dashboard-tickets",verifyAdminToken,getDashboardTickets);
 
 export default router;
