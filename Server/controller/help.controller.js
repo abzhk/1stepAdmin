@@ -644,11 +644,11 @@ export const replyTicket = async (req, res, next) => {
 };
 
 
-
-//ticket for dashbaord 
+//ticket for dashboard card
 export const getDashboardTickets = async (req, res, next) => {
   try {
     const tickets = await Help.find({})
+      .select("title status createdAt user")
       .populate({
         path: "user",
         select: "username email profilePicture",
@@ -671,28 +671,31 @@ export const getDashboardTickets = async (req, res, next) => {
       Provider.find({
         userRef: { $in: ticketUserIds },
       })
-        .select("userRef fullName profilePicture")
+        .select("userRef fullName")
         .lean(),
     ]);
 
     const parentMap = new Map(
       parents.map((parent) => [
         parent.userRef.toString(),
-        parent,
+        parent.parentDetails?.fullName,
       ])
     );
 
     const providerMap = new Map(
       providers.map((provider) => [
         provider.userRef.toString(),
-        provider,
+        {
+          fullName: provider.fullName,
+          profilePicture: provider.profilePicture,
+        },
       ])
     );
 
     const formattedTickets = tickets.map((ticket) => {
       const userId = ticket.user?._id?.toString();
 
-      const parent = userId
+      const parentName = userId
         ? parentMap.get(userId)
         : null;
 
@@ -700,21 +703,23 @@ export const getDashboardTickets = async (req, res, next) => {
         ? providerMap.get(userId)
         : null;
 
-      let displayName = ticket.user?.username || "";
-
-      if (parent) {
-        displayName =
-          parent.parentDetails?.fullName ||
-          displayName;
-      } else if (provider) {
-        displayName =
-          provider.fullName ||
-          displayName;
-      }
-
       return {
-        ...ticket,
-        displayName,
+        _id: ticket._id,
+        title: ticket.title,
+        status: ticket.status,
+        createdAt: ticket.createdAt,
+
+        user: {
+          username: ticket.user?.username || "",
+          email: ticket.user?.email || "",
+        },
+
+        displayName:
+          parentName ||
+          provider?.fullName ||
+          ticket.user?.username ||
+          "",
+
         displayProfilePicture:
           provider?.profilePicture ||
           ticket.user?.profilePicture ||
