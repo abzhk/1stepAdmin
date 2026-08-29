@@ -400,8 +400,8 @@ const handleStatus = async (user) => {
                 />
               </td>
 
-              <td className="px-4 py-3 text-table-text">
-                {user.username}
+              <td className="px-4 py-3 text-table-text capitalize">
+               {user.displayName || user.username}
               </td>
 
               <td className="px-4 py-3 text-table-text">

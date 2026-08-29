@@ -24,6 +24,11 @@ const assessmentCategorySchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    specialization: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: "Specialization",
+  required: true,
+},
   },
   { timestamps: true }
 );

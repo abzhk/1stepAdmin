@@ -2,6 +2,7 @@ import Provider from "../model/provider.model.js";
 import User from "../model/user.model.js";
 import { errorHandler } from "../utils/error.js";
 import Role from "../model/role.model.js";
+import Parent from "../model/parent.model.js";
 
 import bcryptjs from "bcryptjs";
 
@@ -266,8 +267,8 @@ export const getAllUsers = async (req, res, next) => {
     }).select("_id");
 
     const superAdminRole = await Role.findOne({
-  role: "Super Admin",
-}).select("_id");
+      role: "Super Admin",
+    }).select("_id");
 
     const adminRoleIds = adminRoles.map((r) => r._id);
 
@@ -275,29 +276,41 @@ export const getAllUsers = async (req, res, next) => {
       ...(search
         ? {
             $or: [
-              { username: { $regex: search, $options: "i" } },
-              { email: { $regex: search, $options: "i" } },
+              {
+                username: {
+                  $regex: search,
+                  $options: "i",
+                },
+              },
+              {
+                email: {
+                  $regex: search,
+                  $options: "i",
+                },
+              },
             ],
           }
         : {}),
     };
 
-
-   if (role === "admin") {
-  filter.role = { $in: adminRoleIds };
-} else if (role === "user") {
-  filter.role = {
-    $nin: [...adminRoleIds, superAdminRole._id],
-  };
-}
-   
+    if (role === "admin") {
+      filter.role = {
+        $in: adminRoleIds,
+      };
+    } else if (role === "user") {
+      filter.role = {
+        $nin: [...adminRoleIds, superAdminRole._id],
+      };
+    }
 
     const totalUsers = await User.countDocuments(filter);
 
     const users = await User.find(filter)
       .populate("role", "role")
       .select("-password -refreshToken")
-      .sort({ createdAt: sort === "asc" ? 1 : -1 })
+      .sort({
+        createdAt: sort === "asc" ? 1 : -1,
+      })
       .skip((pageNumber - 1) * limitNumber)
       .limit(limitNumber);
 
@@ -307,28 +320,53 @@ export const getAllUsers = async (req, res, next) => {
 
         const roleName = obj.role?.role?.toLowerCase();
 
+        // Parent
+        if (roleName === "parent") {
+          const parent = await Parent.findOne(
+            {
+              userRef: user._id,
+            },
+            "_id parentDetails.fullName"
+          );
+
+          obj.parentId = parent?._id || null;
+          obj.displayName =
+            parent?.parentDetails?.fullName || obj.username;
+        }
+
+        // Individual Provider
         if (roleName === "provider") {
           const provider = await Provider.findOne(
             {
               userRef: user._id,
               providerType: "individual",
             },
-            "_id"
+            "_id fullName"
           );
 
           obj.providerId = provider?._id || null;
+          obj.displayName =
+            provider?.fullName || obj.username;
         }
 
+        // Centre
         if (roleName === "centre") {
           const centre = await Provider.findOne(
             {
               userRef: user._id,
               providerType: "centre",
             },
-            "_id"
+            "_id fullName"
           );
 
           obj.centreId = centre?._id || null;
+          obj.displayName =
+            centre?.fullName || obj.username;
+        }
+
+        // Admin / other users
+        if (!obj.displayName) {
+          obj.displayName = obj.username;
         }
 
         return obj;
@@ -340,7 +378,9 @@ export const getAllUsers = async (req, res, next) => {
       users: usersWithExtraIds,
       pagination: {
         currentPage: pageNumber,
-        totalPages: Math.ceil(totalUsers / limitNumber),
+        totalPages: Math.ceil(
+          totalUsers / limitNumber
+        ),
         totalUsers,
         limit: limitNumber,
       },

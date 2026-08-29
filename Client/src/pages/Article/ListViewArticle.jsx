@@ -205,6 +205,11 @@ const handleSort = (key) => {
       sortConfig={sortConfig}
       handleSort={handleSort}
     />
+     <th className="px-6 py-3">
+  <div className="flex items-center gap-2">
+    Status
+  </div>
+</th>
 
     <th className="px-6 py-3">Actions</th>
   </tr>
@@ -213,7 +218,7 @@ const handleSort = (key) => {
               <tbody className="divide-y">
                 {articles.map((article) => (
                   <tr key={article._id} className="hover:bg-offwhite border-0 ">
-                    <td className="px-6 py-3">
+                    <td className="px-3 py-3">
                       {article.featuredImage ? (
                         <img
                           src={article.featuredImage}
@@ -261,6 +266,10 @@ const handleSort = (key) => {
                         className="w-4 h-4"
                       />
                     </td>
+
+                    <td className="px-6 py-3 text-table-text text-left">
+  {article.status || "—"}
+</td>
                     <td>
                       <PermissionGuard module={MODULES.ARTICLES} action={ACTIONS.UPDATE}>
                       <button

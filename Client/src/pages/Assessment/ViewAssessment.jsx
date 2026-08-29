@@ -141,6 +141,9 @@ const handleDelete = async (id) => {
                     <th className="px-4 py-3 text-left uppercase text-cardfooter ">
                       Assessment Code
                     </th>
+                    <th className="px-4 py-3 text-left uppercase text-cardfooter ">
+                      Specialization
+                    </th>
                     <th className="px-4 py-3 text-center uppercase text-cardfooter ">
                       Actions
                     </th>
@@ -180,6 +183,10 @@ const handleDelete = async (id) => {
     "-"
   )}
 </td>
+
+ <td className="px-4 py-3 text-table-text">
+                        {assessment.specialization?.name || "-"}
+                      </td>
                       {/* 
                       <td className="px-4 py-3">
                         <button
