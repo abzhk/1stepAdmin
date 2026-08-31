@@ -75,6 +75,7 @@ export default function AdminInbox() {
   const [totalMessages, setTotalMessages] = useState(0);
   const [page, setPage] = useState(1);
   const [hasNextPage, setHasNextPage] = useState(false);
+  const [totalPages, setTotalPages] = useState(1);
   
 
   const filtered = msgs.filter((m) => {
@@ -190,7 +191,7 @@ export default function AdminInbox() {
     try {
       setLoading(true);
       setError(null);
-      const res = await api(`/api/contact/getall?page=${page}&limit=20`);
+      const res = await api(`/api/contact/getall?page=${page}&limit=5`);
       
       const formatted = res.data.map((item) => {
         const latestMessage = item.messages && item.messages.length > 0 
@@ -243,14 +244,16 @@ export default function AdminInbox() {
         };
       });
       setTotalMessages(res.totalMessages);
-      setHasNextPage(
-  res.pagination.currentPage < res.pagination.totalPages
-);
-      if (page === 1) {
-  setMsgs(formatted);
-} else {
-  setMsgs(prev => [...prev, ...formatted]);
-}
+//       setHasNextPage(
+//   res.pagination.currentPage < res.pagination.totalPages
+// );
+setTotalPages(res.pagination.totalPages);
+//       if (page === 1) {
+//   setMsgs(formatted);
+// } else {
+//   setMsgs(prev => [...prev, ...formatted]);
+// }
+setMsgs(formatted);
     } catch (err) {
       console.error("Error fetching messages:", err);
       setError(err.message || "Failed to load messages. Please refresh the page.");
@@ -283,13 +286,13 @@ export default function AdminInbox() {
   }
 
   return (
-    <section className="min-h-screen py-10 px-4 sm:px-6 lg:px-8 flex flex-col items-center">
-      <div className="w-full max-w-9xl flex flex-col min-h-[700px] bg-white rounded-3xl overflow-hidden border border-[#8fa797]/30">
+    <section className="h-screen py-4 px-4 sm:px-6 lg:px-8 flex flex-col items-center overflow-hidden">
+      <div className="w-full max-w-9xl flex-1 min-h-0 bg-white rounded-3xl overflow-hidden border border-[#8fa797]/30 flex flex-col">
         
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between px-8 py-5 bg-[#F6F4F0] border-b border-[#8fa797]/20 gap-4">
           <div>
-            <h2 className="font-serif text-2xl font-medium text-[#2d4a36]">Inbox</h2>
+            {/* <h2 className="font-serif text-2xl font-medium text-[#2d4a36]">Inbox</h2> */}
             <p className="text-xs text-[#2d4a36]/60 mt-1 uppercase tracking-widest font-bold">Client Communications</p>
           </div>
           <div className="flex items-center gap-3">
@@ -300,12 +303,6 @@ export default function AdminInbox() {
             <span className="bg-[#2d4a36] text-[#F6F4F0] text-xs px-3 py-1.5 rounded-full font-semibold shadow-sm">
               {totalMessages} total
             </span>
-            {/* <button
-              onClick={fetchMessages}
-              className="text-xs text-[#8fa797] hover:text-[#2d4a36] transition-colors"
-            >
-              🔄 Refresh
-            </button> */}
 
             
           </div>
@@ -349,10 +346,10 @@ export default function AdminInbox() {
         </div>
 
         {/* Body */}
-        <div className="flex flex-col md:flex-row flex-1 overflow-hidden">
+        <div className="flex flex-col md:flex-row flex-1 min-h-0 overflow-hidden">
           
           {/* Message list */}
-          <div className="w-full md:w-[350px] border-r border-[#8fa797]/20 bg-white flex-shrink-0 flex flex-col h-full max-h-[calc(110vh-300px)]">
+          <div className="w-full md:w-[350px] border-r border-[#8fa797]/20 bg-white flex-shrink-0 flex flex-col min-h-0">
             <div className="flex-1 overflow-y-auto">
               {filtered.length === 0 ? (
                 <div className="flex items-center justify-center h-full text-sm text-[#8fa797] p-8 text-center font-medium">
@@ -397,14 +394,66 @@ export default function AdminInbox() {
               )}
                
             </div>
-           {hasNextPage && (
-    <button
-      onClick={() => setPage(prev => prev + 1)}
-      className="w-full py-3  bg-white hover:bg-[#F6F4F0] text-sm font-semibold"
-    >
-      Load More
-    </button>
-  )}
+          {totalPages > 1 && (
+  <div className="border-t border-[#8fa797]/20 bg-white px-4 py-3">
+    <div className="flex items-center justify-between gap-2">
+
+      {/* Previous */}
+      <button
+        onClick={() => setPage(prev => prev - 1)}
+        disabled={page === 1 || loading}
+        className={`px-3 py-2 rounded-lg text-xs font-semibold border ${
+          page === 1 || loading
+            ? "text-[#8fa797]/40 border-[#8fa797]/20 cursor-not-allowed"
+            : "text-[#2d4a36] border-[#8fa797]/30 hover:bg-[#F6F4F0]"
+        }`}
+      >
+        ←
+      </button>
+
+      {/* Page Numbers */}
+      <div className="flex items-center gap-1">
+        {Array.from(
+          { length: totalPages },
+          (_, index) => index + 1
+        ).map(pageNumber => (
+          <button
+            key={pageNumber}
+            onClick={() => setPage(pageNumber)}
+            disabled={loading}
+            className={`w-8 h-8 rounded-lg text-xs font-bold ${
+              page === pageNumber
+                ? "bg-[#2d4a36] text-white"
+                : "text-[#2d4a36] hover:bg-[#F6F4F0]"
+            }`}
+          >
+            {pageNumber}
+          </button>
+        ))}
+      </div>
+
+      {/* Next */}
+      <button
+        onClick={() => setPage(prev => prev + 1)}
+        disabled={page === totalPages || loading}
+        className={`px-3 py-2 rounded-lg text-xs font-semibold border ${
+          page === totalPages || loading
+            ? "text-[#8fa797]/40 border-[#8fa797]/20 cursor-not-allowed"
+            : "text-[#2d4a36] border-[#8fa797]/30 hover:bg-[#F6F4F0]"
+        }`}
+      >
+        →
+      </button>
+
+    </div>
+
+    <div className="text-center mt-2">
+      <span className="text-[10px] text-[#8fa797]">
+        Page {page} of {totalPages}
+      </span>
+    </div>
+  </div>
+)}
           </div>
 
           {/* Detail pane - Chat Area */}
@@ -552,8 +601,21 @@ export default function AdminInbox() {
               </>
             )}
           </div>
+
+
+
+          
         </div>
+
+
+
+
+
+        
       </div>
+
+
+      
     </section>
   );
 }
