@@ -23,6 +23,7 @@ import {
   TherapistIdentityVerification,
   TherapistPaymentDetail,
 } from "../model/ClaimProfile/index.js";
+import Provider from "../model/provider.model.js";
 import { sendEmail } from "../services/email.services.js";
 import { errorHandler } from "../utils/error.js";
 import NotificationService from "../services/notification.service.js";
@@ -312,6 +313,17 @@ export const approveClaim = async (req, res, next) => {
     claim.reviewedAt  = new Date();
     claim.isLocked    = true;
     await claim.save();
+
+    await Provider.findOneAndUpdate(
+      { userRef: claim.userId, providerType: "individual" },
+      { 
+        $set: { 
+          verified: true,
+          verifiedAt: new Date(),
+          verifiedBy: req.user.id
+        } 
+      }
+    );
 
     await audit({
       claimId: claim._id,
