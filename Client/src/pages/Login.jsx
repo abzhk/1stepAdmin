@@ -3,7 +3,7 @@ import { GoogleLogin, googleLogout } from "@react-oauth/google";
 import { FaUser } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import doctor from "../../Assets/Doctor image.jpg";
+import doctor from "../assets/logo-18.png";
 import { TbPasswordFingerprint } from "react-icons/tb";
 import { useDispatch } from "react-redux";
 import { setUser } from "../redux/slice/authSlice";
@@ -57,7 +57,7 @@ const Login = () => {
         body: JSON.stringify({ username, password }),
       });
 
-      console.log(data.user);
+      // console.log(data.user);
 
      dispatch(setUser(data.user));
       toast.success("Login successful ");
@@ -85,7 +85,7 @@ const Login = () => {
             className="w-20 h-20 object-cover rounded-full shadow-lg"
           />
           <div className="ml-4 text-white">
-            <h1 className="text-heading text-white">OneStep</h1>
+            <h1 className="text-heading text-white">1Step</h1>
             <p className="text-cardfooter">Health at your fingertips</p>
           </div>
         </div>

@@ -28,15 +28,15 @@ const CreateAdmin = () => {
 const [limit] = useState(10);
 const [totalPages, setTotalPages] = useState(1);
 const [search, setSearch] = useState("");
-const [roleFilter, setRoleFilter] = useState("user");
+const [filterType, setFilterType] = useState("all");
 
 
-  const fetchUsers = async () => {
+ const fetchUsers = async () => {
   try {
     const res = await api(
-      `/api/users/users?page=${page}&limit=${limit}&search=${search}&role=${roleFilter}`
+      `/api/users/users?page=${page}&limit=${limit}&search=${search}&filterType=${filterType}`
     );
-  console.log("API Response:", res);
+
     if (res.success) {
       setUsers(res.users);
       setTotalPages(res.pagination.totalPages);
@@ -48,7 +48,7 @@ const [roleFilter, setRoleFilter] = useState("user");
 
 useEffect(() => {
   fetchUsers();
-}, [page, search, roleFilter]);
+}, [page, search, filterType]);
 
 
 const handleStatus = async (user) => {
@@ -358,19 +358,24 @@ const handleStatus = async (user) => {
     Existing Users
   </h3>
 <div className="bg-white px-6 py-6 rounded-2xl shadow-md">
-  <div className="flex justify-end mr-6 items-center text-cardfooter mb-3 gap-3">Filter
-   <select
-  value={roleFilter}
-  onChange={(e) => {
-    setRoleFilter(e.target.value);
-    setPage(1);
-  }}
-  className="rounded-xl border border-greenmuted px-3 py-2"
->
-  <option value="admin">Admin</option>
-  <option value="user">User</option>
-</select>
-  </div>
+ <div className="flex justify-end mr-6 items-center text-cardfooter mb-3 gap-3">
+  <span>Filter</span>
+
+  <select
+    value={filterType}
+    onChange={(e) => {
+      setFilterType(e.target.value);
+      setPage(1);
+    }}
+    className="rounded-xl border border-greenmuted px-3 py-2"
+  >
+    <option value="all">All</option>
+    <option value="admin">Admin</option>
+    <option value="parent">Parent</option>
+    <option value="provider">Provider</option>
+    <option value="centre">Centre</option>
+  </select>
+</div>
   <div className="overflow-x-auto rounded-xl border border-gray-200">
     <table className="w-full text-left">
       <thead className="bg-offwhite">
@@ -400,8 +405,8 @@ const handleStatus = async (user) => {
                 />
               </td>
 
-              <td className="px-4 py-3 text-table-text">
-                {user.username}
+              <td className="px-4 py-3 text-table-text capitalize">
+               {user.displayName || user.username}
               </td>
 
               <td className="px-4 py-3 text-table-text">

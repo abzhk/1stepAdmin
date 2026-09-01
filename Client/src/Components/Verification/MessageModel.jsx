@@ -16,22 +16,34 @@ const MessageModal = ({ applicant, onClose, onSend }) => {
           {applicant.name} · {applicant.email}
         </p>
 
-        <div className="flex gap-2 mb-3">
-          {["email", "sms"].map((c) => (
-            <button
-              key={c}
-              onClick={() => setChannel(c)}
-              className={`flex-1 py-1.5 text-xs font-bold rounded-lg uppercase tracking-wide transition border
-                ${
-                  channel === c
-                    ? "bg-[#2d4a36] text-[#F6F4F0] border-[#2d4a36]"
-                    : "border-[#8fa797]/30 text-[#2d4a36]/60 hover:bg-[#F6F4F0]"
-                }`}
-            >
-              {c}
-            </button>
-          ))}
-        </div>
+       <div className="flex gap-2 mb-3">
+  {["email", "sms"].map((c) => {
+    const isDisabled = c === "sms";
+
+    return (
+      <button
+        key={c}
+        type="button"
+        disabled={isDisabled}
+        onClick={() => {
+          if (!isDisabled) {
+            setChannel(c);
+          }
+        }}
+        className={`flex-1 py-1.5 text-xs font-bold rounded-lg uppercase tracking-wide transition border
+          ${
+            isDisabled
+              ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
+              : channel === c
+              ? "bg-[#2d4a36] text-[#F6F4F0] border-[#2d4a36]"
+              : "border-[#8fa797]/30 text-[#2d4a36]/60 hover:bg-[#F6F4F0]"
+          }`}
+      >
+        {c}
+      </button>
+    );
+  })}
+</div>
 
         <textarea
           value={msg}

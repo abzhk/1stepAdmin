@@ -12,6 +12,6 @@ const router = express.Router();
 router.post("/create",verifyAdminToken, createModule);
 router.get("/get-module",verifyAdminToken, getModules);
 router.put("/update-module/:id",verifyAdminToken, updateModule);
-router.delete("/delete-module/:id", deleteModule);
+router.delete("/delete-module/:id", verifyAdminToken, deleteModule);
 
 export default router;

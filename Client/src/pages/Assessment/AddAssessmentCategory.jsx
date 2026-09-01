@@ -4,6 +4,7 @@ import {api} from "../../utils/api.js"
 import PermissionGuard from "../../Components/PermissionGuard.jsx";
 import { MODULES, ACTIONS } from "../../constants/permission.js";
 import { useNavigate,useParams } from "react-router-dom";
+import toast from "react-hot-toast";
 
 
 const AddAssessmentCategory = () => {
@@ -15,14 +16,7 @@ const AddAssessmentCategory = () => {
   });
   const navigate= useNavigate();
 
-  const [tests, setTests] = useState([
-  {
-    code: "",
-    name: "",
-    description: "",
-    isActive: true,
-  },
-]);
+  const [tests, setTests] = useState([]);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -30,6 +24,7 @@ const AddAssessmentCategory = () => {
   const [lastOrder, setLastOrder] = useState(0);
   const { id } = useParams();
 const isEdit = Boolean(id);
+const [specializations, setSpecializations] = useState([]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -79,13 +74,7 @@ const data = await api(url, {
         description: "",
       });
       
-      // Reset tests array to initial state with one empty row
-      setTests([{
-        code: "",
-        name: "",
-        description: "",
-        isActive: true,
-      }]);
+      setTests([]);
       
     } catch (err) {
       console.error(err);
@@ -94,6 +83,20 @@ const data = await api(url, {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+  const fetchSpecializations = async () => {
+    try {
+      const res = await api("/api/specialization");
+
+      setSpecializations(res.data || []);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  fetchSpecializations();
+}, []);
 
 
 useEffect(() => {
@@ -122,6 +125,7 @@ const addTestRow = () => {
       code: "",
       name: "",
       description: "",
+      specialization: "",
       isActive: true,
     },
   ]);
@@ -138,12 +142,13 @@ const resetForm = () => {
     order: 1,
     description: "",
   });
-  setTests([{
-    code: "",
-    name: "",
-    description: "",
-    isActive: true,
-  }]);
+
+  setTests([]);
+  setError("");
+  setSuccess("");
+
+
+  navigate("/addassessment");
 };
 
 
@@ -246,6 +251,7 @@ useEffect(() => {
                 placeholder="Eg: 1"
               />
             </div>
+           
 
             <div>
               <label className="text-label">
@@ -279,60 +285,127 @@ useEffect(() => {
 
   <div className="bg-offwhite rounded-xl border border-gray-100 overflow-hidden">
 
-    <div className="grid grid-cols-12 gap-3 bg-offwhite px-4 py-3 text-cardfooter text-sm">
-      <div className="col-span-2">Code</div>
-      <div className="col-span-3">Name</div>
-      <div className="col-span-5">Description</div>
-      <div className="col-span-2 text-center">Action</div>
+  {/* Header */}
+  <div className="grid grid-cols-12 gap-3 bg-offwhite px-4 py-3 text-cardfooter text-sm">
+    <div className="col-span-2">
+      Code
     </div>
 
-    {tests.map((test, index) => (
-      <div
-        key={index}
-        className="grid grid-cols-12 gap-3 items-center px-4 py-3 border-t border-gray-500  hover:bg-offwhite transition"
-      >
-        <div className="col-span-2">
-          <input
-            value={test.code}
-            onChange={(e) =>
-              handleTestChange(index, "code", e.target.value)
-            }
-            className="w-full   bg-white rounded-lg px-3 py-2"
-          />
-        </div>
+    <div className="col-span-2">
+      Name
+    </div>
 
-        <div className="col-span-3">
-          <input
-            value={test.name}
-            onChange={(e) =>
-              handleTestChange(index, "name", e.target.value)
-            }
-            className="w-full  bg-white rounded-lg px-3 py-2"
-          />
-        </div>
+    <div className="col-span-3">
+      Description
+    </div>
 
-        <div className="col-span-5">
-          <input
-            value={test.description}
-            onChange={(e) =>
-              handleTestChange(index, "description", e.target.value)
-            }
-            className="w-full   bg-white rounded-lg px-3 py-2"
-          />
-        </div>
+    <div className="col-span-3">
+      Specialization
+    </div>
 
-        <div className="col-span-2 flex justify-center">
-          <button
-            type="button"
-            onClick={() => removeTestRow(index)}
-            className="bg-red-500 text-white px-4 py-2 rounded-lg"
-          >
-            Remove
-          </button>
-        </div>
-      </div>
-    ))}
+    <div className="col-span-2 text-center">
+      Action
+    </div>
   </div>
+
+  {/* Tests */}
+  {tests.map((test, index) => (
+    <div
+      key={index}
+      className="grid grid-cols-12 gap-3 items-center px-4 py-3 border-t border-gray-500 hover:bg-offwhite transition"
+    >
+
+      {/* Code */}
+      <div className="col-span-2">
+        <input
+          value={test.code}
+          onChange={(e) =>
+            handleTestChange(
+              index,
+              "code",
+              e.target.value
+            )
+          }
+          className="w-full bg-white rounded-lg px-3 py-2"
+          placeholder="TEST001"
+        />
+      </div>
+
+      {/* Name */}
+      <div className="col-span-2">
+        <input
+          value={test.name}
+          onChange={(e) =>
+            handleTestChange(
+              index,
+              "name",
+              e.target.value
+            )
+          }
+          className="w-full bg-white rounded-lg px-3 py-2"
+          placeholder="Test Name"
+        />
+      </div>
+
+      {/* Description */}
+      <div className="col-span-3">
+        <input
+          value={test.description}
+          onChange={(e) =>
+            handleTestChange(
+              index,
+              "description",
+              e.target.value
+            )
+          }
+          className="w-full bg-white rounded-lg px-3 py-2"
+          placeholder="Description"
+        />
+      </div>
+
+      {/* Specialization */}
+     <div className="col-span-3">
+  <select
+    value={test.specialization || ""}
+    onChange={(e) =>
+      handleTestChange(
+        index,
+        "specialization",
+        e.target.value
+      )
+    }
+    required
+    className="w-full bg-white rounded-lg px-3 py-2"
+  >
+    <option value="">
+      Select Specialization
+    </option>
+
+    {specializations.map((specialization) => (
+      <option
+        key={specialization._id}
+        value={specialization._id}
+      >
+        {specialization.name}
+      </option>
+    ))}
+  </select>
+</div>
+
+      {/* Action */}
+      <div className="col-span-2 flex justify-center">
+        <button
+          type="button"
+          onClick={() => removeTestRow(index)}
+          className="bg-red-500 text-white px-4 py-2 rounded-lg"
+        >
+          Remove
+        </button>
+      </div>
+
+    </div>
+  ))}
+</div>
 </div>
 
           <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">

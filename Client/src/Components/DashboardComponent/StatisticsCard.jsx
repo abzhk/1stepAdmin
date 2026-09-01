@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   LineChart,
   Line,
@@ -9,23 +9,9 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import { api } from "../../utils/api";
 
-const StatisticsCard = () => {
-  const [data, setData] = useState([]);
 
-  const fetchStatistics = async () => {
-    try {
-      const result = await api("/api/track/monthly");
-      setData(result.data || []);
-    } catch (err) {
-      console.error("Error fetching statistics:", err);
-    }
-  };
-
-  useEffect(() => {
-    fetchStatistics();
-  }, []);
+const StatisticsCard = ({ data }) => {
 
   return (
     <div>

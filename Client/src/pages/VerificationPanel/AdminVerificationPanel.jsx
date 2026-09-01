@@ -81,7 +81,7 @@ const [decisionLoading, setDecisionLoading] = useState(false);
   const fetchClaims = async () => {
   try {
     const res = await api("/api/claim/admin/queue");
-    console.log(res);
+    // console.log(res);
 
     setData(
       res.data.map((claim) => ({
@@ -243,29 +243,6 @@ const handleReject = async ({
     await fetchClaimDetail(selectedId);
   } catch (error) {
     showToast(error?.message || "Failed to reject claim", "error");
-  } finally {
-    setDecisionLoading(false);
-  }
-};
-
-
-const handleReopen = async () => {
-  try {
-    setDecisionLoading(true);
-
-    await api(`/api/claim/admin/${selectedId}/reopen`, {
-      method: "PATCH",
-    });
-
-    showToast("Claim reopened successfully", "success");
-
-    await fetchClaims();
-    await fetchClaimDetail(selectedId);
-  } catch (error) {
-    showToast(
-      error?.message || "Failed to reopen claim",
-      "error"
-    );
   } finally {
     setDecisionLoading(false);
   }
@@ -447,16 +424,29 @@ docs: (selectedDetail?.documents || []).map((doc) => ({
   by: log.performedBy?.username || "System",
   ts: log.createdAt,
 })),
+  notes: selectedDetail?.claim?.adminNotes
+  ? [
+      {
+        id: selectedDetail.claim._id,
+        text: selectedDetail.claim.adminNotes,
+        by: selectedDetail.claim.reviewedBy?.username || "Admin",
+        ts:
+          selectedDetail.claim.updatedAt ||
+          selectedDetail.claim.reviewedAt ||
+          selectedDetail.claim.createdAt,
+      },
+    ]
+  : [],
 }}
               onApprove={handleApprove}
               onReject={handleReject}
-              onReopen={handleReopen}
-               onRequestFix={handleRequestFix}
+              onRequestFix={handleRequestFix}
               onDocStatusChange={handleDocStatusChange}
               onNoteAdd={handleNoteAdd}
               onFieldStatusChange={handleFieldStatusChange}
               onPriorityChange={handlePriorityChange}
               showToast={showToast}
+              decisionLoading={decisionLoading}
             />
           ) : (
             <div className="flex-1 flex items-center justify-center text-sm font-medium text-[#8fa797]">

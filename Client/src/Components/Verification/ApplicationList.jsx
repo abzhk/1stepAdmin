@@ -25,46 +25,45 @@ const counts = FILTERS.reduce((acc, f) => {
   return acc;
 }, {});
 
-const filtered = applicants.filter((a) => {
-  if (filter !== "all" && a.overall !== filter) {
-    return false;
-  }
+const filtered = applicants
+  .filter((a) => {
+    if (filter !== "all" && a.overall !== filter) {
+      return false;
+    }
 
-  if (!search.trim()) {
-    return true;
-  }
+    if (!search.trim()) {
+      return true;
+    }
 
-  const q = search.trim().toLowerCase();
+    const q = search.trim().toLowerCase();
 
-  const name =
-    a.name ||
-    a.userId?.username ||
-    "";
+    const name =
+      a.name ||
+      a.userId?.username ||
+      "";
 
-  const email =
-    a.email ||
-    a.userId?.email ||
-    "";
+    const email =
+      a.email ||
+      a.userId?.email ||
+      "";
 
-  // const role =
-  //   a.role ||
-  //   "";
+    const city =
+      a.city ||
+      "";
 
-  const city =
-    a.city ||
-    "";
-
+    return (
+      name.toLowerCase().includes(q) ||
+      email.toLowerCase().includes(q) ||
+      // role.toLowerCase().includes(q) ||
+      city.toLowerCase().includes(q)
+    );
+  })
+  .sort((a, b) => {
+    return b.submittedTs - a.submittedTs;
+  });
   return (
-    name.toLowerCase().includes(q) ||
-    email.toLowerCase().includes(q) ||
-    // role.toLowerCase().includes(q) ||
-    city.toLowerCase().includes(q)
-  );
-});
-  return (
-    <div>
-
- <div className="flex flex-col h-full bg-white">
+      <div className="h-full min-h-0">
+      <div className="flex flex-col h-full min-h-0 bg-white">
       <div className="px-4 pt-5 pb-3 border-b border-[#8fa797]/20">
         <div className="flex items-center justify-between mb-3">
           <h1 className="text-sm font-bold text-[#2d4a36]">Claim Requests</h1>
@@ -76,7 +75,7 @@ const filtered = applicants.filter((a) => {
           </svg>
           <input value={search} onChange={e => setSearch(e.target.value)}
             className="w-full pl-8 pr-7 py-2 text-xs font-medium rounded-lg border border-[#8fa797]/30 bg-[#F6F4F0]/50 text-[#2d4a36] placeholder:text-[#8fa797]/80 focus:outline-none focus:ring-2 focus:ring-[#8fa797]/50"
-            placeholder="Name, role, city, email…" />
+            placeholder="Name,email…" />
           {search && (
             <button onClick={() => setSearch("")}
               className="absolute right-2 top-1/2 -translate-y-1/2 text-[#8fa797] hover:text-[#2d4a36] transition">
@@ -94,7 +93,7 @@ const filtered = applicants.filter((a) => {
         </select> */}
       </div>
 
-      <div className="px-3 py-2 border-b border-[#8fa797]/20 flex gap-1.5 overflow-x-auto">
+      <div className="px-3 py-2 border-b border-[#8fa797]/20 flex gap-1.5 overflow-x-auto ">
         {FILTERS.map(f => (
           <button key={f} onClick={() => setFilter(f)}
             className={`flex-shrink-0 px-2.5 py-1 rounded-full text-[10px] font-bold capitalize transition
@@ -104,7 +103,7 @@ const filtered = applicants.filter((a) => {
         ))}
       </div>
 
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto scrollbar-hide">
         {filtered.length === 0 ? (
           <div className="text-center py-10 text-xs font-medium text-[#8fa797]/70">No results</div>
         ) : filtered.map(a => (

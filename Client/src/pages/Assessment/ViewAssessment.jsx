@@ -10,6 +10,8 @@ const ViewAssessment = () => {
   const [error, setError] = useState("");
   const { searchTerm } = useOutletContext();
   const navigate = useNavigate();
+  const [deleteId, setDeleteId] = useState(null);
+const [showDeletePopup, setShowDeletePopup] = useState(false);
 
   const PAGE_SIZE = 5;
   const [currentPage, setCurrentPage] = useState(1);
@@ -25,7 +27,7 @@ const ViewAssessment = () => {
     }
 
  const data = await api(`/api/assessment/category/getall?${params}`);
-    
+    console.log("Fetched categories:", data.data);
       setCategories(data.data || []);
       setCurrentPage(1);
     } catch (err) {
@@ -75,19 +77,18 @@ const ViewAssessment = () => {
 };
 
 
-const handleDelete = async (id) => {
-  const confirmDelete = window.confirm(
-    "Are you sure you want to delete this category and all its tests?"
-  );
-
-  if (!confirmDelete) return;
+const handleDelete = async () => {
+  if (!deleteId) return;
 
   try {
-    const data = await api(`/api/assessment/category/${id}`, {
+    const data = await api(`/api/assessment/category/${deleteId}`, {
       method: "DELETE",
     });
 
     toast.success(data.message || "Category deleted successfully");
+
+    setShowDeletePopup(false);
+    setDeleteId(null);
 
     fetchCategories();
   } catch (err) {
@@ -141,6 +142,9 @@ const handleDelete = async (id) => {
                     <th className="px-4 py-3 text-left uppercase text-cardfooter ">
                       Assessment Code
                     </th>
+                    <th className="px-4 py-3 text-left uppercase text-cardfooter ">
+                      Specialization
+                    </th>
                     <th className="px-4 py-3 text-center uppercase text-cardfooter ">
                       Actions
                     </th>
@@ -180,18 +184,18 @@ const handleDelete = async (id) => {
     "-"
   )}
 </td>
-                      {/* 
-                      <td className="px-4 py-3">
-                        <button
-                          className={`px-3 py-1 text-xs rounded text-white ${
-                            assessment.status
-                              ? "bg-red-500 hover:bg-red-600"
-                              : "bg-green-500 hover:bg-green-700"
-                          }`}
-                        >
-                          {assessment.status ? "Deactivate" : "Activate"}
-                        </button>
-                      </td> */}
+
+<td className="px-4 py-3 text-table-text">
+  {assessment.tests?.length ? (
+    assessment.tests.map((test) => (
+      <div key={test._id}>
+        {test.specialization?.name || "-"}
+      </div>
+    ))
+  ) : (
+    "-"
+  )}
+</td>
 
                       <td className="px-4 py-3 flex items-center gap-3 justify-center">
                         <button
@@ -201,7 +205,10 @@ const handleDelete = async (id) => {
   Edit
 </button>
  <button
-  onClick={() => handleDelete(assessment._id)}
+  onClick={() => {
+    setDeleteId(assessment._id);
+    setShowDeletePopup(true);
+  }}
   className="px-5 py-2 text-sm font-semibold rounded-md bg-red-500 text-white hover:bg-red-600"
 >
   Delete
@@ -286,6 +293,46 @@ const handleDelete = async (id) => {
           </>
         )}
       </div>
+      {showDeletePopup && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+    <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-6">
+      
+      <h3 className="text-lg font-semibold text-gray-800">
+        Delete Assessment Category?
+      </h3>
+
+      <p className="mt-2 text-sm text-gray-600">
+        Are you sure you want to delete this category?
+        All tests belonging to this category will also be deleted.
+      </p>
+
+      <div className="flex justify-end gap-3 mt-6">
+        <button
+          type="button"
+          onClick={() => {
+            setShowDeletePopup(false);
+            setDeleteId(null);
+          }}
+          className="px-5 py-2.5 text-sm font-semibold rounded-lg
+          border border-gray-200 bg-gray-100 text-gray-700
+          hover:bg-gray-200"
+        >
+          Cancel
+        </button>
+
+        <button
+          type="button"
+          onClick={handleDelete}
+          className="px-5 py-2.5 text-sm font-semibold rounded-lg
+          bg-red-500 text-white hover:bg-red-600"
+        >
+          Delete
+        </button>
+      </div>
+
+    </div>
+  </div>
+)}
     </div>
   );
 };

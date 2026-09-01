@@ -187,13 +187,13 @@ const DetailPanel = ({
   applicant,
   onApprove,
   onReject,
-  onReopen,
   onRequestFix,
   onDocStatusChange,
   onNoteAdd,
   onFieldStatusChange,
   onPriorityChange,
   showToast,
+  decisionLoading,
 }) => {
   const [activeTab, setActiveTab] = useState("overview");
   const [note, setNote] = useState("");
@@ -349,7 +349,10 @@ const canReview =
           category={confirmCategory}
           setCategory={setConfirmCategory}
           onConfirm={handleConfirm}
-          onCancel={() => setConfirmAction(null)}
+          onCancel={() => {
+            if (!decisionLoading) setConfirmAction(null);
+          }}
+          isLoading={decisionLoading}
         />
       )}
 
@@ -476,7 +479,9 @@ const canReview =
               </svg>
               Message
             </button>
-            <button
+
+ {/* add note hided from top */}
+            {/* <button
               onClick={() => {
                 setActiveTab("notes");
                 setTimeout(() => noteRef.current?.focus(), 80);
@@ -497,7 +502,7 @@ const canReview =
                 />
               </svg>
               Add note
-            </button>
+            </button> */}
             {/* <button
               onClick={() => showToast("Profile link copied", "info")}
               className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold border border-[#8fa797]/30 rounded-lg text-[#2d4a36]/80 hover:bg-[#F6F4F0] transition ml-auto"
@@ -586,24 +591,8 @@ const canReview =
         <strong className="text-[#2d4a36]">
           {applicant.overall}
         </strong>
-        . Reopen to make changes.
+        {applicant.status === "rejected" ? ". The therapist must start a fresh application." : "."}
       </p>
-
-      <button
-  onClick={async () => {
-    try {
-      await onReopen();
-    } catch (err) {
-      showToast(
-        err?.message || "Failed to reopen claim",
-        "error"
-      );
-    }
-  }}
-  className="px-4 py-2 text-xs font-bold border border-[#8fa797]/30 rounded-xl text-[#2d4a36]/80 hover:bg-[#F6F4F0] transition"
->
-  Reopen
-</button>
     </div>
 
   ) : isWaitingForProvider ? (
@@ -633,103 +622,66 @@ const canReview =
 
       {/* APPROVE */}
      <button
-  disabled={!allDocsApproved}
+  disabled={!allDocsApproved || decisionLoading}
   onClick={async () => {
-    if (!allDocsApproved) {
-      return showToast(
-        "Approve all documents first",
-        "error"
-      );
+    if (!allDocsApproved || decisionLoading) {
+      if (!allDocsApproved) showToast("Approve all documents first", "error");
+      return;
     }
-
     try {
       await onApprove();
     } catch (err) {
-      showToast(
-        err?.message || "Failed to approve claim",
-        "error"
-      );
+      showToast(err?.message || "Failed to approve claim", "error");
     }
   }}
   className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-bold rounded-xl transition-all ${
-    allDocsApproved
-      ? "bg-[#8fa797] text-[#2d4a36] hover:bg-[#8fa797]/80 active:scale-95"
-      : "bg-gray-200 text-gray-400 cursor-not-allowed"
+    !allDocsApproved || decisionLoading
+      ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+      : "bg-[#8fa797] text-[#2d4a36] hover:bg-[#8fa797]/80 active:scale-95"
   }`}
 >
-  <svg
-    className="w-4 h-4"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-    strokeWidth={2.5}
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      d="M5 13l4 4L19 7"
-    />
+  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
   </svg>
-
-  Approve
+  {decisionLoading ? "Processing..." : "Approve"}
 </button>
 
       {/* REQUEST FIX */}
       <button
-  disabled={allDocsApproved}
+  disabled={allDocsApproved || decisionLoading}
   onClick={() => {
-    if (allDocsApproved) {
-      return;
-    }
-
+    if (allDocsApproved || decisionLoading) return;
     setConfirmAction("request_fix");
   }}
   className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-bold rounded-xl transition-all
     ${
-      allDocsApproved
+      allDocsApproved || decisionLoading
         ? "bg-gray-200 text-gray-400 cursor-not-allowed"
         : "bg-[#ffd333] text-[#2d4a36] hover:bg-[#ffd333]/80 active:scale-95"
     }
   `}
 >
-  <svg
-    className="w-4 h-4"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-    strokeWidth={2.5}
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0"
-    />
+  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0" />
   </svg>
-
   {allDocsApproved ? "All Documents are Verified" : "Request Fix"}
 </button>
 
       {/* REJECT */}
       <button
-        onClick={() =>
-          setConfirmAction("reject")
-        }
-        className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-bold bg-[#f2a794] text-[#2d4a36] rounded-xl hover:bg-[#f2a794]/80 active:scale-95 transition-all"
+        disabled={decisionLoading}
+        onClick={() => {
+          if (decisionLoading) return;
+          setConfirmAction("reject");
+        }}
+        className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-bold rounded-xl transition-all
+          ${decisionLoading 
+            ? "bg-gray-200 text-gray-400 cursor-not-allowed" 
+            : "bg-[#f2a794] text-[#2d4a36] hover:bg-[#f2a794]/80 active:scale-95"}`}
       >
-        <svg
-          className="w-4 h-4"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={2.5}
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M6 18L18 6M6 6l12 12"
-          />
+        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
         </svg>
-
         Reject
       </button>
 

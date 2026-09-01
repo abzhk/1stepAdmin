@@ -3,6 +3,10 @@ import { useParams } from "react-router-dom";
 import dateFormatUtils from "../../utils/dateFormatUtils";
 import {api} from "../../utils/api.js"
 
+import  {
+  formatTimeRangeAMPM,
+} from "../../utils/dateHelpers.js";
+
 const ParentBookings = () => {
   const { userId } = useParams();
 
@@ -27,7 +31,7 @@ const ParentBookings = () => {
             credentials: "include",
           }
         );
-
+console.log("Fetched bookings:", data.bookings);
         setBookings(data.bookings || []);
       } catch (err) {
         setError(err.message || "Something went wrong");
@@ -73,13 +77,21 @@ const ParentBookings = () => {
               {bookings.map((b) => (
                 <tr
                   key={b._id}
-                  className="border-t border-gray-100 hover:bg-gray-50"
+                  className="border-t border-gray-100 hover:bg-gray-50 text-table-text transition"
                 >
                   <td className="px-6 py-4 font-medium">
                     {dateFormatUtils(b.scheduledTime?.date)}
                   </td>
 
-                  <td className="px-6 py-4">{b.scheduledTime?.slot}</td>
+                 
+                   <td className="px-6 py-4">
+  {b.appointment?.startTime
+    ? formatTimeRangeAMPM(
+        b.appointment.startTime,
+        b.appointment.durationMinutes || 30
+      )
+    : "—"}
+</td>
 
                   <td className="px-6 py-4">
                     {b.provider?.fullName || "N/A"}

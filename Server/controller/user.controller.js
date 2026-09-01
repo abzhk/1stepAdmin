@@ -2,6 +2,7 @@ import Provider from "../model/provider.model.js";
 import User from "../model/user.model.js";
 import { errorHandler } from "../utils/error.js";
 import Role from "../model/role.model.js";
+import Parent from "../model/parent.model.js";
 
 import bcryptjs from "bcryptjs";
 
@@ -255,51 +256,88 @@ export const getAllUsers = async (req, res, next) => {
       page = 1,
       limit = 10,
       sort = "desc",
-      role = "",
+      filterType = "all",
     } = req.query;
 
     const pageNumber = parseInt(page);
     const limitNumber = parseInt(limit);
+
 
     const adminRoles = await Role.find({
       role: { $in: ["Admin", "Content Admin"] },
     }).select("_id");
 
     const superAdminRole = await Role.findOne({
-  role: "Super Admin",
-}).select("_id");
+      role: "Super Admin",
+    }).select("_id");
 
     const adminRoleIds = adminRoles.map((r) => r._id);
+
 
     const filter = {
       ...(search
         ? {
             $or: [
-              { username: { $regex: search, $options: "i" } },
-              { email: { $regex: search, $options: "i" } },
+              {
+                username: {
+                  $regex: search,
+                  $options: "i",
+                },
+              },
+              {
+                email: {
+                  $regex: search,
+                  $options: "i",
+                },
+              },
             ],
           }
         : {}),
     };
 
 
-   if (role === "admin") {
-  filter.role = { $in: adminRoleIds };
-} else if (role === "user") {
-  filter.role = {
-    $nin: [...adminRoleIds, superAdminRole._id],
-  };
-}
-   
+
+    if (filterType === "admin") {
+      filter.role = {
+        $in: adminRoleIds,
+      };
+    } else if (
+      ["parent", "provider", "centre"].includes(filterType)
+    ) {
+      // Parent / Provider / Centre
+      const selectedRole = await Role.findOne({
+        role: {
+          $regex: `^${filterType}$`,
+          $options: "i",
+        },
+      }).select("_id");
+
+      if (selectedRole) {
+        filter.role = selectedRole._id;
+      } else {
+        // No matching role
+        filter.role = null;
+      }
+    } else if (filterType === "all") {
+      // All users except Super Admin
+      filter.role = {
+        $ne: superAdminRole._id,
+      };
+    }
+
 
     const totalUsers = await User.countDocuments(filter);
+
 
     const users = await User.find(filter)
       .populate("role", "role")
       .select("-password -refreshToken")
-      .sort({ createdAt: sort === "asc" ? 1 : -1 })
+      .sort({
+        createdAt: sort === "asc" ? 1 : -1,
+      })
       .skip((pageNumber - 1) * limitNumber)
       .limit(limitNumber);
+
 
     const usersWithExtraIds = await Promise.all(
       users.map(async (user) => {
@@ -307,40 +345,63 @@ export const getAllUsers = async (req, res, next) => {
 
         const roleName = obj.role?.role?.toLowerCase();
 
-        if (roleName === "provider") {
-          const provider = await Provider.findOne(
-            {
-              userRef: user._id,
-              providerType: "individual",
-            },
-            "_id"
-          );
 
-          obj.providerId = provider?._id || null;
+        if (roleName === "parent") {
+          const parent = await Parent.findOne({
+            userRef: user._id,
+          }).select("_id parentDetails.fullName");
+
+          obj.parentId = parent?._id || null;
+
+          obj.displayName =
+            parent?.parentDetails?.fullName || obj.username;
         }
 
+
+        if (roleName === "provider") {
+          const provider = await Provider.findOne({
+            userRef: user._id,
+            providerType: "individual",
+          }).select("_id fullName");
+
+          obj.providerId = provider?._id || null;
+
+          obj.displayName =
+            provider?.fullName || obj.username;
+        }
+
+
+
         if (roleName === "centre") {
-          const centre = await Provider.findOne(
-            {
-              userRef: user._id,
-              providerType: "centre",
-            },
-            "_id"
-          );
+          const centre = await Provider.findOne({
+            userRef: user._id,
+            providerType: "centre",
+          }).select("_id fullName");
 
           obj.centreId = centre?._id || null;
+
+          obj.displayName =
+            centre?.fullName || obj.username;
+        }
+
+
+        if (!obj.displayName) {
+          obj.displayName = obj.username;
         }
 
         return obj;
       })
     );
 
+
     res.status(200).json({
       success: true,
       users: usersWithExtraIds,
       pagination: {
         currentPage: pageNumber,
-        totalPages: Math.ceil(totalUsers / limitNumber),
+        totalPages: Math.ceil(
+          totalUsers / limitNumber
+        ),
         totalUsers,
         limit: limitNumber,
       },

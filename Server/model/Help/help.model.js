@@ -71,7 +71,7 @@ const helpSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-
+helpSchema.index({ createdAt: -1 });
 helpSchema.pre("save", async function (next) {
   if (this.ticketId) return next();
   const count = await mongoose.model("Help").countDocuments();

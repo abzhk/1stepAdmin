@@ -8,6 +8,7 @@ const ConfirmModal = ({
   category,       
   setCategory,
   onCancel,
+  isLoading
 }) => {
   return (
     <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center">
@@ -20,6 +21,7 @@ const ConfirmModal = ({
     <select
       value={category}
       onChange={(e) => setCategory(e.target.value)}
+      disabled={isLoading}
       className="w-full mt-1 border rounded-lg p-2 text-sm"
     >
       <option value="">Select category</option>
@@ -41,6 +43,7 @@ const ConfirmModal = ({
           rows={4}
           value={reason}
           onChange={(e) => setReason(e.target.value)}
+          disabled={isLoading}
           placeholder="Enter reason..."
            className="w-full resize-none rounded-lg border border-gray-300 bg-gray-50 
                  px-3 py-2 text-sm text-gray-800 
@@ -49,19 +52,21 @@ const ConfirmModal = ({
                  transition-all duration-200"
     />
 
-        <div className="flex gap-2">
+        <div className="flex gap-2 mt-4">
           <button
             onClick={onCancel}
-            className="flex-1 border p-2 rounded-2xl"
+            disabled={isLoading}
+            className="flex-1 border p-2 rounded-2xl disabled:opacity-50"
           >
             Cancel
           </button>
 
           <button
             onClick={onConfirm}
-            className="flex-1 bg-[#2d4a36] text-white p-2 rounded-2xl"
+            disabled={isLoading}
+            className="flex-1 bg-[#2d4a36] text-white p-2 rounded-2xl disabled:opacity-50"
           >
-            Confirm
+            {isLoading ? "Processing..." : "Confirm"}
           </button>
         </div>
       </div>

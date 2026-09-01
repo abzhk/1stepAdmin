@@ -13,7 +13,6 @@ import {
   reviewClaimFinal,
   addAdminNote,
   sendMessageToApplicant,
-  reopenClaim,
 } from "../controller/claimProfile.controller.js";
 import { verifyAdminToken } from "../middlewares/authMiddleware.js";
 
@@ -44,7 +43,6 @@ router.patch("/admin/:id/under-review", markUnderReview);
 router.patch("/admin/:id/approve",      approveClaim);
 router.patch("/admin/:id/reject",       rejectClaim);
 router.patch("/admin/:id/review",       reviewClaimFinal);   // soft reject → fix_requested
-router.patch("/admin/:id/reopen",       reopenClaim);
 
 // ─── Admin communication ──────────────────────────────────────────────────────
 router.patch("/admin/:id/note",    addAdminNote);

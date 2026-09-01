@@ -23,6 +23,7 @@ import {
   TherapistIdentityVerification,
   TherapistPaymentDetail,
 } from "../model/ClaimProfile/index.js";
+import Provider from "../model/provider.model.js";
 import { sendEmail } from "../services/email.services.js";
 import { errorHandler } from "../utils/error.js";
 import NotificationService from "../services/notification.service.js";
@@ -312,6 +313,17 @@ export const approveClaim = async (req, res, next) => {
     claim.reviewedAt  = new Date();
     claim.isLocked    = true;
     await claim.save();
+
+    await Provider.findOneAndUpdate(
+      { userRef: claim.userId, providerType: "individual" },
+      { 
+        $set: { 
+          verified: true,
+          verifiedAt: new Date(),
+          verifiedBy: req.user.id
+        } 
+      }
+    );
 
     await audit({
       claimId: claim._id,
@@ -660,66 +672,4 @@ export const sendMessageToApplicant = async (req, res, next) => {
     next(err);
   }
 };
-
-//reopen claim profile 
-
-export const reopenClaim = async (req, res, next) => {
-  try {
-    if (!req.user.isAdmin) {
-      return next(errorHandler(403, "Admin access required"));
-    }
-
-    const claim = await TherapistClaimRequest.findById(req.params.id);
-
-    if (!claim) {
-      return next(errorHandler(404, "Claim not found"));
-    }
-    
-
-    if (!["approved", "rejected", "fix_requested"].includes(claim.status)) {
-      return next(
-        errorHandler(
-          400,
-          "Only approved, rejected or fix requested claims can be reopened"
-        )
-      );
-    }
-
-    const io = req.app.get("io");
-    const previousStatus = claim.status;
-
-    claim.status = "under_review";
-    claim.isLocked = false;
-    claim.rejectionReason = null;
-    claim.rejectionCategory = null;
-    claim.approvedAt = null;
-    claim.reviewedBy = req.user.id;
-    claim.reviewedAt = new Date();
-
-    await claim.save();
-
-    await audit({
-      claimId: claim._id,
-      userId: claim.userId,
-      performedBy: req.user.id,
-      action: "claim_reopened",
-      previousStatus,
-      newStatus: "under_review",
-      req,
-    });
-
-    await NotificationService.sendClaimNotification(io, {
-      claimRequest: claim,
-      status: "under_review",
-      recipientId: claim.userId.toString(),
-    });
-
-    res.status(200).json({
-      success: true,
-      message: "Claim reopened successfully",
-      claim,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
+
