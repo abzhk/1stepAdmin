@@ -13,81 +13,94 @@ export const createCategory = async (req, res, next) => {
       icon,
       order,
       tests = [],
-       specialization,
     } = req.body;
 
-
     if (!tests || tests.length === 0) {
-  return next(errorHandler(400, "At least one test is required"));
-}
+      return next(errorHandler(400, "At least one test is required")
+      );
+    }
 
-for (const test of tests) {
-  if (!test.code?.trim() || !test.name?.trim()) {
-    return next(
-      errorHandler(400, "Please fill Code and Name for all tests")
-    );
-  }
-}
+    for (const test of tests) {
+      if (!test.code?.trim() || !test.name?.trim()) {
+        return next(
+          errorHandler(400, "Please fill Code and Name for all tests")
+        );
+      }
 
-if (!specialization) {
-  return next(
-    errorHandler(400, "Specialization is required")
+      if (!test.specialization) {
+  return next(errorHandler(400,`Specialization is required for test "${test.name}"`)
   );
 }
+    }
 
-    const existingCategory = await assessmentCategory.findOne({ name });
+
+    const existingCategory = await assessmentCategory.findOne({
+      name,
+    });
 
     if (existingCategory) {
-      return next(errorHandler(400, "Category already exists"));
+      return next(
+        errorHandler(400, "Category already exists")
+      );
     }
 
-    const existingOrder = await assessmentCategory.findOne({ order });
+    const existingOrder = await assessmentCategory.findOne({
+      order,
+    });
 
     if (existingOrder) {
-      return next(errorHandler(400, "Order already exists"));
+      return next(
+        errorHandler(400, "Order already exists")
+      );
     }
 
-    // Create Category
     const category = new assessmentCategory({
       name,
       description,
       icon,
       order,
-      specialization,
     });
 
     await category.save();
 
-    if (tests.length > 0) {
-      const testDocs = tests.map((test) => ({
-        category: category._id,
-        code: test.code.trim().toUpperCase(),
-        name: test.name.trim(),
-        description: test.description || "",
-        isActive:
-          test.isActive === undefined ? true : test.isActive,
-      }));
+    const testDocs = tests.map((test) => ({
+      category: category._id,
 
-      await AssessmentTest.insertMany(testDocs);
-    }
+      code: test.code.trim().toUpperCase(),
+
+      name: test.name.trim(),
+
+      description: test.description || "",
+
+      specialization: test.specialization,
+
+      isActive:
+        test.isActive === undefined
+          ? true
+          : test.isActive,
+    }));
+
+    await AssessmentTest.insertMany(testDocs);
 
     res.status(201).json({
       success: true,
       message: "Category and Tests created successfully",
       data: category,
     });
-
   } catch (error) {
     console.error(error);
-    return next(errorHandler(500, "Error creating category"));
+
+    return next(
+      errorHandler(500, "Error creating category")
+    );
   }
 };
+
 
 export const getCategories = async (req, res,next) => {
   try {
     const categories = await assessmentCategory
       .find({ status: true })
-       .populate("specialization", "name code")
       .sort({ order: 1 });
     res.status(200).json({ success: true, data: categories });
   } catch (error) {
@@ -105,15 +118,23 @@ export const updateCategory = async (req, res, next) => {
     }
 
     for (const test of tests) {
-      if (!test.code?.trim() || !test.name?.trim()) {
-        return next(
-          errorHandler(400, "Please fill Code and Name for all tests")
-        );
-      }
-    }
+  if (!test.code?.trim() || !test.name?.trim()) {
+    return next(
+      errorHandler(
+        400,
+        "Please fill Code and Name for all tests"
+      )
+    );
+  }
 
-    if (!specialization) {
-  return next(errorHandler(400, "Specialization is required"));
+  if (!test.specialization) {
+    return next(
+      errorHandler(
+        400,
+        `Specialization is required for test "${test.name}"`
+      )
+    );
+  }
 }
 
     // Update category
@@ -125,7 +146,6 @@ export const updateCategory = async (req, res, next) => {
         icon,
         status,
         order,
-        specialization,
       },
       { new: true }
     );
@@ -141,6 +161,7 @@ export const updateCategory = async (req, res, next) => {
       code: test.code.trim().toUpperCase(),
       name: test.name.trim(),
       description: test.description || "",
+      specialization: test.specialization,
       isActive: test.isActive ?? true,
     }));
 
@@ -484,14 +505,16 @@ export const getAllCategories = async (req, res) => {
     const categories = await assessmentCategory
       .find(filter)
       .sort({ order: 1 })
-       .populate("specialization", "name code")
       .lean();
 
     const categoryIds = categories.map(c => c._id);
 
     const tests = await AssessmentTest.find({
-      category: { $in: categoryIds },
-    }).select("category code name");
+  category: { $in: categoryIds },
+})
+  .select("category code name specialization")
+  .populate("specialization", "name code")
+  .lean();
 
     const testMap = {};
 
@@ -504,6 +527,7 @@ export const getAllCategories = async (req, res) => {
         _id: test._id,
         code: test.code,
         name: test.name,
+        specialization: test.specialization,
       });
     });
 
@@ -668,7 +692,6 @@ export const getTestsByCategory = async (req, res, next) => {
 export const getCategoryById = async (req, res, next) => {
   try {
     const category = await assessmentCategory.findById(req.params.id)
-     .populate("specialization", "name code")
      .lean();
 
     if (!category) {
@@ -677,7 +700,9 @@ export const getCategoryById = async (req, res, next) => {
 
     const tests = await AssessmentTest.find({
       category: req.params.id,
-    });
+    })
+    .populate("specialization", "name code")
+     .lean();
 
     category.tests = tests;
 
