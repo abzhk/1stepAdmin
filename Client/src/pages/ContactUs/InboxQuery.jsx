@@ -447,9 +447,14 @@ setMsgs(formatted);
 
     </div>
 
-    <div className="text-center mt-2">
-      <span className="text-[10px] text-[#8fa797]">
-        Page {page} of {totalPages}
+     <div className="text-center mt-1">
+      <span className="text-[11px] font-semibold text-[#2d4a36]">
+        Showing{" "}
+        {Math.min((page - 1) * 5 + 1, totalMessages)}
+        -
+        {Math.min(page * 5, totalMessages)}
+        {" "}of{" "}
+        {totalMessages}
       </span>
     </div>
   </div>

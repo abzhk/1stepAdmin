@@ -256,11 +256,12 @@ export const getAllUsers = async (req, res, next) => {
       page = 1,
       limit = 10,
       sort = "desc",
-      role = "",
+      filterType = "all",
     } = req.query;
 
     const pageNumber = parseInt(page);
     const limitNumber = parseInt(limit);
+
 
     const adminRoles = await Role.find({
       role: { $in: ["Admin", "Content Admin"] },
@@ -271,6 +272,7 @@ export const getAllUsers = async (req, res, next) => {
     }).select("_id");
 
     const adminRoleIds = adminRoles.map((r) => r._id);
+
 
     const filter = {
       ...(search
@@ -293,17 +295,39 @@ export const getAllUsers = async (req, res, next) => {
         : {}),
     };
 
-    if (role === "admin") {
+
+
+    if (filterType === "admin") {
       filter.role = {
         $in: adminRoleIds,
       };
-    } else if (role === "user") {
+    } else if (
+      ["parent", "provider", "centre"].includes(filterType)
+    ) {
+      // Parent / Provider / Centre
+      const selectedRole = await Role.findOne({
+        role: {
+          $regex: `^${filterType}$`,
+          $options: "i",
+        },
+      }).select("_id");
+
+      if (selectedRole) {
+        filter.role = selectedRole._id;
+      } else {
+        // No matching role
+        filter.role = null;
+      }
+    } else if (filterType === "all") {
+      // All users except Super Admin
       filter.role = {
-        $nin: [...adminRoleIds, superAdminRole._id],
+        $ne: superAdminRole._id,
       };
     }
 
+
     const totalUsers = await User.countDocuments(filter);
+
 
     const users = await User.find(filter)
       .populate("role", "role")
@@ -314,57 +338,53 @@ export const getAllUsers = async (req, res, next) => {
       .skip((pageNumber - 1) * limitNumber)
       .limit(limitNumber);
 
+
     const usersWithExtraIds = await Promise.all(
       users.map(async (user) => {
         const obj = user.toObject();
 
         const roleName = obj.role?.role?.toLowerCase();
 
-        // Parent
+
         if (roleName === "parent") {
-          const parent = await Parent.findOne(
-            {
-              userRef: user._id,
-            },
-            "_id parentDetails.fullName"
-          );
+          const parent = await Parent.findOne({
+            userRef: user._id,
+          }).select("_id parentDetails.fullName");
 
           obj.parentId = parent?._id || null;
+
           obj.displayName =
             parent?.parentDetails?.fullName || obj.username;
         }
 
-        // Individual Provider
+
         if (roleName === "provider") {
-          const provider = await Provider.findOne(
-            {
-              userRef: user._id,
-              providerType: "individual",
-            },
-            "_id fullName"
-          );
+          const provider = await Provider.findOne({
+            userRef: user._id,
+            providerType: "individual",
+          }).select("_id fullName");
 
           obj.providerId = provider?._id || null;
+
           obj.displayName =
             provider?.fullName || obj.username;
         }
 
-        // Centre
+
+
         if (roleName === "centre") {
-          const centre = await Provider.findOne(
-            {
-              userRef: user._id,
-              providerType: "centre",
-            },
-            "_id fullName"
-          );
+          const centre = await Provider.findOne({
+            userRef: user._id,
+            providerType: "centre",
+          }).select("_id fullName");
 
           obj.centreId = centre?._id || null;
+
           obj.displayName =
             centre?.fullName || obj.username;
         }
 
-        // Admin / other users
+
         if (!obj.displayName) {
           obj.displayName = obj.username;
         }
@@ -372,6 +392,7 @@ export const getAllUsers = async (req, res, next) => {
         return obj;
       })
     );
+
 
     res.status(200).json({
       success: true,
