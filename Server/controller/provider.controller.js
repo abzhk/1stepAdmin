@@ -10,7 +10,9 @@ import { BookedSlots } from "../model/booking.model.js";
 import UserSubscription from "../model/subscription.model.js";
 import Invitation from "../model/Centre/invitation.model.js";
 import Stats from "../model/stats.model.js";
-import CentreProvider from "../model/Centre/centreprovider.model.js";
+import CentreProvider from "../model/Centre/centerprovider.model.js";
+import CentreProviderRelation from "../model/Centre/centreProviderRelation.model.js";
+import Specialization from "../model/Master/specialization.model.js";
 
 
 //validator
@@ -978,7 +980,6 @@ export const getCentreAppointments = async (req, res, next) => {
 
 
 //get centre provider by user id
-
 export const getCentresForAdmin = async (req, res, next) => {
   try {
     const {
@@ -989,27 +990,37 @@ export const getCentresForAdmin = async (req, res, next) => {
       searchTerm = "",
     } = req.query;
 
-    const sortQuery = {};
+    const parsedLimit = Math.min(
+      Math.max(Number(limit) || 12, 1),
+      50
+    );
 
-    sortQuery[sort] = order === "asc" ? 1 : -1;
+    const parsedStartIndex = Math.max(
+      Number(startIndex) || 0,
+      0
+    );
+
 
     const centreQuery = {
       providerType: "centre",
       isActive: true,
     };
 
+    const cleanedSearchTerm = searchTerm
+      .trim()
+      .replace(/\s+/g, " ");
 
-    if (searchTerm.trim()) {
+    if (cleanedSearchTerm) {
       centreQuery.$or = [
         {
           fullName: {
-            $regex: searchTerm.trim(),
+            $regex: cleanedSearchTerm,
             $options: "i",
           },
         },
         {
           phone: {
-            $regex: searchTerm.trim(),
+            $regex: cleanedSearchTerm,
             $options: "i",
           },
         },
@@ -1017,97 +1028,110 @@ export const getCentresForAdmin = async (req, res, next) => {
     }
 
 
-    const totalCount = await Provider.countDocuments(
+
+    const allowedSortFields = [
+      "createdAt",
+      "fullName",
+      "phone",
+    ];
+
+    const sortField = allowedSortFields.includes(sort)
+      ? sort
+      : "createdAt";
+
+    const sortQuery = {
+      [sortField]: order === "asc" ? 1 : -1,
+      _id: 1,
+    };
+
+
+    const totalCentres = await Provider.countDocuments(
       centreQuery
     );
+
 
     const centres = await Provider.find(centreQuery)
       .populate(
         "userRef",
-        "isActive email profilePicture"
+        "isActive email profilePicture username"
       )
       .sort(sortQuery)
-      .skip(Number(startIndex))
-      .limit(Number(limit));
+      .skip(parsedStartIndex)
+      .limit(parsedLimit)
+      .lean();
 
 
-    const userIds = centres
-      .map((c) => c.userRef)
-      .filter(Boolean);
-
-    const users = await User.find({
-      _id: { $in: userIds },
-    }).select(
-      "username email profilePicture"
-    );
+    const centreIds = centres.map((centre) => centre._id);
 
 
-    const userMap = {};
-
-    users.forEach((u) => {
-      userMap[u._id.toString()] = u;
-    });
-
-
-    const centreIds = centres.map(
-      (c) => c._id
-    );
-
-
-    const providerCounts =
-      await CentreProvider.aggregate([
-        {
-          $match: {
-            centreId: {
-              $in: centreIds,
-            },
-            isActive: true,
-          },
-        },
-        {
-          $group: {
-            _id: "$centreId",
-            totalProviders: {
-              $sum: 1,
-            },
-          },
-        },
-      ]);
+    const providerCounts = await CentreProviderRelation.aggregate([
+  {
+    $match: {
+      centreId: { $in: centreIds },
+      isActive: true,
+      status: "active",
+    },
+  },
+  {
+    $group: {
+      _id: "$centreId",
+      totalProviders: { $sum: 1 },
+    },
+  },
+]);
 
 
-    const countMap = {};
+    const providerCountMap = new Map();
 
     providerCounts.forEach((item) => {
-      countMap[item._id.toString()] =
-        item.totalProviders;
+      providerCountMap.set(
+        item._id.toString(),
+        item.totalProviders
+      );
     });
 
 
-    const finalCentres = centres.map((c) => ({
-      ...c.toObject(),
-
-      user:
-        userMap[c.userRef?.toString()] || null,
+    const finalCentres = centres.map((centre) => ({
+      ...centre,
 
       totalProviders:
-        countMap[c._id.toString()] || 0,
+        providerCountMap.get(
+          centre._id.toString()
+        ) || 0,
     }));
 
 
-    const totalProviders =
-      await CentreProvider.countDocuments({
-        isActive: true,
-      });
+   const totalProviders =
+  await CentreProviderRelation.countDocuments({
+    isActive: true,
+    status: "active",
+  });
 
-    res.status(200).json({
+
+    return res.status(200).json({
       success: true,
-      totalCount,
-      totalCentres: totalCount,
+
+      totalCount: totalCentres,
+
+      totalCentres,
+
       totalProviders,
+
       centres: finalCentres,
     });
+
   } catch (error) {
-    next(error);
+    console.error(
+      "getCentresForAdmin error:",
+      error
+    );
+
+    next(
+      errorHandler(
+        500,
+        "Failed to fetch centres"
+      )
+    );
   }
 };
 
@@ -1718,17 +1742,23 @@ export const getCentreFullDetails = async (req, res, next) => {
 }
 
     const centre = await Provider.findOne({
-      _id: id,
-      providerType: "centre",
-    }).lean();
+  _id: id,
+  providerType: "centre",
+})
+  .populate({
+    path: "specialization",
+    select: "name",
+  })
+  .lean();
 
     if (!centre) {
   return next(errorHandler(404, "Centre not found"));
 }
 
 
-    const relationships = await CentreProvider.find({
+    const relationships = await CentreProviderRelation.find({
   centreId: id,
+   status: "active",
   isActive: true,
 })
   .select("providerId")

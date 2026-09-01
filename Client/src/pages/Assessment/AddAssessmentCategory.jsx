@@ -4,6 +4,7 @@ import {api} from "../../utils/api.js"
 import PermissionGuard from "../../Components/PermissionGuard.jsx";
 import { MODULES, ACTIONS } from "../../constants/permission.js";
 import { useNavigate,useParams } from "react-router-dom";
+import toast from "react-hot-toast";
 
 
 const AddAssessmentCategory = () => {
@@ -15,14 +16,7 @@ const AddAssessmentCategory = () => {
   });
   const navigate= useNavigate();
 
-  const [tests, setTests] = useState([
-  {
-    code: "",
-    name: "",
-    description: "",
-    isActive: true,
-  },
-]);
+  const [tests, setTests] = useState([]);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -30,6 +24,7 @@ const AddAssessmentCategory = () => {
   const [lastOrder, setLastOrder] = useState(0);
   const { id } = useParams();
 const isEdit = Boolean(id);
+const [specializations, setSpecializations] = useState([]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -79,13 +74,7 @@ const data = await api(url, {
         description: "",
       });
       
-      // Reset tests array to initial state with one empty row
-      setTests([{
-        code: "",
-        name: "",
-        description: "",
-        isActive: true,
-      }]);
+      setTests([]);
       
     } catch (err) {
       console.error(err);
@@ -94,6 +83,20 @@ const data = await api(url, {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+  const fetchSpecializations = async () => {
+    try {
+      const res = await api("/api/specialization");
+
+      setSpecializations(res.data || []);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  fetchSpecializations();
+}, []);
 
 
 useEffect(() => {
@@ -138,12 +141,7 @@ const resetForm = () => {
     order: 1,
     description: "",
   });
-  setTests([{
-    code: "",
-    name: "",
-    description: "",
-    isActive: true,
-  }]);
+   setTests([]);
 };
 
 
@@ -160,6 +158,7 @@ useEffect(() => {
         order: res.data.order,
         description: res.data.description,
         status: res.data.status,
+         specialization: res.data.specialization?._id || "",
       });
 
       setTests(res.data.tests || []);
@@ -246,6 +245,31 @@ useEffect(() => {
                 placeholder="Eg: 1"
               />
             </div>
+            <div>
+  <label className="text-label">
+    Specialization
+  </label>
+
+  <select
+    name="specialization"
+    value={formData.specialization}
+    onChange={handleChange}
+    required
+    className="block w-full mt-2 rounded-lg border border-gray-200 px-4 py-2.5 text-sm
+    focus:outline-none focus:ring-2 focus:ring-yellow focus:border-yellow bg-offwhite"
+  >
+    <option value="">Select Specialization</option>
+
+    {specializations.map((specialization) => (
+      <option
+        key={specialization._id}
+        value={specialization._id}
+      >
+        {specialization.name}
+      </option>
+    ))}
+  </select>
+</div>
 
             <div>
               <label className="text-label">

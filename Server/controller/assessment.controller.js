@@ -13,6 +13,7 @@ export const createCategory = async (req, res, next) => {
       icon,
       order,
       tests = [],
+       specialization,
     } = req.body;
 
 
@@ -26,6 +27,12 @@ for (const test of tests) {
       errorHandler(400, "Please fill Code and Name for all tests")
     );
   }
+}
+
+if (!specialization) {
+  return next(
+    errorHandler(400, "Specialization is required")
+  );
 }
 
     const existingCategory = await assessmentCategory.findOne({ name });
@@ -46,6 +53,7 @@ for (const test of tests) {
       description,
       icon,
       order,
+      specialization,
     });
 
     await category.save();
@@ -79,6 +87,7 @@ export const getCategories = async (req, res,next) => {
   try {
     const categories = await assessmentCategory
       .find({ status: true })
+       .populate("specialization", "name code")
       .sort({ order: 1 });
     res.status(200).json({ success: true, data: categories });
   } catch (error) {
@@ -89,7 +98,7 @@ export const getCategories = async (req, res,next) => {
 export const updateCategory = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { name, description, icon, status, order, tests = [] } = req.body;
+    const { name, description, icon, status, order, tests = [], specialization } = req.body;
 
     if (!tests.length) {
       return next(errorHandler(400, "At least one test is required"));
@@ -103,6 +112,10 @@ export const updateCategory = async (req, res, next) => {
       }
     }
 
+    if (!specialization) {
+  return next(errorHandler(400, "Specialization is required"));
+}
+
     // Update category
     const category = await assessmentCategory.findByIdAndUpdate(
       id,
@@ -112,6 +125,7 @@ export const updateCategory = async (req, res, next) => {
         icon,
         status,
         order,
+        specialization,
       },
       { new: true }
     );
@@ -470,6 +484,7 @@ export const getAllCategories = async (req, res) => {
     const categories = await assessmentCategory
       .find(filter)
       .sort({ order: 1 })
+       .populate("specialization", "name code")
       .lean();
 
     const categoryIds = categories.map(c => c._id);
@@ -652,7 +667,9 @@ export const getTestsByCategory = async (req, res, next) => {
 
 export const getCategoryById = async (req, res, next) => {
   try {
-    const category = await assessmentCategory.findById(req.params.id).lean();
+    const category = await assessmentCategory.findById(req.params.id)
+     .populate("specialization", "name code")
+     .lean();
 
     if (!category) {
       return next(errorHandler(404, "Category not found"));

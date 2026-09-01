@@ -479,7 +479,9 @@ const canReview =
               </svg>
               Message
             </button>
-            <button
+
+ {/* add note hided from top */}
+            {/* <button
               onClick={() => {
                 setActiveTab("notes");
                 setTimeout(() => noteRef.current?.focus(), 80);
@@ -500,7 +502,7 @@ const canReview =
                 />
               </svg>
               Add note
-            </button>
+            </button> */}
             {/* <button
               onClick={() => showToast("Profile link copied", "info")}
               className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold border border-[#8fa797]/30 rounded-lg text-[#2d4a36]/80 hover:bg-[#F6F4F0] transition ml-auto"

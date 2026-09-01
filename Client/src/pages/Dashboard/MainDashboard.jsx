@@ -6,7 +6,6 @@ import { MdRateReview, MdArticle } from "react-icons/md";
 import { api } from "../../utils/api.js";
 import StatisticsCard from "../../Components/DashboardComponent/StatisticsCard.jsx";
 import CardCountDashboard from "../../Components/DashboardComponent/CountCardDashboard.jsx";
-import BarGraph from "../../Components/DashboardComponent/BarGraph.jsx";
 import SystemAlert from "../../Components/DashboardComponent/SystemAlert.jsx";
 import HelpDeskCard from "../../Components/DashboardComponent/HelpDeskCard.jsx";
 import {MODULES, ACTIONS} from "../../constants/permission.js";
@@ -14,19 +13,127 @@ import PermissionGuard from "../../Components/PermissionGuard.jsx";
 
 const MainDashboard = () => {
   const navigate = useNavigate();
-  const [recentBookings, setRecentBookings] = useState([]);
-  useEffect(() => {
-    fetchRecentBookings();
-  }, []);
 
-  const fetchRecentBookings = async () => {
-    try {
-      const data = await api("/api/booking/recent");
-      setRecentBookings(data.bookings || []);
-    } catch (err) {
-      console.error("Recent bookings fetch error:", err);
+
+  const [statsLoading, setStatsLoading] = useState(true);
+const [monthlyLoading, setMonthlyLoading] = useState(true);
+const [ticketsLoading, setTicketsLoading] = useState(true);
+const [alertsLoading, setAlertsLoading] = useState(true);
+const [subscriptionLoading, setSubscriptionLoading] = useState(true);
+const [sessionLoading, setSessionLoading] = useState(true);
+
+const [stats, setStats] = useState(null);
+const [subscription, setSubscription] = useState(null);
+const [sessionCount, setSessionCount] = useState(0);
+const [monthlyData, setMonthlyData] = useState([]);
+const [tickets, setTickets] = useState([]);
+const [alerts, setAlerts] = useState([]);
+
+const loadStats = async () => {
+  try {
+    const data = await api("/api/track/stats");
+    setStats(data);
+  } catch (error) {
+    console.error("Stats loading failed:", error);
+  } finally {
+    setStatsLoading(false);
+  }
+};
+
+const loadSubscription = async () => {
+  try {
+    const data = await api("/api/subscription/getcount");
+    setSubscription(data);
+  } catch (error) {
+    console.error("Subscription loading failed:", error);
+  } finally {
+    setSubscriptionLoading(false);
+  }
+};
+
+const loadSessions = async () => {
+  try {
+    const data = await api("/api/booking/sessions/count");
+    setSessionCount(data?.totalSessions || 0);
+  } catch (error) {
+    console.error("Session loading failed:", error);
+  } finally {
+    setSessionLoading(false);
+  }
+};
+
+const loadMonthly = async () => {
+  try {
+    const data = await api("/api/track/monthly");
+    setMonthlyData(data?.data || []);
+  } catch (error) {
+    console.error("Monthly statistics loading failed:", error);
+  } finally {
+    setMonthlyLoading(false);
+  }
+};
+
+const loadTickets = async () => {
+  try {
+    const data = await api("/api/help/latest-tickets");
+    setTickets(data?.tickets || []);
+  } catch (error) {
+    console.error("Tickets loading failed:", error);
+  } finally {
+    setTicketsLoading(false);
+  }
+};
+
+const loadAlerts = async () => {
+  try {
+    const data = await api("/api/subscription/expired?days=0");
+
+    const expiredUsers = data?.data || [];
+
+    const generatedAlerts = expiredUsers.map((item) => ({
+      type: "critical",
+      message: `${item.user} has expired the subscription for ${item.days} days`,
+    }));
+
+    if (generatedAlerts.length === 0) {
+      generatedAlerts.push({
+        type: "info",
+        message: "System running normally",
+      });
     }
-  };
+
+    setAlerts(generatedAlerts);
+  } catch (error) {
+    console.error("Alerts loading failed:", error);
+  } finally {
+    setAlertsLoading(false);
+  }
+};
+
+useEffect(() => {
+  loadStats();
+  loadSubscription();
+  loadSessions();
+  loadMonthly();
+  loadTickets();
+  loadAlerts();
+}, []);
+
+
+
+  // const [recentBookings, setRecentBookings] = useState([]);
+  // useEffect(() => {
+  //   fetchRecentBookings();
+  // }, []);
+
+  // const fetchRecentBookings = async () => {
+  //   try {
+  //     const data = await api("/api/booking/recent");
+  //     setRecentBookings(data.bookings || []);
+  //   } catch (err) {
+  //     console.error("Recent bookings fetch error:", err);
+  //   }
+  // };
 
   const quickActions = [
     {
@@ -93,15 +200,30 @@ const MainDashboard = () => {
 
   return (
     <div className="min-h-screen p-4 bg-offwhite">
-      <CardCountDashboard />
+     <CardCountDashboard
+  stats={stats}
+  subscription={subscription}
+  sessionCount={sessionCount}
+  loading={
+    statsLoading ||
+    subscriptionLoading ||
+    sessionLoading
+  }
+/>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
         <div className="lg:col-span-2 space-y-6">
-          <StatisticsCard />
+         <StatisticsCard
+  data={monthlyData}
+  loading={monthlyLoading}
+/>
         </div>
 
         <div className="lg:col-span-1">
-          <HelpDeskCard />
+         <HelpDeskCard
+  tickets={tickets}
+  loading={ticketsLoading}
+/>
         </div>
       </div>
 
@@ -151,7 +273,10 @@ const MainDashboard = () => {
 
         {/* system Alert */}
         <div className="space-y-6">
-          <SystemAlert />
+          <SystemAlert
+  alerts={alerts}
+  loading={alertsLoading}
+/>
         </div>
       </div>
     </div>

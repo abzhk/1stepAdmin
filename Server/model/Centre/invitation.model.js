@@ -25,6 +25,13 @@ const invitationSchema = new mongoose.Schema(
     consultationFee: {
       type: Number,
     },
+    // Slots proposed by the centre when sending the invitation.
+    // On accept, these are conflict-checked and written to CentreProvider.centreAvailableSlots.
+    // Format: { Monday: ["10:00", "10:30"], Wednesday: ["14:00"] }
+    proposedSlots: {
+      type: Object,
+      default: {},
+    },
     status: {
       type: String,
       enum: ["pending", "accepted", "rejected", "expired", "cancelled"],
@@ -53,6 +60,7 @@ const invitationSchema = new mongoose.Schema(
 );
 
 invitationSchema.index({ centreId: 1, status: 1 });
+invitationSchema.index({ centreId: 1, status: 1, createdAt: -1 }); // Optimized for pagination
 invitationSchema.index({ invitedEmail: 1, status: 1 });
 invitationSchema.index({ createdAt: 1 }, { expireAfterSeconds: 7776000 });
 

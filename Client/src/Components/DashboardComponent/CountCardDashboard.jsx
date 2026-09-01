@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { api } from "../../utils/api.js";
+import React from "react";
+
 import { motion } from "framer-motion";
 import {
   FaUserInjured,
@@ -58,43 +58,13 @@ const StatCard = ({ title, value, badge, badgeColor, footer, icon, delay }) => (
   </motion.div>
 );
 
-const CountCardDashboard = () => {
-  const [stats, setStats] = useState(null);
-  const [subscription, setSubscription] = useState();
-  const [sessionCount, setSessionCount] = useState(0);
+const CountCardDashboard = ({
+  stats,
+  subscription,
+  sessionCount,
+}) => {
 
-  useEffect(() => {
-    fetchStats();
-    fetchsubscription();
-    fetchSessionCount();
-  }, []);
-
-  const fetchStats = async () => {
-    try {
-      const data = await api(`/api/track/stats`);
-      setStats(data);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const fetchsubscription = async () => {
-    try {
-      const data = await api(`/api/subscription/getcount`);
-      setSubscription(data);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const fetchSessionCount = async () => {
-    try {
-      const data = await api(`/api/booking/sessions/count`);
-      setSessionCount(data.totalSessions);
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  
 
   const statCards = [
     {

@@ -119,15 +119,24 @@ const CentreDetails = () => {
 
   </div>
 
-  {centre.description && (
-    <div className="mt-5 bg-offwhite rounded-xl p-4">
-      <p className="text-cardfooter mb-2">Description</p>
+  {centre.specialization?.length > 0 && (
+  <div className="mt-5 bg-offwhite rounded-xl p-4">
+    <p className="text-cardfooter mb-2">
+      Specializations
+    </p>
 
-      <p className="text-label leading-7">
-        {centre.description}
-      </p>
+    <div className="flex flex-wrap gap-2">
+      {centre.specialization.map((specialization) => (
+        <span
+          key={specialization._id}
+          className="px-3 py-1 bg-greenmuted text-yellow text-tab-subheading rounded-full text-sm"
+        >
+          {specialization.name}
+        </span>
+      ))}
     </div>
-  )}
+  </div>
+)}
 </div>
 
       {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">

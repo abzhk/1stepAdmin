@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { FiArrowRight } from "react-icons/fi";
-import { api } from "../../utils/api.js";
 import  formatdatateUtils from "../../utils/dateFormatUtils.js";
 import PermissionGuard from "../../Components/PermissionGuard";
 import { MODULES, ACTIONS } from "../../constants/permission";
@@ -9,7 +8,7 @@ import { MODULES, ACTIONS } from "../../constants/permission";
 const StatusBadge = ({ status }) => {
   const styles = {
     Open: "bg-red-50 text-red-500",
-    "In Progress": "bg-yellow-200 text-yellow-600",
+    "In progress": "bg-yellow-100 text-yellow-600",
     Resolved: "bg-green-50 text-green-600",
   };
 
@@ -20,29 +19,12 @@ const StatusBadge = ({ status }) => {
   );
 };
 
-const HelpDeskCard = () => {
+const HelpDeskCard = ({ tickets  = []}) => {
   const navigate = useNavigate();
-  const [tickets, setTickets] = useState([]);
+  
 
   const latestTickets = tickets.slice(0, 3);
 
-  useEffect(() => {
-    const fetchTickets = async () => {
-      try {
-        const data = await api("/api/help/all-tickets");
-
-        setTickets(
-          [...(data.tickets || [])]
-            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-            .slice(0, 3),
-        );
-      } catch (err) {
-        console.error(err);
-      }
-    };
-
-    fetchTickets();
-  }, []);
 
   return (
      <PermissionGuard module={MODULES.HELP} action={ACTIONS.READ}>
@@ -69,10 +51,10 @@ const HelpDeskCard = () => {
               </div>
 
               <div>
-                <p className="text-sm font-medium text-gray-800 group-hover:text-black">
+                <p className="text-cardfooter  group-hover:text-black">
                   {item.title}
                 </p>
-                <p className="text-xs text-green-700 font-medium">
+                <p className="text-xs text-darkgreen font-medium">
                   {item.user?.email}
                 </p>
                 <p className="text-sm font-medium text-gray-800 group-hover:text-black">

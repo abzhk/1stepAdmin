@@ -28,7 +28,7 @@ const CentreDashBoard = () => {
         setTotalCentres(data.totalCentres || 0);
         setTotalProviders(data.totalProviders);
 
-        console.log("centre-list:", data);
+        // console.log("centre-list:", data);
       } catch (err) {
         console.error(err);
       }
@@ -41,7 +41,7 @@ const CentreDashBoard = () => {
     const fetchStats = async()=>{
       try{
         const res= await api("/api/provider/centre-session");
-        console.log("Centre Dashboard Stats:", res);
+        // console.log("Centre Dashboard Stats:", res);
  setStats(res.stats);
       setUpcomingSessions(res.upcoming);
     } catch (err) {

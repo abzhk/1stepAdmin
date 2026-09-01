@@ -5,12 +5,13 @@ import {
   getProviderAccess,
   updateUserOverride,
 } from "../controller/access.controller.js";
+import { verifyAdminToken } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
-router.get("/search", searchAccessUsers);
-router.get("/parent/:id", getParentAccess);
-router.get("/provider/:id", getProviderAccess);
-router.put("/user/:id/override", updateUserOverride);
+router.get("/search", verifyAdminToken, searchAccessUsers);
+router.get("/parent/:id", verifyAdminToken, getParentAccess);
+router.get("/provider/:id", verifyAdminToken, getProviderAccess);
+router.put("/user/:id/override", verifyAdminToken, updateUserOverride);
 
 export default router;
