@@ -113,15 +113,26 @@ const CentreEdit = () => {
             />
           </div>
 
-          <div>
-            <label className="text-sm text-gray-700 mb-1 block">Phone</label>
-            <input
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              className="w-full px-4 py-2 rounded-xl border border-gray-200 bg-gray-100 focus:bg-white focus:border-green-500 outline-none"
-            />
-          </div>
+         <div>
+  <label className="text-sm text-gray-700 mb-1 block">
+    Phone
+  </label>
+
+  <input
+    name="phone"
+    type="tel"
+    inputMode="numeric"
+    maxLength={10}
+    value={formData.phone}
+    onChange={(e) =>
+      setFormData((prev) => ({
+        ...prev,
+        phone: e.target.value.replace(/\D/g, ""),
+      }))
+    }
+    className="w-full px-4 py-2 rounded-xl border border-gray-200 bg-gray-100 focus:bg-white focus:border-green-500 outline-none"
+  />
+</div>
 
           <div>
             <label className="text-sm text-gray-700 mb-1 block">

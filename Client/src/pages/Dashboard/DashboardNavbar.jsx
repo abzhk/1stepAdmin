@@ -47,8 +47,10 @@ const hideSearch = hideSearchRoutes.some((route) =>
   if (path.startsWith("/dashboard")) return "Dashboard";
   if (path.startsWith("/users")) return "Users";
   if (path.startsWith("/allproviders")||path.startsWith("/inactive-providers") || path.startsWith("/provider-stats")) return "Providers";
-  if (path.startsWith("/view-parent") ||path.startsWith("/inactive-parents")  ||path.startsWith("/parent-stats-card"))  return "Parents";
-  if (path.startsWith("/add-plans")||path.startsWith("/view-plans")) return "Plans";
+  if (path.startsWith("/view-parent") ||path.startsWith("/inactive-parents")  ||path.startsWith("/parent-stats-card")
+  ||  path.startsWith("/parent/edit"))  return "Parents";
+  if (path.startsWith("/add-plans")||path.startsWith("/view-plans") ||
+  path.startsWith("/addplans")) return "Plans";
   if (path.startsWith("/create-Role")) return "Roles";
   if (path.startsWith("/reports")) return "Reports";
   if (path.startsWith("/viewcat") ||path.startsWith("/viewarticle")||path.startsWith("/add-article")) return "Article";

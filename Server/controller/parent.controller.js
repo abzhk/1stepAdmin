@@ -55,7 +55,8 @@ export const getParent = async (req, res, next) => {
         status: false,
       });
     }
-    const parentExists = await Parent.findOne({ userRef: id });
+    const parentExists = await Parent.findOne({ userRef: id })
+    .populate("userRef", "username email profilePicture");
     if (!parentExists) {
       return res.status(200).json({
         message: "Could find parent Details, try again later",
