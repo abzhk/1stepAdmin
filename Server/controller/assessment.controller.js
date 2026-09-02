@@ -701,7 +701,7 @@ export const getCategoryById = async (req, res, next) => {
     const tests = await AssessmentTest.find({
       category: req.params.id,
     })
-    .populate("specialization", "name code")
+   
      .lean();
 
     category.tests = tests;
