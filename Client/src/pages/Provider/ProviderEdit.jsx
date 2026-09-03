@@ -46,7 +46,9 @@ function ProviderEdit() {
         setFormData({
           fullName: data.provider.fullName || "",
           email: data.provider.email || "",
-          phone: data.provider.phone || "",
+          phone: String(data.provider.phone || "")
+  .replace(/\D/g, "")
+  .slice(0, 10),
           qualification: data.provider.qualification || "",
           experience: data.provider.experience || "",
           license: data.provider.license || "",
@@ -68,18 +70,21 @@ function ProviderEdit() {
   }, [id]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+  const { name, value } = e.target;
 
-    if (name === "phone") {
-      const onlyNumbers = value.replace(/\D/g, "");
-      if (onlyNumbers.length <= 10) {
-        setFormData({ ...formData, phone: onlyNumbers });
-      }
-      return;
-    }
+  if (name === "phone") {
+    setFormData((prev) => ({
+      ...prev,
+      phone: value.replace(/\D/g, "").slice(0, 10),
+    }));
+    return;
+  }
 
-    setFormData({ ...formData, [name]: value });
-  };
+  setFormData((prev) => ({
+    ...prev,
+    [name]: value,
+  }));
+};
 
   const handleSubmit = async (e) => {
     e.preventDefault();

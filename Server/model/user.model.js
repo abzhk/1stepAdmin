@@ -56,6 +56,25 @@ const userSchema = new mongoose.Schema(
     lastLoginAt: Date,
     emailVerifiedAt: Date,
     profileCompletedAt: Date,
+     // ── Soft Deactivation (Parent only) ─────────────────────────────
+    // Set when parent requests account deactivation.
+    // Account is soft-locked: isActive → false, session cleared, email sent.
+    // Parent can reactivate via email link within reactivationDeadline.
+    deletionRequestedAt: {
+      type: Date,
+      default: null,
+    },
+    // Signed JWT stored here so we can verify the reactivation link is genuine
+    // and single-use (cleared once reactivation is complete).
+    reactivationToken: {
+      type: String,
+      default: null,
+    },
+    // 15-day window from deletionRequestedAt. After this, support contact required.
+    reactivationDeadline: {
+      type: Date,
+      default: null,
+    },
   },
   { timestamps: true },
 );

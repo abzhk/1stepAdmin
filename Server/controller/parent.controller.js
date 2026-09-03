@@ -471,11 +471,22 @@ export const getInactiveParents = async (req, res, next) => {
     const numericLimit = Number(limit);
     const numericStartIndex = Number(startIndex);
 
-    // parent filters
-    const parentQuery = { isParent: true };
+    const inactiveUsers = await User.find(
+      { isActive: false },
+      { _id: 1 }
+    ).lean();
+
+    const inactiveUserIds = inactiveUsers.map((user) => user._id);
+
+
+    const parentQuery = {
+      isParent: true,
+      userRef: { $in: inactiveUserIds },
+    };
 
     if (searchTerm) {
       const regex = new RegExp(searchTerm.trim(), "i");
+
       parentQuery.$or = [
         { "parentDetails.fullName": regex },
         { "parentDetails.childName": regex },
@@ -483,13 +494,14 @@ export const getInactiveParents = async (req, res, next) => {
       ];
     }
 
-    const sortQuery = { [sort]: order === "desc" ? -1 : 1 };
+    const sortQuery = {
+      [sort]: order === "desc" ? -1 : 1,
+    };
 
     const [parents, totalCount] = await Promise.all([
       Parent.find(parentQuery)
         .populate({
           path: "userRef",
-          match: { isActive: false }, 
           select: "_id username email profilePicture isActive",
         })
         .sort(sortQuery)
@@ -500,15 +512,13 @@ export const getInactiveParents = async (req, res, next) => {
       Parent.countDocuments(parentQuery),
     ]);
 
-    // remove records where populate failed (means active users)
-    const filteredParents = parents.filter((p) => p.userRef);
-
     return res.status(200).json({
       success: true,
-      parents: filteredParents,
-      totalParents: filteredParents.length,
-      totalPages: Math.ceil(filteredParents.length / numericLimit),
-      currentPage: Math.floor(numericStartIndex / numericLimit) + 1,
+      parents,
+      totalParents: totalCount,
+      totalPages: Math.ceil(totalCount / numericLimit),
+      currentPage:
+        Math.floor(numericStartIndex / numericLimit) + 1,
       limit: numericLimit,
     });
   } catch (error) {
