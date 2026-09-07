@@ -507,11 +507,6 @@ export const deactivateUser = async (req, res, next) => {
       );
     }
 
-    // 3. Send deactivation email — ALWAYS (fire-and-forget, never blocks response)
-    sendAccountDeactivatedEmail({ user, reason: reason.trim() }).catch((err) => {
-      console.error("[deactivateUser] Email send failed:", err?.message);
-    });
-
     // Strip sensitive fields before responding
     const { password, refreshToken, ...safeUser } = user.toObject();
     return res.status(200).json({
