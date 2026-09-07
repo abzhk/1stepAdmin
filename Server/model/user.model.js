@@ -56,6 +56,49 @@ const userSchema = new mongoose.Schema(
     lastLoginAt: Date,
     emailVerifiedAt: Date,
     profileCompletedAt: Date,
+
+    // ── SaaS Account Lifecycle ────────────────────────────────────────────────
+    // accountStatus drives all access control. isActive mirrors it for backwards
+    // compatibility with existing queries that check isActive.
+    //   active      → normal operation
+    //   deactivated → admin-initiated soft lock; admin can reactivate from dashboard
+    accountStatus: {
+      type: String,
+      enum: ["active", "deactivated"],
+      default: "active",
+      index: true,
+    },
+
+    // Metadata for the most recent deactivation/reactivation event
+    deactivationMeta: {
+      reason: { type: String, default: null },
+      deactivatedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        default: null,
+      },
+      deactivatedAt: { type: Date, default: null },
+      reactivatedAt: { type: Date, default: null },
+      reactivatedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        default: null,
+      },
+    },
+
+    // Immutable audit trail — up to 50 entries per user
+    accountStatusHistory: {
+      type: [
+        {
+          fromStatus: { type: String },
+          toStatus:   { type: String },
+          changedBy:  { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+          reason:     { type: String, default: "" },
+          changedAt:  { type: Date, default: Date.now },
+        },
+      ],
+      default: [],
+    },
   },
   { timestamps: true },
 );
