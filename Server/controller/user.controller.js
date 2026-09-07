@@ -9,6 +9,11 @@ import bcryptjs from "bcryptjs";
 import fs from "fs";
 import path from "path";
 
+import {
+  sendAccountDeactivatedEmail,
+  sendAccountReactivatedEmail,
+} from "../services/email.service.js";
+
 export const test = (req, res) => {
   res.json({
     message: "Made by Capztone Innovative Team",
@@ -405,6 +410,216 @@ export const getAllUsers = async (req, res, next) => {
         totalUsers,
         limit: limitNumber,
       },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SaaS Account Lifecycle — Admin-only endpoints
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * POST /api/users/deactivate/:userId
+ * Body: { reason: string }
+ *
+ * Admin deactivates a user account.
+ * - Sets accountStatus = "deactivated" and isActive = false
+ * - Records deactivationMeta + appends to accountStatusHistory
+ * - Clears refreshToken (forces logout on 1stepdev immediately)
+ * - If user is a Provider or Centre: sets provider.isActive = false
+ * - ALWAYS sends deactivation email to the user via Resend
+ * - Protected: cannot deactivate Super Admin accounts
+ */
+export const deactivateUser = async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+    const { reason } = req.body;
+    const adminId = req.user.id.toString();
+
+    if (!reason || reason.trim().length < 3) {
+      return res.status(400).json({
+        success: false,
+        message: "A reason is required to deactivate an account (minimum 3 characters).",
+      });
+    }
+
+    // Prevent admin deactivating themselves
+    if (userId === adminId) {
+      return res.status(400).json({ success: false, message: "You cannot deactivate your own account." });
+    }
+
+    const user = await User.findById(userId).populate("role");
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found." });
+    }
+
+    // Prevent deactivating Super Admin accounts
+    if (user.role?.role?.toLowerCase() === "super admin") {
+      return res.status(403).json({
+        success: false,
+        message: "Super Admin accounts cannot be deactivated.",
+      });
+    }
+
+    if (user.accountStatus === "deactivated") {
+      return res.status(400).json({
+        success: false,
+        message: "This account is already deactivated.",
+      });
+    }
+
+    const previousStatus = user.accountStatus || "active";
+
+    // 1. Update user record
+    user.accountStatus    = "deactivated";
+    user.isActive         = false;
+    user.refreshToken     = null; // Force logout on 1stepdev
+    user.deactivationMeta = {
+      reason:          reason.trim(),
+      deactivatedBy:   adminId,
+      deactivatedAt:   new Date(),
+      reactivatedAt:   null,
+      reactivatedBy:   null,
+    };
+
+    // Append to audit history (keep last 50)
+    user.accountStatusHistory.push({
+      fromStatus: previousStatus,
+      toStatus:   "deactivated",
+      changedBy:  adminId,
+      reason:     reason.trim(),
+      changedAt:  new Date(),
+    });
+    if (user.accountStatusHistory.length > 50) {
+      user.accountStatusHistory = user.accountStatusHistory.slice(-50);
+    }
+
+    await user.save();
+
+    // 2. Deactivate associated Provider/Centre profile (isActive only — no cascade)
+    const roleName = user.role?.role?.toLowerCase();
+    if (roleName === "provider" || roleName === "centre") {
+      await Provider.updateOne(
+        { userRef: userId },
+        { $set: { isActive: false } }
+      );
+    }
+
+    // Strip sensitive fields before responding
+    const { password, refreshToken, ...safeUser } = user.toObject();
+    return res.status(200).json({
+      success: true,
+      message: `Account for ${user.email} has been deactivated successfully.`,
+      user: safeUser,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * POST /api/users/reactivate/:userId
+ * Body: { sendEmail?: boolean, note?: string }
+ *
+ * Admin reactivates a deactivated account.
+ * - Sets accountStatus = "active" and isActive = true
+ * - Updates deactivationMeta with reactivation info
+ * - Re-enables Provider/Centre profile if applicable
+ * - Sends reactivation email ONLY if sendEmail === true
+ */
+export const reactivateUser = async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+    const { sendEmail: shouldSendEmail = false, note = "" } = req.body;
+    const adminId = req.user.id;
+
+    const user = await User.findById(userId).populate("role");
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found." });
+    }
+
+    if (user.accountStatus !== "deactivated") {
+      return res.status(400).json({
+        success: false,
+        message: `Cannot reactivate — account status is currently "${user.accountStatus}".`,
+      });
+    }
+
+    const previousStatus = user.accountStatus;
+
+    // 1. Restore account
+    user.accountStatus = "active";
+    user.isActive      = true;
+    user.deactivationMeta = {
+      ...user.deactivationMeta,
+      reactivatedAt: new Date(),
+      reactivatedBy: adminId,
+    };
+
+    user.accountStatusHistory.push({
+      fromStatus: previousStatus,
+      toStatus:   "active",
+      changedBy:  adminId,
+      reason:     note.trim() || "Reactivated by admin",
+      changedAt:  new Date(),
+    });
+    if (user.accountStatusHistory.length > 50) {
+      user.accountStatusHistory = user.accountStatusHistory.slice(-50);
+    }
+
+    await user.save();
+
+    // 2. Re-enable Provider/Centre profile
+    const roleName = user.role?.role?.toLowerCase();
+    if (roleName === "provider" || roleName === "centre") {
+      await Provider.updateOne(
+        { userRef: userId },
+        { $set: { isActive: true } }
+      );
+    }
+
+    // 3. Optionally send reactivation email (admin's choice)
+    if (shouldSendEmail === true || shouldSendEmail === "true") {
+      sendAccountReactivatedEmail({ user }).catch((err) => {
+        console.error("[reactivateUser] Email send failed:", err?.message);
+      });
+    }
+
+    const { password, refreshToken, ...safeUser } = user.toObject();
+    return res.status(200).json({
+      success: true,
+      message: `Account for ${user.email} has been reactivated successfully.${shouldSendEmail ? " Notification email sent to user." : ""}`,
+      user: safeUser,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * GET /api/users/status-history/:userId
+ * Returns full accountStatusHistory for audit trail display in admin dashboard.
+ */
+export const getUserStatusHistory = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.params.userId)
+      .select("accountStatus accountStatusHistory deactivationMeta email username")
+      .populate("accountStatusHistory.changedBy", "username email")
+      .populate("deactivationMeta.deactivatedBy", "username email")
+      .populate("deactivationMeta.reactivatedBy", "username email")
+      .lean();
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found." });
+    }
+
+    return res.status(200).json({
+      success: true,
+      accountStatus: user.accountStatus,
+      deactivationMeta: user.deactivationMeta,
+      history: (user.accountStatusHistory || []).slice().reverse(), // newest first
     });
   } catch (error) {
     next(error);

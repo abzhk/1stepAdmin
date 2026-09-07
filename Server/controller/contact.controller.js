@@ -1,14 +1,6 @@
 import Contact from "../model/Help/contact.model.js";
 import { errorHandler } from "../utils/error.js";
-import nodemailer from "nodemailer";
-
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD,
-  },
-});
+import { sendPlainEmail } from "../services/email.service.js";
 
 
 const sendUserConfirmationEmail = async (userEmail, userName, messageData) => {
@@ -146,8 +138,12 @@ const sendUserConfirmationEmail = async (userEmail, userName, messageData) => {
       `,
     };
 
-    const info = await transporter.sendMail(mailOptions);
-    console.log("User confirmation email sent:", info.messageId);
+    const info = await sendPlainEmail({
+      to: mailOptions.to,
+      subject: mailOptions.subject,
+      html: mailOptions.html,
+    });
+    console.log("User confirmation email sent");
     return true;
   } catch (error) {
     console.error("Error sending user confirmation email:", error);
@@ -267,8 +263,12 @@ const sendAdminNotificationEmail = async (contactData) => {
       `,
     };
 
-    const info = await transporter.sendMail(mailOptions);
-    console.log("Admin notification email sent:", info.messageId);
+    const info = await sendPlainEmail({
+      to: mailOptions.to,
+      subject: mailOptions.subject,
+      html: mailOptions.html,
+    });
+    console.log("Admin notification email sent");
     return true;
   } catch (error) {
     console.error("Error sending admin notification email:", error);
