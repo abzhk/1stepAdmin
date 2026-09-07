@@ -12,7 +12,7 @@ import {
    deleteQuestion,
     publishAssessmentVersion,
     bulkImportQuestions,
-} from "../controller/Assessment/adminassessment.controller.js";
+} from "../controller/Assessment/assessmentTest.controller.js";
 
 import { verifyAdminToken } from "../middlewares/authMiddleware.js";
 import { canAccess } from "../middlewares/permission.middleware.js";

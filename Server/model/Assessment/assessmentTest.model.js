@@ -29,7 +29,12 @@ const assessmentTestSchema = new mongoose.Schema(
     isActive:{
         type:Boolean,
         default:true
-    }
+    },
+    specialization: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: "Specialization",
+  required: true,
+},
 },
 {
     timestamps:true

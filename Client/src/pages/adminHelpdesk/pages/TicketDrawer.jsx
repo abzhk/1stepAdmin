@@ -10,9 +10,8 @@ export default function TicketDrawer({ ticket, idx, onClose, onUpdate }) {
   const [agent, setAgent] = useState(ticket.agent || "");
   const [priority, setPriority] = useState(ticket.priority);
   const [showAttachment, setShowAttachment] = useState(false);
-  const [messages, setMessages] = useState(
-  ticket.messages || []
-);
+  const [messages, setMessages] = useState(ticket.messages || []);
+  const [hasChanges, setHasChanges] = useState(false);
 
   // const THREAD = [
   //   { from: "user", name: ticket.user, initials: ticket.initials, cc: ac(idx), time: "9:41 AM", text: `Hi, I'm experiencing an issue: "${ticket.title}". Can you help resolve this?` },
@@ -132,7 +131,12 @@ export default function TicketDrawer({ ticket, idx, onClose, onUpdate }) {
           ].map(f => (
             <div key={f.label}>
               <label className="text-[10px] font-bold text-[#8fa797] uppercase tracking-widest block mb-1.5">{f.label}</label>
-              <select value={f.val} onChange={e => f.set(e.target.value)} className="w-full text-[12px] font-medium px-2.5 py-2 border border-[#8fa797]/20 rounded-xl bg-white text-[#2d4a36] focus:outline-none focus:ring-2 focus:ring-[#8fa797]/40 transition-shadow cursor-pointer">
+              <select
+  value={f.val}
+  onChange={e => {
+    f.set(e.target.value);
+    setHasChanges(true);
+  }} className="w-full text-[12px] font-medium px-2.5 py-2 border border-[#8fa797]/20 rounded-xl bg-white text-[#2d4a36] focus:outline-none focus:ring-2 focus:ring-[#8fa797]/40 transition-shadow cursor-pointer">
                 {f.opts.map(o => <option key={o} value={o}>{o || "Unassigned"}</option>)}
               </select>
             </div>
@@ -179,16 +183,21 @@ export default function TicketDrawer({ ticket, idx, onClose, onUpdate }) {
         <div className="px-6 py-4 border-t border-[#8fa797]/20 bg-white">
           <textarea value={reply} onChange={e => setReply(e.target.value)} placeholder="Write a reply…" className="w-full text-[13px] font-medium px-4 py-3 border border-[#8fa797]/30 rounded-2xl bg-[#F6F4F0]/50 text-[#2d4a36] placeholder-[#8fa797] focus:outline-none focus:bg-white focus:ring-2 focus:ring-[#8fa797]/40 resize-none transition-all" rows={3} />
           <div className="flex items-center justify-between mt-3">
-            <button   disabled={ticket.status === "Resolved"} onClick={async () => {
-  await onUpdate(ticket._id, {
-    status,
-    priority,
-  });
+            <button
+  disabled={!hasChanges || ticket.status === "Resolved"}
+  onClick={async () => {
+    await onUpdate(ticket._id, {
+      status,
+      priority,
+    });
 
-  onClose();
-}} className="text-[13px] font-bold bg-[#2d4a36] text-[#F6F4F0] px-6 py-2.5 rounded-full hover:bg-[#8fa797] hover:text-[#2d4a36] shadow-md shadow-[#2d4a36]/10 transition-all disabled:opacity-40 disabled:hover:bg-[#2d4a36] disabled:hover:text-[#F6F4F0] disabled:cursor-not-allowed">
-              Save changes
-            </button>
+    setHasChanges(false);
+    onClose();
+  }}
+  className="text-[13px] font-bold bg-[#2d4a36] text-[#F6F4F0] px-6 py-2.5 rounded-full hover:bg-[#8fa797] hover:text-[#2d4a36] shadow-md shadow-[#2d4a36]/10 transition-all disabled:opacity-40 disabled:hover:bg-[#2d4a36] disabled:hover:text-[#F6F4F0] disabled:cursor-not-allowed"
+>
+  Save changes
+</button>
             <button onClick={async () => {
 const data = await api(
   `/api/help/reply-ticket/${ticket._id}`,

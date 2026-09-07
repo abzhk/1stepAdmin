@@ -401,7 +401,6 @@ export const updateParent = async (req, res ,next) => {
       },
       {
         new: true,
-        runValidators: true,
       }
     ).populate("userRef", "username email profilePicture");
 
