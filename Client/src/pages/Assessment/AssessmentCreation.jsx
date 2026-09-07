@@ -907,14 +907,14 @@ const AssessmentCreation = () => {
                       {editingId ? "Update" : "Save"}
                     </button>
 
-                    {!editingId && (
+                    {/* {!editingId && (
                       <button
                         onClick={() => saveQuestion(true)}
                         className="bg-yellow text-white px-5 py-2 rounded-xl"
                       >
                         Save & Add Next
                       </button>
-                    )}
+                    )} */}
 
                     {editingId && (
                       <button

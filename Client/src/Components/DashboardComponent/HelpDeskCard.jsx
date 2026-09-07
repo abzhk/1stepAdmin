@@ -43,9 +43,9 @@ const HelpDeskCard = ({ tickets  = []}) => {
         {latestTickets.map((item) => (
           <div
             key={item._id}
-            className="flex justify-between items-center p-3 rounded-xl hover:bg-offwhite transition group"
+            className="flex items-center p-3 rounded-xl hover:bg-offwhite transition group"
           >
-            <div className="flex gap-3 items-center">
+            <div className="flex gap-3 items-center flex-1 min-w-0">
               <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#2d4a36] to-[#426b50] text-white flex items-center justify-center text-sm font-semibold shadow-sm">
                 {item.user?.username?.charAt(0)}
               </div>
@@ -63,7 +63,7 @@ const HelpDeskCard = ({ tickets  = []}) => {
               </div>
             </div>
 
-            <div className="text-right">
+           <div className="text-right w-[85px] shrink-0">
               <StatusBadge status={item.status} />
               <p className="text-[10px] text-gray-400 mt-1">
                  {formatdatateUtils(item.createdAt)}
