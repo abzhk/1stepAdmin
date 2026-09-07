@@ -168,17 +168,6 @@ function DeactivateModal({ isOpen, onClose, user, mode = "deactivate", onSuccess
             </>
           )}
 
-          {/* Deactivate — email notice */}
-          {isDeactivate && (
-            <div className="flex items-start gap-2 bg-amber-50 border border-amber-100 rounded-xl px-4 py-3">
-              <span className="text-amber-500 text-lg">ℹ</span>
-              <p className="text-sm text-amber-700">
-                A deactivation email will automatically be sent to <strong>{user.email}</strong> with the reason provided.
-                The user's session will be terminated immediately.
-              </p>
-            </div>
-          )}
-
           {/* Error */}
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-2 rounded-xl">
