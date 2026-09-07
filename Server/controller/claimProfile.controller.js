@@ -24,7 +24,7 @@ import {
   TherapistPaymentDetail,
 } from "../model/ClaimProfile/index.js";
 import Provider from "../model/provider.model.js";
-import { sendEmail } from "../services/email.services.js";
+import { sendPlainEmail } from "../services/email.service.js";
 import { errorHandler } from "../utils/error.js";
 import NotificationService from "../services/notification.service.js";
 import { getSignedUrl } from "../config/firebaseAdmin.js";

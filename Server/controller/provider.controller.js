@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import Provider from "../model/provider.model.js";
 import { Booking } from "../model/booking.model.js";
 import { errorHandler } from "../utils/error.js";
-import nodemailer from "nodemailer";
+import { sendPlainEmail } from "../services/email.service.js";
 import User from "../model/user.model.js";
 import { BookedSlots } from "../model/booking.model.js";
 // import Proof from "../models/proof.model.js";
@@ -314,25 +314,9 @@ export const getAdminProviders = async (req, res, next) => {
 let otpStorage = {};
 
 const otpverifyProvider = async (to, subject, html) => {
-  try {
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASSWORD,
-      },
-    });
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to,
-      subject,
-      html,
-    });
-    return true;
-  } catch (error) {
-    console.log("Error sending email:", error);
-    return false;
-  }
+  // Uses sendPlainEmail from email.service.js (Resend) — nodemailer removed
+  const result = await sendPlainEmail({ to, subject, html });
+  return !!result;
 };
 
 export const sendOtp = async (req, res, next) => {

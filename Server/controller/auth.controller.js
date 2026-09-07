@@ -3,7 +3,7 @@ import Role from "../model/role.model.js";
 import bcryptjs from "bcryptjs";
 import { errorHandler } from "../utils/error.js";
 import jwt from "jsonwebtoken";
-import nodemailer from "nodemailer";
+import { sendPlainEmail } from "../services/email.service.js";
 
 export const signup = async (req, res, next) => {
   const { username, email, password, roleType } = req.body;
@@ -45,6 +45,19 @@ export const signin = async (req, res, next) => {
       return next(
         errorHandler(404, "Email not found. Please create an account first!")
       );
+
+    // ── Account status guard ──────────────────────────────────────────────────
+    // 1stepdev client already handles ACCOUNT_DEACTIVATED code to show the
+    // correct UI message. isActive check keeps backwards compat.
+    if (validUser.accountStatus === "deactivated" || !validUser.isActive) {
+      return res.status(403).json({
+        success: false,
+        code: "ACCOUNT_DEACTIVATED",
+        message:
+          "Your account has been deactivated by 1Step. Please contact support if you believe this is a mistake.",
+      });
+    }
+
     const validPassword = bcryptjs.compareSync(password, validUser.password);
     if (!validPassword) return next(errorHandler(401, "wrong credentials"));
 
@@ -169,6 +182,14 @@ export const google = async (req, res, next) => {
         .status(200)
         .json(rest);
     } else {
+      if (user.accountStatus === "deactivated" || !user.isActive) {
+        return res.status(403).json({
+          success: false,
+          code: "ACCOUNT_DEACTIVATED",
+          message: "Your account has been deactivated by 1Step. Please contact support if you believe this is a mistake.",
+        });
+      }
+
       const { role } = user;
       if (!role) {
         return next(
@@ -260,6 +281,14 @@ export const refreshAccessToken = async (req, res, next) => {
       return res.status(401).json({ message: "Invalid Token" });
     }
 
+    if (user.accountStatus === "deactivated" || !user.isActive) {
+      return res.status(403).json({
+        success: false,
+        code: "ACCOUNT_DEACTIVATED",
+        message: "Your account has been deactivated. Please contact support.",
+      });
+    }
+
     const role = await Role.findById(user.role);
 
     const accessToken = jwt.sign(
@@ -289,31 +318,8 @@ export const refreshAccessToken = async (req, res, next) => {
 // PASSWORD RESET
 
 let otpStorage = {};
-let hashedPasswords = {};
 
-const sendEmail = async (to, subject, html) => {
-  try {
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASSWORD,
-      },
-    });
-
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to,
-      subject,
-      html,
-    });
-
-    return true;
-  } catch (error) {
-    console.error("Error sending email:", error);
-    return false;
-  }
-};
+// Uses sendPlainEmail from email.service.js (Resend) — nodemailer removed
 
 export const resetPassword = async (req, res, next) => {
   const { email } = req.body;
@@ -328,18 +334,18 @@ export const resetPassword = async (req, res, next) => {
     otpStorage[email] = generateOtp;
     console.log("otpStorage", otpStorage);
 
-    const html = `<b>Your 1Step Reset Password Otp is : <i>${generateOtp}</i></b>`;
-    const subject = "New OTP Generated";
+    const html = `<b>Your 1Step Reset Password OTP is: <i>${generateOtp}</i></b>`;
+    const subject = "Your 1Step Password Reset OTP";
 
-    const emailSent = await sendEmail(email, subject, html);
+    const result = await sendPlainEmail({ to: email, subject, html });
 
-    if (emailSent) {
+    if (result) {
       return res.json({
         status: true,
-        message: "Otp sended your email, check your inbox.",
+        message: "OTP sent to your email, check your inbox.",
       });
     } else {
-      return res.status(500).json({ message: "Error, can't send email!" });
+      return res.status(500).json({ message: "Error, could not send email. Please try again." });
     }
   } catch (err) {
     next(err);

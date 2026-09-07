@@ -3,9 +3,11 @@ import { BookedSlots } from "../model/booking.model.js";
 import { errorHandler } from "../utils/error.js";
 import User from "../model/user.model.js";
 import Provider from "../model/provider.model.js";
+import Parent from "../model/parent.model.js";
 import mongoose from "mongoose";
 import moment from "moment";
-import nodemailer from "nodemailer";
+import crypto from "crypto";
+import { sendPlainEmail } from "../services/email.service.js";
 
 //service
 // import { getParentBookingStats } from "../services/parent/stats.service.js";
@@ -511,14 +513,6 @@ export const getUpcomingSessions = async (req, res) => {
   }
 };
 
-let transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD,
-  },
-});
-
 export const bookingemail = async (req, res, next) => {
   const {
     email,
@@ -532,10 +526,7 @@ export const bookingemail = async (req, res, next) => {
   } = req.body;
 
   try {
-    let info = await transporter.sendMail({
-      to: email,
-      subject: subject,
-      html: `
+    const html = `
       <div style="font-family: Arial, sans-serif; padding:30px; background-color:#d4f9fa">
       <div>
       <a href="https://1step.co.in">
@@ -553,7 +544,12 @@ export const bookingemail = async (req, res, next) => {
       <p style="font-size: 18px;">Thank you for choosing our services.</p>
       </div>
       </div>
-      `,
+    `;
+
+    await sendPlainEmail({
+      to: email,
+      subject: subject,
+      html,
     });
     res.status(200).json({ success: true, message: "Email sent" });
   } catch (error) {

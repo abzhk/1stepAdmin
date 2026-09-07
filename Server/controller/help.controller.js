@@ -1,6 +1,6 @@
 import Help from "../model/Help/help.model.js";
 import { errorHandler } from "../utils/error.js";
-import nodemailer from "nodemailer";
+import { sendPlainEmail } from "../services/email.service.js";
 import {ticketReplyEmail} from "../utils/emailTemplates.js"
 import  User from "../model/user.model.js";
 import Parent from "../model/parent.model.js";
@@ -15,14 +15,6 @@ const VALID_CATEGORIES = [
   "General Inquiry",
 ];
 const VALID_PRIORITIES = ["Low", "Medium", "High"];
-
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD,
-  },
-});
 
 
 export const createTicket = async (req, res, next) => {
@@ -177,8 +169,7 @@ if (parent) {
 }
 
       try {
-      await transporter.sendMail({
-  from: process.env.EMAIL_USER,
+      await sendPlainEmail({
   to: ticket.email,
   subject: `Status Update: ${ticket.ticketId}`,
   html: `

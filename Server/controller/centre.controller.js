@@ -3,19 +3,14 @@ import crypto from "crypto";
 import Provider from "../model/provider.model.js";
 import CentreProvider from "../model/Centre/centerprovider.model.js";
 import Invitation from "../model/Centre/invitation.model.js";
-import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 import moment from "moment";
 import { errorHandler } from "../utils/error.js";
+import {
+  sendCentreInvitationEmail,
+  sendCentreAcceptanceEmail,
+} from "../services/email.service.js";
 dotenv.config();
-
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD,
-  },
-});
 
 const getInvitationEmailTemplate = (
   providerName,
@@ -282,59 +277,45 @@ export const inviteProvider = async (req, res) => {
       });
     }
 
-    // Create invitation
+    // Create invitation record first
     const token = crypto.randomBytes(32).toString("hex");
-
-    // Generate acceptance URL
     const acceptUrl = `${process.env.FRONTEND_URL}/accept-invitation/${token}`;
 
-    // Send invitation email
-    try {
-      await transporter.sendMail({
-        from: `"${centre.fullName}" <${process.env.EMAIL_USER}>`,
-        to: provider.email,
-        subject: `Invitation to Join ${centre.fullName}`,
-        html: getInvitationEmailTemplate(
-          provider.fullName,
-          centre.fullName,
-          consultationFee,
-          role || "provider",
-          message || "",
-          acceptUrl
-        ),
-      });
+    const invitation = await Invitation.create({
+      centreId,
+      invitedEmail: providerEmail.toLowerCase(),
+      invitedBy: { userId, name: centre.fullName },
+      token,
+      role: role || "provider",
+      consultationFee,
+      proposedSlots: proposedSlots || {},
+      message,
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    });
 
-      console.log(`Invitation email sent to ${provider.email}`);
+    // Send invitation email via Resend (fire-and-forget — do not block on email failure)
+    sendCentreInvitationEmail({
+      to:              provider.email,
+      providerName:    provider.fullName,
+      centreName:      centre.fullName,
+      consultationFee,
+      role:            role || "provider",
+      message:         message || "",
+      acceptUrl,
+    }).catch((emailErr) => {
+      console.error("[inviteProvider] Email send failed:", emailErr?.message);
+    });
 
-      const invitation = await Invitation.create({
-        centreId,
-        invitedEmail: providerEmail.toLowerCase(),
-        invitedBy: { userId, name: centre.fullName },
-        token,
-        role: role || "provider",
-        consultationFee,
-        proposedSlots: proposedSlots || {},
-        message,
-        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-      });
-
-      res.status(201).json({
-        success: true,
-        message: "Invitation sent successfully",
-        data: {
-          invitationId: invitation._id,
-          providerName: provider.fullName,
-          providerEmail: provider.email,
-          expiresAt: invitation.expiresAt,
-        },
-      });
-    } catch (emailError) {
-      console.error("Email sending failed:", emailError);
-      return res.status(500).json({
-        success: false,
-        message: "Failed to send invitation email",
-      });
-    }
+    return res.status(201).json({
+      success: true,
+      message: "Invitation sent successfully",
+      data: {
+        invitationId: invitation._id,
+        providerName: provider.fullName,
+        providerEmail: provider.email,
+        expiresAt: invitation.expiresAt,
+      },
+    });
   } catch (error) {
     console.error("Invite provider error:", error);
     res.status(500).json({ success: false, message: error.message });
