@@ -3,21 +3,19 @@
  *
  * Usage:
  *   import { renderEmail } from "../emails/index.js";
- *   import AccountDeactivatedEmail from "../emails/AccountDeactivated.jsx";
+ *   import AccountDeactivatedEmail from "../emails/AccountDeactivated.js";
  *
  *   const html = await renderEmail(AccountDeactivatedEmail, { userName, reason, ... });
  */
 
-import { render } from "@react-email/render";
-
 /**
- * Renders a React Email JSX component to an HTML string.
- * @param {Function} Component - The JSX email component
+ * Renders an email template function to an HTML string.
+ * @param {Function} Component - The email component function
  * @param {object}   props     - Props to pass to the component
  * @returns {Promise<string>}  - Rendered HTML string
  */
 export const renderEmail = async (Component, props = {}) => {
-  // @react-email/render returns a string (sync or async depending on version)
-  const html = await render(Component(props));
+  // Now our templates are simple functions that return HTML strings directly
+  const html = Component(props);
   return html;
 };
