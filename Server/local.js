@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const { default: app } = await import("./server.js");
+const { default: app } = await import("./api/index.js");
 const { startEmailWatcher } = await import("./utils/emailService.js");
 
 const PORT = process.env.PORT || 3001;
