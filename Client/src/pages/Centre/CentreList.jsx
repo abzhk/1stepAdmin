@@ -212,12 +212,12 @@ useEffect(() => {
                       </p>
                     </div>
 
-                    <div>
+                    {/* <div>
                       <p className="text-cardfooter uppercase">Sessions</p>
                       <p className="font-semibold text-darkgreen text-lg">
                         {centre.totalSessions}
                       </p>
-                    </div>
+                    </div> */}
                   </div>
 
                   {/* ACTIONS */}
@@ -299,7 +299,7 @@ useEffect(() => {
 />
                   <th className="p-3 text-left">Phone</th>
                   <th className="p-3 text-left">Providers</th>
-                  <th className="p-3 text-left">Sessions</th>
+                  {/* <th className="p-3 text-left">Sessions</th> */}
                   <th className="p-3 text-left">Status</th>
                   <th className="p-3 text-right">Actions</th>
                 </tr>
@@ -321,7 +321,7 @@ useEffect(() => {
                     <td className="p-3">{centre.email}</td>
                     <td className="p-3">{centre.phone}</td>
                     <td className="p-3">{centre.totalProviders}</td>
-                    <td className="p-3">{centre.totalSessions}</td>
+                    {/* <td className="p-3">{centre.totalSessions}</td> */}
 
                    <td className="p-3">
  
@@ -342,7 +342,9 @@ useEffect(() => {
 </td>
 
                     <td className="p-3 flex justify-end gap-2">
-                      <button className="p-2 bg-gray-100 rounded-lg">
+                      <button 
+                       onClick={() => navigate(`/centre-detail/${centre._id}`)}
+                       className="p-2 bg-gray-100 rounded-lg">
                         <AiFillEye />
                       </button>
 

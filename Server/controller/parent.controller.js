@@ -285,7 +285,7 @@ switch (sort) {
       .populate({
         path: "userRef",
         match: { isActive: true },
-        select: "_id username email profilePicture isActive",
+        select: "_id username email  isActive",
       })
        .collation({
     locale: "en",

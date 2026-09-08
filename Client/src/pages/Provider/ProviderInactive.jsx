@@ -11,6 +11,7 @@ import {
   FaTrash,
 } from "react-icons/fa";
 
+
 const ProviderInactive = () => {
   const [providers, setProviders] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -221,7 +222,7 @@ const ProviderInactive = () => {
                         {/* Activate */}
                         <button
                           onClick={() => handleActive(p._id)}
-                          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition"
+                          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-darkgreen text-white hover:bg-green-700 transition"
                         >
                           <FaCheckCircle size={13} />
                           Activate
