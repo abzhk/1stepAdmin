@@ -15,10 +15,10 @@ import { Resend } from "resend";
 import { renderEmail } from "../emails/index.js";
 
 // ── Email templates ────────────────────────────────────────────
-import AccountDeactivatedEmail from "../emails/AccountDeactivated.jsx";
-import AccountReactivatedEmail from "../emails/AccountReactivated.jsx";
-import CentreInvitationEmail   from "../emails/CentreInvitation.jsx";
-import CentreAcceptanceEmail   from "../emails/CentreAcceptance.jsx";
+import AccountDeactivatedEmail from "../emails/AccountDeactivated.js";
+import AccountReactivatedEmail from "../emails/AccountReactivated.js";
+import CentreInvitationEmail   from "../emails/CentreInvitation.js";
+import CentreAcceptanceEmail   from "../emails/CentreAcceptance.js";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
