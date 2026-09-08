@@ -9,7 +9,7 @@
   "scripts": {
     "start": "tsx local.js",
     "dev": "nodemon --exec tsx index.js",
-    "build": "esbuild app.js --bundle --platform=node --format=esm --outfile=api/index.js",
+    "build": "esbuild api/index.js --bundle --platform=node --format=esm --outdir=dist",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
@@ -39,7 +39,6 @@
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
-    "@vercel/node": "^12.0.1",
     "esbuild": "^0.28.2",
     "tsx": "^4.23.13"
   }
