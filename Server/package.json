@@ -9,7 +9,7 @@
   "scripts": {
     "start": "tsx local.js",
     "dev": "nodemon --exec tsx index.js",
-    "build": "esbuild api/index.js --bundle --platform=node --format=esm --outdir=dist",
+    // "build": "esbuild api/index.js --bundle --platform=node --format=esm --outdir=dist",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
