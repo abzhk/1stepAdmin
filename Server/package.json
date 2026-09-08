@@ -9,7 +9,7 @@
   "scripts": {
     "start": "tsx local.js",
     "dev": "nodemon --exec tsx index.js",
-    "build": "esbuild api/index.js --bundle --platform=node --format=esm --outdir=dist",
+    "build": "esbuild api/vercel.js --bundle --platform=node --format=esm --outfile=api/vercel-bundle.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
