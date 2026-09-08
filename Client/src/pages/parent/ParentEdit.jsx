@@ -115,7 +115,7 @@ useEffect(() => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
 
           {/* LEFT - PROFILE */}
-<div className="bg-greenmuted/40 rounded-2xl shadow-sm border border-gray-100 p-5 h-fit">
+<div className="bg-gradient-to-r from-darkgreen to-darkgreen/50 rounded-2xl shadow-sm border border-gray-100 p-5 h-fit">
 
   <div className="flex flex-col items-center text-center">
 
@@ -127,19 +127,19 @@ useEffect(() => {
         className="w-24 h-24 rounded-full object-cover border-4 border-[#f1f5f2]"
       />
     ) : (
-      <div className="w-24 h-24 rounded-full bg-[#e8eee9] flex items-center justify-center text-3xl font-semibold text-[#2d4a36]">
+      <div className="w-24 h-24 rounded-full bg-yellow flex items-center justify-center text-3xl font-semibold text-[#2d4a36]">
         {formData.fullName?.charAt(0)?.toUpperCase() || "P"}
       </div>
     )}
 
     {/* Name */}
-    <h2 className="text-lg font-semibold text-[#2d4a36] mt-3">
+    <h2 className="text-lg font-semibold text-yellow mt-3">
       {formData.fullName || "Parent"}
     </h2>
 
     {/* Email */}
     {email && (
-      <p className="text-xs text-gray-500 mt-1 break-all">
+      <p className="text-xs text-white mt-1 break-all">
         {email}
       </p>
     )}
@@ -153,7 +153,8 @@ useEffect(() => {
 </div>
 
           {/* RIGHT - UPDATE DETAILS */}
-          <div className="md:col-span-2 bg-offwhite/100 rounded-2xl shadow-sm border border-gray-100 p-6">
+          <div className="md:col-span-2 bg-darkgreen/5 rounded-2xl shadow-sm border border-gray-100 p-6">
+          
 
             <h2 className="text-lg font-semibold text-[#2d4a36] mb-6">
               Update Details

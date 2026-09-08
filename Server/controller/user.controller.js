@@ -436,7 +436,7 @@ export const deactivateUser = async (req, res, next) => {
   try {
     const { userId } = req.params;
     const { reason } = req.body;
-    const adminId = req.user.id;
+    const adminId = req.user.id.toString();
 
     if (!reason || reason.trim().length < 3) {
       return res.status(400).json({
