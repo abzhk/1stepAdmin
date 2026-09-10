@@ -88,8 +88,8 @@ function DeactivateModal({ isOpen, onClose, user, mode = "deactivate", onSuccess
           </h2>
           <p className="text-white/80 text-sm mt-1">
             {isDeactivate
-              ? `You are deactivating the account for ${user.username || user.email}.`
-              : `You are reactivating the account for ${user.username || user.email}.`}
+              ? `You are deactivating the account for ${user.fullName || user.username || user.email}.`
+              : `You are reactivating the account for ${user.fullName || user.username || user.email}.`}
           </p>
         </div>
 
@@ -98,7 +98,7 @@ function DeactivateModal({ isOpen, onClose, user, mode = "deactivate", onSuccess
 
           {/* User info summary */}
           <div className="bg-gray-50 rounded-xl px-4 py-3 border border-gray-100 text-sm text-gray-600">
-            <p><span className="font-medium text-gray-800">User:</span> {user.username}</p>
+            <p><span className="font-medium text-gray-800">User:</span> {user.fullName || user.username}</p>
             <p><span className="font-medium text-gray-800">Email:</span> {user.email}</p>
             <p>
               <span className="font-medium text-gray-800">Current status: </span>

@@ -66,8 +66,8 @@ function ParentView() {
   const toIndex = (page - 1) * limit + parents.length;
 
   // Open the deactivate/reactivate modal for a parent's user account
-  const openModal = (userRef, mode) => {
-    setSelectedUser(userRef);
+  const openModal = (parent, mode) => {
+    setSelectedUser({ ...parent.userRef, fullName: parent.parentDetails?.fullName });
     setModalMode(mode);
     setModalOpen(true);
   };
@@ -271,7 +271,7 @@ function ParentView() {
                       {/* Deactivate / Reactivate */}
                       {parent.userRef?.accountStatus === "deactivated" || !parent.userRef?.isActive ? (
                         <button
-                          onClick={() => openModal(parent.userRef, "reactivate")}
+                          onClick={() => openModal(parent, "reactivate")}
                           className="w-10 h-10 flex items-center justify-center rounded-xl bg-green-50 text-green-700 hover:bg-green-100 text-xs font-bold"
                           title="Reactivate account"
                         >
@@ -279,7 +279,7 @@ function ParentView() {
                         </button>
                       ) : (
                         <button
-                          onClick={() => openModal(parent.userRef, "deactivate")}
+                          onClick={() => openModal(parent, "deactivate")}
                           className="w-10 h-10 flex items-center justify-center rounded-xl bg-red-50 text-red-600 hover:bg-red-100 text-xs font-bold"
                           title="Deactivate account"
                         >
@@ -367,14 +367,14 @@ function ParentView() {
                    {/* Deactivate / Reactivate action button */}
                    {parent.userRef?.accountStatus === "deactivated" || !parent.userRef?.isActive ? (
                      <button
-                       onClick={() => openModal(parent.userRef, "reactivate")}
+                       onClick={() => openModal(parent, "reactivate")}
                        className="px-3 py-1.5 rounded-lg text-xs font-medium bg-green-100 text-green-700 hover:bg-green-200 transition"
                      >
                        Reactivate
                      </button>
                    ) : (
                      <button
-                       onClick={() => openModal(parent.userRef, "deactivate")}
+                       onClick={() => openModal(parent, "deactivate")}
                        className="px-3 py-1.5 rounded-lg text-xs font-medium bg-red-100 text-red-600 hover:bg-red-200 transition"
                      >
                        Deactivate
