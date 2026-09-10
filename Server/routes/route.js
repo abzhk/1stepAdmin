@@ -25,6 +25,7 @@ import helpdeskRoute from "./help.route.js"
 import contactRoute from "./contact.route.js"
 import specializationRoute from "./specialization.route.js";
 import servicespecializationRoute from "./servicespecialization.route.js";
+import centreRoute from "./centre.route.js";
 
 const router = express.Router(); 
 
@@ -81,6 +82,8 @@ router.use("/specialization", specializationRoute);
 
 router.use("/servicespecialization", servicespecializationRoute);
 
+
+router.use("/centre", centreRoute);
 
 
 export default router;

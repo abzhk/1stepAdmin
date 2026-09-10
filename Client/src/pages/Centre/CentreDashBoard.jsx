@@ -22,11 +22,9 @@ const CentreDashBoard = () => {
   useEffect(() => {
     const fetchCentres = async () => {
       try {
-        const data = await api("/api/provider/centre-list");
+        const data = await api("/api/centre/recent-centres");
 
-        setCentres(data.centres || []);
-        setTotalCentres(data.totalCentres || 0);
-        setTotalProviders(data.totalProviders);
+setCentres(data.centres || []);
 
         // console.log("centre-list:", data);
       } catch (err) {
@@ -84,7 +82,7 @@ const CentreDashBoard = () => {
             </thead>
 
             <tbody>
-              {centres.slice(0, 4).map((c) => (
+              {centres.map((c) => (
                 <tr key={c._id} className="bg-white hover:bg-offwhite transition-colors duration-200">
                   <td className="py-4 px-4 text-table-text">{c.fullName}</td>
 
