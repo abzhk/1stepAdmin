@@ -984,15 +984,12 @@ export const getCentresForAdmin = async (req, res, next) => {
       0
     );
 
-
     const centreQuery = {
       providerType: "centre",
       isActive: true,
     };
 
-    const cleanedSearchTerm = searchTerm
-      .trim()
-      .replace(/\s+/g, " ");
+    const cleanedSearchTerm = searchTerm.trim();
 
     if (cleanedSearchTerm) {
       centreQuery.$or = [
@@ -1011,8 +1008,6 @@ export const getCentresForAdmin = async (req, res, next) => {
       ];
     }
 
-
-
     const allowedSortFields = [
       "createdAt",
       "fullName",
@@ -1028,87 +1023,78 @@ export const getCentresForAdmin = async (req, res, next) => {
       _id: 1,
     };
 
+    // Fetch total + centres in parallel
+    const [totalCentres, centres] = await Promise.all([
+      Provider.countDocuments(centreQuery),
 
-    const totalCentres = await Provider.countDocuments(
-      centreQuery
-    );
-
-
-    const centres = await Provider.find(centreQuery)
-      .populate(
-        "userRef",
-        "isActive email profilePicture username"
-      )
-      .sort(sortQuery)
-      .skip(parsedStartIndex)
-      .limit(parsedLimit)
-      .lean();
-
+      Provider.find(centreQuery)
+        .select(
+          "_id fullName phone email profilePicture userRef createdAt providerType isActive"
+        )
+        .populate(
+          "userRef",
+          "isActive email profilePicture username"
+        )
+        .sort(sortQuery)
+        .skip(parsedStartIndex)
+        .limit(parsedLimit)
+        .lean(),
+    ]);
 
     const centreIds = centres.map((centre) => centre._id);
 
+    let providerCounts = [];
 
-    const providerCounts = await CentreProviderRelation.aggregate([
-  {
-    $match: {
-      centreId: { $in: centreIds },
-      isActive: true,
-      status: "active",
-    },
-  },
-  {
-    $group: {
-      _id: "$centreId",
-      totalProviders: { $sum: 1 },
-    },
-  },
-]);
+    if (centreIds.length > 0) {
+      providerCounts = await CentreProviderRelation.aggregate([
+        {
+          $match: {
+            centreId: { $in: centreIds },
+            isActive: true,
+            status: "active",
+          },
+        },
+        {
+          $group: {
+            _id: "$centreId",
+            totalProviders: {
+              $sum: 1,
+            },
+          },
+        },
+      ]);
+    }
 
-
-    const providerCountMap = new Map();
-
-    providerCounts.forEach((item) => {
-      providerCountMap.set(
+    const providerCountMap = new Map(
+      providerCounts.map((item) => [
         item._id.toString(),
-        item.totalProviders
-      );
-    });
-
+        item.totalProviders,
+      ])
+    );
 
     const finalCentres = centres.map((centre) => ({
       ...centre,
-
       totalProviders:
-        providerCountMap.get(
-          centre._id.toString()
-        ) || 0,
+        providerCountMap.get(centre._id.toString()) || 0,
     }));
 
-
-   const totalProviders =
-  await CentreProviderRelation.countDocuments({
-    isActive: true,
-    status: "active",
-  });
-
+    // Only do this if your dashboard really needs the global total
+    const totalProviders =
+      await CentreProviderRelation.countDocuments({
+        isActive: true,
+        status: "active",
+      });
 
     return res.status(200).json({
       success: true,
-
       totalCount: totalCentres,
-
       totalCentres,
-
       totalProviders,
-
       centres: finalCentres,
     });
 
   } catch (error) {
-    console.error(
-      "getCentresForAdmin error:",
-      error
-    );
+    console.error("getCentresForAdmin error:", error);
 
     next(
       errorHandler(
@@ -1412,18 +1398,14 @@ export const getAllCentreDashboardStats = async (req, res, next) => {
     }
 
 
-
     const relationshipPairs = relationships.map((relationship) => ({
       centreId: relationship.centreId,
       provider: relationship.providerId,
     }));
 
-
-
-    const bookings = await Booking.find({
-  $or: relationshipPairs,
-});
-
+    const bookingMatch = {
+      $or: relationshipPairs,
+    };
 
 
     const now = new Date();
@@ -1472,7 +1454,6 @@ export const getAllCentreDashboardStats = async (req, res, next) => {
 
     endOfMonthIST.setHours(23, 59, 59, 999);
 
-    // UTC conversion
     const startOfToday = new Date(
       startOfTodayIST.getTime() - IST_OFFSET
     );
@@ -1497,72 +1478,79 @@ export const getAllCentreDashboardStats = async (req, res, next) => {
       endOfMonthIST.getTime() - IST_OFFSET
     );
 
- 
 
-    let today = 0;
-    let week = 0;
-    let month = 0;
+    const [
+      total,
+      today,
+      week,
+      month,
+      upcoming,
+    ] = await Promise.all([
 
-    const total = bookings.length;
+      // TOTAL
+      Booking.countDocuments(
+        bookingMatch
+      ),
 
-    bookings.forEach((booking) => {
-      const sessionDate = new Date(
-        booking?.scheduledTime?.date
-      );
+      // TODAY
+      Booking.countDocuments({
+        ...bookingMatch,
+        status: "completed",
+        "scheduledTime.date": {
+          $gte: startOfToday,
+          $lte: endOfToday,
+        },
+      }),
 
-      if (isNaN(sessionDate.getTime())) {
-        return;
-      }
+      // THIS WEEK
+      Booking.countDocuments({
+        ...bookingMatch,
+        status: "completed",
+        "scheduledTime.date": {
+          $gte: startOfWeek,
+          $lte: endOfWeek,
+        },
+      }),
 
-      if (
-        sessionDate >= startOfToday &&
-        sessionDate <= endOfToday
-      ) {
-        today++;
-      }
+      // THIS MONTH
+      Booking.countDocuments({
+        ...bookingMatch,
+        status: "completed",
+        "scheduledTime.date": {
+          $gte: startOfMonth,
+          $lte: endOfMonth,
+        },
+      }),
 
-      if (
-        sessionDate >= startOfWeek &&
-        sessionDate <= endOfWeek
-      ) {
-        week++;
-      }
+      // UPCOMING
+      Booking.find({
+        ...bookingMatch,
 
-      if (
-        sessionDate >= startOfMonth &&
-        sessionDate <= endOfMonth
-      ) {
-        month++;
-      }
-    });
-
-
-    const upcoming = await Booking.find({
-  $or: relationshipPairs,
-
-  "scheduledTime.date": {
-    $gte: startOfToday,
+         "appointment.startAt": {
+    $gte: now,
   },
 
-  status: {
-    $in: ["pending", "approved",],
-  },
-})
-      .populate(
-        "provider",
-        "fullName providerType"
-      )
-      .populate(
-        "centreId",
-        "fullName providerType"
-      )
-      .sort({
-        "scheduledTime.date": 1,
+        status: {
+          $in: ["pending", "approved"],
+        },
       })
-      .limit(10)
-      .select(
-        "bookingId scheduledTime appointment status provider centreId patientName service sessionType providerSnapshot patientSnapshot"
-      );
+        .populate(
+          "provider",
+          "fullName providerType"
+        )
+        .populate(
+          "centreId",
+          "fullName providerType"
+        )
+       .sort({
+  "appointment.startAt": 1,
+})
+        .limit(5)
+        .select(
+          "bookingId scheduledTime appointment status provider centreId patientName service sessionType providerSnapshot patientSnapshot"
+        )
+        .lean(),
+    ]);
 
 
     return res.json({
@@ -1577,6 +1565,7 @@ export const getAllCentreDashboardStats = async (req, res, next) => {
 
       upcoming,
     });
+
   } catch (error) {
     console.error(
       "getAllCentreDashboardStats:",

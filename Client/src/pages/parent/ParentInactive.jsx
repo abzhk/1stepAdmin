@@ -192,7 +192,7 @@ const ParentInactive = () => {
                       <div className="flex items-center justify-center gap-5">
                         <button
                           onClick={() => handleActive(p.userRef?._id)}
-                          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-100 transition"
+                          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-darkgreen text-white hover:bg-green-100 transition"
                         >
                           <FaCheckCircle size={13} />
                           Activate

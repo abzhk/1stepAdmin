@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import crypto from "crypto";
 import Provider from "../model/provider.model.js";
 import CentreProvider from "../model/Centre/centerprovider.model.js";
+import CentreProviderRelation from "../model/Centre/centreProviderRelation.model.js";
 import Invitation from "../model/Centre/invitation.model.js";
 import dotenv from "dotenv";
 import moment from "moment";
@@ -1677,5 +1678,92 @@ export const getAllInvtedProviders = async (req, res,next) => {
   } catch (error) {
     console.error("getCentreInvitedProviders error:", error);
      return next(errorHandler(500, "Failed to fetch invited providers"));
+  }
+};
+
+
+export const getRecentCentresForAdmin = async (req, res, next) => {
+  try {
+    const centres = await Provider.find({
+      providerType: "centre",
+      isActive: true,
+    })
+      .select(
+        "_id fullName email phone experience userRef createdAt"
+      )
+      .populate(
+        "userRef",
+        "email username profilePicture isActive"
+      )
+      .sort({
+        createdAt: -1,
+        _id: 1,
+      })
+      .limit(4)
+      .lean();
+
+    if (!centres.length) {
+      return res.status(200).json({
+        success: true,
+        centres: [],
+      });
+    }
+
+    const centreIds = centres.map(
+      (centre) => centre._id
+    );
+
+    const providerCounts =
+      await CentreProviderRelation.aggregate([
+        {
+          $match: {
+            centreId: { $in: centreIds },
+            isActive: true,
+            status: "active",
+          },
+        },
+        {
+          $group: {
+            _id: "$centreId",
+            totalProviders: {
+              $sum: 1,
+            },
+          },
+        },
+      ]);
+
+    const providerCountMap = new Map(
+      providerCounts.map((item) => [
+        item._id.toString(),
+        item.totalProviders,
+      ])
+    );
+
+    const finalCentres = centres.map((centre) => ({
+      ...centre,
+
+      totalProviders:
+        providerCountMap.get(
+          centre._id.toString()
+        ) || 0,
+    }));
+
+    return res.status(200).json({
+      success: true,
+      centres: finalCentres,
+    });
+
+  } catch (error) {
+    console.error(
+      "getRecentCentresForAdmin error:",
+      error
+    );
+
+    next(
+      errorHandler(
+        500,
+        "Failed to fetch recent centres"
+      )
+    );
   }
 };

@@ -6,6 +6,8 @@ import { api } from "../../utils/api.js";
 import toast from "react-hot-toast";
 import SortableHeader from "../../Components/SortableHeader";
 import DeactivateModal from "../../Components/DeactivateModal.jsx";
+import userlist from "../../assets/user profile.jpg" 
+
 
 function ParentView() {
   const navigate = useNavigate();
@@ -193,17 +195,13 @@ function ParentView() {
 
                 <div>
 
-                  <div className="bg-white rounded-xl  overflow-hidden mb-2 h-52">
-                    {parent.userRef?.profilePicture && (
-                      <img
-                        src={parent.userRef?.profilePicture}
-                        alt={parent.parentDetails?.fullName}
-                         loading="lazy"
-                         decoding="async"
-                        className="w-full h-52 object-cover"
-                      />
-                    )}
-                  </div>
+                  <img
+  src={parent.parentDetails?.profilePicture||
+      userlist}
+  loading="lazy"
+  decoding="async"
+  className="w-full h-52 object-cover"
+/>
 
                   <div className="p-2">
 
@@ -321,6 +319,7 @@ function ParentView() {
 
                  <th className="p-3 text-left">Phone</th>
                 <th className="p-3 text-left">Status</th>
+                 <th className="p-3 text-left"> Account Action </th>
                 <th className="p-3 text-right">Actions</th>
               </tr>
             </thead>
@@ -333,12 +332,13 @@ function ParentView() {
                 >
 
                   <td className="p-3 flex items-center gap-3">
-                    <img
-                      src={parent.userRef?.profilePicture}
-                       loading="lazy"
-                         decoding="async"
-                      className="w-10 h-10 rounded-lg object-cover"
-                    />
+                   <img
+  src={parent.parentDetails?.profilePicture||
+      userlist}
+  loading="lazy"
+  decoding="async"
+  className="w-10 h-10 rounded-2xl object-cover"
+/>
                     {parent.parentDetails?.fullName}
                   </td>
 
