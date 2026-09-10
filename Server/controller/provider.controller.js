@@ -1495,6 +1495,7 @@ export const getAllCentreDashboardStats = async (req, res, next) => {
       // TODAY
       Booking.countDocuments({
         ...bookingMatch,
+        status: "completed",
         "scheduledTime.date": {
           $gte: startOfToday,
           $lte: endOfToday,
@@ -1504,6 +1505,7 @@ export const getAllCentreDashboardStats = async (req, res, next) => {
       // THIS WEEK
       Booking.countDocuments({
         ...bookingMatch,
+        status: "completed",
         "scheduledTime.date": {
           $gte: startOfWeek,
           $lte: endOfWeek,
@@ -1513,6 +1515,7 @@ export const getAllCentreDashboardStats = async (req, res, next) => {
       // THIS MONTH
       Booking.countDocuments({
         ...bookingMatch,
+        status: "completed",
         "scheduledTime.date": {
           $gte: startOfMonth,
           $lte: endOfMonth,
@@ -1523,9 +1526,9 @@ export const getAllCentreDashboardStats = async (req, res, next) => {
       Booking.find({
         ...bookingMatch,
 
-        "scheduledTime.date": {
-          $gte: startOfToday,
-        },
+         "appointment.startAt": {
+    $gte: now,
+  },
 
         status: {
           $in: ["pending", "approved"],
@@ -1539,9 +1542,9 @@ export const getAllCentreDashboardStats = async (req, res, next) => {
           "centreId",
           "fullName providerType"
         )
-        .sort({
-          "scheduledTime.date": 1,
-        })
+       .sort({
+  "appointment.startAt": 1,
+})
         .limit(5)
         .select(
           "bookingId scheduledTime appointment status provider centreId patientName service sessionType providerSnapshot patientSnapshot"

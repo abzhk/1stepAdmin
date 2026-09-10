@@ -121,7 +121,7 @@ bookingSchema.index({ provider: 1, "scheduledTime.date": 1, status: 1 });
 bookingSchema.index({ provider: 1, status: 1 });
 bookingSchema.index({ sessionType: 1, "scheduledTime.date": 1 });
 // Centre-scoped dashboard queries: get all bookings for a provider under a specific centre
-bookingSchema.index({ centreId: 1, provider: 1, "scheduledTime.date": 1 });
+bookingSchema.index({ centreId: 1, provider: 1,  status: 1, "scheduledTime.date": 1 });
 bookingSchema.index({ centreId: 1, status: 1, createdAt: -1 });
 
 // ── NEW: appointment-time-based indexes ──────────────────────────────────────
