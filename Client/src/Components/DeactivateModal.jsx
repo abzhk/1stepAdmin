@@ -124,49 +124,48 @@ function DeactivateModal({ isOpen, onClose, user, mode = "deactivate", onSuccess
                 required
               />
               <p className="text-right text-xs text-gray-400 mt-1">{reason.length}/500</p>
-              <p className="text-xs text-gray-500 mt-1">
-                This reason will be included in the deactivation email sent to the user.
-              </p>
             </div>
           )}
 
-          {/* Reactivate — optional note + email toggle */}
+          {/* Reactivate — optional note */}
           {!isDeactivate && (
-            <>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">
-                  Admin note <span className="text-gray-400 font-normal">(optional)</span>
-                </label>
-                <textarea
-                  rows={2}
-                  value={note}
-                  onChange={(e) => setNote(e.target.value)}
-                  placeholder="Internal note for audit log..."
-                  className="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 resize-none"
-                  maxLength={300}
-                />
-              </div>
-
-              {/* Email toggle */}
-              <div className="flex items-start gap-3 bg-green-50 rounded-xl px-4 py-3 border border-green-100">
-                <input
-                  type="checkbox"
-                  id="sendEmail"
-                  checked={sendEmail}
-                  onChange={(e) => setSendEmail(e.target.checked)}
-                  className="mt-0.5 accent-green-600 w-4 h-4 cursor-pointer"
-                />
-                <label htmlFor="sendEmail" className="text-sm text-gray-700 cursor-pointer">
-                  <span className="font-semibold text-green-700">Send reactivation email to user</span>
-                  <br />
-                  <span className="text-gray-500">
-                    The user will receive an email confirming their account is restored with a sign-in link.
-                    If unchecked, no email is sent.
-                  </span>
-                </label>
-              </div>
-            </>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">
+                Admin note <span className="text-gray-400 font-normal">(optional)</span>
+              </label>
+              <textarea
+                rows={2}
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                placeholder="Internal note for audit log..."
+                className="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 resize-none"
+                maxLength={300}
+              />
+            </div>
           )}
+
+          {/* Email toggle for BOTH Deactivate and Reactivate */}
+          <div className={`flex items-start gap-3 rounded-xl px-4 py-3 border ${isDeactivate ? "bg-red-50 border-red-100" : "bg-green-50 border-green-100"}`}>
+            <input
+              type="checkbox"
+              id="sendEmail"
+              checked={sendEmail}
+              onChange={(e) => setSendEmail(e.target.checked)}
+              className={`mt-0.5 w-4 h-4 cursor-pointer ${isDeactivate ? "accent-red-600" : "accent-green-600"}`}
+            />
+            <label htmlFor="sendEmail" className="text-sm text-gray-700 cursor-pointer">
+              <span className={`font-semibold ${isDeactivate ? "text-red-700" : "text-green-700"}`}>
+                {isDeactivate ? "Send deactivation email to user" : "Send reactivation email to user"}
+              </span>
+              <br />
+              <span className="text-gray-500">
+                {isDeactivate 
+                  ? "The user will receive an email notifying them that their account was deactivated."
+                  : "The user will receive an email confirming their account is restored with a sign-in link."}
+                {" "}If unchecked, no email is sent.
+              </span>
+            </label>
+          </div>
 
           {/* Error */}
           {error && (
