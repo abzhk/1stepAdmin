@@ -1,14 +1,15 @@
 import express from "express";
-import mongoose from "mongoose";
+// import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
+import { connectDB } from "../db.js"
 
 import router from "../routes/route.js";
 
 dotenv.config();
 
-const MONGODB = process.env.MONGODB_URI;
+// const MONGODB = process.env.MONGODB_URI;
 
 const app = express();
 
@@ -39,12 +40,26 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 
-mongoose
-  .connect(MONGODB)
-  .then(() => console.log("Connected to MongoDB successfully"))
-  .catch((error) =>
-    console.error("Error connecting to MongoDB:", error.message)
-  );
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    console.error("Database connection error:", error);
+
+    return res.status(503).json({
+      success: false,
+      message: "Database unavailable",
+    });
+  }
+});
+
+// mongoose
+//   .connect(MONGODB)
+//   .then(() => console.log("Connected to MongoDB successfully"))
+//   .catch((error) =>
+//     console.error("Error connecting to MongoDB:", error.message)
+//   );
 
 
 app.use("/api", router);
