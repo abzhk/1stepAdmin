@@ -12,6 +12,7 @@ import {
    deleteQuestion,
     publishAssessmentVersion,
     bulkImportQuestions,
+    getAssessmentByTest,
 } from "../controller/Assessment/assessmentTest.controller.js";
 
 import { verifyAdminToken } from "../middlewares/authMiddleware.js";
@@ -44,6 +45,8 @@ router.post(
   verifyAdminToken,
   publishAssessmentVersion
 );
+
+router.get("/test/:testId", getAssessmentByTest);
 
 // QUESTIONS
 

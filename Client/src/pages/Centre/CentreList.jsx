@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { AiFillEye } from "react-icons/ai";
 import { FiEdit2, FiGrid, FiList } from "react-icons/fi";
-import { useNavigate,useOutletContext  } from "react-router-dom";
+import { useNavigate,useOutletContext ,useSearchParams } from "react-router-dom";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { api } from "../../utils/api";
 import toast from "react-hot-toast";
@@ -13,12 +13,21 @@ const CentreList = () => {
 
   const [viewMode, setViewMode] = useState("grid");
   const [centres, setCentres] = useState([]);
-  const [page, setPage] = useState(1);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+const page = Number(searchParams.get("page")) || 1;
   const [totalCount, setTotalCount] = useState(0);
   const [sortConfig, setSortConfig] = useState({
   key: "createdAt",
   direction: "desc",
 });
+
+const changePage = (newPage) => {
+  setSearchParams((prev) => {
+    prev.set("page", String(newPage));
+    return prev;
+  });
+};
 
 
   const limit = 12;
@@ -48,7 +57,10 @@ const data = await api(
   };
 
  useEffect(() => {
-  setPage(1);
+  setSearchParams((prev) => {
+    prev.set("page", "1");
+    return prev;
+  });
 }, [searchTerm]);
 
 useEffect(() => {
@@ -204,22 +216,15 @@ useEffect(() => {
                   </div>
 
                   {/* STATS */}
-                  <div className="flex justify-between">
-                    <div>
-                      <p className="text-cardfooter uppercase">Providers</p>
-                      <p className="font-semibold text-darkgreen text-lg">
-                        {centre.totalProviders}
-                      </p>
-                    </div>
+                <div className="flex items-center justify-between bg-offwhite rounded-xl px-4 py-3 mb-0">
+  <p className="text-[10px] uppercase tracking-wider text-gray-400 font-semibold">
+    Providers
+  </p>
 
-                    {/* <div>
-                      <p className="text-cardfooter uppercase">Sessions</p>
-                      <p className="font-semibold text-darkgreen text-lg">
-                        {centre.totalSessions}
-                      </p>
-                    </div> */}
-                  </div>
-
+  <p className="text-xl font-bold text-darkgreen">
+    {centre.totalProviders || 0}
+  </p>
+</div>
                   {/* ACTIONS */}
                   <div className="flex justify-between items-center mt-2">
                     <div className="flex gap-2">
@@ -231,7 +236,7 @@ useEffect(() => {
                       </button>
 
                       <button
-                        onClick={() => navigate(`/edit-centre/${centre._id}`)}
+                        onClick={() => navigate(`/edit-centre/${centre._id}?page=${page}`)}
                         className="p-2 rounded-lg bg-darkgreen text-white hover:bg-yellow"
                       >
                         <FiEdit2 />
@@ -256,27 +261,7 @@ useEffect(() => {
               </div>
             ))}
           </div>
-          {/* <div className="flex justify-end gap-4 mt-6">
-            <button
-              disabled={page === 1}
-              onClick={() => setPage((p) => p - 1)}
-              className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
-            >
-              Previous
-            </button>
-
-            <span className="flex items-center">
-              Page {page} of {Math.ceil(totalCount / limit)}
-            </span>
-
-            <button
-              disabled={page >= Math.ceil(totalCount / limit)}
-              onClick={() => setPage((p) => p + 1)}
-              className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
-            >
-              Next
-            </button>
-          </div> */}
+         
         </div>
       ) : (
         /* LIST VIEW  */
@@ -349,7 +334,7 @@ useEffect(() => {
                       </button>
 
                       <button
-                        onClick={() => navigate(`/edit-centre/${centre._id}`)}
+                        onClick={() => navigate(`/edit-centre/${centre._id}?page=${page}`)}
                         className="p-2 bg-darkgreen text-white rounded-lg"
                       >
                         <FiEdit2 />
@@ -364,26 +349,26 @@ useEffect(() => {
         </div>
         
       )}
-     <div className="flex justify-end items-center gap-4 mt-6">
-  <button
-    disabled={page === 1}
-    onClick={() => setPage((prev) => prev - 1)}
-    className="px-4 py-2 bg-gray-200 rounded-xl disabled:opacity-50"
-  >
-    Previous
-  </button>
+      <div className="flex justify-end  mt-6">
+     <button
+  disabled={page === 1}
+  onClick={() => changePage(page - 1)}
+  className="px-4 py-2 bg-gray-200 rounded-xl disabled:opacity-50"
+>
+  Previous
+</button>
 
-  <span className="text-table-text">
-    Page {page} of {Math.ceil(totalCount / limit)}
-  </span>
+<span className="text-table-text mt-2 ">
+  Page {page} of {Math.ceil(totalCount / limit)}
+</span>
 
-  <button
-    disabled={page >= Math.ceil(totalCount / limit)}
-    onClick={() => setPage((prev) => prev + 1)}
-    className="px-4 py-2 bg-darkgreen text-white rounded-xl hover:bg-yellow disabled:opacity-50"
-  >
-    Next
-  </button>
+<button
+  disabled={page >= Math.ceil(totalCount / limit)}
+  onClick={() => changePage(page + 1)}
+  className="px-4 py-2 bg-darkgreen text-white rounded-xl hover:bg-yellow disabled:opacity-50"
+>
+  Next
+</button>
 </div>
 </div>
   );

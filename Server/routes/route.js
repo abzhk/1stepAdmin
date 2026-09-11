@@ -26,6 +26,7 @@ import contactRoute from "./contact.route.js"
 import specializationRoute from "./specialization.route.js";
 import servicespecializationRoute from "./servicespecialization.route.js";
 import centreRoute from "./centre.route.js";
+import learningpathRoute from "./learningpath.route.js";
 
 const router = express.Router(); 
 
@@ -84,6 +85,8 @@ router.use("/servicespecialization", servicespecializationRoute);
 
 
 router.use("/centre", centreRoute);
+
+router.use("/learning-path", learningpathRoute);
 
 
 export default router;

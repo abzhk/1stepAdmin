@@ -36,7 +36,7 @@ useEffect(() => {
         address: data.parentDetails?.address || "",
       });
 
-      setProfilePicture(data.userRef?.profilePicture || "");
+     setProfilePicture(data.parentDetails?.profilePicture || "");
       setEmail(data.userRef?.email || "");
 
     } catch (err) {

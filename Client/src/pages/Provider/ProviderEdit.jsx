@@ -135,16 +135,15 @@ function ProviderEdit() {
     }
   };
 
-  // =========================================================
+
   // UI
-  // =========================================================
+ 
   return (
     <div className="min-h-screen bg-offwhite p-6 md:p-8">
       <div className="max-w-7xl mx-auto">
 
-        {/* =====================================================
-            BACK BUTTON
-        ====================================================== */}
+        {/* 
+            BACK BUTTON*/}
         <div className="mb-6">
           <button
             type="button"
@@ -155,9 +154,7 @@ function ProviderEdit() {
           </button>
         </div>
 
-        {/* =====================================================
-            ERROR MESSAGE
-        ====================================================== */}
+        {/* ERROR MESSAGE */}
         {error && (
           <div className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-red-700">
             {error}
@@ -166,20 +163,10 @@ function ProviderEdit() {
 
         <form onSubmit={handleSubmit}>
 
-          {/* =====================================================
-              MAIN 2 COLUMN LAYOUT
-
-              LEFT  = PROFILE
-              RIGHT = SECTIONS
-          ====================================================== */}
+          {/*  MAIN 2 COLUMN LAYOUT */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
 
-            {/* =================================================
-                LEFT - PROVIDER PROFILE CARD
-
-                sticky means this card stays visible while
-                scrolling through the sections on the right.
-            ================================================== */}
+            {/*LEFT - PROVIDER PROFILE CARD*/}
             <div className="md:col-span-1">
 
               <div className="md:sticky md:top-24">
@@ -188,9 +175,8 @@ function ProviderEdit() {
 
                   <div className="flex flex-col items-center text-center">
 
-                    {/* =========================================
-                        PROFILE IMAGE
-                    ========================================== */}
+                    {/* 
+                        PROFILE IMAGE*/}
                     {profilePicture ? (
                       <img
                         src={profilePicture}
@@ -203,9 +189,8 @@ function ProviderEdit() {
                       </div>
                     )}
 
-                    {/* =========================================
-                        PROVIDER NAME
-                    ========================================== */}
+                    {/* 
+                        PROVIDER NAME*/}
                     <h2 className="text-lg font-semibold text-yellow mt-3">
                       {formData.fullName || "Provider"}
                     </h2>

@@ -1606,6 +1606,21 @@ export const updateCentreByAdmin = async (req, res, next) => {
       });
     }
 
+     if (req.body.experience !== undefined) {
+      const experience = Number(req.body.experience);
+
+      if (
+        !Number.isFinite(experience) ||
+        experience < 0 ||
+        experience > 50
+      ) {
+        return res.status(400).json({
+          success: false,
+          message: "Experience must be between 0 and 50 years",
+        });
+      }
+    }
+
     const allowedFields = [
       "fullName",
       "email",

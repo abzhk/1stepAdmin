@@ -42,6 +42,10 @@ const AddAssessmentCategory = lazy(() =>
   import("./pages/Assessment/AddAssessmentCategory.jsx")
 );
 
+const AddLearningPath = lazy(() =>
+  import("./pages/LearningPath/AddLearningPath.jsx")
+);
+
 const ProviderAssessment = lazy(() =>
   import("./pages/Assessment/ProviderAssessment.jsx")
 );
@@ -190,6 +194,10 @@ const AdminInbox = lazy(() =>
   import("./pages/ContactUs/InboxQuery.jsx")
 );
 
+const LearningPathList = lazy(() =>
+  import("./pages/LearningPath/LearningPathList.jsx")
+);
+
 const App = () => {
   const dispatch = useDispatch();
   const loading = useSelector((state) => state.auth.loading);
@@ -274,6 +282,30 @@ const App = () => {
               </PermissionRoute>
             }
           />
+           <Route
+            path="/addlearningpath"
+            element={
+              <PermissionRoute
+                module={MODULES.ASSESSMENT}
+                action={ACTIONS.READ}
+              >
+                <AddLearningPath />
+              </PermissionRoute>
+            }
+          />
+
+           <Route
+            path="/resources/learningpathlist"
+            element={<LearningPathList />}
+          />
+
+          <Route
+            path="/resources/edit-learning-path/:id"
+            element={<AddLearningPath />}
+          />
+
+
+          
           <Route
             path="/providerassessment"
             element={
