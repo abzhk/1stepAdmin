@@ -23,11 +23,16 @@ const CentreEdit = () => {
       try {
         const res = await api(`/api/provider/centre/${id}`);
         const data = res.centre;
+        
+        let initialPhone = data.phone || "";
+        if (initialPhone.startsWith("+91")) {
+          initialPhone = initialPhone.slice(3);
+        }
 
         setFormData({
           fullName: data.fullName || "",
           email: data.email || "",
-          phone: data.phone || "",
+          phone: initialPhone,
           providerType: data.providerType || "",
           qualification: data.qualification || "",
           experience: data.experience || "",
@@ -52,13 +57,23 @@ const CentreEdit = () => {
 
   const handleSubmit = async () => {
     try {
-     await api(`/api/provider/centre/${id}`, {
-  method: "PUT",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify(formData),
-});
+      let finalPhone = formData.phone;
+      if (finalPhone && !finalPhone.startsWith("+91")) {
+        finalPhone = `+91${finalPhone}`;
+      }
+
+      const dataToSubmit = {
+        ...formData,
+        phone: finalPhone,
+      };
+
+      await api(`/api/provider/centre/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dataToSubmit),
+      });
 
       navigate("/centre-list");
     } catch (err) {
