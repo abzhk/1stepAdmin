@@ -1,8 +1,5 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { FaHospital, FaUserMd, FaCalendarCheck } from "react-icons/fa";
-import CentreStats from "../../Components/CentreComponent/CentreStats";
-import Appointmentstats from "../../Components/CentreComponent/Appointmentstats";
 import { api } from "../../utils/api";
 import { useEffect, useState } from "react";
 import CentreCard from "./CentreCard";
@@ -13,8 +10,6 @@ import {formatTimeRangeAMPM,} from "../../utils/dateHelpers";
 const CentreDashBoard = () => {
   const navigate = useNavigate();
   const [centres, setCentres] = useState([]);
-  const [totalCentres, setTotalCentres] = useState(0);
-  const [totalProviders, setTotalProviders] = useState(0);
   const [stats,setStats]=useState({});
   const [upcomingSessions,setUpcomingSessions]=useState([]);
 
@@ -38,7 +33,7 @@ setCentres(data.centres || []);
   useEffect(()=>{
     const fetchStats = async()=>{
       try{
-        const res= await api("/api/provider/centre-session");
+        const res= await api("/api/centre/centre-session");
         // console.log("Centre Dashboard Stats:", res);
  setStats(res.stats);
       setUpcomingSessions(res.upcoming);

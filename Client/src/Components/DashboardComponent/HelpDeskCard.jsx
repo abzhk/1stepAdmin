@@ -23,8 +23,6 @@ const HelpDeskCard = ({ tickets  = []}) => {
   const navigate = useNavigate();
   
 
-  const latestTickets = tickets.slice(0, 3);
-
 
   return (
      <PermissionGuard module={MODULES.HELP} action={ACTIONS.READ}>
@@ -34,13 +32,13 @@ const HelpDeskCard = ({ tickets  = []}) => {
         <h3 className="text-subheading tracking-wide">Help Desk Activity</h3>
 
         <span className="text-xs px-3 py-1 rounded-full bg-gray-100 text-gray-600">
-          {latestTickets.length}
+          {tickets.length}
         </span>
       </div>
 
       {/* LIST */}
       <div className="flex-1 overflow-y-auto space-y-2 pr-1 scrollbar-hide">
-        {latestTickets.map((item) => (
+        {tickets.map((item) => (
           <div
             key={item._id}
             className="flex items-center p-3 rounded-xl hover:bg-offwhite transition group"

@@ -70,7 +70,7 @@ const CentreCard = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await api("/api/provider/centre-session");
+        const res = await api("/api/centre/centre-session");
         setStats(res.stats || {});
       } catch (err) {
         console.error(err);

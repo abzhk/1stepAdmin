@@ -7,7 +7,7 @@ import { getProviders ,
     getCentreAppointments,
     getCentresForAdmin,
     getCentreStats,
-getIndividualProviders,getAllCentreDashboardStats,
+getIndividualProviders,
 getMonthlyAppointments,
 getCentreById,
 getCentreFullDetails,
@@ -37,7 +37,7 @@ router.get("/centre-list",verifyAdminToken,getCentresForAdmin);
 router.get("/centre-stats", verifyAdminToken, getCentreStats);
 router.get("/individual-list", verifyAdminToken, getIndividualProviders);
 router.get("/admin-individual-list", verifyAdminToken, individualProvidersforAdmin);
-router.get("/centre-session", verifyAdminToken, getAllCentreDashboardStats);
+
 
 router.get("/appointments/monthly", verifyAdminToken, getMonthlyAppointments);
 //delete centre
