@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import { AiFillEye } from "react-icons/ai";
 import "react-circular-progressbar/dist/styles.css";
-import { useParams } from "react-router-dom";
+import { useParams ,useSearchParams} from "react-router-dom";
 import {api} from "../../utils/api.js"
 import InvitedProviders from "./InvitedProviders.jsx";
 import { IoIosArrowRoundBack } from "react-icons/io";
@@ -67,6 +67,8 @@ const [bookingStatus, setBookingStatus] = useState("all");
   const [assessmentsTotal, setAssessmentsTotal] = useState(0);
   const [assessmentsLoading, setAssessmentsLoading] = useState(false);
   const [assessmentsError, setAssessmentsError] = useState("");
+   const [searchParams] = useSearchParams();
+  const page = searchParams.get("page") || "1";
 
   useEffect(() => {
     if (!id) return;
@@ -254,7 +256,7 @@ useEffect(() => {
     <div className="p-6 bg-secondary min-h-screen">
        <button
         type="button"
-        onClick={() => navigate("/allproviders")}
+        onClick={() => navigate(`/allproviders?page=${page}`)}
         className="flex gap-2 items-center mb-6 text-darkgreen hover:text-green-700"
       >
         <IoIosArrowRoundBack size={22} />

@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate,  useSearchParams, } from "react-router-dom";
 import { api } from "../../utils/api.js";
 import toast from "react-hot-toast";
 
 function ProviderEdit() {
   const { id } = useParams();
   const navigate = useNavigate();
+   const [searchParams] = useSearchParams();
+
+  const page = searchParams.get("page") || "1";
 
   const [formData, setFormData] = useState({
     fullName: "",
@@ -147,7 +150,7 @@ function ProviderEdit() {
         <div className="mb-6">
           <button
             type="button"
-            onClick={() => navigate("/allproviders")}
+            onClick={() => navigate(`/allproviders?page=${page}`)}
             className="text-sm text-gray-500 hover:text-[#2d4a36] transition"
           >
             ← Back to Providers
@@ -568,7 +571,7 @@ function ProviderEdit() {
 
                   <button
                     type="button"
-                    onClick={() => navigate("/allproviders")}
+                    onClick={() => navigate(`/allproviders?page=${page}`)}
                     className="rounded-xl bg-gray-100 px-6 py-2.5 text-gray-700 hover:bg-gray-200 transition"
                   >
                     Cancel

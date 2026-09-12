@@ -56,12 +56,15 @@ const data = await api(
     }
   };
 
- useEffect(() => {
-  setSearchParams((prev) => {
-    prev.set("page", "1");
-    return prev;
-  });
-}, [searchTerm]);
+useEffect(() => {
+  if (searchTerm) {
+    setSearchParams((prev) => {
+      const params = new URLSearchParams(prev);
+      params.set("page", "1");
+      return params;
+    });
+  }
+}, [searchTerm, setSearchParams]);
 
 useEffect(() => {
   fetchCentres();
@@ -229,7 +232,7 @@ useEffect(() => {
                   <div className="flex justify-between items-center mt-2">
                     <div className="flex gap-2">
                       <button
-                        onClick={() => navigate(`/centre-detail/${centre._id}`)}
+                        onClick={() =>  navigate(`/centre-detail/${centre._id}?page=${page}`)}
                         className="p-2 rounded-lg bg-gray-100 text-darkgreen hover:bg-gray-200"
                       >
                         <AiFillEye />
@@ -328,7 +331,7 @@ useEffect(() => {
 
                     <td className="p-3 flex justify-end gap-2">
                       <button 
-                       onClick={() => navigate(`/centre-detail/${centre._id}`)}
+                       onClick={() => navigate(`/centre-detail/${centre._id}?page=${page}`)}
                        className="p-2 bg-gray-100 rounded-lg">
                         <AiFillEye />
                       </button>
@@ -349,26 +352,46 @@ useEffect(() => {
         </div>
         
       )}
-      <div className="flex justify-end  mt-6">
-     <button
-  disabled={page === 1}
-  onClick={() => changePage(page - 1)}
-  className="px-4 py-2 bg-gray-200 rounded-xl disabled:opacity-50"
->
-  Previous
-</button>
+   <div className="flex items-center justify-between mt-6">
+  {/* LEFT */}
+  <div className="text-sm text-gray-600">
+    Showing{" "}
+    <span className="font-semibold text-darkgreen">
+      {totalCount === 0 ? 0 : (page - 1) * limit + 1}
+    </span>{" "}
+    to{" "}
+    <span className="font-semibold text-darkgreen">
+      {Math.min(page * limit, totalCount)}
+    </span>{" "}
+    of{" "}
+    <span className="font-semibold text-darkgreen">
+      {totalCount}
+    </span>{" "}
+    Centres
+  </div>
 
-<span className="text-table-text mt-2 ">
-  Page {page} of {Math.ceil(totalCount / limit)}
-</span>
+  {/* RIGHT */}
+  <div className="flex items-center gap-3">
+    <button
+      disabled={page === 1}
+      onClick={() => changePage(page - 1)}
+      className="px-4 py-2 bg-gray-200 rounded-xl disabled:opacity-50"
+    >
+      Previous
+    </button>
 
-<button
-  disabled={page >= Math.ceil(totalCount / limit)}
-  onClick={() => changePage(page + 1)}
-  className="px-4 py-2 bg-darkgreen text-white rounded-xl hover:bg-yellow disabled:opacity-50"
->
-  Next
-</button>
+    <span className="text-table-text">
+      Page {page} of {Math.ceil(totalCount / limit)}
+    </span>
+
+    <button
+      disabled={page >= Math.ceil(totalCount / limit)}
+      onClick={() => changePage(page + 1)}
+      className="px-4 py-2 bg-darkgreen text-white rounded-xl hover:bg-yellow disabled:opacity-50"
+    >
+      Next
+    </button>
+  </div>
 </div>
 </div>
   );
