@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { AiFillEye } from "react-icons/ai";
 import { api } from "../../utils/api";
@@ -20,6 +20,9 @@ const CentreDetails = () => {
   const [providers, setProviders] = useState([]);
   const [totalProviders, setTotalProviders] = useState(0);
   const [totalSessions, setTotalSessions] = useState(0);
+  const [searchParams] = useSearchParams();
+
+const page = searchParams.get("page") || "1";
 
   useEffect(() => {
     const fetchDetails = async () => {
@@ -43,7 +46,7 @@ const CentreDetails = () => {
   return (
     <div className="p-6 bg-offwhite min-h-screen">
       <button
-        onClick={() => navigate(-1)}
+         onClick={() => navigate(`/centre-list?page=${page}`)}
         className="flex items-center gap-2 mb-6 text-darkgreen"
       >
         <IoIosArrowRoundBack size={22} />

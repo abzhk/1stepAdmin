@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { AiFillEye } from "react-icons/ai";
 import { FiEdit2, FiGrid, FiList } from "react-icons/fi";
-import { useNavigate, useOutletContext } from "react-router-dom";
+import { useNavigate, useOutletContext, useSearchParams  } from "react-router-dom";
 import { api } from "../../utils/api.js";
 import toast from "react-hot-toast";
 import SortableHeader from "../../Components/SortableHeader";
@@ -16,7 +16,9 @@ function ParentView() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const [page, setPage] = useState(1);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+const page = Number(searchParams.get("page")) || 1;
   const [limit] = useState(12);
   const [totalPages, setTotalPages] = useState(1);
   const [totalParents, setTotalParents] = useState(0);
@@ -28,6 +30,13 @@ function ParentView() {
     key: "createdAt",
     direction: "desc",
   });
+
+  const changePage = (newPage) => {
+  setSearchParams((prev) => {
+    prev.set("page", String(newPage));
+    return prev;
+  });
+};
 
   // ── Account lifecycle modal state ─────────────────────────────────────────
   const [modalOpen, setModalOpen]       = useState(false);
@@ -92,7 +101,10 @@ function ParentView() {
       ? "desc"
       : "asc";
 
-  setPage(1);
+  setSearchParams((prev) => {
+    prev.set("page", "1");
+    return prev;
+  });
 
   setSortConfig({
     key,
@@ -246,8 +258,8 @@ function ParentView() {
                       <button
                         onClick={() =>
                           navigate(
-                            `/parent-stats-card/${parent.userRef?._id}`
-                          )
+  `/parent-stats-card/${parent.userRef?._id}?page=${page}`
+)
                         }
                         className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-softpeach/60 text-white text-sm font-medium shadow hover:bg-lighthov transition flex-1"
                       >
@@ -257,9 +269,9 @@ function ParentView() {
 
                       <button
                         onClick={() =>
-                          navigate(
-                            `/parent/edit/${parent.userRef?._id}`
-                          )
+                         navigate(
+  `/parent/edit/${parent.userRef?._id}?page=${page}`
+)
                         }
                         className="w-10 h-10 flex items-center justify-center rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-100"
                       >
@@ -386,8 +398,8 @@ function ParentView() {
                     <button
                       onClick={() =>
                         navigate(
-                          `/parent-stats-card/${parent.userRef?._id}`
-                        )
+  `/parent-stats-card/${parent.userRef?._id}?page=${page}`
+)
                       }
                       className="p-2 bg-gray-100 rounded-lg"
                     >
@@ -396,9 +408,9 @@ function ParentView() {
 
                     <button
                       onClick={() =>
-                        navigate(
-                          `/parent/edit/${parent.userRef?._id}`
-                        )
+                       navigate(
+  `/parent/edit/${parent.userRef?._id}?page=${page}`
+)
                       }
                       className="p-2 bg-darkgreen text-white rounded-lg"
                     >
@@ -436,7 +448,7 @@ function ParentView() {
 
           <button
             className="border border-gray-300 px-4 py-2 rounded-lg text-sm bg-white hover:bg-gray-100 transition disabled:opacity-50"
-            onClick={() => setPage(page - 1)}
+            onClick={() => changePage(page - 1)}
             disabled={page === 1}
           >
             ← Prev
@@ -448,7 +460,7 @@ function ParentView() {
 
           <button
             className="border border-gray-300 px-4 py-2 rounded-lg text-sm bg-white hover:bg-gray-100 transition disabled:opacity-50"
-            onClick={() => setPage(page + 1)}
+            onClick={() => changePage(page + 1)}
             disabled={page === totalPages}
           >
             Next →

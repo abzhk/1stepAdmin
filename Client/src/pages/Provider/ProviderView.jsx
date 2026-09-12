@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { AiFillEye } from "react-icons/ai";
 import { FiEdit2, FiGrid, FiList } from "react-icons/fi";
-import { useNavigate, useOutletContext } from "react-router-dom";
+import { useNavigate, useOutletContext,  useSearchParams, } from "react-router-dom";
 import { api } from "../../utils/api.js";
 import toast from "react-hot-toast";
 import SortableHeader from "../../Components/SortableHeader";
@@ -12,7 +12,9 @@ function ProviderView() {
 
   const [providers, setProviders] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
-  const [page, setPage] = useState(1);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+const page = Number(searchParams.get("page")) || 1;
   const limit = 12;
 
   const [loading, setLoading] = useState(false);
@@ -26,6 +28,13 @@ function ProviderView() {
   key: "createdAt",
   direction: "desc",
 });
+
+const changePage = (newPage) => {
+  setSearchParams((prev) => {
+    prev.set("page", String(newPage));
+    return prev;
+  });
+};
 
   useEffect(() => {
     const fetchProviders = async () => {
@@ -274,7 +283,7 @@ const handleSort = (key) => {
                     <div className="flex gap-2">
                       <button
                         onClick={() =>
-                          navigate(`/provider-stats/${provider._id}`)
+                          navigate(`/provider-stats/${provider._id}?page=${page}`)
                         }
                         className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-softpeach/60 text-white text-sm"
                       >
@@ -284,7 +293,7 @@ const handleSort = (key) => {
 
                       <button
                         onClick={() =>
-                          navigate(`/providers/edit/${provider._id}`)
+                            navigate(`/providers/edit/${provider._id}?page=${page}`)
                         }
                         className="w-10 h-10 flex items-center justify-center rounded-xl bg-blue-50 text-blue-600"
                       >
@@ -371,7 +380,7 @@ const handleSort = (key) => {
                   <td className="p-3 flex justify-end gap-2">
                     <button
                       onClick={() =>
-                        navigate(`/provider-stats/${provider._id}`)
+                        navigate(`/provider-stats/${provider._id}?page=${page}`)
                       }
                       className="p-2 bg-gray-100 rounded-lg"
                     >
@@ -380,7 +389,7 @@ const handleSort = (key) => {
 
                     <button
                       onClick={() =>
-                        navigate(`/providers/edit/${provider._id}`)
+                         navigate(`/providers/edit/${provider._id}?page=${page}`)
                       }
                       className="p-2 bg-darkgreen text-white rounded-lg"
                     >
@@ -404,24 +413,24 @@ const handleSort = (key) => {
 
         <div className="flex gap-3 items-center">
           <button
-            onClick={() => setPage((p) => p - 1)}
-            disabled={page === 1}
-            className="px-4 py-2 border rounded-lg"
-          >
-            ← Previous
-          </button>
+  onClick={() => changePage(page - 1)}
+  disabled={page === 1}
+  className="px-4 py-2 border rounded-lg"
+>
+  ← Previous
+</button>
 
-          <span className="text-sm font-semibold">
-            Page {page} of {totalPages}
-          </span>
+<span className="text-sm font-semibold">
+  Page {page} of {totalPages}
+</span>
 
-          <button
-            onClick={() => setPage((p) => p + 1)}
-            disabled={page === totalPages}
-            className="px-4 py-2 border rounded-lg"
-          >
-            Next →
-          </button>
+<button
+  onClick={() => changePage(page + 1)}
+  disabled={page === totalPages}
+  className="px-4 py-2 border rounded-lg"
+>
+  Next →
+</button>
         </div>
       </div>
     </div>

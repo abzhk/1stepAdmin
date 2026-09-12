@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate ,useSearchParams} from "react-router-dom";
 import {api} from "../../utils/api.js"
 import toast from "react-hot-toast";
 
@@ -18,6 +18,8 @@ function ParentEdit() {
   const [error, setError] = useState("");
   const [profilePicture, setProfilePicture] = useState("");
 const [email, setEmail] = useState("");
+const [searchParams] = useSearchParams();
+const page = searchParams.get("page") || "1";
 
 
 useEffect(() => {
@@ -90,7 +92,7 @@ useEffect(() => {
       <div className="mb-6">
         <button
           type="button"
-          onClick={() => navigate(-1)}
+          onClick={() => navigate(`/view-parent?page=${page}`)}
           className="text-sm text-gray-500 hover:text-[#2d4a36] mb-2"
         >
           ← Back to Parents
@@ -233,7 +235,6 @@ useEffect(() => {
                 <input
                   type="email"
                   value={email}
-                  disabled
                   className="w-full rounded-xl border-2 border-gray-200 bg-gray-50 p-3 text-gray-500 cursor-not-allowed"
                 />
               </div>
@@ -265,7 +266,7 @@ useEffect(() => {
 
               <button
                 type="button"
-                onClick={() => navigate(-1)}
+                onClick={() => navigate(`/parent-list?page=${page}`)}
                 className="px-6 py-2.5 rounded-xl bg-white text-gray-700 hover:bg-gray-200 transition"
               >
                 Cancel

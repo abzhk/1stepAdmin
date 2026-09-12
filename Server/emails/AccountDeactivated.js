@@ -15,7 +15,7 @@ export default function AccountDeactivatedEmail({
   email = "",
   reason = "",
   deactivatedOn = "",
-  supportUrl = "https://1step.com/contact",
+  supportUrl = "https://1step.space/contact",
 }) {
   const body = `
     <!-- Header banner -->

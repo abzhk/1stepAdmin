@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {FiBookOpen,FiAward,FiHeart,FiActivity,FiCalendar,} from "react-icons/fi";
-import { useParams } from "react-router-dom";
+import { useParams ,useSearchParams} from "react-router-dom";
 import dateFormatUtils from "../../utils/dateFormatUtils";
 import ParentBookings from "./ParentBookings.jsx";
 import {api} from "../../utils/api.js"
@@ -9,6 +9,8 @@ import { useNavigate } from "react-router-dom";
 
 const ParentStatsCards = () => {
   const { userId } = useParams();
+  const [searchParams] = useSearchParams();
+  const page = searchParams.get("page") || "1";
   const navigate=useNavigate();
   const [parent, setParent] = useState(null);
   const [parentLoading, setParentLoading] = useState(false);
@@ -111,7 +113,7 @@ if (statsError) {
     <div className="min-h-screen bg-secondary p-4 md:p-8 font-sans text-gray-800">
        <button
         type="button"
-        onClick={() => navigate("/view-parent")}
+        onClick={() => navigate(`/view-parent?page=${page}`)}
         className="flex gap-2 items-center mb-6 text-darkgreen hover:text-green-700"
       >
         <IoIosArrowRoundBack size={22} />
