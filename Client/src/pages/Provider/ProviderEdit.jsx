@@ -311,7 +311,7 @@ function ProviderEdit() {
                   {/* =========================================
                       PROVIDER TYPE
                   ========================================== */}
-                  <label className="block text-sm font-bold tracking-wide text-[#2d4a36]">
+                  {/* <label className="block text-sm font-bold tracking-wide text-[#2d4a36]">
 
                     Provider Type
 
@@ -330,7 +330,7 @@ function ProviderEdit() {
                       </option>
                     </select>
 
-                  </label>
+                  </label> */}
 
                 </div>
 

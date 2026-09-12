@@ -246,7 +246,7 @@ const page = searchParams.get("page") || "1";
                 </div>
 
                 {/* Provider Type */}
-                <div>
+                {/* <div>
                   <label className="block text-label tracking-wide mb-2">
                     Provider Type
                   </label>
@@ -260,7 +260,7 @@ const page = searchParams.get("page") || "1";
                     <option value="centre">Centre</option>
                     <option value="individual">Individual</option>
                   </select>
-                </div>
+                </div> */}
 
                 {/* Qualification */}
                 <div>
