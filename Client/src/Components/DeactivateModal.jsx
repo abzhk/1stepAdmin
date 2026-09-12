@@ -44,7 +44,7 @@ function DeactivateModal({ isOpen, onClose, user, mode = "deactivate", onSuccess
         : `/api/users/reactivate/${user._id}`;
 
       const body = isDeactivate
-        ? { reason: reason.trim() }
+        ? { reason: reason.trim(), sendEmail }
         : { sendEmail, note: note.trim() };
 
       const data = await api(endpoint, {

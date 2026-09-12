@@ -435,7 +435,7 @@ export const getAllUsers = async (req, res, next) => {
 export const deactivateUser = async (req, res, next) => {
   try {
     const { userId } = req.params;
-    const { reason } = req.body;
+    const { reason, sendEmail } = req.body;
     const adminId = req.user.id.toString();
 
     if (!reason || reason.trim().length < 3) {
@@ -509,7 +509,7 @@ export const deactivateUser = async (req, res, next) => {
     }
 
     // 3. Optionally send deactivation email
-    if (sendEmail) {
+    if (sendEmail === true || sendEmail === "true") {
       sendAccountDeactivatedEmail({ user, reason: reason.trim() }).catch((err) => {
         console.error("[deactivateUser] Email send failed:", err?.message);
       });
