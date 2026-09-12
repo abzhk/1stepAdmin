@@ -23,8 +23,8 @@ import CentreAcceptanceEmail   from "../emails/CentreAcceptance.js";
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 const FROM    = process.env.EMAIL_FROM    || "1Step <no-reply@1step.com>";
-const SUPPORT = process.env.SUPPORT_URL   || "https://1step.com/contact";
-const CLIENT  = process.env.CLIENT_URL    || "https://1step.com/auth/signin";
+const SUPPORT = process.env.SUPPORT_URL   || "https://1step.space/contact";
+const CLIENT  = process.env.CLIENT_URL    || "https://1step.space/auth/signin";
 
 // ─── Core send ─────────────────────────────────────────────────────────────────
 
