@@ -16,9 +16,9 @@ router.get("/getparent/:id", getParent);
 //create Parent
 router.post("/createparent/:id",createParent);
 //activate or deactivate parent by admin
-router.put("/admin/parent/status", setParentActiveStatus);
+router.put("/admin/parent/status", verifyAdminToken, setParentActiveStatus);
 //get inactive parents
-router.get("/inactive-parents", getInactiveParents);
+router.get("/inactive-parents", verifyAdminToken, getInactiveParents);
 //bookings of parent
 router.get("/bookings/:parentId",verifyAdminToken, getParentBookings);
 

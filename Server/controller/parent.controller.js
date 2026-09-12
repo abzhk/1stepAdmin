@@ -435,18 +435,66 @@ export const setParentActiveStatus = async (req, res, next) => {
         });
       }
     }
-    const user = await User.findByIdAndUpdate(
-      userId,
-      { isActive },
-      { new: true }
-    );
-
+    const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({
         success: false,
         message: "User not found",
       });
     }
+
+    const adminId = req.user?.id; // Fallback to userId if req.user is missing
+    const previousStatus = user.accountStatus || "active";
+    
+    user.isActive = isActive;
+    user.accountStatus = isActive ? "active" : "deactivated";
+
+    if (!user.accountStatusHistory) user.accountStatusHistory = [];
+
+    if (isActive) {
+      // Reactivating
+      if (user.deactivationMeta) {
+        user.deactivationMeta.reactivatedAt = new Date();
+        user.deactivationMeta.reactivatedBy = adminId;
+      } else {
+        user.deactivationMeta = { reactivatedAt: new Date(), reactivatedBy: adminId };
+      }
+      user.deletionRequestedAt = null;
+      user.reactivationDeadline = null;
+      user.reactivationToken = null;
+
+      user.accountStatusHistory.push({
+        fromStatus: previousStatus,
+        toStatus: "active",
+        changedBy: adminId,
+        reason: "Parent reactivated via Parent Controller",
+        changedAt: new Date(),
+      });
+    } else {
+      // Deactivating
+      user.refreshToken = null; // force logout
+      user.deactivationMeta = {
+        reason: "Parent deactivated via Parent Controller",
+        deactivatedBy: adminId,
+        deactivatedAt: new Date(),
+        reactivatedAt: null,
+        reactivatedBy: null,
+      };
+
+      user.accountStatusHistory.push({
+        fromStatus: previousStatus,
+        toStatus: "deactivated",
+        changedBy: adminId,
+        reason: "Parent deactivated via Parent Controller",
+        changedAt: new Date(),
+      });
+    }
+
+    if (user.accountStatusHistory.length > 50) {
+      user.accountStatusHistory = user.accountStatusHistory.slice(-50);
+    }
+
+    await user.save();
 
     res.status(200).json({
       success: true,
