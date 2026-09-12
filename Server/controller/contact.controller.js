@@ -503,6 +503,7 @@ export const getAllContactMessages = async (req, res, next) => {
       query.$or = [
         { name: { $regex: search, $options: "i" } },
         { email: { $regex: search, $options: "i" } },
+         { phone: { $regex: search, $options: "i" } },
         { topicId: { $regex: search, $options: "i" } },
         { "messages.message": { $regex: search, $options: "i" } },
       ];

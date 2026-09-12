@@ -54,6 +54,7 @@ const DashSidebar = () => {
     "Approve Articles": "Content",
     "Add Assessment": "Assessment",
     "Provider Assessments": "Assessment",
+    "Learning Path": "Assessment",
   };
 
   useEffect(() => {
@@ -73,6 +74,12 @@ const DashSidebar = () => {
     else if (path.startsWith("/viewarticle")||  path.startsWith("/add-article")||  path.startsWith("/list-view-article")
     ) setActive("Approve Articles");
     else if (path.startsWith("/addassessment")) setActive("Add Assessment");
+
+    else if (
+  path.startsWith("/addlearningpath") ||
+  path.startsWith("/resources/learningpathlist")
+)
+  setActive("Learning Path");
     else if (path.startsWith("/admin-help-desk")||  path.startsWith("/contact"))
        setActive("Help desk");
     else if (path.startsWith("/providerassessment")||  path.startsWith("/assessment-list"))
@@ -258,6 +265,18 @@ const DashSidebar = () => {
                   >
                    Manage Assessments
                   </div>
+                     <div
+      onClick={() => navigate("/resources/learningpathlist")}
+      className="p-2 hover:bg-darkgreen hover:text-white rounded-2xl cursor-pointer"
+    >
+      Learning Path List
+    </div>
+    <div
+  onClick={() => navigate("/addlearningpath")}
+  className="p-2 hover:bg-darkgreen hover:text-white rounded-2xl cursor-pointer"
+>
+  Add Learning Path
+</div>
                 </div>
               )}
             </div>

@@ -483,12 +483,21 @@ setMsgs(formatted);
                       <span className="text-xs text-[#8fa797]">{active.email}</span>
                       {/* <span className="text-xs text-[#8fa797]/40">•</span>
                       <span className="text-xs text-[#8fa797] capitalize">{active.status}</span> */}
-                      {active.topicId && (
-                        <>
-                          <span className="text-xs text-[#8fa797]/40">•</span>
-                          <span className="text-xs text-[#8fa797]">#{active.topicId}</span>
-                        </>
-                      )}
+                     <div className="flex items-center gap-2  flex-wrap">
+
+  {/* Phone */}
+  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#F6F4F0] text-[11px] text-[#2d4a36]/70">
+    ☎ {active.phone || "-"}
+  </span>
+
+  {/* Topic */}
+  {active.topicId && (
+    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#F6F4F0] text-[11px] text-[#2d4a36]/70">
+      # {active.topicId}
+    </span>
+  )}
+
+</div>
                       {/* {active.isFromEmail && (
                         <>
                           <span className="text-xs text-[#8fa797]/40">•</span>
