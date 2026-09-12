@@ -4,6 +4,8 @@ import Provider from "../model/provider.model.js";
 import CentreProvider from "../model/Centre/centerprovider.model.js";
 import CentreProviderRelation from "../model/Centre/centreProviderRelation.model.js";
 import { Booking } from "../model/booking.model.js";
+import { BookedSlots } from "../model/booking.model.js";
+import Stats from "../model/stats.model.js";
 import Invitation from "../model/Centre/invitation.model.js";
 import dotenv from "dotenv";
 import moment from "moment";
@@ -1971,6 +1973,176 @@ export const getAllCentreDashboardStats = async (req, res, next) => {
       errorHandler(
         500,
         "Failed to fetch dashboard stats"
+      )
+    );
+  }
+};
+
+
+
+//get centre provider by user id
+export const getCentresForAdmin = async (req, res, next) => {
+  try {
+    const {
+      limit = 12,
+      startIndex = 0,
+      sort = "createdAt",
+      order = "desc",
+      searchTerm = "",
+    } = req.query;
+
+    const parsedLimit = Math.min(
+      Math.max(Number(limit) || 12, 1),
+      50
+    );
+
+    const parsedStartIndex = Math.max(
+      Number(startIndex) || 0,
+      0
+    );
+
+    const centreQuery = {
+      providerType: "centre",
+      isActive: true,
+    };
+
+    const cleanedSearchTerm = searchTerm.trim();
+
+    if (cleanedSearchTerm) {
+      centreQuery.$or = [
+        {
+          fullName: {
+            $regex: cleanedSearchTerm,
+            $options: "i",
+          },
+        },
+        {
+          phone: {
+            $regex: cleanedSearchTerm,
+            $options: "i",
+          },
+        },
+      ];
+    }
+
+    const allowedSortFields = [
+      "createdAt",
+      "fullName",
+      "phone",
+    ];
+
+    const sortField = allowedSortFields.includes(sort)
+      ? sort
+      : "createdAt";
+
+    const sortQuery = {
+      [sortField]: order === "asc" ? 1 : -1,
+      _id: 1,
+    };
+
+    const [totalCentres, centres] = await Promise.all([
+      Provider.countDocuments(centreQuery),
+
+      Provider.find(centreQuery)
+        .select(
+          "_id fullName phone email profilePicture userRef createdAt providerType isActive"
+        )
+        .populate(
+          "userRef",
+          "email profilePicture username"
+        )
+        .sort(sortQuery)
+        .skip(parsedStartIndex)
+        .limit(parsedLimit)
+        .lean(),
+    ]);
+
+    const centreIds = centres.map((centre) => centre._id);
+
+    let providerCountMap = new Map();
+
+    if (centreIds.length > 0) {
+      const providerCounts =
+        await CentreProviderRelation.aggregate([
+          {
+            $match: {
+              centreId: { $in: centreIds },
+              isActive: true,
+              status: "active",
+            },
+          },
+          {
+            $group: {
+              _id: "$centreId",
+              totalProviders: {
+                $sum: 1,
+              },
+            },
+          },
+        ]);
+
+      providerCountMap = new Map(
+        providerCounts.map((item) => [
+          item._id.toString(),
+          item.totalProviders,
+        ])
+      );
+    }
+
+    const finalCentres = centres.map((centre) => ({
+      ...centre,
+      totalProviders:
+        providerCountMap.get(centre._id.toString()) || 0,
+    }));
+
+    return res.status(200).json({
+      success: true,
+      totalCount: totalCentres,
+      centres: finalCentres,
+    });
+
+  } catch (error) {
+    console.error("getCentresForAdmin error:", error);
+
+    next(
+      errorHandler(
+        500,
+        "Failed to fetch centres"
+      )
+    );
+  }
+};
+
+export const getCentreDashboardStats = async (req, res, next) => {
+  try {
+    const [totalCentres, totalProviders] = await Promise.all([
+      Provider.countDocuments({
+        providerType: "centre",
+        isActive: true,
+      }),
+
+      CentreProviderRelation.countDocuments({
+        isActive: true,
+        status: "active",
+      }),
+    ]);
+
+    return res.status(200).json({
+      success: true,
+      totalCentres,
+      totalProviders,
+    });
+
+  } catch (error) {
+    console.error(
+      "getCentreDashboardStats error:",
+      error
+    );
+
+    next(
+      errorHandler(
+        500,
+        "Failed to fetch centre dashboard stats"
       )
     );
   }

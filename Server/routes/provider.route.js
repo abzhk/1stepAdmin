@@ -5,7 +5,6 @@ import { getProviders ,
     setProviderActiveStatus,
     getInactiveProviders,
     getCentreAppointments,
-    getCentresForAdmin,
     getCentreStats,
 getIndividualProviders,
 getMonthlyAppointments,
@@ -33,7 +32,7 @@ router.get("/inactive-providers",  verifyAdminToken, getInactiveProviders);
 //center-appointments
 router.get("/centre-appointments", verifyAdminToken, getCentreAppointments);
 //get centre list for admin
-router.get("/centre-list",verifyAdminToken,getCentresForAdmin);
+// router.get("/centre-list",verifyAdminToken,getCentresForAdmin);
 router.get("/centre-stats", verifyAdminToken, getCentreStats);
 router.get("/individual-list", verifyAdminToken, getIndividualProviders);
 router.get("/admin-individual-list", verifyAdminToken, individualProvidersforAdmin);

@@ -116,7 +116,10 @@ const handleSort = (key) => {
       ? "desc"
       : "asc";
 
-  setPage(1);
+  setSearchParams((prev) => {
+    prev.set("page", "1");
+    return prev;
+  });
 
   setSortConfig({
     key,

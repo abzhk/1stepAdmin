@@ -46,7 +46,7 @@ const changePage = (newPage) => {
 });
 
 const data = await api(
-  `/api/provider/centre-list?${params}`
+  `/api/centre/centre-list?${params}`
 );
 
       setCentres(data.centres || []);
@@ -107,13 +107,18 @@ useEffect(() => {
   };
 
 
-  const handleSort = (key) => {
+ const handleSort = (key) => {
   const direction =
-    sortConfig.key === key && sortConfig.direction === "asc"
+    sortConfig.key === key &&
+    sortConfig.direction === "asc"
       ? "desc"
       : "asc";
 
-  setPage(1);
+  setSearchParams((prev) => {
+    const params = new URLSearchParams(prev);
+    params.set("page", "1");
+    return params;
+  });
 
   setSortConfig({
     key,

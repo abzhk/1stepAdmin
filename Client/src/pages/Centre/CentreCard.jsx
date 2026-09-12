@@ -56,7 +56,7 @@ const CentreCard = () => {
   useEffect(() => {
     const fetchCentres = async () => {
       try {
-        const data = await api("/api/provider/centre-list");
+        const data = await api("/api/centre/dashboard-stats");
         setTotalCentres(data.totalCentres || 0);
         setTotalProviders(data.totalProviders || 0);
       } catch (err) {
