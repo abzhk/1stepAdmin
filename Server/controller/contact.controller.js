@@ -372,7 +372,13 @@ export const sendReplyNotification = async (userEmail, userName, replyMessage, o
       `,
     };
 
-    const info = await transporter.sendMail(mailOptions);
+    const info = await sendPlainEmail({
+  to: mailOptions.to,
+  subject: mailOptions.subject,
+  html: mailOptions.html,
+});
+
+console.log("Reply notification email sent");
     console.log("Reply notification email sent:", info.messageId);
     return true;
   } catch (error) {
@@ -503,7 +509,6 @@ export const getAllContactMessages = async (req, res, next) => {
       query.$or = [
         { name: { $regex: search, $options: "i" } },
         { email: { $regex: search, $options: "i" } },
-         { phone: { $regex: search, $options: "i" } },
         { topicId: { $regex: search, $options: "i" } },
         { "messages.message": { $regex: search, $options: "i" } },
       ];
@@ -726,7 +731,13 @@ export const addUserMessage = async (req, res, next) => {
       `,
     };
 
-    await transporter.sendMail(mailOptions).catch(err => console.error("Failed to notify admin:", err));
+    await sendPlainEmail({
+  to: mailOptions.to,
+  subject: mailOptions.subject,
+  html: mailOptions.html,
+}).catch(err =>
+  console.error("Failed to notify admin:", err)
+);
 
     res.status(200).json({
       success: true,
@@ -1185,7 +1196,11 @@ export const replyToContact = async (req, res, next) => {
       `,
     };
 
-    await transporter.sendMail(mailOptions);
+    await sendPlainEmail({
+  to: mailOptions.to,
+  subject: mailOptions.subject,
+  html: mailOptions.html,
+});
 
     // Fetch updated contact
     const updatedContact = await Contact.findById(id)
