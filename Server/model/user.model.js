@@ -126,10 +126,13 @@ const userSchema = new mongoose.Schema(
 // userSchema.index({ email: 1 });
 userSchema.index({ role: 1 });
 
-userSchema.post("save", async function () {
+userSchema.post("save", async function (doc) {
   try {
-    const Stats = (await import("./stats.model.js")).default; 
-    await Stats.updateOne({}, { $inc: { totalUsers: 1 } }, { upsert: true });
+    // Only increment totalUsers if the document was just created
+    if (doc.createdAt && doc.updatedAt && doc.createdAt.getTime() === doc.updatedAt.getTime()) {
+      const Stats = (await import("./stats.model.js")).default; 
+      await Stats.updateOne({}, { $inc: { totalUsers: 1 } }, { upsert: true });
+    }
   } catch (err) {
     console.error("Failed to increment ", err);
   }

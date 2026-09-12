@@ -485,8 +485,9 @@ export const deactivateUser = async (req, res, next) => {
     };
 
     // Append to audit history (keep last 50)
+    if (!user.accountStatusHistory) user.accountStatusHistory = [];
     user.accountStatusHistory.push({
-      fromStatus: previousStatus,
+      fromStatus: previousStatus || "active",
       toStatus:   "deactivated",
       changedBy:  adminId,
       reason:     reason.trim(),
@@ -547,10 +548,10 @@ export const reactivateUser = async (req, res, next) => {
       return res.status(404).json({ success: false, message: "User not found." });
     }
 
-    if (user.accountStatus !== "deactivated") {
+    if (user.accountStatus !== "deactivated" && user.isActive === true) {
       return res.status(400).json({
         success: false,
-        message: `Cannot reactivate — account status is currently "${user.accountStatus}".`,
+        message: `Cannot reactivate — account is already active.`,
       });
     }
 
@@ -559,14 +560,22 @@ export const reactivateUser = async (req, res, next) => {
     // 1. Restore account
     user.accountStatus = "active";
     user.isActive      = true;
-    user.deactivationMeta = {
-      ...user.deactivationMeta,
-      reactivatedAt: new Date(),
-      reactivatedBy: adminId,
-    };
+    if (user.deactivationMeta) {
+      user.deactivationMeta.reactivatedAt = new Date();
+      user.deactivationMeta.reactivatedBy = adminId;
+    } else {
+      user.deactivationMeta = {
+        reactivatedAt: new Date(),
+        reactivatedBy: adminId,
+      };
+    }
+    user.deletionRequestedAt = null;
+    user.reactivationDeadline = null;
+    user.reactivationToken = null;
 
+    if (!user.accountStatusHistory) user.accountStatusHistory = [];
     user.accountStatusHistory.push({
-      fromStatus: previousStatus,
+      fromStatus: previousStatus || "deactivated",
       toStatus:   "active",
       changedBy:  adminId,
       reason:     note.trim() || "Reactivated by admin",

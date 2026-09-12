@@ -13,7 +13,7 @@ import Layout from "./components/Layout.js";
 export default function AccountReactivatedEmail({
   userName = "User",
   email = "",
-  clientUrl = "https://1step.com/sign-in",
+  clientUrl = "https://1step.space/sign-in",
   reactivatedOn = "",
 }) {
   const body = `
