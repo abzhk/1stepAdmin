@@ -115,6 +115,37 @@ export const getAssessmentById = async (req, res, next) => {
   }
 };
 
+// Get Assessment by Test ID
+export const getAssessmentByTest = async (req, res, next) => {
+  try {
+    const { testId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(testId)) {
+      return next(errorHandler(400, "Invalid test ID"));
+    }
+
+    const assessment = await Assessment.findOne({
+      test: testId,
+      isLatestVersion: true,
+      // status: "published",
+    }).populate("category", "name")
+      .populate("test", "name code");
+
+    if (!assessment) {
+      return next(
+        errorHandler(404, "No published assessment found for this test")
+      );
+    }
+
+    res.json({
+      success: true,
+      data: assessment,
+    });
+  } catch (err) {
+    next(errorHandler(500, err.message || "Internal Server Error"));
+  }
+};
+
 // Update
 export const updateAssessment = async (req, res, next) => {
   try {
