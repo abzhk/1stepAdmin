@@ -1,3 +1,5 @@
+import { getUserFullName } from "../utils/userUtils.js";
+import { formatLocalDateDDMMYYYY } from "../utils/dateHelpers.js";
 /**
  * services/email.service.js
  *
@@ -55,14 +57,10 @@ export const sendEmail = async ({ to, subject, html, from = FROM }) => {
  */
 export const sendAccountDeactivatedEmail = async ({ user, reason }) => {
   try {
-    const deactivatedOn = new Date().toLocaleDateString("en-IN", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    });
+    const deactivatedOn = formatLocalDateDDMMYYYY(new Date());
 
     const html = await renderEmail(AccountDeactivatedEmail, {
-      userName:       user.username || "User",
+      userName: await getUserFullName(user._id),
       email:          user.email,
       reason:         reason || "No specific reason was provided.",
       deactivatedOn,
@@ -88,14 +86,10 @@ export const sendAccountDeactivatedEmail = async ({ user, reason }) => {
  */
 export const sendAccountReactivatedEmail = async ({ user }) => {
   try {
-    const reactivatedOn = new Date().toLocaleDateString("en-IN", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    });
+    const reactivatedOn = formatLocalDateDDMMYYYY(new Date());
 
     const html = await renderEmail(AccountReactivatedEmail, {
-      userName:      user.username || "User",
+      userName: await getUserFullName(user._id),
       email:         user.email,
       clientUrl:     CLIENT,
       reactivatedOn,
