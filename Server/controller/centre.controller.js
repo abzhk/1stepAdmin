@@ -1775,11 +1775,12 @@ export const getRecentCentresForAdmin = async (req, res, next) => {
 export const getAllCentreDashboardStats = async (req, res, next) => {
   try {
 
-    const relationships = await CentreProvider.find({
-      isActive: true,
-    })
-      .select("centreId providerId")
-      .lean();
+    const relationships = await CentreProviderRelation.find({
+  isActive: true,
+  status: "active",
+})
+  .select("centreId providerId")
+  .lean();
 
     if (!relationships.length) {
       return res.json({
