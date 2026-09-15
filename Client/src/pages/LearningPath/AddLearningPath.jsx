@@ -733,9 +733,7 @@ const AddLearningPath = () => {
 
       <div className="max-w-6xl mx-auto">
 
-        {/* =================================================
-            HEADER
-        ================================================= */}
+        {/*  HEADER */}
 
         <div className="mb-8">
 
@@ -774,9 +772,7 @@ const AddLearningPath = () => {
 
         </div>
 
-        {/* =================================================
-            ERROR
-        ================================================= */}
+        {/* ERROR*/}
 
         {error && (
           <div className="mb-6 bg-[#FCE8E6] border border-[#E8C8C2] text-[#9B5555] px-5 py-4 rounded-2xl">

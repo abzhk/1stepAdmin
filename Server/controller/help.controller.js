@@ -1,3 +1,4 @@
+import { getUserFullName } from "../utils/userUtils.js";
 import Help from "../model/Help/help.model.js";
 import { errorHandler } from "../utils/error.js";
 import { sendPlainEmail } from "../services/email.service.js";
@@ -154,7 +155,7 @@ const provider = await Provider.findOne({
   userRef: ticket.user?._id,
 }).lean();
 
-let displayName = ticket.user?.username || "";
+let displayName = await getUserFullName(ticket.user?._id) || "User";
 let displayProfilePicture = ticket.user?.profilePicture || "";
 
 if (parent) {
@@ -218,7 +219,7 @@ Ticket Status Updated
 <td style="padding:32px 40px;">
 
 <p style="margin:0 0 24px;font-size:15px;line-height:1.6;color:#5b6b60;">
-Hello <strong>${ticket.user?.username || "User"}</strong>,
+Hello <strong></strong>,
 </p>
 
 <p style="margin:0 0 24px;font-size:15px;line-height:1.6;color:#5b6b60;">
@@ -529,7 +530,7 @@ export const getAllTickets = async (req, res, next) => {
         ? providerMap.get(userId)
         : null;
 
-      let displayName = ticket.user?.username || "";
+      let displayName = "User";
        let displayProfilePicture = ticket.user?.profilePicture || "";
 
       // Parent
@@ -617,13 +618,12 @@ export const replyTicket = async (req, res, next) => {
 
     const { subject, text, html } = ticketReplyEmail(ticket, message);
 
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: ticket.email,
-      subject,
-      text,
-      html,
-    });
+   await sendPlainEmail({
+  to: ticket.email,
+  subject,
+  text,
+  html,
+});
 
     res.status(200).json({
       success: true,
@@ -699,15 +699,14 @@ export const getLatestTickets = async (req, res, next) => {
         createdAt: ticket.createdAt,
 
         user: {
-          username: ticket.user?.username || "",
+          username: "User",
           email: ticket.user?.email || "",
         },
 
         displayName:
           parentName ||
           provider?.fullName ||
-          ticket.user?.username ||
-          "",
+          "User",
 
         displayProfilePicture:
           provider?.profilePicture ||

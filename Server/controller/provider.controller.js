@@ -1239,38 +1239,25 @@ switch (sort) {
 
 export const getMonthlyAppointments = async (req, res, next) => {
   try {
-
-
-
-    const relationships = await CentreProvider.find({
-      isActive: true,
-    })
-      .select("centreId providerId")
-      .lean();
-
-    if (!relationships.length) {
-      return res.json({
-        success: true,
-        data: [],
-      });
-    }
-
-
-
-    const relationshipPairs = relationships.map((relationship) => ({
-      centreId: relationship.centreId,
-      provider: relationship.providerId,
-    }));
-
-
-
     const data = await Booking.aggregate([
       {
         $match: {
-          $or: relationshipPairs,
+          centreId: { $ne: null },
 
           status: {
-            $in: ["completed", "approved","rejected", "completed", "expired", "cancelled", "rescheduled"],
+            $in: [
+              "completed",
+              "approved",
+              "rejected",
+              "expired",
+              "cancelled",
+              "rescheduled",
+            ],
+          },
+
+          "scheduledTime.date": {
+            $exists: true,
+            $ne: null,
           },
         },
       },
@@ -1292,7 +1279,6 @@ export const getMonthlyAppointments = async (req, res, next) => {
         },
       },
     ]);
-
 
 
     const monthNames = [
@@ -1321,7 +1307,7 @@ export const getMonthlyAppointments = async (req, res, next) => {
       };
     });
 
-    return res.json({
+    return res.status(200).json({
       success: true,
       data: fullYear,
     });
@@ -1331,7 +1317,7 @@ export const getMonthlyAppointments = async (req, res, next) => {
     return next(
       errorHandler(
         500,
-        "Failed to fetch monthly report"
+        "Failed to fetch monthly appointments"
       )
     );
   }
