@@ -1,55 +1,107 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate,  useSearchParams, } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { api } from "../../utils/api.js";
 import toast from "react-hot-toast";
+import { z } from "zod";
+import {
+  validateForm,
+  allowLettersOnly,
+  allowNumbersOnly,
+  emailSchema,
+  indianPhoneSchema,
+} from "../../utils/adminValidators.js";
+
+// ── Zod submit schema ─────────────────────────────────────────────────────────
+const providerAdminUpdateSchema = z.object({
+  fullName: z
+    .string()
+    .trim()
+    .min(2, "Full name must be at least 2 characters")
+    .max(100, "Full name too long")
+    .regex(/^[A-Za-z\s]+$/, "Full name can only contain letters and spaces"),
+  email:        emailSchema,
+  phone:        indianPhoneSchema,
+  qualification: z.string().trim().max(100, "Qualification too long").optional().or(z.literal("")),
+  experience: z.preprocess(
+    (v) => (v === "" || v === null || v === undefined ? undefined : Number(v)),
+    z.number({ invalid_type_error: "Experience must be a number" })
+      .int("Experience must be a whole number")
+      .min(0, "Experience cannot be negative")
+      .max(60, "Experience cannot exceed 60 years")
+      .optional()
+  ),
+  regularPrice: z.preprocess(
+    (v) => (v === "" || v === null || v === undefined ? undefined : Number(v)),
+    z.number({ invalid_type_error: "Consultation fee must be a number" })
+      .min(50, "Minimum consultation fee is ₹50")
+      .max(99999, "Consultation fee cannot exceed ₹99,999")
+      .optional()
+  ),
+  description: z
+    .string()
+    .trim()
+    .min(100, "Description must be at least 100 characters")
+    .max(2000, "Description cannot exceed 2,000 characters")
+    .optional()
+    .or(z.literal("")),
+  license: z.string().trim().max(50, "License number too long").optional().or(z.literal("")),
+});
+
+// ── Error message component ───────────────────────────────────────────────────
+const FieldError = ({ message }) =>
+  message ? (
+    <p className="mt-1 text-xs font-medium text-red-500">{message}</p>
+  ) : null;
+
+// ── Input class helper ────────────────────────────────────────────────────────
+const inputCls = (hasError) =>
+  `w-full rounded-xl border-2 bg-white p-3 text-[#2d4a36] shadow-sm transition-all duration-200 focus:outline-none focus:ring-0 ${
+    hasError
+      ? "border-red-400 focus:border-red-500"
+      : "border-gray-400 focus:border-[#ffd333]"
+  }`;
 
 function ProviderEdit() {
-  const { id } = useParams();
-  const navigate = useNavigate();
-   const [searchParams] = useSearchParams();
+  const { id }                              = useParams();
+  const navigate                            = useNavigate();
+  const [searchParams]                      = useSearchParams();
+  const page                                = searchParams.get("page") || "1";
 
-  const page = searchParams.get("page") || "1";
-
-  const [formData, setFormData] = useState({
-    fullName: "",
-    email: "",
-    phone: "",
+  const [formData, setFormData]             = useState({
+    fullName:      "",
+    email:         "",
+    phone:         "",   // stored as 10-digit digits; +91 prepended on submit
     qualification: "",
-    experience: "",
-    license: "",
-    providerType: "individual",
-    regularPrice: "",
-    description: "",
-    therapytype: [],
+    experience:    "",
+    license:       "",
+    providerType:  "individual",
+    regularPrice:  "",
+    description:   "",
+    therapytype:   [],
   });
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [loading, setLoading]               = useState(false);
+  const [error, setError]                   = useState("");
+  const [fieldErrors, setFieldErrors]       = useState({});
   const [therapyOptions, setTherapyOptions] = useState([]);
   const [profilePicture, setProfilePicture] = useState("");
 
-  // =========================================================
-  // FETCH THERAPY OPTIONS
-  // =========================================================
+  const descLen = formData.description?.length || 0;
+
+  // ── Fetch therapy options ──────────────────────────────────────────────────
   useEffect(() => {
     const fetchTherapies = async () => {
       try {
         const data = await api("/api/services/serviceMode");
-
         setTherapyOptions(data.data);
-
-        console.log("therapy options:", data);
       } catch (err) {
         console.error("Failed to fetch therapy options:", err);
       }
     };
-
     fetchTherapies();
   }, []);
 
-  // =========================================================
-  // FETCH PROVIDER
-  // =========================================================
+  // ── Fetch Provider ─────────────────────────────────────────────────────────
   useEffect(() => {
     const fetchProvider = async () => {
       try {
@@ -58,24 +110,25 @@ function ProviderEdit() {
 
         const data = await api(`/api/provider/providersbyid/${id}`);
 
-        console.log("Provider data:", data);
+        // Strip +91 prefix for display in the 10-digit input field
+        const rawPhone = String(data.provider?.phone || "");
+        const displayPhone = rawPhone.startsWith("+91")
+          ? rawPhone.slice(3)
+          : rawPhone.replace(/\D/g, "").slice(0, 10);
 
         setFormData({
-          fullName: data.provider?.fullName || "",
-          email: data.provider?.email || "",
-          phone: String(data.provider?.phone || "")
-            .replace(/\D/g, "")
-            .slice(0, 10),
+          fullName:      data.provider?.fullName      || "",
+          email:         data.provider?.email         || "",
+          phone:         displayPhone,
           qualification: data.provider?.qualification || "",
-          experience: data.provider?.experience || "",
-          license: data.provider?.license || "",
-          providerType: data.provider?.providerType || "individual",
-          regularPrice: data.provider?.regularPrice || "",
-          description: data.provider?.description || "",
-          therapytype: data.provider?.therapytype || [],
+          experience:    data.provider?.experience    ?? "",
+          license:       data.provider?.license       || "",
+          providerType:  data.provider?.providerType  || "individual",
+          regularPrice:  data.provider?.regularPrice  ?? "",
+          description:   data.provider?.description   || "",
+          therapytype:   data.provider?.therapytype   || [],
         });
 
-        // Provider profile picture
         setProfilePicture(data.provider?.profilePicture || "");
       } catch (err) {
         setError(err.message);
@@ -83,36 +136,76 @@ function ProviderEdit() {
         setLoading(false);
       }
     };
-
     fetchProvider();
   }, [id]);
 
-  // =========================================================
-  // HANDLE INPUT CHANGE
-  // =========================================================
+  // ── Handlers ───────────────────────────────────────────────────────────────
   const handleChange = (e) => {
     const { name, value } = e.target;
+    let filtered = value;
 
-    if (name === "phone") {
-      setFormData((prev) => ({
+    if (name === "fullName")      filtered = allowLettersOnly(value).slice(0, 100);
+    if (name === "experience")    filtered = allowNumbersOnly(value).slice(0, 2);
+    if (name === "regularPrice")  filtered = allowNumbersOnly(value).slice(0, 5);
+    if (name === "license")       filtered = value.slice(0, 50);
+    if (name === "qualification") filtered = value.slice(0, 100);
+    if (name === "description")   filtered = value.slice(0, 2000);
+
+    // Real-time email feedback
+    if (name === "email") {
+      setFieldErrors((prev) => ({
         ...prev,
-        phone: value.replace(/\D/g, "").slice(0, 10),
+        email: emailSchema.safeParse(value).success ? "" : "Invalid email address",
       }));
+    }
 
+    setFormData((prev) => ({ ...prev, [name]: filtered }));
+
+    // Clear field error on edit (non-email fields)
+    if (name !== "email" && fieldErrors[name]) {
+      setFieldErrors((prev) => ({ ...prev, [name]: "" }));
+    }
+  };
+
+  const handlePhoneChange = (e) => {
+    const digits = allowNumbersOnly(e.target.value).slice(0, 10);
+    setFormData((prev) => ({ ...prev, phone: digits }));
+    if (fieldErrors.phone) {
+      setFieldErrors((prev) => ({ ...prev, phone: "" }));
+    }
+  };
+
+  // ── Submit ─────────────────────────────────────────────────────────────────
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // Prepend +91 before validation
+    const finalPhone = formData.phone
+      ? formData.phone.startsWith("+91")
+        ? formData.phone
+        : `+91${formData.phone}`
+      : "";
+
+    // Frontend Zod validation
+    const { success, errors: zodErrors } = validateForm(providerAdminUpdateSchema, {
+      fullName:      formData.fullName,
+      email:         formData.email,
+      phone:         finalPhone,
+      qualification: formData.qualification,
+      experience:    formData.experience,
+      regularPrice:  formData.regularPrice,
+      description:   formData.description,
+      license:       formData.license,
+    });
+
+    if (!success) {
+      setFieldErrors(zodErrors);
+      const firstError = Object.values(zodErrors)[0];
+      toast.error(firstError || "Please fix the highlighted fields.");
       return;
     }
 
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  // =========================================================
-  // HANDLE SUBMIT
-  // =========================================================
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+    setFieldErrors({});
 
     try {
       setLoading(true);
@@ -120,7 +213,7 @@ function ProviderEdit() {
 
       const data = await api(`/api/admin/providers/${id}`, {
         method: "PUT",
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, phone: finalPhone }),
       });
 
       if (!data.success) {
@@ -128,8 +221,7 @@ function ProviderEdit() {
       }
 
       toast.success("Provider updated successfully");
-
-      navigate("/allproviders");
+      navigate(`/allproviders?page=${page}`);
     } catch (err) {
       setError(err.message);
       toast.error(err.message || "Something went wrong");
@@ -138,15 +230,12 @@ function ProviderEdit() {
     }
   };
 
-
-  // UI
- 
+  // ── UI ─────────────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-offwhite p-6 md:p-8">
       <div className="max-w-7xl mx-auto">
 
-        {/* 
-            BACK BUTTON*/}
+        {/* Back button */}
         <div className="mb-6">
           <button
             type="button"
@@ -157,7 +246,7 @@ function ProviderEdit() {
           </button>
         </div>
 
-        {/* ERROR MESSAGE */}
+        {/* API error banner */}
         {error && (
           <div className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-red-700">
             {error}
@@ -165,21 +254,14 @@ function ProviderEdit() {
         )}
 
         <form onSubmit={handleSubmit}>
-
-          {/*  MAIN 2 COLUMN LAYOUT */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
 
-            {/*LEFT - PROVIDER PROFILE CARD*/}
+            {/* LEFT — Profile Card */}
             <div className="md:col-span-1">
-
               <div className="md:sticky md:top-24">
-
                 <div className="bg-gradient-to-r from-darkgreen to-darkgreen/50 rounded-2xl shadow-sm border border-gray-100 p-5">
-
                   <div className="flex flex-col items-center text-center">
 
-                    {/* 
-                        PROFILE IMAGE*/}
                     {profilePicture ? (
                       <img
                         src={profilePicture}
@@ -192,383 +274,271 @@ function ProviderEdit() {
                       </div>
                     )}
 
-                    {/* 
-                        PROVIDER NAME*/}
                     <h2 className="text-lg font-semibold text-yellow mt-3">
                       {formData.fullName || "Provider"}
                     </h2>
 
-                    {/* =========================================
-                        EMAIL
-                    ========================================== */}
                     {formData.email && (
-                      <p className="text-xs text-white mt-1 break-all">
-                        {formData.email}
-                      </p>
+                      <p className="text-xs text-white mt-1 break-all">{formData.email}</p>
                     )}
 
-                    {/* =========================================
-                        PHONE
-                    ========================================== */}
                     {formData.phone && (
-                      <p className="text-xs text-white/80 mt-1">
-                        {formData.phone}
-                      </p>
+                      <p className="text-xs text-white/80 mt-1">+91 {formData.phone}</p>
                     )}
 
-                    {/* =========================================
-                        PROVIDER TYPE
-                    ========================================== */}
                     <div className="mt-3 px-3 py-1 rounded-full bg-[#eef4ef] text-[#2d4a36] text-[11px] font-medium">
-                      {formData.providerType === "centre"
-                        ? "Centre Provider"
-                        : "Individual Provider"}
+                      {formData.providerType === "centre" ? "Centre Provider" : "Individual Provider"}
                     </div>
-
-                  
-
                   </div>
                 </div>
-
               </div>
-
             </div>
 
-            {/* =================================================
-                RIGHT SIDE
-            ================================================== */}
+            {/* RIGHT — Edit sections */}
             <div className="md:col-span-2 space-y-5">
 
-              {/* =================================================
-                  SECTION 1 - BASIC INFORMATION
-              ================================================== */}
+              {/* Section 1 — Basic Information */}
               <div className="rounded-2xl bg-greenmuted/10 p-6 shadow-sm">
-
-                <h2 className="mb-6 text-2xl font-bold text-[#2d4a36]">
-                  Basic Information
-                </h2>
+                <h2 className="mb-6 text-2xl font-bold text-[#2d4a36]">Basic Information</h2>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
 
-                  {/* =========================================
-                      FULL NAME
-                  ========================================== */}
-                  <label className="block text-sm font-bold tracking-wide text-[#2d4a36]">
-
-                    Full Name
-
+                  {/* Full Name */}
+                  <div>
+                    <label className="block text-sm font-bold tracking-wide text-[#2d4a36] mb-2">
+                      Full Name <span className="text-red-400">*</span>
+                    </label>
                     <input
                       type="text"
                       name="fullName"
                       value={formData.fullName}
                       onChange={handleChange}
                       placeholder="Full Name"
-                      required
-                      pattern="^[A-Za-z\s]+$"
-                      title="Only alphabets are allowed"
-                      className="mt-2 w-full rounded-xl border-2 border-gray-400 bg-white p-3 text-[#2d4a36] shadow-sm transition-all duration-200 focus:border-[#ffd333] focus:outline-none focus:ring-0"
+                      className={inputCls(!!fieldErrors.fullName)}
                     />
+                    <FieldError message={fieldErrors.fullName} />
+                  </div>
 
-                  </label>
-
-                  {/* =========================================
-                      EMAIL
-                  ========================================== */}
-                  <label className="block text-sm font-bold tracking-wide text-[#2d4a36]">
-
-                    Email
-
+                  {/* Email */}
+                  <div>
+                    <label className="block text-sm font-bold tracking-wide text-[#2d4a36] mb-2">
+                      Email <span className="text-red-400">*</span>
+                    </label>
                     <input
                       type="email"
                       name="email"
                       value={formData.email}
                       onChange={handleChange}
                       placeholder="Email Address"
-                      className="mt-2 w-full rounded-xl border-2 border-gray-400 bg-white p-3 text-[#2d4a36] shadow-sm transition-all duration-200 focus:border-[#ffd333] focus:outline-none focus:ring-0"
+                      className={inputCls(!!fieldErrors.email)}
                     />
+                    <FieldError message={fieldErrors.email} />
+                  </div>
 
-                  </label>
+                  {/* Phone */}
+                  <div>
+                    <label className="block text-sm font-bold tracking-wide text-[#2d4a36] mb-2">
+                      Phone <span className="text-red-400">*</span>
+                    </label>
+                    <div className={`flex items-center rounded-xl border-2 bg-white overflow-hidden ${fieldErrors.phone ? "border-red-400" : "border-gray-400 focus-within:border-[#ffd333]"}`}>
+                      <span className="px-3 text-sm text-gray-500 border-r border-gray-200 select-none shrink-0">
+                        +91
+                      </span>
+                      <input
+                        type="tel"
+                        name="phone"
+                        inputMode="numeric"
+                        placeholder="10-digit mobile number"
+                        value={formData.phone}
+                        onChange={handlePhoneChange}
+                        maxLength={10}
+                        className="flex-1 p-3 text-[#2d4a36] focus:outline-none bg-transparent"
+                      />
+                    </div>
+                    <FieldError message={fieldErrors.phone} />
+                  </div>
 
-                  {/* =========================================
-                      PHONE
-                  ========================================== */}
-                  <label className="block text-sm font-bold tracking-wide text-[#2d4a36]">
-
-                    Phone
-
-                    <input
-                      type="tel"
-                      name="phone"
-                      value={formData.phone}
-                      onChange={handleChange}
-                      placeholder="Phone Number"
-                      maxLength={10}
-                      className="mt-2 w-full rounded-xl border-2 border-gray-400 bg-white p-3 text-[#2d4a36] shadow-sm transition-all duration-200 focus:border-[#ffd333] focus:outline-none focus:ring-0"
-                    />
-
-                  </label>
-
-                  {/* =========================================
-                      PROVIDER TYPE
-                  ========================================== */}
-                  <label className="block text-sm font-bold tracking-wide text-[#2d4a36]">
-
-                    Provider Type
-
+                  {/* Provider Type */}
+                  <div>
+                    <label className="block text-sm font-bold tracking-wide text-[#2d4a36] mb-2">
+                      Provider Type
+                    </label>
                     <select
                       name="providerType"
                       value={formData.providerType}
                       onChange={handleChange}
-                      className="mt-2 w-full rounded-xl border-2 border-gray-400 bg-white p-3 text-[#2d4a36] shadow-sm transition-all duration-200 focus:border-[#ffd333] focus:outline-none focus:ring-0"
+                      className={inputCls(false)}
                     >
-                      <option value="individual">
-                        Individual
-                      </option>
-
-                      <option value="centre">
-                        Centre
-                      </option>
+                      <option value="individual">Individual</option>
+                      <option value="centre">Centre</option>
                     </select>
-
-                  </label>
+                  </div>
 
                 </div>
-
               </div>
 
-
-              {/* =================================================
-                  SECTION 2 - PROFESSIONAL DETAILS
-              ================================================== */}
+              {/* Section 2 — Professional Details */}
               <div className="rounded-2xl bg-greenmuted/10 p-6 shadow-sm">
-
-                <h2 className="mb-6 text-2xl font-bold text-[#2d4a36]">
-                  Professional Details
-                </h2>
+                <h2 className="mb-6 text-2xl font-bold text-[#2d4a36]">Professional Details</h2>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
 
-                  {/* =========================================
-                      QUALIFICATION
-                  ========================================== */}
-                  <label className="block text-sm font-bold tracking-wide text-[#2d4a36]">
-
-                    Qualification
-
+                  {/* Qualification */}
+                  <div>
+                    <label className="block text-sm font-bold tracking-wide text-[#2d4a36] mb-2">
+                      Qualification
+                    </label>
                     <input
                       type="text"
                       name="qualification"
                       value={formData.qualification}
                       onChange={handleChange}
                       placeholder="Qualification"
-                      className="mt-2 w-full rounded-xl border-2 border-gray-400 bg-white p-3 text-[#2d4a36] shadow-sm transition-all duration-200 focus:border-[#ffd333] focus:outline-none focus:ring-0"
+                      className={inputCls(!!fieldErrors.qualification)}
                     />
+                    <FieldError message={fieldErrors.qualification} />
+                  </div>
 
-                  </label>
-
-                  {/* =========================================
-                      EXPERIENCE
-                  ========================================== */}
-                  <label className="block text-sm font-bold tracking-wide text-[#2d4a36]">
-
-                    Experience
-
+                  {/* Experience */}
+                  <div>
+                    <label className="block text-sm font-bold tracking-wide text-[#2d4a36] mb-2">
+                      Experience <span className="text-gray-400 text-xs">(years, 0–60)</span>
+                    </label>
                     <input
                       type="text"
                       name="experience"
+                      inputMode="numeric"
                       value={formData.experience}
                       onChange={handleChange}
-                      placeholder="Experience"
-                      className="mt-2 w-full rounded-xl border-2 border-gray-400 bg-white p-3 text-[#2d4a36] shadow-sm transition-all duration-200 focus:border-[#ffd333] focus:outline-none focus:ring-0"
+                      placeholder="e.g. 5"
+                      className={inputCls(!!fieldErrors.experience)}
                     />
+                    <FieldError message={fieldErrors.experience} />
+                  </div>
 
-                  </label>
-
-                  {/* =========================================
-                      LICENSE
-                  ========================================== */}
-                  <label className="block text-sm font-bold tracking-wide text-[#2d4a36]">
-
-                    License
-
+                  {/* License */}
+                  <div>
+                    <label className="block text-sm font-bold tracking-wide text-[#2d4a36] mb-2">
+                      License
+                    </label>
                     <input
                       type="text"
                       name="license"
                       value={formData.license}
                       onChange={handleChange}
                       placeholder="License Number"
-                      className="mt-2 w-full rounded-xl border-2 border-gray-400 bg-white p-3 text-[#2d4a36] shadow-sm transition-all duration-200 focus:border-[#ffd333] focus:outline-none focus:ring-0"
+                      className={inputCls(!!fieldErrors.license)}
                     />
+                    <FieldError message={fieldErrors.license} />
+                  </div>
 
-                  </label>
-
-                  {/* =========================================
-                      CONSULTATION FEE
-                  ========================================== */}
-                  <label className="block text-sm font-bold tracking-wide text-[#2d4a36]">
-
-                    Consultation Fee
-
-                    <input
-                      type="number"
-                      name="regularPrice"
-                      value={formData.regularPrice}
-                      onChange={handleChange}
-                      min="0"
-                      placeholder="Consultation Fee"
-                      className="mt-2 w-full rounded-xl border-2 border-gray-400 bg-white p-3 text-[#2d4a36] shadow-sm transition-all duration-200 focus:border-[#ffd333] focus:outline-none focus:ring-0"
-                    />
-
-                  </label>
+                  {/* Consultation Fee */}
+                  <div>
+                    <label className="block text-sm font-bold tracking-wide text-[#2d4a36] mb-2">
+                      Consultation Fee <span className="text-gray-400 text-xs">(min ₹50)</span>
+                    </label>
+                    <div className={`flex items-center rounded-xl border-2 bg-white overflow-hidden ${fieldErrors.regularPrice ? "border-red-400" : "border-gray-400 focus-within:border-[#ffd333]"}`}>
+                      <span className="px-3 text-sm text-gray-500 border-r border-gray-200 select-none shrink-0">₹</span>
+                      <input
+                        type="text"
+                        name="regularPrice"
+                        inputMode="numeric"
+                        placeholder="e.g. 500"
+                        value={formData.regularPrice}
+                        onChange={handleChange}
+                        className="flex-1 p-3 text-[#2d4a36] focus:outline-none bg-transparent"
+                      />
+                    </div>
+                    <FieldError message={fieldErrors.regularPrice} />
+                  </div>
 
                 </div>
 
-
-                {/* =============================================
-                    THERAPY TYPE
-                ============================================== */}
+                {/* Therapy Type */}
                 <div className="mt-5">
-
                   <label className="block text-sm font-bold tracking-wide text-[#2d4a36] mb-2">
                     Therapy Type
                   </label>
-
                   <div className="border border-gray-200 rounded-xl p-3 bg-offwhite">
-
-                    {/* =========================================
-                        SELECTED THERAPIES
-                    ========================================== */}
+                    {/* Selected therapies */}
                     <div className="flex flex-wrap gap-2 mb-3">
-
                       {formData.therapytype.map((val) => {
-
-                        const item = therapyOptions.find(
-                          (t) => t.value === val
-                        );
-
+                        const item = therapyOptions.find((t) => t.value === val);
                         return (
                           <span
                             key={val}
                             className="flex items-center gap-1 bg-greenmuted text-white px-3 py-1 rounded-full text-sm"
                           >
-
                             {item ? item.label : val}
-
                             <button
                               type="button"
-                              onClick={() => {
+                              onClick={() =>
                                 setFormData((prev) => ({
                                   ...prev,
-                                  therapytype:
-                                    prev.therapytype.filter(
-                                      (v) => v !== val
-                                    ),
-                                }));
-                              }}
-                              className="ml-1 text-red-500 hover:text-red-700"
+                                  therapytype: prev.therapytype.filter((v) => v !== val),
+                                }))
+                              }
+                              className="ml-1 text-red-300 hover:text-red-100"
                             >
                               ×
                             </button>
-
                           </span>
                         );
-
                       })}
-
                     </div>
 
-
-                    {/* =========================================
-                        THERAPY DROPDOWN
-                    ========================================== */}
+                    {/* Therapy dropdown */}
                     <select
                       defaultValue=""
                       onChange={(e) => {
-
                         const value = e.target.value;
-
-                        if (!value) {
-                          return;
-                        }
-
-                        const selectedItem =
-                          therapyOptions.find(
-                            (t) => t.value === value
-                          );
-
+                        if (!value) return;
+                        const selectedItem = therapyOptions.find((t) => t.value === value);
                         const label = selectedItem?.label;
-
-                        if (
-                          label &&
-                          !formData.therapytype.includes(label)
-                        ) {
+                        if (label && !formData.therapytype.includes(label)) {
                           setFormData((prev) => ({
                             ...prev,
-                            therapytype: [
-                              ...prev.therapytype,
-                              label,
-                            ],
+                            therapytype: [...prev.therapytype, label],
                           }));
                         }
-
                         e.target.value = "";
-
                       }}
                       className="w-full bg-white rounded-lg px-3 py-2 border border-gray-200"
                     >
-
-                      <option value="">
-                        Select Therapy
-                      </option>
-
+                      <option value="">Select Therapy</option>
                       {therapyOptions.map((item) => (
-                        <option
-                          key={item.value}
-                          value={item.value}
-                        >
+                        <option key={item.value} value={item.value}>
                           {item.label}
                         </option>
                       ))}
-
                     </select>
-
                   </div>
-
                 </div>
 
-
-                {/* =============================================
-                    DESCRIPTION
-                ============================================== */}
+                {/* Description */}
                 <div className="mt-5">
-
-                  <label className="block text-sm font-bold tracking-wide text-[#2d4a36]">
-
-                    Description
-
-                    <textarea
-                      name="description"
-                      value={formData.description}
-                      onChange={handleChange}
-                      placeholder="Provider Description"
-                      rows={5}
-                      className="mt-2 w-full rounded-xl border-2 border-gray-400 bg-white p-3 text-[#2d4a36] resize-none shadow-sm transition-all duration-200 focus:border-[#ffd333] focus:outline-none focus:ring-0"
-                    />
-
+                  <label className="block text-sm font-bold tracking-wide text-[#2d4a36] mb-2">
+                    Description{" "}
+                    <span className={`text-xs font-normal ${descLen < 100 ? "text-orange-500" : "text-gray-400"}`}>
+                      ({descLen}/2000 — min 100)
+                    </span>
                   </label>
-
+                  <textarea
+                    name="description"
+                    value={formData.description}
+                    onChange={handleChange}
+                    placeholder="Provider Description (minimum 100 characters)"
+                    rows={5}
+                    className={`${inputCls(!!fieldErrors.description)} resize-none`}
+                  />
+                  <FieldError message={fieldErrors.description} />
                 </div>
 
               </div>
 
-
-              {/* =================================================
-                  ACTION BUTTONS
-              ================================================== */}
+              {/* Action Buttons */}
               <div className="rounded-2xl bg-greenmuted/10 p-5 shadow-sm">
-
                 <div className="flex justify-end gap-3">
-
                   <button
                     type="button"
                     onClick={() => navigate(`/allproviders?page=${page}`)}
@@ -584,17 +554,12 @@ function ProviderEdit() {
                   >
                     {loading ? "Updating..." : "Update"}
                   </button>
-
                 </div>
-
               </div>
 
             </div>
-
           </div>
-
         </form>
-
       </div>
     </div>
   );

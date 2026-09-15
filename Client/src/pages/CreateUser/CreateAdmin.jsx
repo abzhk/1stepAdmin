@@ -1,10 +1,23 @@
-import React, { useState, useRef,useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import toast from "react-hot-toast";
 import { api } from "../../utils/api.js";
 import { storage } from "../../firebase.js";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { FaCamera, FaUser } from "react-icons/fa";
 import dateFormatUtils from "../../utils/dateFormatUtils.js";
+import { z } from "zod";
+import { validateForm, emailSchema } from "../../utils/adminValidators.js";
+
+// ── Zod Schema ───────────────────────────────────────────────────────────────
+const createAdminSchema = z.object({
+  username: z.string()
+    .min(4, "Username must be at least 4 characters")
+    .max(30, "Username must be less than 30 characters")
+    .regex(/^[a-zA-Z0-9_]+$/, "Username can only contain letters, numbers, and underscores"),
+  email: emailSchema,
+  password: z.string().min(6, "Password must be at least 6 characters").max(50),
+  role: z.string().min(1, "Please select a role"),
+});
 
 const CreateAdmin = () => {
   const fileInputRef = useRef(null);
@@ -14,7 +27,7 @@ const CreateAdmin = () => {
     email: "",
     password: "",
     profilePicture: "",
-      role: "",  
+    role: "",
   });
 
   const [loading, setLoading] = useState(false);
@@ -22,84 +35,95 @@ const CreateAdmin = () => {
   const [progress, setProgress] = useState(0);
   const [imagePreview, setImagePreview] = useState(null);
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
   const [roles, setRoles] = useState([]);
   const [users, setUsers] = useState([]);
   const [page, setPage] = useState(1);
-const [limit] = useState(10);
-const [totalPages, setTotalPages] = useState(1);
-const [search, setSearch] = useState("");
-const [filterType, setFilterType] = useState("all");
+  const [limit] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+  const [search, setSearch] = useState("");
+  const [filterType, setFilterType] = useState("all");
 
+  const fetchUsers = async () => {
+    try {
+      const res = await api(
+        `/api/users/users?page=${page}&limit=${limit}&search=${search}&filterType=${filterType}`
+      );
 
- const fetchUsers = async () => {
-  try {
-    const res = await api(
-      `/api/users/users?page=${page}&limit=${limit}&search=${search}&filterType=${filterType}`
-    );
-
-    if (res.success) {
-      setUsers(res.users);
-      setTotalPages(res.pagination.totalPages);
+      if (res.success) {
+        setUsers(res.users);
+        setTotalPages(res.pagination.totalPages);
+      }
+    } catch (err) {
+      toast.error("Failed to load users");
     }
-  } catch (err) {
-    toast.error("Failed to load users");
-  }
-};
-
-useEffect(() => {
-  fetchUsers();
-}, [page, search, filterType]);
-
-
-const handleStatus = async (user) => {
-  try {
-    let endpoint = "";
-    let payload = {};
-
-    const role = user.role?.role?.toLowerCase();
-
-    if (role === "parent") {
-  endpoint = "/api/parent/admin/parent/status";
-  payload = {
-    userId: user._id,
-    isActive: !user.isActive,
   };
-} else if (role === "provider") {
-  endpoint = "/api/provider/admin/provider/status";
-  payload = {
-    providerId: user.providerId,
-    isActive: !user.isActive,
-  };
-} else if (role === "centre") {
-  endpoint = "/api/provider/centre/set-active-status";
-  payload = {
-    centreId: user.centreId, 
-    isActive: !user.isActive,
-  };
-} else {
-  endpoint = "/api/users/status";
-  payload = {
-    userId: user._id,
-    isActive: !user.isActive,
-  };
-}
 
-    const res = await api(endpoint, {
-      method: "PUT",
-      body: JSON.stringify(payload),
-    });
+  useEffect(() => {
+    fetchUsers();
+  }, [page, search, filterType]);
 
-    if (res.success) {
-      toast.success(res.message);
-      fetchUsers();
+  const handleStatus = async (user) => {
+    try {
+      let endpoint = "";
+      let payload = {};
+
+      const role = user.role?.role?.toLowerCase();
+
+      if (role === "parent") {
+        endpoint = "/api/parent/admin/parent/status";
+        payload = {
+          userId: user._id,
+          isActive: !user.isActive,
+        };
+      } else if (role === "provider") {
+        endpoint = "/api/provider/admin/provider/status";
+        payload = {
+          providerId: user.providerId,
+          isActive: !user.isActive,
+        };
+      } else if (role === "centre") {
+        endpoint = "/api/provider/centre/set-active-status";
+        payload = {
+          centreId: user.centreId,
+          isActive: !user.isActive,
+        };
+      } else {
+        endpoint = "/api/users/status";
+        payload = {
+          userId: user._id,
+          isActive: !user.isActive,
+        };
+      }
+
+      const res = await api(endpoint, {
+        method: "PUT",
+        body: JSON.stringify(payload),
+      });
+
+      if (res.success) {
+        toast.success(res.message);
+        fetchUsers();
+      }
+    } catch (err) {
+      toast.error(err.message);
     }
-  } catch (err) {
-    toast.error(err.message);
-  }
-};
+  };
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+
+    if (fieldErrors[name]) {
+      setFieldErrors((prev) => ({ ...prev, [name]: "" }));
+    }
+    
+    if (name === "email") {
+      setFieldErrors((prev) => ({
+        ...prev,
+        email: emailSchema.safeParse(value).success ? "" : "Invalid email address",
+      }));
+    }
   };
 
   const handleImageChange = (e) => {
@@ -121,8 +145,7 @@ const handleStatus = async (user) => {
     uploadTask.on(
       "state_changed",
       (snapshot) => {
-        const prog =
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        const prog = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
         setProgress(prog);
       },
       () => {
@@ -144,11 +167,20 @@ const handleStatus = async (user) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validate with Zod
+    const { success, errors: zodErrors } = validateForm(createAdminSchema, formData);
 
-    if (!formData.username || !formData.email || !formData.password) {
-      setError("All fields are required");
+    if (!success) {
+      setFieldErrors(zodErrors);
+      const firstError = Object.values(zodErrors)[0];
+      setError(firstError);
+      toast.error(firstError);
       return;
     }
+
+    setFieldErrors({});
+    setError("");
 
     try {
       setLoading(true);
@@ -169,7 +201,9 @@ const handleStatus = async (user) => {
         email: "",
         password: "",
         profilePicture: "",
-          role: "",  
+        role: "",
+      });
+
       });
 
       setImagePreview(null);
@@ -258,26 +292,31 @@ const handleStatus = async (user) => {
             <form onSubmit={handleSubmit}>
 
               {/* ROLE */}
-             <div className="mb-6">
-  <label className="mb-2 block text-label">
-    Role
-  </label>
+              <div className="mb-6">
+                <label className="mb-2 block text-label">
+                  Role
+                </label>
 
-  <select
-    name="role"
-    value={formData.role}
-    onChange={handleChange}
-    className="w-full rounded-xl border-2 border-greenmuted p-3"
-  >
-    <option value="">Select Role</option>
+                <select
+                  name="role"
+                  value={formData.role}
+                  onChange={handleChange}
+                  className={`w-full rounded-xl border-2 p-3 ${
+                    fieldErrors.role ? "border-red-400" : "border-greenmuted"
+                  }`}
+                >
+                  <option value="">Select Role</option>
 
-    {roles.map((r) => (
-      <option key={r._id} value={r.role}>
-        {r.role}
-      </option>
-    ))}
-  </select>
-</div>
+                  {roles.map((r) => (
+                    <option key={r._id} value={r.role}>
+                      {r.role}
+                    </option>
+                  ))}
+                </select>
+                {fieldErrors.role && (
+                  <p className="mt-1 text-xs text-red-500">{fieldErrors.role}</p>
+                )}
+              </div>
 
               {/* GRID */}
               <div className="grid md:grid-cols-2 gap-6">
@@ -292,8 +331,13 @@ const handleStatus = async (user) => {
                     name="username"
                     value={formData.username}
                     onChange={handleChange}
-                    className="w-full rounded-xl border-2 border-greenmuted p-3 focus:outline-none focus:ring-2 focus:ring-yellow"
+                    className={`w-full rounded-xl border-2 p-3 focus:outline-none focus:ring-2 focus:ring-yellow ${
+                      fieldErrors.username ? "border-red-400" : "border-greenmuted"
+                    }`}
                   />
+                  {fieldErrors.username && (
+                    <p className="mt-1 text-xs text-red-500">{fieldErrors.username}</p>
+                  )}
                 </div>
 
                 {/* EMAIL */}
@@ -306,8 +350,13 @@ const handleStatus = async (user) => {
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    className="w-full rounded-xl border-2 border-greenmuted p-3 focus:outline-none focus:ring-2 focus:ring-yellow"
+                    className={`w-full rounded-xl border-2 p-3 focus:outline-none focus:ring-2 focus:ring-yellow ${
+                      fieldErrors.email ? "border-red-400" : "border-greenmuted"
+                    }`}
                   />
+                  {fieldErrors.email && (
+                    <p className="mt-1 text-xs text-red-500">{fieldErrors.email}</p>
+                  )}
                 </div>
 
                 {/* PASSWORD */}
@@ -320,8 +369,13 @@ const handleStatus = async (user) => {
                     name="password"
                     value={formData.password}
                     onChange={handleChange}
-                    className="w-full rounded-xl border-2 border-greenmuted p-3 focus:outline-none focus:ring-2 focus:ring-yellow"
+                    className={`w-full rounded-xl border-2 p-3 focus:outline-none focus:ring-2 focus:ring-yellow ${
+                      fieldErrors.password ? "border-red-400" : "border-greenmuted"
+                    }`}
                   />
+                  {fieldErrors.password && (
+                    <p className="mt-1 text-xs text-red-500">{fieldErrors.password}</p>
+                  )}
                 </div>
               </div>
 
