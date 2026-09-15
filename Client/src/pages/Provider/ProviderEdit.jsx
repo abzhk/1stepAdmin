@@ -357,24 +357,7 @@ function ProviderEdit() {
                     </div>
                     <FieldError message={fieldErrors.phone} />
                   </div>
-
-                  {/* Provider Type */}
-                  <div>
-                    <label className="block text-sm font-bold tracking-wide text-[#2d4a36] mb-2">
-                      Provider Type
-                    </label>
-                    <select
-                      name="providerType"
-                      value={formData.providerType}
-                      onChange={handleChange}
-                      className={inputCls(false)}
-                    >
-                      <option value="individual">Individual</option>
-                      <option value="centre">Centre</option>
-                    </select>
-                  </div>
-
-                </div>
+               
               </div>
 
               {/* Section 2 — Professional Details */}
@@ -558,6 +541,7 @@ function ProviderEdit() {
               </div>
 
             </div>
+          </div>
           </div>
         </form>
       </div>

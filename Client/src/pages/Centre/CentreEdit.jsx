@@ -311,8 +311,11 @@ const CentreEdit = () => {
                 </div>
 
                 {/* Provider Type */}
-                <div>
-                  <label className="block text-label tracking-wide mb-2">Provider Type</label>
+                {/* <div>
+                  <label className="block text-label tracking-wide mb-2">
+                    Provider Type
+                  </label>
+
                   <select
                     name="providerType"
                     value={formData.providerType}
@@ -322,7 +325,7 @@ const CentreEdit = () => {
                     <option value="centre">Centre</option>
                     <option value="individual">Individual</option>
                   </select>
-                </div>
+                </div> */}
 
                 {/* Qualification */}
                 <div>

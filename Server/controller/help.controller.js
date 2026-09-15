@@ -617,13 +617,12 @@ export const replyTicket = async (req, res, next) => {
 
     const { subject, text, html } = ticketReplyEmail(ticket, message);
 
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: ticket.email,
-      subject,
-      text,
-      html,
-    });
+   await sendPlainEmail({
+  to: ticket.email,
+  subject,
+  text,
+  html,
+});
 
     res.status(200).json({
       success: true,
