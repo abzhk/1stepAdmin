@@ -7,16 +7,19 @@ if (!API_BASE_URL) {
 export const api = async (endpoint, options = {}) => {
   try {
     const isFormData = options.body instanceof FormData;
+    const hasBody = options.body !== undefined && options.body !== null;
 
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       credentials: "include",
 
       headers: {
-        ...(isFormData
-          ? {}
-          : {
+        // A JSON Content-Type on a body-less GET makes this cross-origin
+        // request non-simple, so browsers send an extra OPTIONS preflight.
+        ...(hasBody && !isFormData
+          ? {
               "Content-Type": "application/json",
-            }),
+            }
+          : {}),
 
         ...(options.headers || {}),
       },
