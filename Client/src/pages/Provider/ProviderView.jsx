@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useDeferredValue } from "react";
 import { AiFillEye } from "react-icons/ai";
 import { FiEdit2, FiGrid, FiList } from "react-icons/fi";
 import { useNavigate, useOutletContext,  useSearchParams, } from "react-router-dom";
@@ -18,9 +18,11 @@ const page = Number(searchParams.get("page")) || 1;
   const limit = 12;
 
   const [loading, setLoading] = useState(false);
+  const [statusLoading, setStatusLoading] = useState(null);
   const [error, setError] = useState("");
 
   const { searchTerm } = useOutletContext();
+  const deferredSearchTerm = useDeferredValue(searchTerm);
 
   const [providerType, setProviderType] = useState("");
   const [viewMode, setViewMode] = useState("grid");
@@ -53,8 +55,8 @@ const changePage = (newPage) => {
           params.append("providerType", providerType);
         }
 
-        if (searchTerm.trim()) {
-          params.append("searchTerm", searchTerm.trim());
+        if (deferredSearchTerm.trim()) {
+          params.append("searchTerm", deferredSearchTerm.trim());
         }
 
         const data = await api(`/api/provider/admin-individual-list?${params}`);
@@ -69,13 +71,14 @@ const changePage = (newPage) => {
     };
 
     fetchProviders();
-  }, [page, searchTerm, providerType, sortConfig]);
+  }, [page, deferredSearchTerm, providerType, sortConfig]);
 
   const totalPages = Math.max(1, Math.ceil(totalCount / limit));
 
   const changeStatus = async (providerId, newStatus) => {
     try {
       setError("");
+      setStatusLoading(providerId);
 
       const data = await api(`/api/provider/admin/provider/status`, {
         method: "PUT",
@@ -107,6 +110,8 @@ const changePage = (newPage) => {
       console.log(error);
       setError(error.message || "Something went wrong");
       toast.error(error.message || "Failed to update status");
+    } finally {
+      setStatusLoading(null);
     }
   };
 
@@ -251,13 +256,14 @@ const handleSort = (key) => {
                         onClick={() =>
                           changeStatus(provider._id, !provider.isActive)
                         }
+                        disabled={statusLoading === provider._id}
                         className={`px-2 py-1 rounded-lg text-xs ${
                           provider.isActive
-                            ? "bg-red-50 text-red-600"
-                            : "bg-green-50 text-green-600"
+                            ? "bg-red-50 text-red-600 disabled:opacity-50"
+                            : "bg-green-50 text-green-600 disabled:opacity-50"
                         }`}
                       >
-                        {provider.isActive ? "Deactivate" : "Activate"}
+                        {statusLoading === provider._id ? "..." : provider.isActive ? "Deactivate" : "Activate"}
                       </button>
                     </div>
 
@@ -343,64 +349,83 @@ const handleSort = (key) => {
 </thead>
 
             <tbody>
-              {providers.map((provider) => (
-                <tr key={provider._id} className=" hover:bg-offwhite text-table-text">
-                  <td className="p-3 flex items-center gap-3">
-                    <img
-                      src={provider.profilePicture}
-                      loading="lazy"
-                         decoding="async"
-                      className="w-10 h-10 rounded-lg object-cover"
-                    />
-                    {provider.fullName}
-                  </td>
-
-                  <td className="p-3">{provider.address?.city}</td>
-
-                  <td className="p-3">
-                    {Array.isArray(provider.therapytype)
-                      ? provider.therapytype.join(", ")
-                      : provider.therapytype}
-                  </td>
-
-                 <td className="p-3">
-  
-
-    <button
-      onClick={() =>
-        changeStatus(provider._id, !provider.isActive)
-      }
-      className={`px-3 py-2 rounded-lg text-xs font-medium ${
-        provider.isActive
-          ? "bg-red-100 text-red-600"
-          : "bg-green-100 text-green-600"
-      }`}
-    >
-      {provider.isActive ? "Deactivate" : "Activate"}
-    </button>
-</td>
-
-                  <td className="p-3 flex justify-end gap-2">
-                    <button
-                      onClick={() =>
-                        navigate(`/provider-stats/${provider._id}?page=${page}`)
-                      }
-                      className="p-2 bg-gray-100 rounded-lg"
-                    >
-                      <AiFillEye />
-                    </button>
-
-                    <button
-                      onClick={() =>
-                         navigate(`/providers/edit/${provider._id}?page=${page}`)
-                      }
-                      className="p-2 bg-darkgreen text-white rounded-lg"
-                    >
-                      <FiEdit2 />
-                    </button>
+              {loading ? (
+                Array.from({ length: 5 }).map((_, i) => (
+                  <tr key={i} className="animate-pulse border-b">
+                    <td className="p-3"><div className="h-6 bg-gray-200 rounded w-3/4"></div></td>
+                    <td className="p-3"><div className="h-6 bg-gray-200 rounded w-1/2"></div></td>
+                    <td className="p-3"><div className="h-6 bg-gray-200 rounded w-2/3"></div></td>
+                    <td className="p-3"><div className="h-6 bg-gray-200 rounded w-1/4"></div></td>
+                    <td className="p-3 flex justify-end"><div className="h-6 bg-gray-200 rounded w-16"></div></td>
+                  </tr>
+                ))
+              ) : providers.length === 0 ? (
+                <tr>
+                  <td colSpan="5" className="text-center py-10 text-gray-500">
+                    No providers found
                   </td>
                 </tr>
-              ))}
+              ) : (
+                providers.map((provider) => (
+                  <tr key={provider._id} className=" hover:bg-offwhite text-table-text">
+                    <td className="p-3 flex items-center gap-3">
+                      <img
+                        src={provider.profilePicture}
+                        loading="lazy"
+                           decoding="async"
+                        className="w-10 h-10 rounded-lg object-cover"
+                      />
+                      {provider.fullName}
+                    </td>
+
+                    <td className="p-3">{provider.address?.city}</td>
+
+                    <td className="p-3">
+                      {Array.isArray(provider.therapytype)
+                        ? provider.therapytype.join(", ")
+                        : provider.therapytype}
+                    </td>
+
+                   <td className="p-3">
+    
+  
+      <button
+        onClick={() =>
+          changeStatus(provider._id, !provider.isActive)
+        }
+        disabled={statusLoading === provider._id}
+        className={`px-3 py-2 rounded-lg text-xs font-medium ${
+          provider.isActive
+            ? "bg-red-100 text-red-600 disabled:opacity-50"
+            : "bg-green-100 text-green-600 disabled:opacity-50"
+        }`}
+      >
+        {statusLoading === provider._id ? "..." : provider.isActive ? "Deactivate" : "Activate"}
+      </button>
+  </td>
+
+                    <td className="p-3 flex justify-end gap-2">
+                      <button
+                        onClick={() =>
+                          navigate(`/provider-stats/${provider._id}?page=${page}`)
+                        }
+                        className="p-2 bg-gray-100 rounded-lg"
+                      >
+                        <AiFillEye />
+                      </button>
+
+                      <button
+                        onClick={() =>
+                           navigate(`/providers/edit/${provider._id}?page=${page}`)
+                        }
+                        className="p-2 bg-darkgreen text-white rounded-lg"
+                      >
+                        <FiEdit2 />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
           </div>
@@ -410,7 +435,7 @@ const handleSort = (key) => {
       {/* Pagination */}
       <div className="flex flex-col md:flex-row items-center justify-between mt-8 pt-4">
         <p className="text-sm text-gray-600 mb-4 md:mb-0">
-          Showing {(page - 1) * limit + 1} to{" "}
+          Showing {providers.length === 0 ? 0 : (page - 1) * limit + 1} to{" "}
           {(page - 1) * limit + providers.length} of {totalCount} providers
         </p>
 

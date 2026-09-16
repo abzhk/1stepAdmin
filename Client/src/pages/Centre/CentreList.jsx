@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useDeferredValue } from "react";
 import { AiFillEye } from "react-icons/ai";
 import { FiEdit2, FiGrid, FiList } from "react-icons/fi";
 import { useNavigate,useOutletContext ,useSearchParams } from "react-router-dom";
@@ -10,9 +10,11 @@ import SortableHeader from "../../Components/SortableHeader";
 const CentreList = () => {
   const navigate = useNavigate();
   const { searchTerm } = useOutletContext();
+  const deferredSearchTerm = useDeferredValue(searchTerm);
 
   const [viewMode, setViewMode] = useState("grid");
   const [centres, setCentres] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
 
 const page = Number(searchParams.get("page")) || 1;
@@ -35,6 +37,7 @@ const changePage = (newPage) => {
 
   const fetchCentres = async () => {
     try {
+      setLoading(true);
       const startIndex = (page - 1) * limit;
 
      const params = new URLSearchParams({
@@ -42,7 +45,7 @@ const changePage = (newPage) => {
   limit,
   sort: sortConfig.key,
   order: sortConfig.direction,
-   searchTerm,
+   searchTerm: deferredSearchTerm,
 });
 
 const data = await api(
@@ -53,30 +56,36 @@ const data = await api(
       setTotalCount(data.totalCount || 0);
     } catch (err) {
       console.error(err);
+      toast.error("Failed to fetch centres");
+    } finally {
+      setLoading(false);
     }
   };
 
 useEffect(() => {
-  if (searchTerm) {
+  if (deferredSearchTerm) {
     setSearchParams((prev) => {
       const params = new URLSearchParams(prev);
       params.set("page", "1");
       return params;
     });
   }
-}, [searchTerm, setSearchParams]);
+}, [deferredSearchTerm, setSearchParams]);
 
 useEffect(() => {
   fetchCentres();
-}, [page, sortConfig, searchTerm]);
+}, [page, sortConfig.key, sortConfig.direction, deferredSearchTerm]);
+
+  const [statusLoading, setStatusLoading] = useState(null);
 
   const toggleCentreStatus = async (centre) => {
     if (centre.totalProviders > 0 && centre.isActive) {
-      alert("Remove providers before deactivating centre");
+      toast.error("Remove providers before deactivating centre");
       return;
     }
 
     try {
+      setStatusLoading(centre._id);
       const res = await api("/api/provider/centre/set-active-status", {
         method: "PUT",
         body: JSON.stringify({
@@ -103,6 +112,8 @@ useEffect(() => {
     } catch (err) {
       console.error(err);
       toast.error("Failed to update status");
+    } finally {
+      setStatusLoading(null);
     }
   };
 
@@ -175,99 +186,103 @@ useEffect(() => {
       {viewMode === "grid" ? (
         <div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {centres.map((centre) => (
-              <div
-                key={centre._id}
-                className="group bg-white/80 backdrop-blur-md border border-gray-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col"
-              >
-                {/* IMAGE */}
-                <div className="relative h-52 overflow-hidden">
-                  <img
-                    src={centre.profilePicture}
-                    alt={centre.fullName}
-                     loading="lazy"
-                     decoding="async"
-                    className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
-                  />
-
-                  <div className="absolute inset-0 " />
-
-                  <div className="absolute bottom-3 left-3 right-3 flex justify-between items-center">
-                    {/* <span
-                    className={`text-xs px-3 py-1 rounded-full ${
-                      centre.isActive
-                        ? "bg-green-500/20 text-green-100"
-                        : "bg-red-500/20 text-red-100"
-                    }`}
-                  >
-                    {centre.isActive ? "Active" : "Inactive"}
-                  </span> */}
+            {loading ? (
+              Array.from({ length: 4 }).map((_, idx) => (
+                <div key={idx} className="bg-white border border-gray-200 rounded-2xl overflow-hidden animate-pulse">
+                  <div className="w-full h-52 bg-gray-200" />
+                  <div className="p-4 flex flex-col gap-3">
+                    <div className="h-5 bg-gray-200 rounded w-3/4" />
+                    <div className="h-4 bg-gray-200 rounded w-1/2" />
+                    <div className="h-12 bg-gray-200 rounded-xl w-full mt-2" />
                   </div>
                 </div>
+              ))
+            ) : centres.length === 0 ? (
+              <div className="col-span-full text-center py-10 text-gray-500 font-medium text-lg">
+                No centres found
+              </div>
+            ) : (
+              centres.map((centre) => (
+                <div
+                  key={centre._id}
+                  className="group bg-white/80 backdrop-blur-md border border-gray-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col"
+                >
+                  {/* IMAGE */}
+                  <div className="relative h-52 overflow-hidden">
+                    <img
+                      src={centre.profilePicture}
+                      alt={centre.fullName}
+                       loading="lazy"
+                       decoding="async"
+                      className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                    />
 
-                {/* CONTENT */}
-                <div className="p-4 flex flex-col gap-3">
-                  <div className="text-sm text-gray-600 space-y-1">
-                    <h2 className="text-darkgreen font-semibold text-lg truncate">
-                      {centre.fullName}
-                    </h2>
-                    <p className="truncate">
-                      <span className="text-cardfooter uppercase">Email:</span>{" "}
-                      <span className="text-cardfooter">
-                            {centre.userRef?.email || centre.email || "-"}
-                      </span>
-                    </p>
-                    {/* <p>
-                    <span className="text-gray-400">Phone:</span>{" "}
-                    {centre.phone}
-                  </p> */}
+                    <div className="absolute inset-0 " />
+
+                    <div className="absolute bottom-3 left-3 right-3 flex justify-between items-center">
+                    </div>
                   </div>
 
-                  {/* STATS */}
-                <div className="flex items-center justify-between bg-offwhite rounded-xl px-4 py-3 mb-0">
-  <p className="text-[10px] uppercase tracking-wider text-gray-400 font-semibold">
-    Providers
-  </p>
-
-  <p className="text-xl font-bold text-darkgreen">
-    {centre.totalProviders || 0}
-  </p>
-</div>
-                  {/* ACTIONS */}
-                  <div className="flex justify-between items-center mt-2">
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() =>  navigate(`/centre-detail/${centre._id}?page=${page}`)}
-                        className="p-2 rounded-lg bg-gray-100 text-darkgreen hover:bg-gray-200"
-                      >
-                        <AiFillEye />
-                      </button>
-
-                      <button
-                        onClick={() => navigate(`/edit-centre/${centre._id}?page=${page}`)}
-                        className="p-2 rounded-lg bg-darkgreen text-white hover:bg-yellow"
-                      >
-                        <FiEdit2 />
-                      </button>
+                  {/* CONTENT */}
+                  <div className="p-4 flex flex-col gap-3">
+                    <div className="text-sm text-gray-600 space-y-1">
+                      <h2 className="text-darkgreen font-semibold text-lg truncate">
+                        {centre.fullName}
+                      </h2>
+                      <p className="truncate">
+                        <span className="text-cardfooter uppercase">Email:</span>{" "}
+                        <span className="text-cardfooter">
+                              {centre.userRef?.email || centre.email || "-"}
+                        </span>
+                      </p>
                     </div>
 
-                    <button
-                      onClick={() => toggleCentreStatus(centre)}
-                      disabled={centre.totalProviders > 0 && centre.isActive}
-                      className={`text-xs px-4 py-1.5 rounded-full ${
-                        centre.totalProviders > 0 && centre.isActive
-                          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                          : centre.isActive
-                            ? "bg-red-100 text-red-600 hover:bg-red-200"
-                            : "bg-green-100 text-green-600 hover:bg-green-200"
-                      }`}
-                    >
-                      {centre.isActive ? "Deactivate" : "Activate"}
-                    </button>
+                    {/* STATS */}
+                  <div className="flex items-center justify-between bg-offwhite rounded-xl px-4 py-3 mb-0">
+    <p className="text-[10px] uppercase tracking-wider text-gray-400 font-semibold">
+      Providers
+    </p>
+
+    <p className="text-xl font-bold text-darkgreen">
+      {centre.totalProviders || 0}
+    </p>
+  </div>
+                    {/* ACTIONS */}
+                    <div className="flex justify-between items-center mt-2">
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() =>  navigate(`/centre-detail/${centre._id}?page=${page}`)}
+                          className="p-2 rounded-lg bg-gray-100 text-darkgreen hover:bg-gray-200"
+                        >
+                          <AiFillEye />
+                        </button>
+
+                        <button
+                          onClick={() => navigate(`/edit-centre/${centre._id}?page=${page}`)}
+                          className="p-2 rounded-lg bg-darkgreen text-white hover:bg-yellow"
+                        >
+                          <FiEdit2 />
+                        </button>
+                      </div>
+
+                      <button
+                        onClick={() => toggleCentreStatus(centre)}
+                        disabled={statusLoading === centre._id || (centre.totalProviders > 0 && centre.isActive)}
+                        className={`text-xs px-4 py-1.5 rounded-full ${
+                          centre.totalProviders > 0 && centre.isActive
+                            ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                            : centre.isActive
+                              ? "bg-red-100 text-red-600 hover:bg-red-200 disabled:opacity-50"
+                              : "bg-green-100 text-green-600 hover:bg-green-200 disabled:opacity-50"
+                        }`}
+                      >
+                        {statusLoading === centre._id ? "..." : centre.isActive ? "Deactivate" : "Activate"}
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
          
         </div>
@@ -299,57 +314,76 @@ useEffect(() => {
               </thead>
 
               <tbody>
-                {centres.map((centre) => (
-                  <tr key={centre._id} className=" hover:bg-offwhite/50 text-table-text ">
-                    <td className="p-3 flex items-center gap-3">
-                      <img
-                        src={centre.profilePicture}
-                         loading="lazy"
-                         decoding="async"
-                        className="w-10 h-10 rounded-lg object-cover"
-                      />
-                      {centre.fullName}
-                    </td>
-
-                    <td className="p-3">{centre.email}</td>
-                    <td className="p-3">{centre.phone}</td>
-                    <td className="p-3">{centre.totalProviders}</td>
-                    {/* <td className="p-3">{centre.totalSessions}</td> */}
-
-                   <td className="p-3">
- 
-    <button
-      onClick={() => toggleCentreStatus(centre)}
-      disabled={centre.totalProviders > 0 && centre.isActive}
-      className={`px-3 py-2 rounded-lg text-xs font-medium ${
-        centre.totalProviders > 0 && centre.isActive
-          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-          : centre.isActive
-          ? "bg-red-100 text-red-600 hover:bg-red-200"
-          : "bg-green-100 text-green-600 hover:bg-green-200"
-      }`}
-    >
-      {centre.isActive ? "Deactivate" : "Activate"}
-    </button>
- 
-</td>
-
-                    <td className="p-3 flex justify-end gap-2">
-                      <button 
-                       onClick={() => navigate(`/centre-detail/${centre._id}?page=${page}`)}
-                       className="p-2 bg-gray-100 rounded-lg">
-                        <AiFillEye />
-                      </button>
-
-                      <button
-                        onClick={() => navigate(`/edit-centre/${centre._id}?page=${page}`)}
-                        className="p-2 bg-darkgreen text-white rounded-lg"
-                      >
-                        <FiEdit2 />
-                      </button>
+                {loading ? (
+                  Array.from({ length: 4 }).map((_, idx) => (
+                    <tr key={idx} className="animate-pulse border-b">
+                      <td className="p-3"><div className="h-6 bg-gray-200 rounded w-3/4"></div></td>
+                      <td className="p-3"><div className="h-6 bg-gray-200 rounded w-1/2"></div></td>
+                      <td className="p-3"><div className="h-6 bg-gray-200 rounded w-1/2"></div></td>
+                      <td className="p-3"><div className="h-6 bg-gray-200 rounded w-1/4"></div></td>
+                      <td className="p-3"><div className="h-6 bg-gray-200 rounded w-1/4"></div></td>
+                      <td className="p-3 flex justify-end"><div className="h-6 bg-gray-200 rounded w-16"></div></td>
+                    </tr>
+                  ))
+                ) : centres.length === 0 ? (
+                  <tr>
+                    <td colSpan="6" className="text-center py-10 text-gray-500 font-medium text-lg">
+                      No centres found
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  centres.map((centre) => (
+                    <tr key={centre._id} className=" hover:bg-offwhite/50 text-table-text ">
+                      <td className="p-3 flex items-center gap-3">
+                        <img
+                          src={centre.profilePicture}
+                           loading="lazy"
+                           decoding="async"
+                          className="w-10 h-10 rounded-lg object-cover"
+                        />
+                        {centre.fullName}
+                      </td>
+
+                      <td className="p-3">{centre.email}</td>
+                      <td className="p-3">{centre.phone}</td>
+                      <td className="p-3">{centre.totalProviders}</td>
+                      {/* <td className="p-3">{centre.totalSessions}</td> */}
+
+                     <td className="p-3">
+   
+      <button
+        onClick={() => toggleCentreStatus(centre)}
+        disabled={statusLoading === centre._id || (centre.totalProviders > 0 && centre.isActive)}
+        className={`px-3 py-2 rounded-lg text-xs font-medium ${
+          centre.totalProviders > 0 && centre.isActive
+            ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+            : centre.isActive
+            ? "bg-red-100 text-red-600 hover:bg-red-200 disabled:opacity-50"
+            : "bg-green-100 text-green-600 hover:bg-green-200 disabled:opacity-50"
+        }`}
+      >
+        {statusLoading === centre._id ? "..." : centre.isActive ? "Deactivate" : "Activate"}
+      </button>
+   
+  </td>
+
+                      <td className="p-3 flex justify-end gap-2">
+                        <button 
+                         onClick={() => navigate(`/centre-detail/${centre._id}?page=${page}`)}
+                         className="p-2 bg-gray-100 rounded-lg">
+                          <AiFillEye />
+                        </button>
+
+                        <button
+                          onClick={() => navigate(`/edit-centre/${centre._id}?page=${page}`)}
+                          className="p-2 bg-darkgreen text-white rounded-lg"
+                        >
+                          <FiEdit2 />
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

@@ -315,9 +315,9 @@ export const refreshAccessToken = async (req, res, next) => {
   }
 };
 
-// PASSWORD RESET
+import OTP from "../model/otp.model.js";
 
-let otpStorage = {};
+// PASSWORD RESET
 
 // Uses sendPlainEmail from email.service.js (Resend) — nodemailer removed
 
@@ -329,10 +329,13 @@ export const resetPassword = async (req, res, next) => {
     if (!validUser) {
       return next(errorHandler(404, "Email not registered!"));
     }
-    const generateOtp = Math.floor(Math.random() * 1000000);
+    const generateOtp = Math.floor(Math.random() * 900000) + 100000;
 
-    otpStorage[email] = generateOtp;
-    console.log("otpStorage", otpStorage);
+    await OTP.findOneAndUpdate(
+      { email, otpType: "reset_password" },
+      { email, otp: generateOtp.toString(), otpType: "reset_password", roleType: "Admin" },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
 
     const html = `<b>Your 1Step Reset Password OTP is: <i>${generateOtp}</i></b>`;
     const subject = "Your 1Step Password Reset OTP";
@@ -365,22 +368,23 @@ export const verifyOtpPassword = async (req, res) => {
     if (userEnteredOtp.length !== 6) {
       return res
         .status(403)
-        .json({ status: faalse, message: "OTP must 6 digit" });
+        .json({ status: false, message: "OTP must 6 digit" });
     }
-    const storedOtp = otpStorage[email];
-    console.log(storedOtp);
-
-    if (userEnteredOtp !== storedOtp.toString()) {
-      return res.status(400).json({ message: "OTP doesn't matched!" });
-    }
-    if (!storedOtp) {
-      return res.status(400).json({ message: "Recheck email and OTP" });
+    
+    const storedOtpDoc = await OTP.findOne({ email, otpType: "reset_password" });
+    
+    if (!storedOtpDoc) {
+      return res.status(400).json({ message: "Recheck email and OTP or OTP expired" });
     }
 
-    if (userEnteredOtp === storedOtp.toString()) {
+    if (userEnteredOtp !== storedOtpDoc.otp) {
+      return res.status(400).json({ message: "OTP doesn't match!" });
+    }
+
+    if (userEnteredOtp === storedOtpDoc.otp) {
       const hashedPassword = await updatePassword(email, newPassword);
 
-      delete otpStorage[email];
+      await OTP.deleteOne({ _id: storedOtpDoc._id });
 
       return res
         .status(200)

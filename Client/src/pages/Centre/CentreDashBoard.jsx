@@ -13,17 +13,24 @@ const CentreDashBoard = () => {
   const [stats,setStats]=useState({});
   const [upcomingSessions,setUpcomingSessions]=useState([]);
 
+  const [loadingCentres, setLoadingCentres] = useState(true);
+  const [loadingStats, setLoadingStats] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchCentres = async () => {
       try {
+        setLoadingCentres(true);
         const data = await api("/api/centre/recent-centres");
 
-setCentres(data.centres || []);
+        setCentres(data.centres || []);
 
         // console.log("centre-list:", data);
       } catch (err) {
         console.error(err);
+        setError("Failed to load recent centres.");
+      } finally {
+        setLoadingCentres(false);
       }
     };
 
@@ -33,21 +40,30 @@ setCentres(data.centres || []);
   useEffect(()=>{
     const fetchStats = async()=>{
       try{
+        setLoadingStats(true);
         const res= await api("/api/centre/centre-session");
         // console.log("Centre Dashboard Stats:", res);
- setStats(res.stats);
-      setUpcomingSessions(res.upcoming);
-    } catch (err) {
-      console.error(err);
-    }
-  };
+        setStats(res.stats || {});
+        setUpcomingSessions(res.upcoming || []);
+      } catch (err) {
+        console.error(err);
+        setError("Failed to load centre stats.");
+      } finally {
+        setLoadingStats(false);
+      }
+    };
 
-  fetchStats();
+    fetchStats();
 
-      },[]);
+  },[]);
 
   return (
     <div className="p-6 bg-offwhite min-h-screen">
+      {error && (
+        <div className="mb-6 text-red-700 bg-red-100 border border-red-300 px-4 py-3 rounded-xl">
+          <strong>Error:</strong> {error}
+        </div>
+      )}
       {/* TOP CARDS */}
       <CentreCard/>
 
@@ -77,22 +93,31 @@ setCentres(data.centres || []);
             </thead>
 
             <tbody>
-              {centres.map((c) => (
-                <tr key={c._id} className="bg-white hover:bg-offwhite transition-colors duration-200">
-                  <td className="py-4 px-4 text-table-text">{c.fullName}</td>
-
-                  
-
-                  <td className="text-table-text">{c.totalProviders || "-"}</td>
-                  <td className="text-table-text">{c.userRef?.email || "-"}</td>
-                  <td className="text-table-text text-center">{c.experience || "-"}</td>
-                  {/* <td>
-                    <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs">
-                      {c.isActive ? "Active" : "Inactive"}
-                    </span>
-                  </td> */}
+              {loadingCentres ? (
+                Array.from({ length: 3 }).map((_, i) => (
+                  <tr key={i} className="animate-pulse bg-white">
+                    <td className="py-4 px-4"><div className="h-4 bg-gray-200 rounded w-3/4"></div></td>
+                    <td className="py-4 px-4"><div className="h-4 bg-gray-200 rounded w-1/4"></div></td>
+                    <td className="py-4 px-4"><div className="h-4 bg-gray-200 rounded w-1/2"></div></td>
+                    <td className="py-4 px-4"><div className="h-4 bg-gray-200 rounded w-1/4"></div></td>
+                  </tr>
+                ))
+              ) : centres.length === 0 ? (
+                <tr>
+                  <td colSpan="4" className="text-center py-6 text-gray-500">
+                    No recent centres
+                  </td>
                 </tr>
-              ))}
+              ) : (
+                centres.map((c) => (
+                  <tr key={c._id} className="bg-white hover:bg-offwhite transition-colors duration-200">
+                    <td className="py-4 px-4 text-table-text">{c.fullName}</td>
+                    <td className="text-table-text">{c.totalProviders || "-"}</td>
+                    <td className="text-table-text">{c.userRef?.email || "-"}</td>
+                    <td className="text-table-text text-center">{c.experience || "-"}</td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -114,38 +139,50 @@ setCentres(data.centres || []);
               </thead>
 
               <tbody className="h-full">
-  {/* TODAY */}
-  <tr className="border-b border-white/5 hover:bg-white/5 transition">
-    <td className="py-3 px-4 text-white">Today</td>
-    <td className="px-4 text-white font-medium">{stats.today}</td>
-    <td className="px-4">
-      <span className="px-2 py-1 rounded-full text-md font-bold bg-yellow text-black">
-        On Progress
-      </span>
-    </td>
-  </tr>
+  {loadingStats ? (
+    Array.from({ length: 3 }).map((_, i) => (
+      <tr key={i} className="border-b border-white/5 animate-pulse">
+        <td className="py-3 px-4"><div className="h-4 bg-white/20 rounded w-20"></div></td>
+        <td className="px-4"><div className="h-4 bg-white/20 rounded w-10"></div></td>
+        <td className="px-4"><div className="h-6 bg-white/20 rounded-full w-24"></div></td>
+      </tr>
+    ))
+  ) : (
+    <>
+      {/* TODAY */}
+      <tr className="border-b border-white/5 hover:bg-white/5 transition">
+        <td className="py-3 px-4 text-white">Today</td>
+        <td className="px-4 text-white font-medium">{stats.today || 0}</td>
+        <td className="px-4">
+          <span className="px-2 py-1 rounded-full text-md font-bold bg-yellow text-black">
+            On Progress
+          </span>
+        </td>
+      </tr>
 
-  {/* WEEK */}
-  <tr className="border-b border-white/5 hover:bg-white/5 transition">
-    <td className="py-3 px-4 text-white">This Week</td>
-    <td className="px-4 text-white font-medium">{stats.week}</td>
-    <td className="px-4">
-      <span className="px-2 py-1 rounded-full text-md font-bold bg-yellow text-black">
-       On Progress
-      </span>
-    </td>
-  </tr>
+      {/* WEEK */}
+      <tr className="border-b border-white/5 hover:bg-white/5 transition">
+        <td className="py-3 px-4 text-white">This Week</td>
+        <td className="px-4 text-white font-medium">{stats.week || 0}</td>
+        <td className="px-4">
+          <span className="px-2 py-1 rounded-full text-md font-bold bg-yellow text-black">
+          On Progress
+          </span>
+        </td>
+      </tr>
 
-  {/* MONTH */}
-  <tr className="hover:bg-white/5 transition">
-    <td className="py-3 px-4 text-white">This Month</td>
-    <td className="px-4 text-white font-medium">{stats.month}</td>
-    <td className="px-4">
-      <span className="px-2 py-1 rounded-full text-md font-bold bg-yellow text-black">
-        On Progress
-      </span>
-    </td>
-  </tr>
+      {/* MONTH */}
+      <tr className="hover:bg-white/5 transition">
+        <td className="py-3 px-4 text-white">This Month</td>
+        <td className="px-4 text-white font-medium">{stats.month || 0}</td>
+        <td className="px-4">
+          <span className="px-2 py-1 rounded-full text-md font-bold bg-yellow text-black">
+            On Progress
+          </span>
+        </td>
+      </tr>
+    </>
+  )}
 </tbody>
             </table>
           </div>
@@ -159,13 +196,6 @@ setCentres(data.centres || []);
           <h2 className="text-subheading">
             Upcoming Sessions
           </h2>
-
-          {/* <button
-            onClick={() => navigate("/upcoming-session")}
-            className="flex items-center gap-2 text-sm px-4 py-2 bg-green-900 text-white rounded-xl hover:bg-green-800 transition"
-          >
-            View All →
-          </button> */}
         </div>
 
         <div className="overflow-x-auto">
@@ -181,7 +211,17 @@ setCentres(data.centres || []);
             </thead>
 
             <tbody>
-  {upcomingSessions.length === 0 ? (
+  {loadingStats ? (
+    Array.from({ length: 3 }).map((_, i) => (
+      <tr key={i} className="animate-pulse bg-white">
+        <td className="py-4 px-4"><div className="h-4 bg-gray-200 rounded w-16"></div></td>
+        <td className="px-4"><div className="h-4 bg-gray-200 rounded w-32"></div></td>
+        <td className="px-4"><div className="h-4 bg-gray-200 rounded w-24"></div></td>
+        <td className="px-4"><div className="h-4 bg-gray-200 rounded w-24"></div></td>
+        <td className="px-4"><div className="h-6 bg-gray-200 rounded-full w-16"></div></td>
+      </tr>
+    ))
+  ) : upcomingSessions.length === 0 ? (
     <tr>
       <td colSpan="5" className="text-center py-6 text-gray-400">
         No upcoming sessions
@@ -191,9 +231,9 @@ setCentres(data.centres || []);
     upcomingSessions.slice(0, 5).map((s) => (
       <tr
         key={s._id}
-        className="bg-white hover:bg-offwhite rounded-xl  hover:shadow-md transition text-table-text"
+        className="bg-white hover:bg-offwhite rounded-xl hover:shadow-md transition text-table-text"
       >
-        <td className="py-4 px-4  ">
+        <td className="py-4 px-4">
           {s.bookingId || "-"}
         </td>
 
@@ -202,18 +242,18 @@ setCentres(data.centres || []);
         </td>
 
         <td className="px-4 text-gray-700">
-  {dateFormatUtils(s.scheduledTime?.date)}
-</td>
+          {dateFormatUtils(s.scheduledTime?.date)}
+        </td>
 
         {/* Time */}
         <td className="px-4 text-gray-700">
-  {s.appointment?.startTime
-  ? formatTimeRangeAMPM(
-      s.appointment.startTime,
-      s.appointment.durationMinutes || 30
-    )
-  : "—"}
-</td>
+          {s.appointment?.startTime
+          ? formatTimeRangeAMPM(
+              s.appointment.startTime,
+              s.appointment.durationMinutes || 30
+            )
+          : "—"}
+        </td>
 
         {/* Status */}
         <td className="px-4">

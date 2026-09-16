@@ -106,10 +106,8 @@ const [bookingStatus, setBookingStatus] = useState("all");
     try {
       const data = await api(`/api/provider/providersbyid/${id}`);
       setProviderType(data.provider.providerType);
-      console.log(data);
-      
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   };
 
@@ -133,8 +131,6 @@ const [bookingStatus, setBookingStatus] = useState("all");
       const data = await api(
         `/api/booking/getbookingbyprovider/${id}?${params.toString()}`
       );
-
-      console.log("Booking response:", data);
 
       setBookings(data.bookingDetails || []);
 
@@ -330,10 +326,24 @@ useEffect(() => {
         </div>
       )}
 
-      {loading && !stats && (
-        <p className="mb-4 text-gray-600 font-medium">Loading stats...</p>
-      )}
-
+      {loading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div className="bg-white h-64 p-8 rounded-2xl animate-pulse">
+            <div className="h-6 bg-gray-200 rounded w-1/3 mb-10"></div>
+            <div className="flex justify-center">
+              <div className="w-32 h-32 bg-gray-200 rounded-full"></div>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            {Array.from({ length: 4 }).map((_, idx) => (
+              <div key={idx} className="bg-white p-4 rounded-2xl animate-pulse">
+                <div className="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
+                <div className="h-8 bg-gray-200 rounded w-1/3"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-white h-64 p-8 rounded-2xl text-white flex flex-col justify-between">
           <div className="flex justify-between items-center">
@@ -393,6 +403,7 @@ useEffect(() => {
           </div>
         </div>
       </div>
+      )}
 {providerType === "individual" && (
    <div className="mb-8 mt-8 bg-white rounded-3xl shadow-lg p-6 border border-gray-100">
 
@@ -582,14 +593,7 @@ useEffect(() => {
       <div className="flex gap-4 items-start">
         <div
           className="flex gap-4 overflow-x-auto pb-4 hide-scrollbar"
-          style={{ style: "none" }}
         >
-          <style>
-            {`
-              .hide-scrollbar::-webkit-scrollbar { display: none; }
-              .hide-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
-            `}
-          </style>
           {articlesLoading ? (
             <div className="min-w-[300px]  h-80 bg-white rounded-xl shadow-md p-4 flex items-center justify-center">
               <span className="text-sm text-gray-600">Loading articles...</span>
@@ -664,14 +668,7 @@ useEffect(() => {
       <div className="flex gap-4 items-start">
         <div
           className="flex gap-4 overflow-x-auto pb-4 hide-scrollbar"
-          style={{ style: "none" }}
         >
-          <style>
-            {`
-              .hide-scrollbar::-webkit-scrollbar { display: none; }
-              .hide-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
-            `}
-          </style>
 
           {assessmentsLoading ? (
             <div className="min-w-[200px] h-80 bg-white rounded-xl shadow-md p-4 flex items-center justify-center">
