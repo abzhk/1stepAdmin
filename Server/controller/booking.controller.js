@@ -239,24 +239,35 @@ export const getBookingProvider = async (req, res, next) => {
       {
         $match: bookingMatch,
       },
-
+      {
+        $sort: {
+          createdAt: -1,
+        },
+      },
+      {
+        $skip: skip,
+      },
+      {
+        $limit: limitNumber,
+      },
       {
         $lookup: {
-          from: "users",
+          from: "parents",
           localField: "patient",
-          foreignField: "_id",
+          foreignField: "userRef",
           as: "patientDetails",
         },
       },
-
       {
-        $unwind: "$patientDetails",
+        $unwind: {
+          path: "$patientDetails",
+          preserveNullAndEmptyArrays: true,
+        },
       },
-
       {
         $project: {
           "patientDetails.profilePicture": 1,
-          "patientDetails.username": 1,
+          "patientDetails.fullName": 1,
           patientName: 1,
           createdAt: 1,
           note: 1,
@@ -266,20 +277,6 @@ export const getBookingProvider = async (req, res, next) => {
           sessionType: 1,
           service: 1,
         },
-      },
-
-      {
-        $sort: {
-          createdAt: -1,
-        },
-      },
-
-      {
-        $skip: skip,
-      },
-
-      {
-        $limit: limitNumber,
       },
     ]);
 
