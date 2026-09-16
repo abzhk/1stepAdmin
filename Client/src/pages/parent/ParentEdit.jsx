@@ -161,7 +161,7 @@ function ParentEdit() {
       }
 
       toast.success("Parent updated successfully");
-      navigate(`/parent-list?page=${page}`);
+      navigate(`/view-parent?page=${page}`);
     } catch (err) {
       setError(err.message);
       toast.error(err.message || "Something went wrong");
@@ -179,7 +179,7 @@ function ParentEdit() {
         <div className="mb-6">
           <button
             type="button"
-            onClick={() => navigate(`/parent-list?page=${page}`)}
+            onClick={() => navigate(`/view-parent?page=${page}`)}
             className="text-sm text-gray-500 hover:text-[#2d4a36] mb-2 transition"
           >
             ← Back to Parents
@@ -330,7 +330,7 @@ function ParentEdit() {
               <div className="flex justify-end gap-3 mt-8 pt-5 border-t border-gray-100">
                 <button
                   type="button"
-                  onClick={() => navigate(`/parent-list?page=${page}`)}
+                  onClick={() => navigate(`/view-parent?page=${page}`)}
                   className="px-6 py-2.5 rounded-xl bg-white text-gray-700 hover:bg-gray-200 transition"
                 >
                   Cancel
