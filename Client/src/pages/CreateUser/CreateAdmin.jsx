@@ -454,6 +454,8 @@ const CreateAdmin = () => {
                 <img
                   src={user.profilePicture}
                   alt={user.username}
+                  loading="lazy"
+                  decoding="async"
                   className="w-10 h-10 rounded-full object-cover"
                 />
               </td>

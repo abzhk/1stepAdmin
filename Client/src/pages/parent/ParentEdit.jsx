@@ -161,7 +161,7 @@ function ParentEdit() {
       }
 
       toast.success("Parent updated successfully");
-      navigate(`/parent-list?page=${page}`);
+      navigate(-1);
     } catch (err) {
       setError(err.message);
       toast.error(err.message || "Something went wrong");
@@ -179,7 +179,7 @@ function ParentEdit() {
         <div className="mb-6">
           <button
             type="button"
-            onClick={() => navigate(`/parent-list?page=${page}`)}
+            onClick={() => navigate(`/view-parent?page=${page}`)}
             className="text-sm text-gray-500 hover:text-[#2d4a36] mb-2 transition"
           >
             ← Back to Parents
@@ -204,6 +204,8 @@ function ParentEdit() {
                   <img
                     src={profilePicture}
                     alt="Parent"
+                    loading="lazy"
+                    decoding="async"
                     className="w-24 h-24 rounded-full object-cover border-4 border-[#f1f5f2]"
                   />
                 ) : (

@@ -40,9 +40,20 @@ export const createProvider = async (req, res, next) => {
         .status(409)
         .json({ success: false, message: "Provider already exists." });
     }
+
+    if (req.body.email) {
+      const emailExists = await Provider.findOne({ email: req.body.email });
+      if (emailExists) {
+        return res.status(409).json({ success: false, message: "Email already exists." });
+      }
+    }
+
     const provider = await Provider.create(req.body);
     return res.status(201).json({ success: true, provider });
   } catch (error) {
+    if (error.code === 11000 && error.keyPattern && error.keyPattern.email) {
+      return res.status(409).json({ success: false, message: "Email already exists." });
+    }
     next(error);
   }
 };
@@ -73,6 +84,13 @@ export const updateProvider = async (req, res, next) => {
     return next(errorHandler(401, "You can update only your provider"));
   }
   try {
+    if (req.body.email) {
+      const emailExists = await Provider.findOne({ email: req.body.email, _id: { $ne: req.params.id } });
+      if (emailExists) {
+        return res.status(409).json({ success: false, message: "Email already exists." });
+      }
+    }
+
     const updatedProvider = await Provider.findByIdAndUpdate(
       req.params.id,
       req.body,
@@ -80,6 +98,9 @@ export const updateProvider = async (req, res, next) => {
     );
     res.status(200).json(updatedProvider);
   } catch (error) {
+    if (error.code === 11000 && error.keyPattern && error.keyPattern.email) {
+      return res.status(409).json({ success: false, message: "Email already exists." });
+    }
     next(error);
   }
 };
