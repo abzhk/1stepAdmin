@@ -361,17 +361,45 @@ export const bulkInviteProviders = async (req, res) => {
       total: providers.length,
     };
 
+    // Extract all emails
+    const emails = providers.map(p => p.email.toLowerCase());
+
+    // Batch fetch providers
+    const existingProviders = await Provider.find({
+      email: { $in: emails },
+      providerType: "individual"
+    }).lean();
+    
+    const providerMap = new Map(existingProviders.map(p => [p.email, p]));
+    const providerIds = existingProviders.map(p => p._id);
+
+    // Batch fetch existing relations
+    const existingRelations = await CentreProvider.find({
+      centreId,
+      providerId: { $in: providerIds },
+      isActive: true
+    }).lean();
+    
+    const relationSet = new Set(existingRelations.map(r => r.providerId.toString()));
+
+    // Batch fetch existing invitations
+    const existingInvitations = await Invitation.find({
+      centreId,
+      invitedEmail: { $in: emails },
+      status: "pending"
+    }).lean();
+    
+    const invitationSet = new Set(existingInvitations.map(i => i.invitedEmail));
+
+    const invitationsToCreate = [];
+
     // Process each provider
     for (const providerData of providers) {
       try {
-        const { email, role, consultationFee, proposedSlots, message } =
-          providerData;
-
-        // Find provider
-        const provider = await Provider.findOne({
-          email: email.toLowerCase(),
-          providerType: "individual",
-        });
+        const { email, role, consultationFee, proposedSlots, message } = providerData;
+        const lowerEmail = email.toLowerCase();
+        
+        const provider = providerMap.get(lowerEmail);
 
         if (!provider) {
           results.failed.push({
@@ -381,14 +409,7 @@ export const bulkInviteProviders = async (req, res) => {
           continue;
         }
 
-        // Check if already added
-        const existingRelation = await CentreProvider.findOne({
-          centreId,
-          providerId: provider._id,
-          isActive: true,
-        });
-
-        if (existingRelation) {
+        if (relationSet.has(provider._id.toString())) {
           results.failed.push({
             email,
             reason: "Already added to centre",
@@ -396,14 +417,7 @@ export const bulkInviteProviders = async (req, res) => {
           continue;
         }
 
-        // Check pending invitation
-        const existingInvitation = await Invitation.findOne({
-          centreId,
-          invitedEmail: email.toLowerCase(),
-          status: "pending",
-        });
-
-        if (existingInvitation) {
+        if (invitationSet.has(lowerEmail)) {
           results.failed.push({
             email,
             reason: "Invitation already sent",
@@ -411,12 +425,11 @@ export const bulkInviteProviders = async (req, res) => {
           continue;
         }
 
-        // Create invitation
         const token = crypto.randomBytes(32).toString("hex");
 
-        const invitation = await Invitation.create({
+        invitationsToCreate.push({
           centreId,
-          invitedEmail: email.toLowerCase(),
+          invitedEmail: lowerEmail,
           invitedBy: { userId, name: req.user.name },
           token,
           role: role || "provider",
@@ -424,21 +437,27 @@ export const bulkInviteProviders = async (req, res) => {
           proposedSlots: proposedSlots || {},
           message,
           expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+          providerName: provider.fullName, // for results
+          originalEmail: email, // for results
         });
-
-        results.success.push({
-          email,
-          providerName: provider.fullName,
-          invitationId: invitation._id,
-        });
-
-        // TODO: Send email
       } catch (error) {
         results.failed.push({
           email: providerData.email,
           reason: error.message,
         });
       }
+    }
+
+    if (invitationsToCreate.length > 0) {
+      const createdInvitations = await Invitation.insertMany(invitationsToCreate);
+      
+      createdInvitations.forEach((inv, index) => {
+        results.success.push({
+          email: invitationsToCreate[index].originalEmail,
+          providerName: invitationsToCreate[index].providerName,
+          invitationId: inv._id,
+        });
+      });
     }
 
     res.status(200).json({
@@ -1273,7 +1292,6 @@ export const getCentreBookings = async (req, res) => {
     }
 
     // 3. Build match stage (Booking model)
-    const Booking = (await import("../../models/booking.model.js")).Booking;
 
     const matchStage = {
       provider: { $in: providerIds },
@@ -1796,13 +1814,12 @@ export const getAllCentreDashboardStats = async (req, res, next) => {
     }
 
 
-    const relationshipPairs = relationships.map((relationship) => ({
-      centreId: relationship.centreId,
-      provider: relationship.providerId,
-    }));
+    const centreIds = [...new Set(relationships.map(r => r.centreId))];
+    const providerIds = [...new Set(relationships.map(r => r.providerId))];
 
     const bookingMatch = {
-      $or: relationshipPairs,
+      centreId: { $in: centreIds },
+      provider: { $in: providerIds },
     };
 
 

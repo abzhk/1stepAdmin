@@ -10,6 +10,8 @@ import { BookedSlots } from "../model/booking.model.js";
 import UserSubscription from "../model/subscription.model.js";
 import Invitation from "../model/Centre/invitation.model.js";
 import Stats from "../model/stats.model.js";
+import crypto from "crypto";
+import OTP from "../model/otp.model.js";
 import CentreProvider from "../model/Centre/centerprovider.model.js";
 import CentreProviderRelation from "../model/Centre/centreProviderRelation.model.js";
 import Specialization from "../model/Master/specialization.model.js";
@@ -133,7 +135,6 @@ export const getProvider = async (req, res, next) => {
 };
 
 export const fetchProvider = async (req, res, next) => {
-  console.log(req.params.id);
   try {
     const fetchProvider = await Provider.findOne({ userRef: req.params.id });
 
@@ -150,7 +151,6 @@ export const fetchProvider = async (req, res, next) => {
 };
 
 export const getProviderId = async (req, res, next) => {
-  console.log(req.params.id);
   try {
     const fetchProvider = await Provider.findOne({ userRef: req.params.id });
 
@@ -168,6 +168,22 @@ export const getProviderId = async (req, res, next) => {
   }
 };
 
+// Helper for building search filters
+const buildProviderSearchFilters = (searchTerm) => {
+  const cleanedSearchTerm = searchTerm.trim().replace(/\s+/g, " ");
+  if (!cleanedSearchTerm) return null;
+
+  return {
+    $or: [
+      { fullName: { $regex: cleanedSearchTerm, $options: "i" } },
+      { name: { $regex: cleanedSearchTerm, $options: "i" } },
+      { "address.city": { $regex: cleanedSearchTerm, $options: "i" } },
+      { "address.state": { $regex: cleanedSearchTerm, $options: "i" } },
+      { therapytype: { $regex: cleanedSearchTerm, $options: "i" } },
+    ],
+  };
+};
+
 export const getProviders = async (req, res, next) => {
   try {
     const {
@@ -183,37 +199,11 @@ export const getProviders = async (req, res, next) => {
     let query = {};
     const searchFilters = [];
 
-    // Handle search term with hybrid approach
+    // Handle search term
     if (searchTerm) {
-      const cleanedSearchTerm = searchTerm.trim().replace(/\s+/g, " ");
-
-      if (cleanedSearchTerm) {
-        // Hybrid search: Use both text search and regex
-        const textSearchFilter = { $text: { $search: cleanedSearchTerm } };
-        const regexSearchFilter = {
-          $or: [
-            { fullName: { $regex: cleanedSearchTerm, $options: "i" } },
-            { name: { $regex: cleanedSearchTerm, $options: "i" } },
-            { "address.city": { $regex: cleanedSearchTerm, $options: "i" } },
-            { "address.state": { $regex: cleanedSearchTerm, $options: "i" } },
-            { therapytype: { $regex: cleanedSearchTerm, $options: "i" } },
-          ],
-        };
-
-        // Try text search first, fallback to regex if no results
-        try {
-          const textSearchCount = await Provider.countDocuments(
-            textSearchFilter
-          );
-          if (textSearchCount > 0) {
-            searchFilters.push(textSearchFilter);
-          } else {
-            searchFilters.push(regexSearchFilter);
-          }
-        } catch (error) {
-          // If text search fails (no text index), use regex
-          searchFilters.push(regexSearchFilter);
-        }
+      const searchFilter = buildProviderSearchFilters(searchTerm);
+      if (searchFilter) {
+        searchFilters.push(searchFilter);
       }
     }
 
@@ -291,19 +281,21 @@ export const getProviders = async (req, res, next) => {
       bookings.map((b) => [b._id.toString(), b.count])
     );
 
-   const providersWithBooking = await Promise.all(
-  providers.map(async (provider) => {
-    const user = await User.findById(
-      new mongoose.Types.ObjectId(provider.userRef)
-    ).select("isActive");
+    const userRefs = providers.map(
+      (p) => new mongoose.Types.ObjectId(p.userRef)
+    );
+    const users = await User.find({ _id: { $in: userRefs } })
+      .select("isActive")
+      .lean();
+    const userMap = new Map(
+      users.map((u) => [u._id.toString(), u.isActive])
+    );
 
-    return {
+    const providersWithBooking = providers.map((provider) => ({
       ...provider,
       totalBookings: bookingMap.get(provider._id.toString()) || 0,
-      isActive: user ? user.isActive : false,
-    };
-  })
-);
+      isActive: userMap.get(provider.userRef.toString()) || false,
+    }));
 const activeProviders = providersWithBooking.filter(
   (p) => p.isActive === true
 );
@@ -332,8 +324,6 @@ export const getAdminProviders = async (req, res, next) => {
   }
 };
 
-let otpStorage = {};
-
 const otpverifyProvider = async (to, subject, html) => {
   // Uses sendPlainEmail from email.service.js (Resend) — nodemailer removed
   const result = await sendPlainEmail({ to, subject, html });
@@ -342,32 +332,35 @@ const otpverifyProvider = async (to, subject, html) => {
 
 export const sendOtp = async (req, res, next) => {
   const { email } = req.body;
+  if (!email) {
+    return res.status(400).json({ success: false, message: "Email is required" });
+  }
+
   try {
-    const validemail = await Provider.findOne({ email });
-    if (!validemail) {
-      return next(errorHandler(404, "Email not found"));
-    }
     const generateOtp = Math.floor(Math.random() * 900000) + 100000;
 
-    console.log(generateOtp);
+    await OTP.findOneAndUpdate(
+      { email, otpType: "provider_verification" },
+      { email, otp: generateOtp.toString(), otpType: "provider_verification", roleType: "Provider" },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
 
-    otpStorage[email] = generateOtp;
     const html = `<b>Your 1Step Verified Provider Otp : <i>${generateOtp}</i></b>`;
     const subject = "Provider OTP Verification";
 
     const emailSend = await otpverifyProvider(email, subject, html);
-
+    
     if (emailSend) {
       return res
         .status(200)
         .json({ success: true, message: "OTP sent successfully" });
     } else {
       return res
-        .status(500)
+        .status(400)
         .json({ success: false, message: "Failed to SEND OTP" });
     }
   } catch (error) {
-    return res.status(500).json("Error, cant send email!");
+    next(error);
   }
 };
 
@@ -379,16 +372,15 @@ export const verifyOtpProvider = async (req, res, next) => {
         .status(400)
         .json({ success: false, message: "Enter a valid 6-digit OTP" });
     }
-    const storedOtp = otpStorage[email];
-    console.log(storedOtp);
-    if (!storedOtp) {
+
+    const storedOtpDoc = await OTP.findOne({ email, otpType: "provider_verification" });
+
+    if (!storedOtpDoc) {
       return res.status(400).json({ success: false, message: "OTP expired" });
     }
-    if (storedOtp.toString() === otp) {
+    if (storedOtpDoc.otp === otp) {
       const result = await Provider.updateOne(
-        {
-          email: email,
-        },
+        { email: email },
         {
           $set: {
             verified: true,
@@ -402,7 +394,7 @@ export const verifyOtpProvider = async (req, res, next) => {
           message: "Provider not verified, try again",
         });
       }
-      delete otpStorage[email];
+      await OTP.deleteOne({ email });
       return res.status(200).json({ success: true, message: "OTP verified" });
     } else {
       return res.status(400).json({ success: false, message: "Invalid OTP" });
@@ -867,7 +859,9 @@ export const setProviderActiveStatus = async (req, res, next) => {
 //get inactive users of provider
 export const getInactiveProviders = async (req, res, next) => {
   try {
-    const providers = await Provider.aggregate([
+    const { limit = 10, startIndex = 0 } = req.query;
+    
+    const result = await Provider.aggregate([
       {
         $addFields: {
           userObjId: { $toObjectId: "$userRef" },
@@ -887,11 +881,21 @@ export const getInactiveProviders = async (req, res, next) => {
           "user.isActive": false,
         },
       },
+      {
+        $facet: {
+          data: [
+            { $skip: Number(startIndex) },
+            { $limit: Number(limit) }
+          ],
+          total: [{ $count: "count" }]
+        }
+      }
     ]);
 
     res.status(200).json({
       success: true,
-      providers,
+      providers: result[0].data,
+      totalCount: result[0].total[0]?.count || 0,
     });
   } catch (error) {
     next(error);
@@ -904,7 +908,7 @@ export const getCentreAppointments = async (req, res, next) => {
   try {
     const { limit = 10, startIndex = 0 } = req.query;
 
-    const appointments = await Booking.aggregate([
+    const result = await Booking.aggregate([
       {
         $lookup: {
           from: "providers",
@@ -914,13 +918,11 @@ export const getCentreAppointments = async (req, res, next) => {
         },
       },
       { $unwind: "$providerDetails" },
-
       {
         $match: {
           "providerDetails.providerType": "centre",
         },
       },
-
       {
         $lookup: {
           from: "users",
@@ -930,53 +932,41 @@ export const getCentreAppointments = async (req, res, next) => {
         },
       },
       { $unwind: "$patientDetails" },
-
       {
-        $project: {
-          bookingId: 1,
-          patientName: 1,
-          status: 1,
-          service: 1,
-          sessionType: 1,
-          scheduledTime: 1,
-          appointment: 1,
-          createdAt: 1,
-
-          "providerDetails.fullName": 1,
-          "providerDetails.name": 1,
-
-          "patientDetails.username": 1,
-          "patientDetails.profilePicture": 1,
+        $facet: {
+          data: [
+            { $sort: { createdAt: -1 } },
+            { $skip: Number(startIndex) },
+            { $limit: Number(limit) },
+            {
+              $project: {
+                bookingId: 1,
+                patientName: 1,
+                status: 1,
+                service: 1,
+                sessionType: 1,
+                scheduledTime: 1,
+                appointment: 1,
+                createdAt: 1,
+                "providerDetails.fullName": 1,
+                "providerDetails.name": 1,
+                "patientDetails.username": 1,
+                "patientDetails.profilePicture": 1,
+              },
+            },
+          ],
+          total: [{ $count: "count" }],
         },
       },
-
-      { $sort: { createdAt: -1 } },
-      { $skip: Number(startIndex) },
-      { $limit: Number(limit) },
     ]);
 
-    const total = await Booking.aggregate([
-      {
-        $lookup: {
-          from: "providers",
-          localField: "provider",
-          foreignField: "_id",
-          as: "providerDetails",
-        },
-      },
-      { $unwind: "$providerDetails" },
-      {
-        $match: {
-          "providerDetails.providerType": "centre",
-        },
-      },
-      { $count: "total" },
-    ]);
+    const appointments = result[0].data;
+    const totalCount = result[0].total[0]?.count || 0;
 
     res.status(200).json({
       success: true,
       appointments,
-      total: total[0]?.total || 0,
+      total: totalCount,
     });
   } catch (error) {
     next(error);
@@ -1043,51 +1033,9 @@ export const getIndividualProviders = async (req, res, next) => {
     const searchFilters = [];
 
     if (searchTerm) {
-      const cleanedSearchTerm = searchTerm.trim().replace(/\s+/g, " ");
-
-      if (cleanedSearchTerm) {
-        const textSearchFilter = {
-          $text: { $search: cleanedSearchTerm },
-        };
-
-        const regexSearchFilter = {
-          $or: [
-            { fullName: { $regex: cleanedSearchTerm, $options: "i" } },
-            { name: { $regex: cleanedSearchTerm, $options: "i" } },
-            {
-              "address.city": {
-                $regex: cleanedSearchTerm,
-                $options: "i",
-              },
-            },
-            {
-              "address.state": {
-                $regex: cleanedSearchTerm,
-                $options: "i",
-              },
-            },
-            {
-              therapytype: {
-                $regex: cleanedSearchTerm,
-                $options: "i",
-              },
-            },
-          ],
-        };
-
-        try {
-          const textSearchCount = await Provider.countDocuments(
-            textSearchFilter
-          );
-
-          if (textSearchCount > 0) {
-            searchFilters.push(textSearchFilter);
-          } else {
-            searchFilters.push(regexSearchFilter);
-          }
-        } catch {
-          searchFilters.push(regexSearchFilter);
-        }
+      const searchFilter = buildProviderSearchFilters(searchTerm);
+      if (searchFilter) {
+        searchFilters.push(searchFilter);
       }
     }
 
@@ -1411,27 +1359,32 @@ const providerIds = relationships
       .lean();
 
 
-    const providerDetails = await Promise.all(
-      providers.map(async (p) => {
-        const user = await User.findById(p.userRef)
-          .select("email isActive")
-          .lean();
+    const userRefs = providers.map(p => p.userRef);
+    const users = await User.find({ _id: { $in: userRefs } })
+      .select("email isActive")
+      .lean();
+    const userMap = new Map(users.map(u => [u._id.toString(), u]));
 
-        const sessions = await Booking.countDocuments({
-  provider: p._id,
-  centreId: id,
-});
+    const providerObjectIds = providers.map(p => p._id);
+    const bookingsCount = await Booking.aggregate([
+      { $match: { provider: { $in: providerObjectIds }, centreId: new mongoose.Types.ObjectId(id) } },
+      { $group: { _id: "$provider", count: { $sum: 1 } } }
+    ]);
+    const bookingsMap = new Map(bookingsCount.map(b => [b._id.toString(), b.count]));
 
-        return {
-          _id: p._id,
-          name: p.fullName,
-          email: user?.email || "-",
-          phone: p.phone,
-          sessions,
-          status: user?.isActive ? "Active" : "Inactive",
-        };
-      })
-    );
+    const providerDetails = providers.map((p) => {
+      const user = userMap.get(p.userRef.toString());
+      const sessions = bookingsMap.get(p._id.toString()) || 0;
+
+      return {
+        _id: p._id,
+        name: p.fullName,
+        email: user?.email || "-",
+        phone: p.phone,
+        sessions,
+        status: user?.isActive ? "Active" : "Inactive",
+      };
+    });
 
     const totalSessions = await Booking.countDocuments({
   centreId: id,

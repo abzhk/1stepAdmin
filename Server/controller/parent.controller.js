@@ -281,31 +281,31 @@ switch (sort) {
     const numericLimit = Number(limit);
     const numericStartIndex = Number(startIndex);
 
-    const parentsData = await Parent.find(query)
-      .populate({
-        path: "userRef",
-        match: { isActive: true },
-        select: "_id username email  isActive",
-      })
-       .collation({
-    locale: "en",
-    strength: 2,
-  })
-      .sort(sortQuery)
-      .lean();
+    // Pre-fetch active users to avoid filtering in memory
+    const activeUsers = await User.find({ isActive: true }).select("_id").lean();
+    const activeUserIds = activeUsers.map(u => u._id);
+    
+    query.userRef = { $in: activeUserIds };
 
-    const activeParents = parentsData.filter((p) => p.userRef);
-
-    const paginated = activeParents.slice(
-      numericStartIndex,
-      numericStartIndex + numericLimit,
-    );
+    const [totalParents, paginated] = await Promise.all([
+      Parent.countDocuments(query),
+      Parent.find(query)
+        .populate({
+          path: "userRef",
+          select: "_id username email isActive",
+        })
+        .collation({ locale: "en", strength: 2 })
+        .sort(sortQuery)
+        .skip(numericStartIndex)
+        .limit(numericLimit)
+        .lean()
+    ]);
 
     return res.status(200).json({
       success: true,
       parents: paginated,
-      totalParents: activeParents.length,
-      totalPages: Math.ceil(activeParents.length / numericLimit),
+      totalParents,
+      totalPages: Math.ceil(totalParents / numericLimit),
       currentPage: Math.floor(numericStartIndex / numericLimit) + 1,
       limit: numericLimit,
     });

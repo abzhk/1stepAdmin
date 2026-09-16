@@ -266,8 +266,8 @@ export const getBookingProvider = async (req, res, next) => {
       },
       {
         $project: {
-          "patientDetails.profilePicture": 1,
-          "patientDetails.fullName": 1,
+          "patientDetails.parentDetails.profilePicture": 1,
+          "patientDetails.parentDetails.fullName": 1,
           patientName: 1,
           createdAt: 1,
           note: 1,

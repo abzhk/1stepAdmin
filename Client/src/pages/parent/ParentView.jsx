@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useDeferredValue } from "react";
 import { AiFillEye } from "react-icons/ai";
 import { FiEdit2, FiGrid, FiList } from "react-icons/fi";
 import { useNavigate, useOutletContext, useSearchParams  } from "react-router-dom";
@@ -26,6 +26,8 @@ const page = Number(searchParams.get("page")) || 1;
   const [viewMode, setViewMode] = useState("grid");
 
   const { searchTerm } = useOutletContext();
+  const deferredSearchTerm = useDeferredValue(searchTerm);
+
   const [sortConfig, setSortConfig] = useState({
     key: "createdAt",
     direction: "desc",
@@ -55,7 +57,7 @@ const page = Number(searchParams.get("page")) || 1;
   order: sortConfig.direction,
       });
 
-      if (searchTerm.trim()) params.append("searchTerm", searchTerm);
+      if (deferredSearchTerm.trim()) params.append("searchTerm", deferredSearchTerm);
 
       const data = await api(`/api/parent/getallparents?${params}`);
 
@@ -71,9 +73,9 @@ const page = Number(searchParams.get("page")) || 1;
 
   useEffect(() => {
     getParents();
-  }, [page, searchTerm, sortConfig]);
+  }, [page, deferredSearchTerm, sortConfig.key, sortConfig.direction]);
 
-  const fromIndex = parents.length ? (page - 1) * limit + 1 : 0;
+  const fromIndex = (loading && parents.length === 0) || parents.length === 0 ? 0 : (page - 1) * limit + 1;
   const toIndex = (page - 1) * limit + parents.length;
 
   // Open the deactivate/reactivate modal for a parent's user account
@@ -337,89 +339,108 @@ const page = Number(searchParams.get("page")) || 1;
             </thead>
 
             <tbody>
-              {parents.map((parent) => (
-                <tr
-                  key={parent._id}
-                  className=" hover:bg-offwhite text-table-text"
-                >
-
-                  <td className="p-3 flex items-center gap-3">
-                   <img
-  src={parent.parentDetails?.profilePicture||
-      userlist}
-  loading="lazy"
-  decoding="async"
-  className="w-10 h-10 rounded-2xl object-cover"
-/>
-                    {parent.parentDetails?.fullName}
+              {loading ? (
+                Array.from({ length: 5 }).map((_, i) => (
+                  <tr key={i} className="animate-pulse border-b">
+                    <td className="p-3"><div className="h-6 bg-gray-200 rounded w-3/4"></div></td>
+                    <td className="p-3"><div className="h-6 bg-gray-200 rounded w-1/2"></div></td>
+                    <td className="p-3"><div className="h-6 bg-gray-200 rounded w-2/3"></div></td>
+                    <td className="p-3"><div className="h-6 bg-gray-200 rounded w-1/4"></div></td>
+                    <td className="p-3"><div className="h-6 bg-gray-200 rounded w-1/4"></div></td>
+                    <td className="p-3 flex justify-end"><div className="h-6 bg-gray-200 rounded w-16"></div></td>
+                  </tr>
+                ))
+              ) : parents.length === 0 ? (
+                <tr>
+                  <td colSpan="6" className="text-center py-10 text-gray-500 font-medium text-lg">
+                    No results found
                   </td>
-
-                  <td className="p-3">
-                    {parent.parentDetails?.childName}
-                  </td>
-
-                  <td className="p-3">
-                    {parent.parentDetails?.phoneNumber}
-                  </td>
-
-                 <td className="p-3">
-                   {/* Status badge */}
-                   <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${
-                     parent.userRef?.accountStatus === "deactivated" || !parent.userRef?.isActive
-                       ? "bg-red-100 text-red-600"
-                       : "bg-green-100 text-green-700"
-                   }`}>
-                     {parent.userRef?.accountStatus === "deactivated" || !parent.userRef?.isActive
-                       ? "Deactivated"
-                       : "Active"}
-                   </span>
-                 </td>
-
-                 <td className="p-3">
-                   {/* Deactivate / Reactivate action button */}
-                   {parent.userRef?.accountStatus === "deactivated" || !parent.userRef?.isActive ? (
-                     <button
-                       onClick={() => openModal(parent, "reactivate")}
-                       className="px-3 py-1.5 rounded-lg text-xs font-medium bg-green-100 text-green-700 hover:bg-green-200 transition"
-                     >
-                       Reactivate
-                     </button>
-                   ) : (
-                     <button
-                       onClick={() => openModal(parent, "deactivate")}
-                       className="px-3 py-1.5 rounded-lg text-xs font-medium bg-red-100 text-red-600 hover:bg-red-200 transition"
-                     >
-                       Deactivate
-                     </button>
-                   )}
-                 </td>
-
-                  <td className="p-3 flex justify-end gap-2">
-                    <button
-                      onClick={() =>
-                        navigate(
-  `/parent-stats-card/${parent.userRef?._id}?page=${page}`
-)
-                      }
-                      className="p-2 bg-gray-100 rounded-lg"
-                    >
-                      <AiFillEye />
-                    </button>
-
-                    <button
-                      onClick={() =>
-                       navigate(
-  `/parent/edit/${parent.userRef?._id}?page=${page}`
-)
-                      }
-                      className="p-2 bg-darkgreen text-white rounded-lg"
-                    >
-                      <FiEdit2 />
-                    </button>
-                  </td>
-
                 </tr>
-              ))}
+              ) : (
+                parents.map((parent) => (
+                  <tr
+                    key={parent._id}
+                    className=" hover:bg-offwhite text-table-text"
+                  >
+
+                    <td className="p-3 flex items-center gap-3">
+                     <img
+    src={parent.parentDetails?.profilePicture||
+        userlist}
+    loading="lazy"
+    decoding="async"
+    className="w-10 h-10 rounded-2xl object-cover"
+  />
+                      {parent.parentDetails?.fullName}
+                    </td>
+
+                    <td className="p-3">
+                      {parent.parentDetails?.childName}
+                    </td>
+
+                    <td className="p-3">
+                      {parent.parentDetails?.phoneNumber}
+                    </td>
+
+                   <td className="p-3">
+                     {/* Status badge */}
+                     <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${
+                       parent.userRef?.accountStatus === "deactivated" || !parent.userRef?.isActive
+                         ? "bg-red-100 text-red-600"
+                         : "bg-green-100 text-green-700"
+                     }`}>
+                       {parent.userRef?.accountStatus === "deactivated" || !parent.userRef?.isActive
+                         ? "Deactivated"
+                         : "Active"}
+                     </span>
+                   </td>
+
+                   <td className="p-3">
+                     {/* Deactivate / Reactivate action button */}
+                     {parent.userRef?.accountStatus === "deactivated" || !parent.userRef?.isActive ? (
+                       <button
+                         onClick={() => openModal(parent, "reactivate")}
+                         className="px-3 py-1.5 rounded-lg text-xs font-medium bg-green-100 text-green-700 hover:bg-green-200 transition"
+                       >
+                         Reactivate
+                       </button>
+                     ) : (
+                       <button
+                         onClick={() => openModal(parent, "deactivate")}
+                         className="px-3 py-1.5 rounded-lg text-xs font-medium bg-red-100 text-red-600 hover:bg-red-200 transition"
+                       >
+                         Deactivate
+                       </button>
+                     )}
+                   </td>
+
+                    <td className="p-3 flex justify-end gap-2">
+                      <button
+                        onClick={() =>
+                          navigate(
+    `/parent-stats-card/${parent.userRef?._id}?page=${page}`
+  )
+                        }
+                        className="p-2 bg-gray-100 rounded-lg"
+                      >
+                        <AiFillEye />
+                      </button>
+
+                      <button
+                        onClick={() =>
+                         navigate(
+    `/parent/edit/${parent.userRef?._id}?page=${page}`
+  )
+                        }
+                        className="p-2 bg-darkgreen text-white rounded-lg"
+                      >
+                        <FiEdit2 />
+                      </button>
+                    </td>
+
+                  </tr>
+                ))
+              )}
             </tbody>
 
           </table>
