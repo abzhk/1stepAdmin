@@ -230,6 +230,8 @@ const CentreEdit = () => {
                   <img
                     src={profilePicture}
                     alt={formData.fullName || "Centre"}
+                    loading="lazy"
+                    decoding="async"
                     className="w-24 h-24 rounded-full object-cover border-4 border-[#f1f5f2]"
                   />
                 ) : (

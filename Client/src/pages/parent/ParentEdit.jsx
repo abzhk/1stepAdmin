@@ -161,7 +161,7 @@ function ParentEdit() {
       }
 
       toast.success("Parent updated successfully");
-      navigate(`/view-parent?page=${page}`);
+      navigate(-1);
     } catch (err) {
       setError(err.message);
       toast.error(err.message || "Something went wrong");
@@ -204,6 +204,8 @@ function ParentEdit() {
                   <img
                     src={profilePicture}
                     alt="Parent"
+                    loading="lazy"
+                    decoding="async"
                     className="w-24 h-24 rounded-full object-cover border-4 border-[#f1f5f2]"
                   />
                 ) : (
@@ -330,7 +332,7 @@ function ParentEdit() {
               <div className="flex justify-end gap-3 mt-8 pt-5 border-t border-gray-100">
                 <button
                   type="button"
-                  onClick={() => navigate(`/view-parent?page=${page}`)}
+                  onClick={() => navigate(`/parent-list?page=${page}`)}
                   className="px-6 py-2.5 rounded-xl bg-white text-gray-700 hover:bg-gray-200 transition"
                 >
                   Cancel

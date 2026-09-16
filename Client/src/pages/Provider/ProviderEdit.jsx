@@ -266,6 +266,8 @@ function ProviderEdit() {
                       <img
                         src={profilePicture}
                         alt="Provider"
+                        loading="lazy"
+                        decoding="async"
                         className="w-24 h-24 rounded-full object-cover border-4 border-[#f1f5f2]"
                       />
                     ) : (
