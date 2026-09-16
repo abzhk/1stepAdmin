@@ -204,7 +204,6 @@ const CreateAdmin = () => {
         role: "",
       });
 
-      });
 
       setImagePreview(null);
     } catch (err) {
