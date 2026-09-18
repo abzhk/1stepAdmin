@@ -57,6 +57,14 @@ const userSchema = new mongoose.Schema(
     emailVerifiedAt: Date,
     profileCompletedAt: Date,
 
+    pendingEmailChange: {
+      newEmail: { type: String, trim: true, lowercase: true, default: null },
+      adminApproved: { type: Boolean, default: false },
+      approvedAt: { type: Date, default: null },
+      ticketRef: { type: String, default: null },
+      requestedAt: { type: Date, default: null },
+    },
+
     // ── SaaS Account Lifecycle ────────────────────────────────────────────────
     // accountStatus drives all access control. isActive mirrors it for backwards
     // compatibility with existing queries that check isActive.

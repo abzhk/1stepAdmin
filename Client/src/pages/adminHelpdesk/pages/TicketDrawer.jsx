@@ -145,10 +145,20 @@ export default function TicketDrawer({ ticket, idx, onClose, onUpdate }) {
 
         <div className="flex-1 overflow-y-auto px-6 py-5 flex flex-col gap-5 bg-white">
           <div className="text-cardfooter">
-  <span className="font-semibold">Description:</span>
-  <p className="mt-1">{ticket.description}</p>
-</div>
-          <div className=" font-bold text-cardtitle uppercase tracking-widest text-center">Admin Response</div>
+            <span className="font-semibold">Description:</span>
+            <p className="mt-1">{ticket.description}</p>
+            {ticket.subcategory === "Email Change Request" && ticket.requestedNewEmail && (
+              <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <span className="text-[11px] font-bold text-yellow-800 uppercase tracking-widest block mb-1">Email Change Details</span>
+                <div className="text-[13px] text-yellow-900 mt-1"><strong>Current:</strong> {ticket.email}</div>
+                <div className="text-[13px] text-yellow-900"><strong>Requested:</strong> {ticket.requestedNewEmail}</div>
+                <div className="text-[13px] text-yellow-900 mt-2">
+                  <strong>Status:</strong> {ticket.emailChangeStatus === 'approved' ? 'Approved' : ticket.emailChangeStatus === 'completed' ? 'Completed' : 'Pending Review'}
+                </div>
+              </div>
+            )}
+          </div>
+          <div className="font-bold text-cardtitle uppercase tracking-widest text-center mt-3">Admin Response</div>
           
           {messages.map((msg, i) => (
             <div key={i} className={`flex gap-3 ${msg.from === "agent" ? "flex-row-reverse" : ""}`}>

@@ -594,6 +594,89 @@ export const getAllTickets = async (req, res, next) => {
   }
 };
 
+export const getEmailChangeRequests = async (req, res, next) => {
+  try {
+    const tickets = await Help.find({ subcategory: "Email Change Request" })
+      .populate("user", "username email profilePicture")
+      .sort({ createdAt: -1 })
+      .lean();
+
+    const ticketUserIds = tickets.map((ticket) => ticket.user?._id).filter(Boolean);
+
+    const [parents, providers] = await Promise.all([
+      Parent.find({ userRef: { $in: ticketUserIds } }).lean(),
+      Provider.find({ userRef: { $in: ticketUserIds } }).lean(),
+    ]);
+
+    const parentMap = new Map(parents.map((p) => [p.userRef.toString(), p]));
+    const providerMap = new Map(providers.map((p) => [p.userRef.toString(), p]));
+
+    const formattedTickets = tickets.map((ticket) => {
+      const userId = ticket.user?._id?.toString();
+      const parent = userId ? parentMap.get(userId) : null;
+      const provider = userId ? providerMap.get(userId) : null;
+
+      let displayName = "User";
+      let displayProfilePicture = ticket.user?.profilePicture || "";
+
+      if (parent) {
+        displayName = parent.parentDetails?.fullName || displayName;
+        displayProfilePicture = ticket.user?.profilePicture || "";
+      } else if (provider) {
+        displayName = provider.fullName || displayName;
+        displayProfilePicture = provider.profilePicture || ticket.user?.profilePicture || "";
+      } else {
+        displayName = ticket.user?.username || ticket.email;
+      }
+
+      return {
+        ...ticket,
+        displayName,
+        displayProfilePicture,
+      };
+    });
+
+    res.status(200).json({
+      success: true,
+      tickets: formattedTickets,
+    });
+  } catch (err) { next(err); }
+};
+
+export const approveEmailChangeRequest = async (req, res, next) => {
+  try {
+    const ticket = await Help.findById(req.params.id);
+    if (!ticket) return next(errorHandler(404, "Ticket not found."));
+    if (ticket.subcategory !== "Email Change Request") return next(errorHandler(400, "Not an email change request ticket."));
+    if (ticket.emailChangeStatus === "approved" || ticket.emailChangeStatus === "completed") {
+      return res.status(400).json({ success: false, message: "Ticket is already approved or completed." });
+    }
+
+    const user = await User.findById(ticket.user);
+    if (!user) return next(errorHandler(404, "User not found."));
+
+    user.pendingEmailChange = {
+      newEmail: ticket.requestedNewEmail,
+      adminApproved: true,
+      approvedAt: new Date(),
+      ticketRef: ticket.ticketId,
+      requestedAt: ticket.createdAt
+    };
+    await user.save();
+
+    ticket.emailChangeStatus = "approved";
+    ticket.status = "In progress";
+    ticket.messages.push({
+      sender: "Admin",
+      message: "Email change request approved. The user has been notified to complete the process in their Profile Settings.",
+      createdAt: new Date()
+    });
+    await ticket.save();
+
+    res.status(200).json({ success: true, message: "Email change request approved." });
+  } catch (err) { next(err); }
+};
+
 
 export const replyTicket = async (req, res, next) => {
   try {

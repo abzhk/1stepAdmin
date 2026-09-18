@@ -35,6 +35,20 @@ const helpSchema = new mongoose.Schema(
       enum: HELP_CATEGORIES,
       required: true,
     },
+    subcategory: {
+      type: String,
+      trim: true,
+    },
+    requestedNewEmail: {
+      type: String,
+      trim: true,
+      lowercase: true,
+    },
+    emailChangeStatus: {
+      type: String,
+      enum: ["pending", "approved", "completed"],
+      default: "pending",
+    },
     description: {
       type: String,
       required: true,
