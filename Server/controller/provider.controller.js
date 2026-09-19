@@ -98,6 +98,15 @@ export const updateProvider = async (req, res, next) => {
       req.body,
       { new: true }
     );
+
+    // ── Sync identity fields to User collection ──────────────────────────────
+    const identitySync = {};
+    if (req.body.fullName)       identitySync.fullName       = req.body.fullName;
+    if (req.body.profilePicture) identitySync.profilePicture = req.body.profilePicture;
+    if (Object.keys(identitySync).length > 0) {
+      await User.findByIdAndUpdate(updatedProvider.userRef, { $set: identitySync });
+    }
+
     res.status(200).json(updatedProvider);
   } catch (error) {
     if (error.code === 11000 && error.keyPattern && error.keyPattern.email) {
@@ -1465,6 +1474,14 @@ export const updateCentreByAdmin = async (req, res, next) => {
       { $set: updateData },
       { new: true }
     );
+
+    // ── Sync identity fields to User collection ──────────────────────────────
+    const identitySync = {};
+    if (updateData.fullName)       identitySync.fullName       = updateData.fullName;
+    if (updateData.profilePicture) identitySync.profilePicture = updateData.profilePicture;
+    if (Object.keys(identitySync).length > 0) {
+      await User.findByIdAndUpdate(centre.userRef, { $set: identitySync });
+    }
 
     res.status(200).json({
       success: true,

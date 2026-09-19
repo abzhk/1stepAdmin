@@ -6,6 +6,13 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    // Synced from Parent.parentDetails.fullName or Provider.fullName on every save.
+    // Used as the single source of truth for display name across the entire platform.
+    fullName: {
+      type: String,
+      default: "",
+      trim: true,
+    },
     email: {
       type: String,
       required: true,
