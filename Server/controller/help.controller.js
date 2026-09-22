@@ -1,11 +1,8 @@
-import { getUserFullName } from "../utils/userUtils.js";
 import Help from "../model/Help/help.model.js";
 import { errorHandler } from "../utils/error.js";
 import { sendPlainEmail } from "../services/email.service.js";
-import {ticketReplyEmail} from "../utils/emailTemplates.js"
-import  User from "../model/user.model.js";
-import Parent from "../model/parent.model.js";
-import Provider from "../model/provider.model.js";
+import { ticketReplyEmail } from "../utils/emailTemplates.js";
+import User from "../model/user.model.js";
 
 const VALID_CATEGORIES = [
   "Account & Access",
@@ -439,14 +436,7 @@ export const getAllTickets = async (req, res, next) => {
 
     const [tickets, totalTickets, stats] = await Promise.all([
       Help.find(query)
-        .populate({
-          path: "user",
-          select: "username email profilePicture role",
-          populate: {
-            path: "role",
-            select: "role",
-          },
-        })
+        .populate("user", "fullName username email profilePicture")
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limitNumber)
@@ -488,81 +478,14 @@ export const getAllTickets = async (req, res, next) => {
     ]);
 
 
-    const ticketUserIds = tickets
-      .map((ticket) => ticket.user?._id)
-      .filter(Boolean);
-
-
-    const [parents, providers] = await Promise.all([
-      Parent.find({
-        userRef: { $in: ticketUserIds },
-      }).lean(),
-
-      Provider.find({
-        userRef: { $in: ticketUserIds },
-      }).lean(),
-    ]);
-
-
-    const parentMap = new Map(
-      parents.map((parent) => [
-        parent.userRef.toString(),
-        parent,
-      ])
-    );
-
-    const providerMap = new Map(
-      providers.map((provider) => [
-        provider.userRef.toString(),
-        provider,
-      ])
-    );
-
-
-    const formattedTickets = tickets.map((ticket) => {
-      const userId = ticket.user?._id?.toString();
-
-      const parent = userId
-        ? parentMap.get(userId)
-        : null;
-
-      const provider = userId
-        ? providerMap.get(userId)
-        : null;
-
-      let displayName = "User";
-       let displayProfilePicture = ticket.user?.profilePicture || "";
-
-      // Parent
-      if (parent) {
-        displayName =
-          parent.parentDetails?.fullName ||
-          displayName;
-      
-
-      displayProfilePicture =
-      ticket.user?.profilePicture || "";
-  }
-
-      // Provider / Centre
-      else if (provider) {
-        displayName =
-          provider.fullName ||
-          displayName;
-      
-       displayProfilePicture =
-      provider.profilePicture ||
-      ticket.user?.profilePicture ||
-      "";
-  }
-
-      return {
-        ...ticket,
-        displayName,
-         displayProfilePicture,
-      };
-    });
-
+    // ── Identity is now read directly from the User collection ───────────────
+    // fullName and profilePicture are synced to User on every Parent/Provider save.
+    // No extra queries to Parent or Provider collections needed.
+    const formattedTickets = tickets.map((ticket) => ({
+      ...ticket,
+      displayName:         ticket.user?.fullName || ticket.user?.username || "User",
+      displayProfilePicture: ticket.user?.profilePicture || "",
+    }));
 
     res.status(200).json({
       success: true,
@@ -592,6 +515,58 @@ export const getAllTickets = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+};
+
+export const getEmailChangeRequests = async (req, res, next) => {
+  try {
+    const tickets = await Help.find({ subcategory: "Email Change Request" })
+      .populate("user", "fullName username email profilePicture")
+      .sort({ createdAt: -1 })
+      .lean();
+
+    // ── Identity is now read directly from the User collection ───────────────
+    const formattedTickets = tickets.map((ticket) => ({
+      ...ticket,
+      displayName:           ticket.user?.fullName || ticket.user?.username || "User",
+      displayProfilePicture: ticket.user?.profilePicture || "",
+    }));
+
+    res.status(200).json({ success: true, tickets: formattedTickets });
+  } catch (err) { next(err); }
+};
+
+export const approveEmailChangeRequest = async (req, res, next) => {
+  try {
+    const ticket = await Help.findById(req.params.id);
+    if (!ticket) return next(errorHandler(404, "Ticket not found."));
+    if (ticket.subcategory !== "Email Change Request") return next(errorHandler(400, "Not an email change request ticket."));
+    if (ticket.emailChangeStatus === "approved" || ticket.emailChangeStatus === "completed") {
+      return res.status(400).json({ success: false, message: "Ticket is already approved or completed." });
+    }
+
+    const user = await User.findById(ticket.user);
+    if (!user) return next(errorHandler(404, "User not found."));
+
+    user.pendingEmailChange = {
+      newEmail: ticket.requestedNewEmail,
+      adminApproved: true,
+      approvedAt: new Date(),
+      ticketRef: ticket.ticketId,
+      requestedAt: ticket.createdAt
+    };
+    await user.save();
+
+    ticket.emailChangeStatus = "approved";
+    ticket.status = "In progress";
+    ticket.messages.push({
+      sender: "Admin",
+      message: "Email change request approved. The user has been notified to complete the process in their Profile Settings.",
+      createdAt: new Date()
+    });
+    await ticket.save();
+
+    res.status(200).json({ success: true, message: "Email change request approved." });
+  } catch (err) { next(err); }
 };
 
 
@@ -637,88 +612,26 @@ export const replyTicket = async (req, res, next) => {
 export const getLatestTickets = async (req, res, next) => {
   try {
     const tickets = await Help.find({})
-      .select("title status createdAt user")
-      .populate({
-        path: "user",
-        select: "username email profilePicture",
-      })
+      .select("title status createdAt user email")
+      .populate("user", "fullName username email profilePicture")
       .sort({ createdAt: -1 })
       .limit(3)
       .lean();
 
-    const ticketUserIds = tickets
-      .map((ticket) => ticket.user?._id)
-      .filter(Boolean);
+    // ── Identity is now read directly from the User collection ───────────────
+    const formattedTickets = tickets.map((ticket) => ({
+      _id:       ticket._id,
+      title:     ticket.title,
+      status:    ticket.status,
+      createdAt: ticket.createdAt,
+      user: {
+        email: ticket.user?.email || ticket.email || "",
+      },
+      displayName:           ticket.user?.fullName || ticket.user?.username || "User",
+      displayProfilePicture: ticket.user?.profilePicture || "",
+    }));
 
-    const [parents, providers] = await Promise.all([
-      Parent.find({
-        userRef: { $in: ticketUserIds },
-      })
-        .select("userRef parentDetails.fullName")
-        .lean(),
-
-      Provider.find({
-        userRef: { $in: ticketUserIds },
-      })
-        .select("userRef fullName profilePicture")
-        .lean(),
-    ]);
-
-    const parentMap = new Map(
-      parents.map((parent) => [
-        parent.userRef.toString(),
-        parent.parentDetails?.fullName,
-      ])
-    );
-
-    const providerMap = new Map(
-      providers.map((provider) => [
-        provider.userRef.toString(),
-        {
-          fullName: provider.fullName,
-          profilePicture: provider.profilePicture,
-        },
-      ])
-    );
-
-    const formattedTickets = tickets.map((ticket) => {
-      const userId = ticket.user?._id?.toString();
-
-      const parentName = userId
-        ? parentMap.get(userId)
-        : null;
-
-      const provider = userId
-        ? providerMap.get(userId)
-        : null;
-
-      return {
-        _id: ticket._id,
-        title: ticket.title,
-        status: ticket.status,
-        createdAt: ticket.createdAt,
-
-        user: {
-          username: "User",
-          email: ticket.user?.email || "",
-        },
-
-        displayName:
-          parentName ||
-          provider?.fullName ||
-          "User",
-
-        displayProfilePicture:
-          provider?.profilePicture ||
-          ticket.user?.profilePicture ||
-          "",
-      };
-    });
-
-    res.status(200).json({
-      success: true,
-      tickets: formattedTickets,
-    });
+    res.status(200).json({ success: true, tickets: formattedTickets });
   } catch (error) {
     console.error("Error fetching latest tickets:", error);
     next(error);

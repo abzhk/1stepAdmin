@@ -8,6 +8,8 @@ import {
   getAllTickets,
     replyTicket,
       getLatestTickets,
+      getEmailChangeRequests,
+      approveEmailChangeRequest,
 } from "../controller/help.controller.js";
 import { verifyAdminToken } from "../middlewares/authMiddleware.js";
 
@@ -19,6 +21,8 @@ router.get("/ticket/:id", verifyAdminToken, getTicket);
 router.put("/update-ticket/:id", verifyAdminToken, updateTicket);
 router.delete("/delete-ticket/:id", verifyAdminToken, deleteTicket);
 router.get("/all-tickets",verifyAdminToken, getAllTickets);
+router.get("/email-change-requests", verifyAdminToken, getEmailChangeRequests);
+router.post("/approve-email-change/:id", verifyAdminToken, approveEmailChangeRequest);
 router.post(
   "/reply-ticket/:id",
   verifyAdminToken,

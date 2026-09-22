@@ -6,6 +6,13 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    // Synced from Parent.parentDetails.fullName or Provider.fullName on every save.
+    // Used as the single source of truth for display name across the entire platform.
+    fullName: {
+      type: String,
+      default: "",
+      trim: true,
+    },
     email: {
       type: String,
       required: true,
@@ -56,6 +63,14 @@ const userSchema = new mongoose.Schema(
     lastLoginAt: Date,
     emailVerifiedAt: Date,
     profileCompletedAt: Date,
+
+    pendingEmailChange: {
+      newEmail: { type: String, trim: true, lowercase: true, default: null },
+      adminApproved: { type: Boolean, default: false },
+      approvedAt: { type: Date, default: null },
+      ticketRef: { type: String, default: null },
+      requestedAt: { type: Date, default: null },
+    },
 
     // ── SaaS Account Lifecycle ────────────────────────────────────────────────
     // accountStatus drives all access control. isActive mirrors it for backwards

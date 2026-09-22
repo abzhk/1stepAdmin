@@ -98,6 +98,15 @@ export const updateProvider = async (req, res, next) => {
       req.body,
       { new: true }
     );
+
+    // ── Sync identity fields to User collection ──────────────────────────────
+    const identitySync = {};
+    if (req.body.fullName)       identitySync.fullName       = req.body.fullName;
+    if (req.body.profilePicture) identitySync.profilePicture = req.body.profilePicture;
+    if (Object.keys(identitySync).length > 0) {
+      await User.findByIdAndUpdate(updatedProvider.userRef, { $set: identitySync });
+    }
+
     res.status(200).json(updatedProvider);
   } catch (error) {
     if (error.code === 11000 && error.keyPattern && error.keyPattern.email) {
@@ -710,38 +719,59 @@ export const getProviderStats = async (req, res, next) => {
     const monthly = buildStats(monthAgg, monthTotal);
 
     const bookingDetails = await Booking.aggregate([
-      {
-        $match: {
-          provider: providerId,
-          createdAt: { $gte: startOfMonth, $lte: endOfMonth },
-        },
-      },
-      {
-        $lookup: {
-          from: "users",
-          localField: "patient",
-          foreignField: "_id",
-          as: "patientDetails",
-        },
-      },
-      { $unwind: "$patientDetails" },
-      {
-        $project: {
-          "patientDetails.profilePicture": 1,
-          "patientDetails.username": 1,
-          patientName: 1,
-          createdAt: 1,
-          note: 1,
-          scheduledTime: 1,
-          status: 1,
-          sessionType: 1,
-          service: 1,
-        },
-      },
-      { $sort: { createdAt: -1 } },
-      { $skip: startIndex },
-      { $limit: limit },
-    ]);
+  {
+    $match: {
+      provider: providerId,
+      createdAt: { $gte: startOfMonth, $lte: endOfMonth },
+    },
+  },
+
+
+  {
+    $sort: {
+      createdAt: -1,
+    },
+  },
+
+
+  {
+    $skip: startIndex,
+  },
+
+  {
+    $limit: limit,
+  },
+
+  {
+    $lookup: {
+      from: "users",
+      localField: "patient",
+      foreignField: "_id",
+      as: "patientDetails",
+    },
+  },
+
+  {
+    $unwind: {
+      path: "$patientDetails",
+      preserveNullAndEmptyArrays: true,
+    },
+  },
+
+  {
+    $project: {
+      "patientDetails.profilePicture": 1,
+      "patientDetails.username": 1,
+      patientName: 1,
+      createdAt: 1,
+      note: 1,
+      scheduledTime: 1,
+      status: 1,
+      sessionType: 1,
+      service: 1,
+    },
+  },
+]);
 
     res.status(200).json({
       success: true,
@@ -1026,9 +1056,9 @@ export const getIndividualProviders = async (req, res, next) => {
       order = "desc",
     } = req.query;
 
-    let query = {
-      providerType: "individual",
-    };
+      let query = {
+     providerType: "individual",
+     isActive: true,};
 
     const searchFilters = [];
 
@@ -1096,8 +1126,8 @@ switch (sort) {
     break;
 
   case "status":
-    sortStage["user.isActive"] = order === "asc" ? 1 : -1;
-    break;
+  sortStage.isActive = order === "asc" ? 1 : -1;
+  break;
 
   case "createdAt":
     sortStage.createdAt = order === "asc" ? 1 : -1;
@@ -1111,14 +1141,7 @@ switch (sort) {
       {
         $match: query,
       },
-      {
-        $lookup: {
-          from: "users",
-          localField: "userRef",
-          foreignField: "_id",
-          as: "user",
-        },
-      },
+    
       {
         $unwind: "$user",
       },
@@ -1135,6 +1158,14 @@ switch (sort) {
           data: [
             { $skip: Number(startIndex) },
             { $limit: Number(limit) },
+              {
+        $lookup: {
+          from: "users",
+          localField: "userRef",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
             {
               $project: {
                 fullName: 1,
@@ -1465,6 +1496,14 @@ export const updateCentreByAdmin = async (req, res, next) => {
       { $set: updateData },
       { new: true }
     );
+
+    // ── Sync identity fields to User collection ──────────────────────────────
+    const identitySync = {};
+    if (updateData.fullName)       identitySync.fullName       = updateData.fullName;
+    if (updateData.profilePicture) identitySync.profilePicture = updateData.profilePicture;
+    if (Object.keys(identitySync).length > 0) {
+      await User.findByIdAndUpdate(centre.userRef, { $set: identitySync });
+    }
 
     res.status(200).json({
       success: true,

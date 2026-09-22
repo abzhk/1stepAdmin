@@ -92,6 +92,15 @@ export const updateParent = async (req, res, next) => {
         .status(500)
         .json({ message: "Could not update parent details, try later." });
     }
+
+    // ── Sync identity fields to User collection ──────────────────────────────
+    const identitySync = {};
+    if (updateParent.parentDetails?.fullName)       identitySync.fullName       = updateParent.parentDetails.fullName;
+    if (updateParent.parentDetails?.profilePicture) identitySync.profilePicture = updateParent.parentDetails.profilePicture;
+    if (Object.keys(identitySync).length > 0) {
+      await User.findByIdAndUpdate(id, { $set: identitySync });
+    }
+
     res
       .status(200)
       .json({ message: "Parent details updated successfully", updateParent });
