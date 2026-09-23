@@ -78,6 +78,7 @@ const fetchTickets = async () => {
   `/api/help/all-tickets?search=${search}&status=${filter}&page=${page}&limit=10`
 );
 // console.log(data.pagination);
+console.log("tickets response:", data);
     setTickets(data.tickets);
      setPagination(data.pagination);
      setStats(data.stats);
