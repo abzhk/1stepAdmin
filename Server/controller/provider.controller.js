@@ -761,7 +761,7 @@ export const getProviderStats = async (req, res, next) => {
   {
     $project: {
       "patientDetails.profilePicture": 1,
-      "patientDetails.username": 1,
+      "patientDetails.fullName": 1,
       patientName: 1,
       createdAt: 1,
       note: 1,
@@ -980,7 +980,7 @@ export const getCentreAppointments = async (req, res, next) => {
                 createdAt: 1,
                 "providerDetails.fullName": 1,
                 "providerDetails.name": 1,
-                "patientDetails.username": 1,
+                "patientDetails.fullName": 1,
                 "patientDetails.profilePicture": 1,
               },
             },

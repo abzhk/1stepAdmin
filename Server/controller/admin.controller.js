@@ -306,6 +306,14 @@ export const updateProvider = async (req, res,next) => {
       }
     );
 
+    // ── Sync identity fields to User collection ──────────────────────────────
+    const identitySync = {};
+    if (req.body.fullName !== undefined)       identitySync.fullName       = req.body.fullName;
+    if (req.body.profilePicture !== undefined) identitySync.profilePicture = req.body.profilePicture;
+    if (Object.keys(identitySync).length > 0 && updatedProvider?.userRef) {
+      await User.findByIdAndUpdate(updatedProvider.userRef, { $set: identitySync });
+    }
+
     return res.status(200).json({
       success: true,
       message: "Provider updated successfully",
@@ -403,6 +411,14 @@ export const updateParent = async (req, res ,next) => {
         new: true,
       }
     ).populate("userRef", "username email profilePicture");
+
+    // ── Sync identity fields to User collection ──────────────────────────────
+    const identitySync = {};
+    if (req.body.parentDetails?.fullName !== undefined)       identitySync.fullName       = req.body.parentDetails.fullName;
+    if (req.body.parentDetails?.profilePicture !== undefined) identitySync.profilePicture = req.body.parentDetails.profilePicture;
+    if (Object.keys(identitySync).length > 0) {
+      await User.findByIdAndUpdate(userRef, { $set: identitySync });
+    }
 
     return res.status(200).json({
       success: true,
