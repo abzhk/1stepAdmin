@@ -1513,7 +1513,7 @@ export const getCentreSpecificProviderBookings = async (req, res, next) => {
     if (search) {
       matchStage.$or = [
         { patientName: { $regex: search, $options: "i" } },
-        { "patientDetails.username": { $regex: search, $options: "i" } },
+        { "patientDetails.fullName": { $regex: search, $options: "i" } },
         { service: { $regex: search, $options: "i" } },
       ];
     }
@@ -1527,7 +1527,7 @@ export const getCentreSpecificProviderBookings = async (req, res, next) => {
           patient: 1,
           "patientDetails._id": 1,
           "patientDetails.profilePicture": 1,
-          "patientDetails.username": 1,
+          "patientDetails.fullName": 1,
           patientSnapshot: 1,
           bookingId: 1,
           patientName: 1,

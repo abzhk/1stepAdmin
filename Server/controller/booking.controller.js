@@ -252,9 +252,9 @@ export const getBookingProvider = async (req, res, next) => {
       },
       {
         $lookup: {
-          from: "parents",
+          from: "users",
           localField: "patient",
-          foreignField: "userRef",
+          foreignField: "_id",
           as: "patientDetails",
         },
       },
@@ -266,8 +266,8 @@ export const getBookingProvider = async (req, res, next) => {
       },
       {
         $project: {
-          "patientDetails.parentDetails.profilePicture": 1,
-          "patientDetails.parentDetails.fullName": 1,
+          "patientDetails.fullName": 1,
+          "patientDetails.profilePicture": 1,
           patientName: 1,
           createdAt: 1,
           note: 1,
@@ -695,7 +695,7 @@ export const getAllRecentBookings = async (req, res) => {
           "providerDetails.address.state": 1,
 
           "patientDetails._id": 1,
-          "patientDetails.username": 1,
+          "patientDetails.fullName": 1,
           "patientDetails.profilePicture": 1
         },
       },
