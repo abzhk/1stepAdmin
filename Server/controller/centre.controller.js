@@ -6,15 +6,15 @@ import CentreProviderRelation from "../model/Centre/centreProviderRelation.model
 import { Booking } from "../model/booking.model.js";
 import { BookedSlots } from "../model/booking.model.js";
 import Stats from "../model/stats.model.js";
-import Invitation from "../model/Centre/invitation.model.js";
+import Invitation from "../model/Centre/centreInvitation.model.js";
 import dotenv from "dotenv";
-import moment from "moment";
 import { errorHandler } from "../utils/error.js";
 import {
   sendCentreInvitationEmail,
   sendCentreAcceptanceEmail,
 } from "../services/email.service.js";
 dotenv.config();
+
 
 const getInvitationEmailTemplate = (
   providerName,
@@ -222,8 +222,7 @@ const getAcceptanceConfirmationTemplate = (
 export const inviteProvider = async (req, res) => {
   try {
     const { centreId } = req.params;
-    const { providerEmail, role, consultationFee, proposedSlots, message } =
-      req.body;
+    const { providerEmail, consultationFee, message } = req.body;
     const userId = req.user.id;
 
     // Verify centre
@@ -240,9 +239,18 @@ export const inviteProvider = async (req, res) => {
       });
     }
 
-    // Find provider
+    if (!providerEmail || typeof providerEmail !== "string") {
+      return res.status(400).json({ success: false, message: "providerEmail is required" });
+    }
+    if (consultationFee === undefined || consultationFee === null) {
+      return res.status(400).json({ success: false, message: "consultationFee is required" });
+    }
+
+    const normalizedEmail = providerEmail.toLowerCase().trim();
+
+    // Resolve provider by email to get stable _id
     const provider = await Provider.findOne({
-      email: providerEmail.toLowerCase(),
+      email: normalizedEmail,
       providerType: "individual",
     });
 
@@ -253,7 +261,7 @@ export const inviteProvider = async (req, res) => {
       });
     }
 
-    // Check if already added
+    // Check active membership by centreId + providerId
     const existingRelation = await CentreProvider.findOne({
       centreId,
       providerId: provider._id,
@@ -267,11 +275,12 @@ export const inviteProvider = async (req, res) => {
       });
     }
 
-    // Check pending invitation
+    // Check live pending invitation by centreId + providerId, skip expired
     const existingInvitation = await Invitation.findOne({
       centreId,
-      invitedEmail: providerEmail.toLowerCase(),
+      providerId: provider._id,
       status: "pending",
+      expiresAt: { $gt: new Date() },
     });
 
     if (existingInvitation) {
@@ -281,29 +290,28 @@ export const inviteProvider = async (req, res) => {
       });
     }
 
-    // Create invitation record first
-    const token = crypto.randomBytes(32).toString("hex");
+    const { raw: token, hash: tokenHash } = Invitation.generateTokenPair();
     const acceptUrl = `${process.env.FRONTEND_URL}/accept-invitation/${token}`;
 
     const invitation = await Invitation.create({
       centreId,
-      invitedEmail: providerEmail.toLowerCase(),
+      providerId: provider._id,
+      invitedEmail: normalizedEmail,
       invitedBy: { userId, name: centre.fullName },
       token,
-      role: role || "provider",
+      tokenHash,
       consultationFee,
-      proposedSlots: proposedSlots || {},
       message,
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     });
 
-    // Send invitation email via Resend (fire-and-forget — do not block on email failure)
+    // Fire-and-forget email — do not block on email failure
     sendCentreInvitationEmail({
       to:              provider.email,
       providerName:    provider.fullName,
       centreName:      centre.fullName,
       consultationFee,
-      role:            role || "provider",
+      role:            "provider",
       message:         message || "",
       acceptUrl,
     }).catch((emailErr) => {
@@ -326,14 +334,14 @@ export const inviteProvider = async (req, res) => {
   }
 };
 
-// 2. BULK INVITE MULTIPLE PROVIDERS (NEW!)
+
+// 2. BULK INVITE MULTIPLE PROVIDERS
 export const bulkInviteProviders = async (req, res) => {
   try {
     const { centreId } = req.params;
-    const { providers } = req.body; // Array of provider objects
+    const { providers } = req.body;
     const userId = req.user.id;
 
-    // Validate input
     if (!Array.isArray(providers) || providers.length === 0) {
       return res.status(400).json({
         success: false,
@@ -355,106 +363,86 @@ export const bulkInviteProviders = async (req, res) => {
       });
     }
 
-    const results = {
-      success: [],
-      failed: [],
-      total: providers.length,
-    };
+    const results = { success: [], failed: [], total: providers.length };
 
-    // Extract all emails
-    const emails = providers.map(p => p.email.toLowerCase());
-
-    // Batch fetch providers
+    // Batch fetch all providers by normalized email
+    const emails = providers.map(p => (p.email || "").toLowerCase().trim()).filter(Boolean);
     const existingProviders = await Provider.find({
       email: { $in: emails },
-      providerType: "individual"
+      providerType: "individual",
     }).lean();
-    
     const providerMap = new Map(existingProviders.map(p => [p.email, p]));
     const providerIds = existingProviders.map(p => p._id);
 
-    // Batch fetch existing relations
+    // Batch fetch existing active relations by providerId
     const existingRelations = await CentreProvider.find({
       centreId,
       providerId: { $in: providerIds },
-      isActive: true
+      isActive: true,
     }).lean();
-    
     const relationSet = new Set(existingRelations.map(r => r.providerId.toString()));
 
-    // Batch fetch existing invitations
+    // Batch fetch live pending invitations by providerId
     const existingInvitations = await Invitation.find({
       centreId,
-      invitedEmail: { $in: emails },
-      status: "pending"
+      providerId: { $in: providerIds },
+      status: "pending",
+      expiresAt: { $gt: new Date() },
     }).lean();
-    
-    const invitationSet = new Set(existingInvitations.map(i => i.invitedEmail));
+    const invitedProviderSet = new Set(existingInvitations.map(i => i.providerId.toString()));
 
     const invitationsToCreate = [];
 
-    // Process each provider
     for (const providerData of providers) {
       try {
-        const { email, role, consultationFee, proposedSlots, message } = providerData;
-        const lowerEmail = email.toLowerCase();
-        
+        const { email, consultationFee, message } = providerData;
+        if (!email || typeof email !== "string") {
+          results.failed.push({ email: email || null, reason: "Email is required" });
+          continue;
+        }
+        const lowerEmail = email.toLowerCase().trim();
         const provider = providerMap.get(lowerEmail);
 
         if (!provider) {
-          results.failed.push({
-            email,
-            reason: "Provider not found in system",
-          });
+          results.failed.push({ email, reason: "Provider not found in system" });
           continue;
         }
-
         if (relationSet.has(provider._id.toString())) {
-          results.failed.push({
-            email,
-            reason: "Already added to centre",
-          });
+          results.failed.push({ email, reason: "Already added to centre" });
+          continue;
+        }
+        if (invitedProviderSet.has(provider._id.toString())) {
+          results.failed.push({ email, reason: "Invitation already sent" });
           continue;
         }
 
-        if (invitationSet.has(lowerEmail)) {
-          results.failed.push({
-            email,
-            reason: "Invitation already sent",
-          });
-          continue;
-        }
-
-        const token = crypto.randomBytes(32).toString("hex");
-
+        const { raw: token, hash: tokenHash } = Invitation.generateTokenPair();
         invitationsToCreate.push({
           centreId,
+          providerId: provider._id,
           invitedEmail: lowerEmail,
-          invitedBy: { userId, name: req.user.name },
+          invitedBy: { userId, name: centre.fullName },
           token,
-          role: role || "provider",
+          tokenHash,
           consultationFee,
-          proposedSlots: proposedSlots || {},
           message,
           expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-          providerName: provider.fullName, // for results
-          originalEmail: email, // for results
+          // metadata for results only (not stored in schema)
+          _providerName: provider.fullName,
+          _originalEmail: email,
         });
       } catch (error) {
-        results.failed.push({
-          email: providerData.email,
-          reason: error.message,
-        });
+        results.failed.push({ email: providerData.email, reason: error.message });
       }
     }
 
     if (invitationsToCreate.length > 0) {
-      const createdInvitations = await Invitation.insertMany(invitationsToCreate);
-      
+      const toInsert = invitationsToCreate.map(({ _providerName, _originalEmail, ...doc }) => doc);
+      const createdInvitations = await Invitation.insertMany(toInsert);
       createdInvitations.forEach((inv, index) => {
         results.success.push({
-          email: invitationsToCreate[index].originalEmail,
-          providerName: invitationsToCreate[index].providerName,
+          email: invitationsToCreate[index]._originalEmail,
+          providerName: invitationsToCreate[index]._providerName,
           invitationId: inv._id,
         });
       });
@@ -470,6 +458,7 @@ export const bulkInviteProviders = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
 
 // 3. ACCEPT INVITATION — PUBLIC: token is the proof of identity
 // The 64-byte token was sent to provider's email; only they have it.
@@ -491,10 +480,7 @@ export const acceptInvitation = async (req, res) => {
 
     if (!invitation) {
       await session.abortTransaction();
-      return res.status(404).json({
-        success: false,
-        message: "Invitation not found",
-      });
+      return res.status(404).json({ success: false, message: "Invitation not found" });
     }
 
     if (invitation.status !== "pending") {
@@ -505,32 +491,26 @@ export const acceptInvitation = async (req, res) => {
       });
     }
 
-    // Check expiration
     if (new Date() > invitation.expiresAt) {
       invitation.status = "expired";
+      invitation.statusUpdatedAt = new Date();
       await invitation.save({ session });
-      await session.abortTransaction();
-      return res.status(400).json({
-        success: false,
-        message: "Invitation has expired",
-      });
+      await session.commitTransaction();
+      return res.status(400).json({ success: false, message: "Invitation has expired" });
     }
 
-    // Look up provider by invited email — token verifies identity
+    // Look up provider by stored providerId — no email comparison
     const provider = await Provider.findOne({
-      email: invitation.invitedEmail,
+      _id: invitation.providerId,
       providerType: "individual",
     }).session(session);
 
     if (!provider) {
       await session.abortTransaction();
-      return res.status(404).json({
-        success: false,
-        message: "Provider profile not found. Please register with the invited email first.",
-      });
+      return res.status(404).json({ success: false, message: "Provider not found." });
     }
 
-    // Guard: already a member
+    // Guard: already an active member
     const existingRelation = await CentreProvider.findOne({
       centreId: invitation.centreId,
       providerId: provider._id,
@@ -546,62 +526,43 @@ export const acceptInvitation = async (req, res) => {
     }
 
     // Find centre
-    const centre = await Provider.findById(invitation.centreId).session(
-      session
-    );
-
+    const centre = await Provider.findById(invitation.centreId).session(session);
     if (!centre) {
       await session.abortTransaction();
-      return res.status(404).json({
-        success: false,
-        message: "Centre not found",
-      });
+      return res.status(404).json({ success: false, message: "Centre not found" });
     }
 
-    // Create centre-provider relationship
-    const relation = await CentreProvider.create(
-      [
-        {
-          centreId: invitation.centreId,
-          providerId: provider._id,
-          role: invitation.role,
+    // Upsert handles new joins AND re-joins (previously removed provider)
+    const relation = await CentreProvider.findOneAndUpdate(
+      { centreId: invitation.centreId, providerId: provider._id },
+      {
+        $set: {
           consultationFee: invitation.consultationFee,
-          centreAvailableSlots: invitation.proposedSlots,
           addedBy: invitation.invitedBy.userId,
           isActive: true,
           joinedAt: new Date(),
+          leftAt: null,
         },
-      ],
-      { session }
+      },
+      { upsert: true, new: true, session }
     );
 
-    // Update invitation status
     invitation.status = "accepted";
-    invitation.acceptedAt = new Date();
-    invitation.providerId = provider._id;
+    invitation.statusUpdatedAt = new Date();
     await invitation.save({ session });
 
     await session.commitTransaction();
 
-    // Send confirmation email to provider
-    try {
-      await transporter.sendMail({
-        from: `"${centre.fullName}" <${process.env.EMAIL_USER}>`,
-        to: provider.email,
-        subject: `Welcome to ${centre.fullName}!`,
-        html: getAcceptanceConfirmationTemplate(
-          provider.fullName,
-          centre.fullName,
-          centre.address || "",
-          centre.phone || ""
-        ),
-      });
-    } catch (emailError) {
-      console.error("Confirmation email failed:", emailError);
-    }
+    // Fire-and-forget acceptance email
+    sendCentreAcceptanceEmail({
+      to:           provider.email,
+      providerName: provider.fullName,
+      centreName:   centre.fullName,
+      centreAddress: centre.address || "",
+      centrePhone:  centre.phone || "",
+    }).catch((err) => console.error("Confirmation email failed:", err?.message));
 
-    // Populate and return result
-    const result = await CentreProvider.findById(relation[0]._id)
+    const result = await CentreProvider.findById(relation._id)
       .populate("centreId", "fullName email phone address profilePicture")
       .populate("providerId", "fullName email profilePicture qualification");
 
@@ -611,13 +572,14 @@ export const acceptInvitation = async (req, res) => {
       data: result,
     });
   } catch (error) {
-    await session.abortTransaction();
+    if (session.inTransaction()) await session.abortTransaction();
     console.error("Accept invitation error:", error);
     res.status(500).json({ success: false, message: error.message });
   } finally {
     session.endSession();
   }
 };
+
 
 export const getInvitationDetails = async (req, res) => {
   try {
@@ -644,7 +606,6 @@ export const getInvitationDetails = async (req, res) => {
       centrePhone: invitation.centreId.phone,
       centreAddress: invitation.centreId.address,
       centreProfilePicture: invitation.centreId.profilePicture,
-      role: invitation.role,
       consultationFee: invitation.consultationFee,
       message: invitation.message,
       expiresAt: invitation.expiresAt,
@@ -1194,9 +1155,9 @@ export const resendInvitation = async (req, res) => {
       });
     }
 
-    // Find the invited provider
+    // Find invited provider by stored providerId — not by email
     const provider = await Provider.findOne({
-      email: invitation.invitedEmail,
+      _id: invitation.providerId,
       providerType: "individual",
     });
 
@@ -1207,33 +1168,27 @@ export const resendInvitation = async (req, res) => {
       });
     }
 
-    // Regenerate token and extend expiry by 7 days
-    const newToken = crypto.randomBytes(32).toString("hex");
+    // Regenerate token pair and extend expiry
+    const { raw: newToken, hash: newTokenHash } = Invitation.generateTokenPair();
     invitation.token = newToken;
+    invitation.tokenHash = newTokenHash;
     invitation.status = "pending";
     invitation.expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    invitation.resentCount = (invitation.resentCount || 0) + 1;
+    invitation.lastResentAt = new Date();
     await invitation.save();
 
     const acceptUrl = `${process.env.FRONTEND_URL}/accept-invitation/${newToken}`;
 
-    try {
-      await transporter.sendMail({
-        from: `"${centre.fullName}" <${process.env.EMAIL_USER}>`,
-        to: provider.email,
-        subject: `Reminder: Invitation to Join ${centre.fullName}`,
-        html: getInvitationEmailTemplate(
-          provider.fullName,
-          centre.fullName,
-          invitation.consultationFee,
-          invitation.role,
-          invitation.message || "",
-          acceptUrl
-        ),
-      });
-    } catch (emailError) {
-      console.error("Resend email failed:", emailError);
-      return res.status(500).json({ success: false, message: "Failed to resend invitation email" });
-    }
+    sendCentreInvitationEmail({
+      to:              provider.email,
+      providerName:    provider.fullName,
+      centreName:      centre.fullName,
+      consultationFee: invitation.consultationFee,
+      role:            "provider",
+      message:         invitation.message || "",
+      acceptUrl,
+    }).catch((err) => console.error("[resendInvitation] Email failed:", err?.message));
 
     res.status(200).json({
       success: true,
@@ -1245,6 +1200,7 @@ export const resendInvitation = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
 
 // ==================== NEW: CENTRE APPOINTMENT VISIBILITY ====================
 
