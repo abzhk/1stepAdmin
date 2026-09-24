@@ -79,7 +79,7 @@ export default function TicketsPanel({ tickets,search,
                         <div className="flex items-center gap-3">
                           <Av
   image={t.displayProfilePicture}
-  initials={t.user?.username?.charAt(0) || "G"}
+  initials={t.user?.fullName?.charAt(0) || "G"}
   cc={ac(i)}
   size="sm"
 />

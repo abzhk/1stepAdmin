@@ -88,7 +88,7 @@ const RolebyAccessView = () => {
             <div>
               <div className="flex items-center gap-3 flex-wrap">
                 <h2 className="font-semibold text-darkgreen text-lg">
-                  {r.username}
+                  {r.fullName || r.username}
                 </h2>
 
                 <span className="px-3 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded-full">

@@ -39,7 +39,7 @@ const filtered = applicants
 
     const name =
       a.name ||
-      a.userId?.username ||
+      a.userId?.fullName ||
       "";
 
     const email =

@@ -519,9 +519,9 @@ export const getAllContactMessages = async (req, res, next) => {
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
-        .populate("userRef", "username email profilePicture")
-        .populate("messages.replies.repliedBy", "username email") // Updated path
-        .populate("messages.sentBy", "username email"), // Updated path
+        .populate("userRef", "fullName fullName username email profilePicture profilePicture")
+        .populate("messages.replies.repliedBy", "fullName fullName username email profilePicture") // Updated path
+        .populate("messages.sentBy", "fullName fullName username email profilePicture"), // Updated path
       Contact.countDocuments(query),
     ]);
 
@@ -547,9 +547,9 @@ export const getContactMessageById = async (req, res, next) => {
     
 
     const message = await Contact.findById(req.params.id)
-      .populate("userRef", "username email profilePicture")
-      .populate("messages.sentBy", "username email")
-      .populate("messages.replies.repliedBy", "username email");
+      .populate("userRef", "fullName fullName username email profilePicture profilePicture")
+      .populate("messages.sentBy", "fullName fullName username email profilePicture")
+      .populate("messages.replies.repliedBy", "fullName fullName username email profilePicture");
 
     if (!message) {
       return next(errorHandler(404, "Contact message not found"));
@@ -576,8 +576,8 @@ export const getContactByTopicId = async (req, res, next) => {
     const { topicId } = req.params;
     
     const message = await Contact.findOne({ topicId })
-      .populate("replies.repliedBy", "username email")
-      .populate("messages.sentBy", "username email");
+      .populate("replies.repliedBy", "fullName fullName username email profilePicture")
+      .populate("messages.sentBy", "fullName fullName username email profilePicture");
 
     if (!message) {
       return next(errorHandler(404, "Topic not found"));
@@ -662,8 +662,8 @@ export const addReply = async (req, res, next) => {
 
     // Fetch updated contact with populated fields
     const updatedContact = await Contact.findById(req.params.id)
-      .populate("messages.replies.repliedBy", "username email")
-      .populate("messages.sentBy", "username email");
+      .populate("messages.replies.repliedBy", "fullName fullName username email profilePicture")
+      .populate("messages.sentBy", "fullName fullName username email profilePicture");
 
     res.status(200).json({
       success: true,
@@ -777,7 +777,7 @@ export const updateContactStatus = async (req, res, next) => {
       req.params.id,
       { $set: updateData },
       { new: true, runValidators: true }
-    ).populate("replies.repliedBy", "username email");
+    ).populate("replies.repliedBy", "fullName fullName username email profilePicture");
 
     if (!message) {
       return next(errorHandler(404, "Contact message not found"));
@@ -853,8 +853,8 @@ export const getUserContactMessages = async (req, res, next) => {
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
-        .populate("replies.repliedBy", "username email")
-        .populate("messages.sentBy", "username email"),
+        .populate("replies.repliedBy", "fullName fullName username email profilePicture")
+        .populate("messages.sentBy", "fullName fullName username email profilePicture"),
       Contact.countDocuments(query),
     ]);
 
@@ -1037,7 +1037,7 @@ export const exportContactMessages = async (req, res, next) => {
 
     const messages = await Contact.find(query)
       .sort({ createdAt: -1 })
-      .populate("userRef", "username email");
+      .populate("userRef", "fullName fullName username email profilePicture");
 
 
     const csvHeaders = [
@@ -1204,8 +1204,8 @@ export const replyToContact = async (req, res, next) => {
 
     // Fetch updated contact
     const updatedContact = await Contact.findById(id)
-      .populate("messages.replies.repliedBy", "username email")
-      .populate("messages.sentBy", "username email");
+      .populate("messages.replies.repliedBy", "fullName fullName username email profilePicture")
+      .populate("messages.sentBy", "fullName fullName username email profilePicture");
 
     res.status(200).json({
       success: true,
