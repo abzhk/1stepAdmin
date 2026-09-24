@@ -7,6 +7,7 @@ import {Booking} from '../model/booking.model.js'
 import Progress from '../model/Training/progress.model.js'
 import mongoose from "mongoose";
 import UserSubscription from "../model/subscription.model.js";
+import ArticleLike from "../model/Article/articleLike.model.js";
 
 export const createParent = async (req, res, next) => {
   const id = req.params.id;
@@ -332,9 +333,10 @@ export const parentstats = async (req, res, next) => {
       return res.status(400).json({ message: "invalid user", success: false });
     }
 
-    const [totalBookings, likedResources, progressDocs] = await Promise.all([
+    const [totalBookings, likedResources,likedArticles, progressDocs] = await Promise.all([
       Booking.countDocuments({ patient: parentId }),
       Like.countDocuments({ user: parentId }),
+       ArticleLike.countDocuments({ user: parentId }),
       Progress.find({ parent: parentId })
         .select("modules certification")
         .lean(),
@@ -390,6 +392,7 @@ export const parentstats = async (req, res, next) => {
       data: {
         totalBookings,
         likedResources,
+        likedArticles,
         totalCourses,
         completedCourses,
         activeCourses,

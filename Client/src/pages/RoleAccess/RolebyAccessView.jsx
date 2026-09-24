@@ -7,6 +7,7 @@ const RolebyAccessView = () => {
   const [q, setQ] = useState("");
   const [results, setResults] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [hasSearched, setHasSearched] = useState(false);
 
   const handleSearch = async () => {
     if (!q.trim()) return;
@@ -15,6 +16,7 @@ const RolebyAccessView = () => {
     });
 
     setResults(data.results || []);
+    setHasSearched(true);
   };
 
   const openUser = async (type, profileId) => {
@@ -57,7 +59,10 @@ const RolebyAccessView = () => {
         <div className="flex flex-col md:flex-row gap-3">
           <input
             value={q}
-            onChange={(e) => setQ(e.target.value)}
+            onChange={(e) => {
+  setQ(e.target.value);
+  setHasSearched(false);
+}}
             placeholder="Search by username or email..."
             className="flex-1 rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-yellow"
           />
@@ -111,12 +116,11 @@ const RolebyAccessView = () => {
         ))}
       </div>
 
-      {/* Empty State */}
-      {results.length === 0 && q && (
-        <div className="bg-white border border-dashed border-gray-200 rounded-2xl p-10 text-center text-gray-400">
-          No users found
-        </div>
-      )}
+      {hasSearched && results.length === 0 && (
+  <div>
+    No users found
+  </div>
+)}
 
       {/* Modal */}
       {selectedUser && (

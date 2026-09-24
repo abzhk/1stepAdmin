@@ -193,7 +193,7 @@ if (statsError) {
               <div className="w-10 h-10 rounded-xl bg-gray-100 text-rose-600 flex items-center justify-center mb-4">
                 <FiHeart className="w-5 h-5" />
               </div>
-              <p className="text-3xl font-bold text-gray-900">{stats?.likedResources ?? 0}</p>
+              <p className="text-3xl font-bold text-gray-900">{stats?.likedArticles ?? 0}</p>
               <h3 className="text-xs text-gray-500 font-bold uppercase">Resources Liked</h3>
             </div>
 
