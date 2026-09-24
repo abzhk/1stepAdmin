@@ -24,7 +24,7 @@ export const getExpiredUsers = async (req, res) => {
 
     const subscriptions = await Subscription.find({
       status: { $in: ["expired", "past_due", "cancelled"] },
-    }).populate("user", "username email");
+    }).populate("user", "fullName username email profilePicture");
 
     const result = subscriptions
       .map((sub) => {

@@ -57,7 +57,7 @@ export const getParent = async (req, res, next) => {
       });
     }
     const parentExists = await Parent.findOne({ userRef: id })
-    .populate("userRef", "username email profilePicture");
+    .populate("userRef", "fullName username email profilePicture");
     if (!parentExists) {
       return res.status(200).json({
         message: "Could find parent Details, try again later",
@@ -302,7 +302,7 @@ switch (sort) {
       Parent.find(query)
         .populate({
           path: "userRef",
-          select: "_id username email isActive",
+          select: "_id fullName fullName username email profilePicture isActive",
         })
         .collation({ locale: "en", strength: 2 })
         .sort(sortQuery)
@@ -562,7 +562,7 @@ export const getInactiveParents = async (req, res, next) => {
       Parent.find(parentQuery)
         .populate({
           path: "userRef",
-          select: "_id username email profilePicture isActive",
+          select: "_id fullName fullName username email profilePicture isActive",
         })
         .sort(sortQuery)
         .skip(numericStartIndex)
