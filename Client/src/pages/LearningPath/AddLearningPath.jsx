@@ -761,7 +761,7 @@ const AddLearningPath = () => {
             <button
               type="button"
               onClick={() =>
-                navigate("/learning-path")
+                navigate("/dashboard")
               }
               className="px-5 py-3 rounded-xl border border-[#DCCFC8] bg-white text-[#26382F] font-semibold hover:bg-[#F8F3EE] transition"
             >
