@@ -91,7 +91,7 @@ const LearningPathList = () => {
 
           onClick={() =>
             navigate(
-              "/resources/addlearningpath"
+              "/addlearningpath"
             )
           }
 
