@@ -133,7 +133,7 @@ const [bookingStatus, setBookingStatus] = useState("all");
       );
 
       setBookings(data.bookingDetails || []);
-
+      console.log()
       setBookingTotalPages(
         data.pagination?.totalPages || 1
       );
@@ -490,15 +490,13 @@ useEffect(() => {
                           "/default-avatar.png"
                         }
                         alt={
-                          bookingdata.patientDetails?.username
+                          bookingdata.patientDetails?.fullName
                          
                         }
                         className="w-10 h-10 rounded-full object-cover border border-gray-200"
                       />
                       <span>
-                        {bookingdata.patientDetails?.username ||
-                          bookingdata.patientName ||
-                          "Anonymous"}
+                        {bookingdata.patientDetails?.fullName || "Anonymous"}
                       </span>
                     </td>
 

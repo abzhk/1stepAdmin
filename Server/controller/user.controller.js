@@ -621,10 +621,10 @@ export const reactivateUser = async (req, res, next) => {
 export const getUserStatusHistory = async (req, res, next) => {
   try {
     const user = await User.findById(req.params.userId)
-      .select("accountStatus accountStatusHistory deactivationMeta email username")
-      .populate("accountStatusHistory.changedBy", "username email")
-      .populate("deactivationMeta.deactivatedBy", "username email")
-      .populate("deactivationMeta.reactivatedBy", "username email")
+      .select("accountStatus accountStatusHistory deactivationMeta email username fullName profilePicture")
+      .populate("accountStatusHistory.changedBy", "fullName username email profilePicture")
+      .populate("deactivationMeta.deactivatedBy", "fullName username email profilePicture")
+      .populate("deactivationMeta.reactivatedBy", "fullName username email profilePicture")
       .lean();
 
     if (!user) {

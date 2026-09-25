@@ -331,7 +331,7 @@ export const getParentsAndProviders = async (req, res,next) => {
 
      const { limit = 4, startIndex = 0 } = req.query;
     const parents = await Parent.find()
-      .populate("userRef", "username email profilePicture createdAt")
+      .populate("userRef", "username fullName email profilePicture createdAt")
       .sort({ createdAt: -1 })
        .skip(Number(startIndex))
       .limit(Number(limit))
@@ -410,7 +410,7 @@ export const updateParent = async (req, res ,next) => {
       {
         new: true,
       }
-    ).populate("userRef", "username email profilePicture");
+    ).populate("userRef", "username fullName email profilePicture");
 
     // ── Sync identity fields to User collection ──────────────────────────────
     const identitySync = {};
