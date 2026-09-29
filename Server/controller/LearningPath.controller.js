@@ -135,7 +135,8 @@ export const getAllLearningPaths = async (req, res, next) => {
 
     console.log("GET ALL API HIT");
 
-    const { page = 1, limit = 10 } = req.body;
+     const { page = 1, limit = 10 } = req.query;
+
 
     const pageNumber = Number(page);
     const limitNumber = Number(limit);
