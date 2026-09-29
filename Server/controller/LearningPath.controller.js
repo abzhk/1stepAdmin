@@ -105,7 +105,11 @@ export const getLearningPathById = async (req, res, next) => {
 
   try {
 
-    const learningPath = await LearningPath.findById(req.params.id);
+    const learningPath = await LearningPath.findById(req.params.id)
+      .populate(
+        "assessmentId",
+        "title description category test version status"
+      );
 
     if (!learningPath) {
       return res.status(404).json({
@@ -131,16 +135,33 @@ export const getAllLearningPaths = async (req, res, next) => {
 
     console.log("GET ALL API HIT");
 
-    const learningPaths = await LearningPath
+    const { page = 1, limit = 10 } = req.body;
+
+    const pageNumber = Number(page);
+    const limitNumber = Number(limit);
+
+    const skip = (pageNumber - 1) * limitNumber;
+
+    const [learningPaths, total] = await Promise.all([ LearningPath
       .find()
       .populate("assessmentId", "title")
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .skip(skip)
+        .limit(limitNumber),
+         LearningPath.countDocuments(),
+    ]);
 
     console.log("DATA:", learningPaths);
 
     res.status(200).json({
       success: true,
       data: learningPaths,
+        pagination: {
+        total,
+        page: pageNumber,
+        limit: limitNumber,
+        totalPages: Math.ceil(total / limitNumber),
+      },
     });
 
   } catch (error) {

@@ -10,37 +10,39 @@ const LearningPathList = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
 
+  const [page, setPage] = useState(1);
+const [limit, setLimit] = useState(10);
+const [totalPages, setTotalPages] = useState(1);
+
   const [loading, setLoading] = useState(true);
 
   const fetchLearningPaths = async () => {
+  try {
+    setLoading(true);
 
-    try {
+    const res = await api(
+      `/api/learning-path/all?page=${page}&limit=${limit}`
+    );
 
-      const res = await api(
-        "/api/learning-path/all"
-      );
+    setLearningPaths(
+      res.data || []
+    );
 
-      setLearningPaths(
-        res.data || []
-      );
+    setTotalPages(
+      res.pagination?.totalPages || 1
+    );
 
-    } catch (error) {
-
-      console.error(error);
-
-    } finally {
-
-      setLoading(false);
-
-    }
-
-  };
-
+  } catch (error) {
+    console.error(error);
+  } finally {
+    setLoading(false);
+  }
+};
   useEffect(() => {
 
     fetchLearningPaths();
 
-  }, []);
+  }, [page,limit]);
 
   const handleDelete = (id) => {
 
@@ -91,7 +93,7 @@ const LearningPathList = () => {
 
           onClick={() =>
             navigate(
-              "/resources/addlearningpath"
+              "/addlearningpath"
             )
           }
 
@@ -336,12 +338,48 @@ const LearningPathList = () => {
 
         </div>
 
+
       </div>
+
+
+
+
+      
 
     </div>
 
   )
 }
+
+
+<div className="flex flex-col sm:flex-row justify-end items-center gap-4 mt-4">
+
+  {/* Page navigation */}
+  <div className="flex items-center gap-2">
+
+    <button
+      disabled={page === 1}
+      onClick={() => setPage((prev) => prev - 1)}
+      className="px-4 py-2 border rounded-lg bg-white disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-100"
+    >
+      Previous
+    </button>
+
+    <span className="px-4 py-2 text-sm">
+      Page {page} of {totalPages}
+    </span>
+
+    <button
+      disabled={page === totalPages}
+      onClick={() => setPage((prev) => prev + 1)}
+      className="px-4 py-2 border rounded-lg bg-white disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-100"
+    >
+      Next
+    </button>
+
+  </div>
+
+</div>
 
     </div>
 

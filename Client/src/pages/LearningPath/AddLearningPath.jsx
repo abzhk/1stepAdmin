@@ -88,7 +88,7 @@ const AddLearningPath = () => {
   // FETCH EXISTING LEARNING PATH
   // =====================================================
 
-  const fetchLearningPath = async () => {
+ const fetchLearningPath = async () => {
   try {
     setLoading(true);
     setError("");
@@ -101,14 +101,26 @@ const AddLearningPath = () => {
 
     const data = res.data || res;
 
+    // Get assessment ID
     const assessmentId =
       data.assessmentId?._id ||
       data.assessmentId ||
       "";
 
+    // Get category and test from populated assessment
+    const categoryId =
+      data.assessmentId?.category || "";
+
+    const testId =
+      data.assessmentId?.test || "";
+
+    console.log("Category ID:", categoryId);
+    console.log("Test ID:", testId);
+    console.log("Assessment ID:", assessmentId);
+
     setFormData({
-      categoryId: "",
-      testId: "",
+      categoryId,
+      testId,
       assessmentId,
       title: data.title || "",
       image: data.image || "",
@@ -124,6 +136,16 @@ const AddLearningPath = () => {
             ],
     });
 
+    // Load tests belonging to the selected category
+    if (categoryId) {
+      await fetchTests(categoryId);
+    }
+
+    // Show the existing assessment
+    if (data.assessmentId?._id) {
+      setAssessment(data.assessmentId);
+    }
+
   } catch (error) {
     console.error(
       "Failed to fetch learning path:",
@@ -131,6 +153,7 @@ const AddLearningPath = () => {
     );
 
     setError("Failed to load learning path.");
+
   } finally {
     setLoading(false);
   }
@@ -527,6 +550,25 @@ const AddLearningPath = () => {
   const file = e.target.files?.[0];
 
   if (!file) return;
+   // Validate image type
+  if (!file.type.startsWith("image/")) {
+    setError("Please select a valid image file.");
+    e.target.value = "";
+    return;
+  }
+
+  // Validate image size - maximum 2 MB
+  const maxSize = 2 * 1024 * 1024;
+
+  if (file.size >= maxSize) {
+    setError("Image size must be less than 2 MB.");
+    e.target.value = "";
+    return;
+  }
+
+  // Clear previous error
+  setError("");
+
 
   const fileName = `${Date.now()}_${file.name}`;
 
@@ -707,7 +749,7 @@ const AddLearningPath = () => {
       );
 
       setTimeout(() => {
-        navigate("/learning-path");
+        navigate("/resources/learningpathlist");
       }, 1000);
     } catch (error) {
       console.error(
