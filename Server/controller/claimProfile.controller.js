@@ -233,8 +233,8 @@ if (req.query.status && req.query.status !== "all") {
         .sort({ submittedAt: 1 })   // oldest first (FIFO)
         .skip(skip)
         .limit(limit)
-        .populate("userId", "username email profilePicture")
-        .populate("reviewedBy", "username email")
+        .populate("userId", "fullName fullName username email profilePicture profilePicture")
+        .populate("reviewedBy", "fullName fullName username email profilePicture")
         .lean(),
       TherapistClaimRequest.countDocuments(filter),
     ]);
@@ -409,8 +409,8 @@ export const getAdminClaimDetail = async (req, res, next) => {
     const claimId = req.params.id;
 
     const claim = await TherapistClaimRequest.findById(claimId)
-      .populate("userId", "username email profilePicture phone")
-      .populate("reviewedBy", "username email");
+      .populate("userId", "fullName fullName username email profilePicture profilePicture phone")
+      .populate("reviewedBy", "fullName fullName username email profilePicture");
 
     if (!claim) {
       return next(errorHandler(404, "Claim not found"));
@@ -424,7 +424,7 @@ export const getAdminClaimDetail = async (req, res, next) => {
         TherapistPaymentDetail.findOne({ claimId }).lean(),
         ClaimAuditLog.find({ claimId })
           .sort({ createdAt: -1 })
-          .populate("performedBy", "username email")
+          .populate("performedBy", "fullName fullName username email profilePicture")
           .lean(),
       ]);
 
@@ -641,7 +641,7 @@ export const sendMessageToApplicant = async (req, res, next) => {
     }
 
     const claim = await TherapistClaimRequest.findById(id)
-      .populate("userId", "email username phone");
+      .populate("userId", "email fullName username profilePicture phone");
 
     if (!claim) {
       return next(errorHandler(404, "Claim not found"));
@@ -672,4 +672,4 @@ export const sendMessageToApplicant = async (req, res, next) => {
     next(err);
   }
 };
-
+

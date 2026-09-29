@@ -61,7 +61,7 @@ export const createProvider = async (req, res, next) => {
 };
 
 export const deleteProvider = async (req, res, next) => {
-  const provider = await Provider.findById(req.params.id);
+  const provider = await Provider.findById(req.params.id).populate("userRef", "fullName profilePicture");
   if (!provider) {
     return next(errorHandler(404, "Provider not found"));
   }
@@ -78,7 +78,7 @@ export const deleteProvider = async (req, res, next) => {
 };
 
 export const updateProvider = async (req, res, next) => {
-  const provider = await Provider.findById(req.params.id);
+  const provider = await Provider.findById(req.params.id).populate("userRef", "fullName profilePicture");
   if (!provider) {
     return next(errorHandler(404, "Provider not found"));
   }
@@ -629,7 +629,7 @@ export const createResource = async (req, res, next) => {
 };
 
 export const getProviderById = async (req, res) => {
-  const provider = await Provider.findById(req.params.id);
+  const provider = await Provider.findById(req.params.id).populate("userRef", "fullName profilePicture");
 
   if (!provider) {
     return res.status(404).json({

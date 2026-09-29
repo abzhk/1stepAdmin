@@ -188,7 +188,7 @@ const toggleDefaultModule = (module) => {
 useEffect(() => {
   if (mode !== "user" || !roleData) return;
 
-  setRoleName(roleData.userRef.username);
+  setRoleName(roleData.userRef.fullName || roleData.userRef.username);
   setDescription(roleData.userRef.email);
   setIsSuperAdmin(roleData.userRef.role.isSuperAdmin || false);
 

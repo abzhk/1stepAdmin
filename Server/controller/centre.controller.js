@@ -1265,7 +1265,7 @@ export const getCentreBookings = async (req, res) => {
     if (search) {
       matchStage.$or = [
         { patientName: { $regex: search, $options: "i" } },
-        { "patientSnapshot.username": { $regex: search, $options: "i" } },
+        { "patientSnapshot.patientName": { $regex: search, $options: "i" } },
       ];
     }
 
@@ -1290,7 +1290,7 @@ export const getCentreBookings = async (req, res) => {
           localField: "patient",
           foreignField: "_id",
           as: "patientDetails",
-          pipeline: [{ $project: { username: 1, profilePicture: 1 } }],
+          pipeline: [{ $project: { username: 1, fullName: 1, profilePicture: 1 } }],
         },
       },
       { $unwind: { path: "$patientDetails", preserveNullAndEmptyArrays: true } },
@@ -1670,7 +1670,7 @@ export const getRecentCentresForAdmin = async (req, res, next) => {
       )
       .populate(
         "userRef",
-        "email username profilePicture isActive"
+        "email fullName username profilePicture isActive"
       )
       .sort({
         createdAt: -1,
@@ -2023,7 +2023,7 @@ export const getCentresForAdmin = async (req, res, next) => {
         )
         .populate(
           "userRef",
-          "email profilePicture username"
+          "email fullName profilePicture username"
         )
         .sort(sortQuery)
         .skip(parsedStartIndex)

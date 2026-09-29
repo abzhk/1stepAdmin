@@ -86,14 +86,14 @@ const [decisionLoading, setDecisionLoading] = useState(false);
     setData(
       res.data.map((claim) => ({
         id: claim._id,
-        name: claim.userId?.username || "Unknown",
+        name: claim.userId?.fullName || "Unknown",
         email: claim.userId?.email || "",
         role: "Therapist",
         city: "-",
         phone: "-",
 
         initials:
-          claim.userId?.username
+          claim.userId?.fullName
             ?.split(" ")
             .map((n) => n[0])
             .join("")
@@ -421,7 +421,7 @@ docs: (selectedDetail?.documents || []).map((doc) => ({
  history: (selectedDetail?.auditLogs || []).map((log) => ({
   id: log._id,
   action: log.action,
-  by: log.performedBy?.username || "System",
+  by: log.performedBy?.fullName || "System",
   ts: log.createdAt,
 })),
   notes: selectedDetail?.claim?.adminNotes
@@ -429,7 +429,7 @@ docs: (selectedDetail?.documents || []).map((doc) => ({
       {
         id: selectedDetail.claim._id,
         text: selectedDetail.claim.adminNotes,
-        by: selectedDetail.claim.reviewedBy?.username || "Admin",
+        by: selectedDetail.claim.reviewedBy?.fullName || "Admin",
         ts:
           selectedDetail.claim.updatedAt ||
           selectedDetail.claim.reviewedAt ||

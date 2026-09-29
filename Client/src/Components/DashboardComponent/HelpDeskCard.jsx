@@ -45,7 +45,7 @@ const HelpDeskCard = ({ tickets  = []}) => {
           >
             <div className="flex gap-3 items-center flex-1 min-w-0">
               <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#2d4a36] to-[#426b50] text-white flex items-center justify-center text-sm font-semibold shadow-sm">
-                {item.user?.username?.charAt(0)}
+                {item.user?.fullName?.charAt(0)}
               </div>
 
               <div>
