@@ -1,10 +1,15 @@
 import React, { useEffect, useState, useRef } from "react";
-import { api } from "../../utils/api";
 import dateFormatUtils from "../../utils/dateFormatUtils";
 import PermissionGuard from "../../Components/PermissionGuard";
 import { MODULES, ACTIONS } from "../../constants/permission";
 import toast from "react-hot-toast";
 import { useOutletContext } from "react-router-dom"; 
+import {
+  getBillingIntervals,
+  createBillingInterval,
+  updateService,
+  deleteService,
+} from "../../services/masterDataApiServices.js";
 
 const BillingInterval = () => {
   const [billings, setBillings] = useState([]);
@@ -29,7 +34,7 @@ const BillingInterval = () => {
 
   const fetchBillings = async () => {
     try {
-      const res = await api("/api/services/admin/planBillingConfig");
+       const res = await getBillingIntervals();
       setBillings(res.data || []);
     } catch (err) {
       console.log(err);
@@ -78,21 +83,12 @@ const BillingInterval = () => {
     try {
       if (editId) {
         // UPDATE
-        await api(`/api/services/${editId}`, {
-          method: "PUT",
-          body: JSON.stringify(payload),
-        });
+        await updateService(editId, payload);
 
         toast.success("Billing updated");
       } else {
         // CREATE
-        await api("/api/services", {
-          method: "POST",
-          body: JSON.stringify({
-            ...payload,
-            type: "planBillingConfig",
-          }),
-        });
+       await createBillingInterval(payload);
 
         toast.success("Billing created");
       }
@@ -125,9 +121,7 @@ const BillingInterval = () => {
   };
 
   const handleDelete = async (id) => {
-    await api(`/api/services/${id}`, {
-      method: "DELETE",
-    });
+     await deleteService(id);
 
     toast.success("Deleted");
     fetchBillings();

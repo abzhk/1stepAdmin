@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { FaUserEdit, FaCamera } from "react-icons/fa";
 import { IoSaveOutline } from "react-icons/io5";
-import { api } from "../../utils/api.js";
+
 import toast from "react-hot-toast";
 import { storage } from "../../firebase.js";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
@@ -9,6 +9,10 @@ import PermissionGuard from "../../Components/PermissionGuard.jsx";
 import { MODULES, ACTIONS } from "../../constants/permission.js";
 import { setUser } from "../../redux/slice/authSlice";
 import { useDispatch } from "react-redux";
+import {
+  getAdminProfile,
+  updateAdminProfile,
+} from "../../services/adminProfileApiServices.js";
 
 // ── Upload constraints ─────────────────────────────────────────────────────────
 const ALLOWED_TYPES     = ["image/jpeg", "image/png", "image/webp"];
@@ -33,7 +37,7 @@ const AdminProfile = () => {
   const fetchProfile = async () => {
     setLoading(true);
     try {
-      const res = await api("/api/admin/profile", { method: "GET" });
+      const res = await getAdminProfile();
       if (res.success) {
         setProfile(res.user);
         setForm({
@@ -118,13 +122,10 @@ const AdminProfile = () => {
 
     try {
       // Only send username + profilePicture — email is immutable
-      const res = await api("/api/admin/update-profile", {
-        method: "PUT",
-        body: JSON.stringify({
-          username:       form.username.trim(),
-          profilePicture: form.profilePicture,
-        }),
-      });
+      const res = await updateAdminProfile({
+  username: form.username.trim(),
+  profilePicture: form.profilePicture,
+});
 
       if (res.success) {
         toast.success("Profile updated successfully");

@@ -1,12 +1,17 @@
 // OurServices.jsx
 import React, { useEffect, useState ,useRef } from "react";
-import { api } from "../../utils/api.js";
 import dateFormatUtils from "../../utils/dateFormatUtils.js";
 import PermissionGuard from "../../Components/PermissionGuard.jsx";
 import { MODULES, ACTIONS } from "../../constants/permission.js";
 import toast from "react-hot-toast";
 import { useOutletContext } from "react-router-dom";
 import SortableHeader from "../../Components/SortableHeader";
+import {
+  getOurServices,
+  createOurService,
+  updateService,
+  deleteService,
+} from "../../services/masterDataApiServices.js";
 
 const OurServices = () => {
   const [services, setServices] = useState([]);
@@ -36,9 +41,13 @@ const OurServices = () => {
 
   const fetchServices = async (pageNo = page, search = searchTerm,sort = sortConfig) => {
   try {
-    const res = await api(
-      `/api/services/admin/ourServices?page=${pageNo}&limit=${limit}&search=${encodeURIComponent(searchTerm)}&sortBy=${sort.key}&sortOrder=${sort.direction}`
-    );
+    const res = await getOurServices({
+      page: pageNo,
+      limit,
+      search,
+      sortBy: sort.key,
+      sortOrder: sort.direction,
+    });
 
     setServices(res.data || []);
     setPagination(res.pagination);
@@ -70,26 +79,19 @@ const OurServices = () => {
         order: Number(formData.order),
       };
 
-      await api(`/api/services/${editId}`, {
-        method: "PUT",
-        body: JSON.stringify(payload),
-      });
+       await updateService(editId, payload);
 
       toast.success("Service updated successfully");
     } else {
       // CREATE
       const payload = {
-        type: "ourServices",
         code: formData.code,
         label: formData.label,
         category: formData.category,
         order: Number(formData.order),
       };
 
-      await api("/api/services", {
-        method: "POST",
-        body: JSON.stringify(payload),
-      });
+      await createOurService(payload);
 
       toast.success("Service created successfully");
     }
@@ -125,9 +127,7 @@ const OurServices = () => {
 
   const handleDelete = async () => {
     try {
-      await api(`/api/services/${deleteId}`, {
-        method: "DELETE",
-      });
+     await deleteService(deleteId);
 
       toast.success("Service deleted successfully");
       fetchServices();

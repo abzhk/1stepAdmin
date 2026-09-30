@@ -8,8 +8,11 @@ import ReportsPanel from "./pages/ReportsPanel";
 import TicketDrawer from "./pages/TicketDrawer";
 import NewTicketModal from "./pages/NewTicketModal";
 import EmailChangeRequestsPanel from "./pages/EmailChangeRequestsPanel";
-import { api } from "../../utils/api.js";
 import { useEffect } from "react";
+import {
+  getAllTickets,
+   updateTicketApi,
+} from "../../services/helpdeskApiServices.js";
 
 //UI designed By Gokul
 export default function AdminHelpdesk() {
@@ -39,13 +42,7 @@ const [filter, setFilter] = useState("All");
   console.log("Payload:", payload);
 
   try {
-    const data = await api(
-      `/api/help/update-ticket/${ticketId}`,
-      {
-        method: "PUT",
-        body: JSON.stringify(payload),
-      }
-    );
+    const data = await updateTicketApi(ticketId, payload);
 
     console.log("Update Response:", data);
 
@@ -74,9 +71,12 @@ const fetchTickets = async () => {
   try {
     setLoading(true);
 
-    const data = await api(
-  `/api/help/all-tickets?search=${search}&status=${filter}&page=${page}&limit=10`
-);
+   const data = await getAllTickets(
+      search,
+      filter,
+      page,
+      10
+    );
 // console.log(data.pagination);
 console.log("tickets response:", data);
     setTickets(data.tickets);

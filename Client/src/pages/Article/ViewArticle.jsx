@@ -7,6 +7,11 @@ import { api } from "../../utils/api.js";
 import toast from "react-hot-toast";
 import PermissionGuard from "../../Components/PermissionGuard.jsx";
 import { MODULES, ACTIONS } from "../../constants/permission.js"
+import {
+  getPendingArticles,
+  approveArticle,
+  rejectArticle,
+} from "../../services/articleApiServices.js";
 
 const ViewArticle = () => {
   const [articles, setArticles] = useState([]);
@@ -35,9 +40,7 @@ const ViewArticle = () => {
         });
         if (search) params.append("search", search);
 
-        const data = await api(
-          `/api/article/pendingarticle?${params.toString()}`
-        );
+        const data = await getPendingArticles(page, search);
 
         setArticles(data.articles || []);
         setTotalPages(data.totalPages || 1);
@@ -69,9 +72,7 @@ const ViewArticle = () => {
 
   const handleApprove = async (articleId) => {
     try {
-      const data = await api(`/api/article/admin/${articleId}/approve`, {
-        method: "PUT",
-      });
+      const data = await approveArticle(articleId);
 
       if (!data.success) return;
 
@@ -84,13 +85,7 @@ const ViewArticle = () => {
 
   const handleReject = async (reason) => {
     try {
-      const data = await api(
-        `/api/article/admin/${selectedArticleId}/reject`,
-        {
-          method: "PUT",
-          body: JSON.stringify({ reason }),
-        }
-      );
+      const data = await rejectArticle(selectedArticleId, reason);
 
       if (!data.success) return;
 

@@ -1,7 +1,10 @@
 ﻿import React, { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { format, isToday, isYesterday } from 'date-fns';
-import { api } from "../../../utils/api.js";
+import {
+  getEmailChangeRequests,
+  approveEmailChangeRequest,
+} from "../../../services/helpdeskApiServices.js";
 
 export default function EmailChangeRequestsPanel() {
   const [requests, setRequests] = useState([]);
@@ -14,7 +17,7 @@ export default function EmailChangeRequestsPanel() {
 
   const fetchRequests = async () => {
     try {
-      const data = await api('/api/help/email-change-requests');
+      const data = await getEmailChangeRequests();
       if (data.success) {
         setRequests(data.tickets);
       } else {
@@ -31,7 +34,7 @@ export default function EmailChangeRequestsPanel() {
   const handleApprove = async (ticketId) => {
     setApproving(ticketId);
     try {
-      const data = await api(`/api/help/approve-email-change/${ticketId}`, { method: 'POST' });
+      const data = await approveEmailChangeRequest(ticketId);
       if (data.success) {
         toast.success("Request approved.");
         setRequests(prev => prev.map(t => 
@@ -41,6 +44,7 @@ export default function EmailChangeRequestsPanel() {
         toast.error(data.message || "Failed to approve.");
       }
     } catch (err) {
+      console.error("Error approving email change:", err);
       toast.error("Error approving request.");
     } finally {
       setApproving(null);

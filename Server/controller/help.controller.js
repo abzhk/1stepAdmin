@@ -3,6 +3,8 @@ import { errorHandler } from "../utils/error.js";
 import { sendPlainEmail } from "../services/email.service.js";
 import { ticketReplyEmail } from "../utils/emailTemplates.js";
 import User from "../model/user.model.js";
+import Parent from "../model/parent.model.js";
+import Provider from "../model/provider.model.js";
 
 const VALID_CATEGORIES = [
   "Account & Access",
@@ -152,18 +154,26 @@ const provider = await Provider.findOne({
   userRef: ticket.user?._id,
 }).lean();
 
-let displayName = await getUserFullName(ticket.user?._id) || "User";
-let displayProfilePicture = ticket.user?.profilePicture || "";
+let displayName =
+  ticket.user?.fullName ||
+  ticket.user?.username ||
+  "User";
+
+let displayProfilePicture =
+  ticket.user?.profilePicture || "";
 
 if (parent) {
   displayName =
-    parent.parentDetails?.fullName || displayName;
+    parent.parentDetails?.fullName ||
+    displayName;
 } else if (provider) {
   displayName =
-    provider.fullName || displayName;
+    provider.fullName ||
+    displayName;
 
   displayProfilePicture =
-    provider.profilePicture || displayProfilePicture;
+    provider.profilePicture ||
+    displayProfilePicture;
 }
 
       try {

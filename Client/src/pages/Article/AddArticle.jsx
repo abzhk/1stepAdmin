@@ -8,6 +8,13 @@ import { IoIosArrowRoundBack } from "react-icons/io";
 import { useSelector } from "react-redux";
 import Editor from "../../utils/Editor.jsx";
 import { MdDelete, MdCloudUpload } from "react-icons/md";
+import {
+  getArticleTags,
+  getActiveCategories,
+  createArticle,
+  updateArticle,
+  getArticleById,
+} from "../../services/articleApiServices.js";
 
 const AddArticle = () => {
   const navigate = useNavigate();
@@ -56,7 +63,7 @@ const AddArticle = () => {
   useEffect(() => {
     const fetchTags = async () => {
       try {
-        const res = await api("/api/services/articleTag?format=raw");
+       const res = await getArticleTags();
         setTags(res.data || []);
       } catch (err) {
         console.error(err);
@@ -179,7 +186,7 @@ const handleImageChange = (e) => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const data = await api("/api/category/active");
+        const data = await getActiveCategories();
         setCategories(data.categories || []);
       } catch (err) {
         console.error(err);
@@ -239,16 +246,9 @@ const handleChange = (e) => {
         tags: selectedTags.map((t) => t._id),
       };
 
-      const endpoint = id
-        ? `/api/article/admin/update/${id}`
-        : `/api/article/create`;
-
-      const method = id ? "PUT" : "POST";
-
-      const data = await api(endpoint, {
-        method,
-        body: JSON.stringify(payload),
-      });
+      const data = id
+  ? await updateArticle(id, payload)
+  : await createArticle(payload);
 
       if (!data.success) {
         toast.error(data.message || "Operation failed");
@@ -272,7 +272,7 @@ const handleChange = (e) => {
 
     const fetchArticle = async () => {
       try {
-        const data = await api(`/api/article/${id}`);
+        const data = await getArticleById(id);
         const article = data.article;
 
         setFormData({

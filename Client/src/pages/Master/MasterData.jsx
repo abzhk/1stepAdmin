@@ -8,6 +8,12 @@ import { useOutletContext } from "react-router-dom";
 import ServiceSpecializationMapping from "./ServiceSpecializationMapping.jsx";
 import { FaSort, FaSortUp, FaSortDown } from "react-icons/fa";
 import SortableHeader from "../../Components/SortableHeader.jsx";
+import {
+  getServices,
+  createService,
+  updateService,
+  deleteService,
+} from "../../services/masterDataApiServices.js";
 
 
 const MasterData = () => {
@@ -53,11 +59,13 @@ const fetchServices = async (
   setLoading(true);
 
   try {
-    const res = await api(
-      `/api/services/admin/serviceType?page=${pageNo}&limit=${limit}&search=${encodeURIComponent(
-        search
-      )}&sortBy=${sort.key}&sortOrder=${sort.direction}`
-    );
+   const res = await getServices({
+      page: pageNo,
+      limit,
+      search,
+      sortBy: sort.key,
+      sortOrder: sort.direction,
+    });
 
     setServices(res.data || []);
     setPagination(res.pagination);
@@ -92,21 +100,12 @@ const fetchServices = async (
       };
 
       if (editId) {
-        await api(`/api/services/${editId}`, {
-          method: "PUT",
-          body: JSON.stringify(payload),
-        });
-        toast.success("Service updated successfully");
-      } else {
-        await api("/api/services", {
-          method: "POST",
-          body: JSON.stringify({
-            type: "serviceType",
-            ...payload,
-          }),
-        });
-        toast.success("Service created successfully");
-      }
+      await updateService(editId, payload);
+      toast.success("Service updated successfully");
+    } else {
+      await createService(payload);
+      toast.success("Service created successfully");
+    }
 
       setFormData({
         code: "",
@@ -142,9 +141,7 @@ const fetchServices = async (
 
   const handleDelete = async () => {
     try {
-      await api(`/api/services/${deleteId}`, {
-        method: "DELETE",
-      });
+      await deleteService(deleteId);
 
       fetchServices();
       setShowDeleteModal(false);
@@ -155,15 +152,15 @@ const fetchServices = async (
     }
   };
 
-  const filteredServices = services.filter((service) => {
-    const search = searchTerm?.toLowerCase() || "";
-    return (
-      service.label?.toLowerCase().includes(search) ||
-      service.code?.toLowerCase().includes(search) ||
-      (service.metadata?.billable ? "yes" : "no").includes(search) ||
-      (service.isActive ? "active" : "inactive").includes(search)
-    );
-  });
+  // const filteredServices = services.filter((service) => {
+  //   const search = searchTerm?.toLowerCase() || "";
+  //   return (
+  //     service.label?.toLowerCase().includes(search) ||
+  //     service.code?.toLowerCase().includes(search) ||
+  //     (service.metadata?.billable ? "yes" : "no").includes(search) ||
+  //     (service.isActive ? "active" : "inactive").includes(search)
+  //   );
+  // });
 
 
   useEffect(() => {

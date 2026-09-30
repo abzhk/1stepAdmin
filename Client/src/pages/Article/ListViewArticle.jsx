@@ -2,12 +2,17 @@ import React, { useEffect, useState } from "react";
 import dateFormatUtils from "../../utils/dateFormatUtils.js";
 import { useNavigate } from "react-router-dom";
 import { IoIosArrowRoundBack } from "react-icons/io";
-import { api } from "../../utils/api.js";
 import toast from "react-hot-toast";
 import PermissionGuard from "../../Components/PermissionGuard.jsx";
 import { MODULES, ACTIONS } from "../../constants/permission.js"
 import { useOutletContext } from "react-router-dom";
 import SortableHeader from "../../Components/SortableHeader";
+
+import {
+  getAllArticles,
+  toggleFeatured,
+  deleteArticle
+} from "../../services/articleApiServices.js";
 
 const ListViewArticle = () => {
   const [articles, setArticles] = useState([]);
@@ -47,7 +52,14 @@ const fetchArticles = async (
       params.append("search", search.trim());
     }
 
-    const data = await api(`/api/article/all?${params}`);
+    const data = await getAllArticles({
+  page: pageNo,
+  limit: 10,
+  status: articleStatus,
+  sortBy: sort.key,
+  sortOrder: sort.direction,
+  search,
+});
 
     setArticles(data.articles || []);
     setTotalPages(data.totalPages || 1);
@@ -62,9 +74,7 @@ const fetchArticles = async (
 
   const handleToggleFeatured = async (id) => {
     try {
-      const data = await api(`/api/article/featured/${id}`, {
-        method: "PUT",
-      });
+      const data = await toggleFeatured(id);
   await fetchArticles();
       setArticles((prev) =>
         prev.map((a) => (a._id === id ? { ...a, featured: data.featured } : a)),
@@ -76,9 +86,7 @@ const fetchArticles = async (
 
  const handleDelete = async () => {
   try {
-    await api(`/api/article/admin/delete/${deleteId}`, {
-      method: "DELETE",
-    });
+    await deleteArticle(deleteId);
 
     toast.success("Article deleted");
     setShowDeleteModal(false);
@@ -339,7 +347,7 @@ Delete
 
       {showDeleteModal && (
   <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
-    <div className="bg-white rounded-lg shadow-lg w-96 p-6">
+    <div className="bg-white rounded-2xl shadow-lg w-96 p-6">
       <h2 className="text-lg font-semibold text-gray-800 mb-4">
         Delete Article
       </h2>
@@ -351,14 +359,14 @@ Delete
       <div className="flex justify-end gap-3">
         <button
           onClick={() => setShowDeleteModal(false)}
-          className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300"
+          className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300"
         >
           Cancel
         </button>
 
         <button
           onClick={handleDelete}
-          className="px-4 py-2 rounded bg-red-500 text-white hover:bg-red-600"
+          className="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600"
         >
           Delete
         </button>
