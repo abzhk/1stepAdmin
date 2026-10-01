@@ -11,7 +11,7 @@ const AddAssessmentCategory = () => {
   const [formData, setFormData] = useState({
     name: "",
     icon: "📝",
-    order: 0,
+    order: "",
     description: "",
   });
   const navigate= useNavigate();

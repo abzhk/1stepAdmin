@@ -6,6 +6,7 @@ import { toast } from "react-hot-toast";
 import PermissionGuard from "../../Components/PermissionGuard.jsx";
 import { MODULES, ACTIONS } from "../../constants/permission.js"
 import { useOutletContext } from "react-router-dom";
+import { IoIosArrowRoundBack } from "react-icons/io";
 
 
 const AssessmentList = () => {
@@ -72,9 +73,19 @@ const handleDelete = async (id) => {
 
   return (
     <div className="p-6 bg-offwhite min-h-screen">
+       
       
       {/* HEADER */}
-      <div className="flex justify-end items-center mb-6">
+      <div className="flex justify-between items-center mb-6">
+        
+         <button
+        type="button"
+        onClick={() => navigate("/addassessment")}
+        className="flex gap-2 items-center mb-6 text-darkgreen hover:text-green-700"
+      >
+        <IoIosArrowRoundBack size={22} />
+        Back
+      </button>
         {/* <h1 className="text-heading">Assessments</h1> */}
 <PermissionGuard module={MODULES.ASSESSMENT} action={ACTIONS.CREATE}>
         <button
@@ -91,7 +102,7 @@ const handleDelete = async (id) => {
       <div className="bg-white rounded-xl shadow  overflow-hidden">
         
         {/* TABLE HEADER */}
-        <div className="grid grid-cols-7 bg-offwhite px-6 py-3 text-cardfooter">
+        <div className="grid grid-cols-[80px_2fr_100px_120px_1.5fr_1.5fr_180px] bg-offwhite px-6 py-3 text-cardfooter">
           <div>SL.NO</div>
           <div>Title</div>
           <div>Version</div>
@@ -105,7 +116,7 @@ const handleDelete = async (id) => {
         {list.map((a, index) => (
           <div
             key={a._id}
-            className="grid grid-cols-7 px-6 py-4 items-center hover:bg-offwhite transition"
+              className="grid grid-cols-[80px_2fr_100px_120px_1.5fr_1.5fr_180px] px-6 py-4 items-center hover:bg-offwhite transition"
           >
             <div className="text-table-text">{index + 1}</div>
 
