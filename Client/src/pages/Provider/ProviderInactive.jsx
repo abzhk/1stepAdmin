@@ -10,6 +10,11 @@ import {
   FaCheckCircle,
   FaTrash,
 } from "react-icons/fa";
+import {
+  getInactiveProviders,
+  updateProviderStatus,
+  deleteProvider,
+} from "../../services/providerApiServices.js";
 
 
 const ProviderInactive = () => {
@@ -20,12 +25,12 @@ const ProviderInactive = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedProviderId, setSelectedProviderId] = useState(null);
 
-  const getInactiveProviders = async () => {
+  const fetchInactiveProviders = async () => {
     try {
       setLoading(true);
       setError("");
 
-      const data = await api(`/api/provider/inactive-providers`);
+      const data = await getInactiveProviders();
 
       if (!data.success) throw new Error(data.message || "Failed");
 
@@ -40,21 +45,12 @@ const ProviderInactive = () => {
   };
 
   useEffect(() => {
-    getInactiveProviders();
+    fetchInactiveProviders();
   }, []);
 
   const handleActive = async (providerId) => {
     try {
-      const data = await api(
-        `/api/provider/admin/provider/status`,
-        {
-          method: "PUT",
-          body: JSON.stringify({
-            providerId,
-            isActive: true,
-          }),
-        }
-      );
+      const data = await updateProviderStatus(providerId, true);
 
       if (!data.success) {
         throw new Error(data.message || "Activation failed");
@@ -74,12 +70,7 @@ const ProviderInactive = () => {
 
   const handleDelete = async (providerId) => {
     try {
-      const data = await api(
-        `/api/admin/providers/${providerId}`,
-        {
-          method: "DELETE",
-        }
-      );
+      const data = await deleteProvider(providerId);
 
       if (!data.success) {
         throw new Error(data.message || "Deletion failed");

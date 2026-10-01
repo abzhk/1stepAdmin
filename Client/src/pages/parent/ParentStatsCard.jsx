@@ -3,9 +3,12 @@ import {FiBookOpen,FiAward,FiHeart,FiActivity,FiCalendar,} from "react-icons/fi"
 import { useParams ,useSearchParams} from "react-router-dom";
 import dateFormatUtils from "../../utils/dateFormatUtils";
 import ParentBookings from "./ParentBookings.jsx";
-import {api} from "../../utils/api.js"
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
+import {
+  getParentById,
+  getParentStats,
+} from "../../services/parentApiServices.js";
 
 const ParentStatsCards = () => {
   const { userId } = useParams();
@@ -28,9 +31,7 @@ const ParentStatsCards = () => {
         setParentLoading(true);
         setParentError("");
 
-        const data = await api(
-          `/api/parent/getparent/${userId}`
-        );
+       const data = await getParentById(userId);
 
         setParent(data.parent || data);
       } catch (err) {
@@ -51,9 +52,7 @@ const ParentStatsCards = () => {
         setStatsLoading(true);
         setStatsError("");
 
-        const data = await api(
-          `/api/parent/parent/${userId}/stats`,
-        );
+        const data = await getParentStats(userId);
 
         setStats(data.data || null);
       } catch (err) {

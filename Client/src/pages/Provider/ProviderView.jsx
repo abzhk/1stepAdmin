@@ -2,9 +2,9 @@ import React, { useState, useEffect, useDeferredValue } from "react";
 import { AiFillEye } from "react-icons/ai";
 import { FiEdit2, FiGrid, FiList } from "react-icons/fi";
 import { useNavigate, useOutletContext,  useSearchParams, } from "react-router-dom";
-import { api } from "../../utils/api.js";
 import toast from "react-hot-toast";
 import SortableHeader from "../../Components/SortableHeader";
+import { getProviders, updateProviderStatus } from "../../services/providerApiServices.js";
 
 
 function ProviderView() {
@@ -44,22 +44,18 @@ const changePage = (newPage) => {
         setLoading(true);
         setError("");
 
-        const params = new URLSearchParams({
-          limit: String(limit),
-          startIndex: String((page - 1) * limit),
-           sort: sortConfig.key,
-  order: sortConfig.direction,
-        });
 
-        if (providerType) {
-          params.append("providerType", providerType);
-        }
+       const data = await getProviders({
+  page,
+  limit,
+  search: deferredSearchTerm,
+  providerType,
+  sortBy: sortConfig.key,
+  sortOrder: sortConfig.direction,
+});
 
-        if (deferredSearchTerm.trim()) {
-          params.append("searchTerm", deferredSearchTerm.trim());
-        }
-
-        const data = await api(`/api/provider/admin-individual-list?${params}`);
+setProviders(data.providers || []);
+setTotalCount(data.totalCount || 0);
 
         setProviders(data.providers || []);
         setTotalCount(data.totalCount || 0);
@@ -80,13 +76,7 @@ const changePage = (newPage) => {
       setError("");
       setStatusLoading(providerId);
 
-      const data = await api(`/api/provider/admin/provider/status`, {
-        method: "PUT",
-        body: JSON.stringify({
-          providerId,
-          isActive: newStatus,
-        }),
-      });
+     const data = await updateProviderStatus(providerId, newStatus);
 
       if (!data.success) {
         throw new Error(data.message || "Failed to update status");

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import dateFormatUtils from "../../utils/dateFormatUtils";
-import {api} from "../../utils/api.js"
+import { getParentBookings } from "../../services/parentApiServices.js";
 
 import  {
   formatTimeRangeAMPM,
@@ -24,13 +24,7 @@ const ParentBookings = () => {
 
 
 
-        const data = await api(
-          `/api/parent/bookings/${userId}`,
-          {
-            method: "GET",
-            credentials: "include",
-          }
-        );
+         const data = await getParentBookings(userId);
 console.log("Fetched bookings:", data.bookings);
         setBookings(data.bookings || []);
       } catch (err) {

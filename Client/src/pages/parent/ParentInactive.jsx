@@ -10,6 +10,11 @@ import {
   FaTrash,
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import {
+  getInactiveParents,
+  deleteParent,
+  activateParent,
+} from "../../services/parentApiServices.js";
 
 const ParentInactive = () => {
   const [parents, setParents] = useState([]);
@@ -19,12 +24,12 @@ const ParentInactive = () => {
   const [parentpopup, setParentpopup] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState(null);
 
-  const getInactiveParents = async () => {
+  const  fetchInactiveParents = async () => {
     try {
       setLoading(true);
       setError("");
 
-      const data = await api(`/api/parent/inactive-parents`);
+        const data = await getInactiveParents();
 
       const inactive = (data.parents || []).filter(
         (p) => !p.userRef?.isActive
@@ -39,15 +44,12 @@ const ParentInactive = () => {
   };
 
   useEffect(() => {
-    getInactiveParents();
+     fetchInactiveParents();
   }, []);
 
   const handleDelete = async (userId) => {
     try {
-      const data = await api(`/api/admin/parent/user/${userId}`, {
-        method: "DELETE",
-        credentials: "include",
-      });
+     const data = await deleteParent(userId);
 
       if (!data.success) throw new Error(data.message);
 
@@ -66,13 +68,7 @@ const ParentInactive = () => {
 
   const handleActive = async (userId) => {
     try {
-      const data = await api(`/api/parent/admin/parent/status`, {
-        method: "PUT",
-        body: JSON.stringify({
-          userId,
-          isActive: true,
-        }),
-      });
+      const data = await activateParent(userId);
 
       if (!data.success) throw new Error(data.message);
 

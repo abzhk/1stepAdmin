@@ -3,12 +3,18 @@ import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import { AiFillEye } from "react-icons/ai";
 import "react-circular-progressbar/dist/styles.css";
 import { useParams ,useSearchParams} from "react-router-dom";
-import {api} from "../../utils/api.js"
 import InvitedProviders from "./InvitedProviders.jsx";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 import dateFormatUtils from "../../utils/dateFormatUtils.js"
 import {formatDate,formatTimeAMPM, formatTimeRangeAMPM} from "../../utils/dateHelpers.js";
+import {
+  getProviderStats,
+  getProviderById,
+  getProviderBookings,
+  getProviderArticles,
+  getProviderAssessments,
+} from "../../services/providerApiServices.js";
 
 const MONTHS = [
   { value: 1, label: "Jan" },
@@ -79,12 +85,10 @@ const [bookingStatus, setBookingStatus] = useState("all");
         setError("");
         
 
-        const params = new URLSearchParams({
-  month: String(month),
-  year: String(year),
+        const data = await getProviderStats(id, {
+  month,
+  year,
 });
-
-        const data = await api(`/api/provider/getallbooking/${id}?${params.toString()}`);
        
         
         setStats(data.stats || null);
@@ -104,8 +108,8 @@ const [bookingStatus, setBookingStatus] = useState("all");
 
   const fetchProvider = async () => {
     try {
-      const data = await api(`/api/provider/providersbyid/${id}`);
-      setProviderType(data.provider.providerType);
+      const data = await getProviderById(id);
+setProviderType(data.provider.providerType);
     } catch (err) {
       console.error(err);
     }
@@ -122,18 +126,13 @@ const [bookingStatus, setBookingStatus] = useState("all");
       setTableLoading(true);
       setTableError("");
 
-      const params = new URLSearchParams({
-  page: String(bookingPage),
-  limit: String(bookingLimit),
+      const data = await getProviderBookings(id, {
+  page: bookingPage,
+  limit: bookingLimit,
   status: bookingStatus,
 });
 
-      const data = await api(
-        `/api/booking/getbookingbyprovider/${id}?${params.toString()}`
-      );
-
       setBookings(data.bookingDetails || []);
-      console.log()
       setBookingTotalPages(
         data.pagination?.totalPages || 1
       );
@@ -160,14 +159,10 @@ useEffect(() => {
         setArticlesError("");
         
 
-        const params = new URLSearchParams({
-          limit: articleLimit,
-          startIndex: articleStartIndex,
-        });
-
-        const data = await api(
-          `/api/article/providerarticle/${id}?${params.toString()}`
-        );
+        const data = await getProviderArticles(id, {
+  limit: articleLimit,
+  startIndex: articleStartIndex,
+});
 
         
 
@@ -193,14 +188,10 @@ useEffect(() => {
         setAssessmentsError("");
          
 
-        const params = new URLSearchParams({
-          limit: String(assessmentLimit),
-          startIndex: String(assessmentStartIndex),
-        });
-
-        const data = await api(
-          `/api/assessment/getassessment/${id}?${params.toString()}`
-        );
+        const data = await getProviderAssessments(id, {
+  limit: assessmentLimit,
+  startIndex: assessmentStartIndex,
+});
 
 
 

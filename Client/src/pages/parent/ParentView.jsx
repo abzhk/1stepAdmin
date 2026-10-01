@@ -2,11 +2,11 @@ import React, { useEffect, useState, useDeferredValue } from "react";
 import { AiFillEye } from "react-icons/ai";
 import { FiEdit2, FiGrid, FiList } from "react-icons/fi";
 import { useNavigate, useOutletContext, useSearchParams  } from "react-router-dom";
-import { api } from "../../utils/api.js";
 import toast from "react-hot-toast";
 import SortableHeader from "../../Components/SortableHeader";
 import DeactivateModal from "../../Components/DeactivateModal.jsx";
 import userlist from "../../assets/user profile.jpg" 
+import { getParents } from "../../services/parentApiServices.js";
 
 
 function ParentView() {
@@ -45,22 +45,19 @@ const page = Number(searchParams.get("page")) || 1;
   const [modalMode, setModalMode]       = useState("deactivate"); // "deactivate" | "reactivate"
   const [selectedUser, setSelectedUser] = useState(null);
 
-  const getParents = async () => {
+  const getParentsData = async () => {
     try {
       setLoading(true);
       setError("");
 
-      const params = new URLSearchParams({
-        limit: String(limit),
-        startIndex: String((page - 1) * limit),
-          sort: sortConfig.key,
-  order: sortConfig.direction,
-      });
 
-      if (deferredSearchTerm.trim()) params.append("searchTerm", deferredSearchTerm);
-
-      const data = await api(`/api/parent/getallparents?${params}`);
-
+     const data = await getParents({
+      page,
+      limit,
+      search: deferredSearchTerm,
+      sortBy: sortConfig.key,
+      sortOrder: sortConfig.direction,
+    });
       setParents(data.parents || []);
       setTotalPages(data.totalPages || 1);
       setTotalParents(data.totalParents || 0);
@@ -72,8 +69,13 @@ const page = Number(searchParams.get("page")) || 1;
   };
 
   useEffect(() => {
-    getParents();
-  }, [page, deferredSearchTerm, sortConfig.key, sortConfig.direction]);
+  getParentsData();
+}, [
+  page,
+  deferredSearchTerm,
+  sortConfig.key,
+  sortConfig.direction,
+]);
 
   const fromIndex = (loading && parents.length === 0) || parents.length === 0 ? 0 : (page - 1) * limit + 1;
   const toIndex = (page - 1) * limit + parents.length;

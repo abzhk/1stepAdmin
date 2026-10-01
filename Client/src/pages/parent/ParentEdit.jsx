@@ -9,6 +9,7 @@ import {
   allowNumbersOnly,
   indianPhoneSchema,
 } from "../../utils/adminValidators.js";
+import { getParentById, updateParent } from "../../services/parentApiServices.js";
 
 // ── Zod submit schema ─────────────────────────────────────────────────────────
 const parentAdminUpdateSchema = z.object({
@@ -72,7 +73,7 @@ function ParentEdit() {
       try {
         setLoading(true);
 
-        const data = await api(`/api/parent/getparent/${parentId}`);
+         const data = await getParentById(parentId);
 
         // Strip +91 prefix for display in the 10-digit phone field
         const rawPhone = String(data.parentDetails?.phoneNumber || "");
@@ -146,14 +147,11 @@ function ParentEdit() {
     try {
       setLoading(true);
 
-      const data = await api(`/api/admin/parent/user/${parentId}`, {
-        method: "PUT",
-        body: JSON.stringify({
+      const data = await updateParent(parentId, {
           "parentDetails.fullName":    formData.fullName,
           "parentDetails.childName":   formData.childName,
           "parentDetails.phoneNumber": finalPhone,
           "parentDetails.address":     formData.address,
-        }),
       });
 
       if (!data.success) {
@@ -332,7 +330,7 @@ function ParentEdit() {
               <div className="flex justify-end gap-3 mt-8 pt-5 border-t border-gray-100">
                 <button
                   type="button"
-                  onClick={() => navigate(`/parent-list?page=${page}`)}
+                  onClick={() => navigate(`/view-parent?page=${page}`)}
                   className="px-6 py-2.5 rounded-xl bg-white text-gray-700 hover:bg-gray-200 transition"
                 >
                   Cancel

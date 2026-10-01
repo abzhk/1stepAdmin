@@ -10,6 +10,10 @@ import {
   emailSchema,
   indianPhoneSchema,
 } from "../../utils/adminValidators.js";
+import {
+  getProviderById,
+   getTherapyOptions,
+} from "../../services/providerApiServices.js";
 
 // ── Zod submit schema ─────────────────────────────────────────────────────────
 const providerAdminUpdateSchema = z.object({
@@ -92,7 +96,7 @@ function ProviderEdit() {
   useEffect(() => {
     const fetchTherapies = async () => {
       try {
-        const data = await api("/api/services/serviceMode");
+       const data = await getTherapyOptions();
         setTherapyOptions(data.data);
       } catch (err) {
         console.error("Failed to fetch therapy options:", err);
@@ -108,7 +112,7 @@ function ProviderEdit() {
         setLoading(true);
         setError("");
 
-        const data = await api(`/api/provider/providersbyid/${id}`);
+        const data = await getProviderById(id);
 
         // Strip +91 prefix for display in the 10-digit input field
         const rawPhone = String(data.provider?.phone || "");
