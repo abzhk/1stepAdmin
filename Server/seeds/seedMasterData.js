@@ -341,6 +341,22 @@ const contentCategories = [
 ];
 
 // ============================================
+// 9b. LEARNING PROGRAM CATEGORIES
+// ============================================
+const learningProgramCategories = [
+  { code: "adhd", label: "ADHD", category: "neurodevelopmental", order: 1 },
+  { code: "autism", label: "Autism", category: "neurodevelopmental", order: 2 },
+  { code: "speech_language", label: "Speech & Language", category: "therapy", order: 3 },
+  { code: "sensory_processing", label: "Sensory Processing", category: "therapy", order: 4 },
+  { code: "parent_training", label: "Parent Training", category: "education", order: 5 },
+  { code: "occupational_therapy", label: "Occupational Therapy", category: "therapy", order: 6 },
+  { code: "behavioral_therapy", label: "Behavioral Therapy", category: "therapy", order: 7 },
+  { code: "child_psychology", label: "Child Psychology", category: "mental_health", order: 8 },
+  { code: "early_intervention", label: "Early Intervention", category: "developmental", order: 9 },
+  { code: "physical_therapy", label: "Physical Therapy", category: "therapy", order: 10 },
+];
+
+// ============================================
 // OUR SERVICES
 // ============================================
 const ourServices = [
@@ -507,6 +523,9 @@ async function seedMasterData() {
 
     await MasterData.bulkInsertOptions("contentCategory", contentCategories);
     console.log("✅ Content categories seeded");
+
+    await MasterData.bulkInsertOptions("learningProgramCategory", learningProgramCategories);
+    console.log("✅ Learning program categories seeded");
 
     await MasterData.bulkInsertOptions("ourServices", ourServices);
     console.log("✅ Our services seeded");

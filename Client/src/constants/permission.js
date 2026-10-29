@@ -1,5 +1,3 @@
-
-
 export const MODULES = {
   DASHBOARD: "dashboard",
   PROFILE: "profile",
@@ -12,12 +10,13 @@ export const MODULES = {
   BILLING: "billing",
   RESOURCE_LIBRARY: "resource_library",
   SETTINGS: "settings",
-  COURSES: "courses",
+  LEARNING_PROGRAMS: "learning_programs",
+  LEARNING: "learning_programs",
   ARTICLES: "article",
   MASTER_DATA: "master_data",
   PLANS: "plans",
-  Roles:"roles",
-  HELP:"help"
+  Roles: "roles",
+  HELP: "help",
 };
 
 export const ACTIONS = {
@@ -33,6 +32,5 @@ export const ROLES = {
   PROVIDER: "provider",
   ADMIN: "admin",
   SUPER_ADMIN: "Super Admin",
-  ARTICLE_ADMIN:"Content Admin",
+  ARTICLE_ADMIN: "Content Admin",
 };
-

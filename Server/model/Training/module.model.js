@@ -4,7 +4,7 @@ const moduleSchema = new mongoose.Schema(
   {
     course: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Course",
+      ref: "LearningProgram",
       required: true,
     },
     title: { type: String, required: true }, // e.g. "Introduction to Therapy"
@@ -16,4 +16,4 @@ const moduleSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export default mongoose.model("Module", moduleSchema);
+export default mongoose.models.Module || mongoose.model("Module", moduleSchema);

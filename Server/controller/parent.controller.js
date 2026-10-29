@@ -94,7 +94,7 @@ export const updateParent = async (req, res, next) => {
         .json({ message: "Could not update parent details, try later." });
     }
 
-    // ── Sync identity fields to User collection ──────────────────────────────
+    // â”€â”€ Sync identity fields to User collection â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const identitySync = {};
     if (updateParent.parentDetails?.fullName)       identitySync.fullName       = updateParent.parentDetails.fullName;
     if (updateParent.parentDetails?.profilePicture) identitySync.profilePicture = updateParent.parentDetails.profilePicture;
@@ -342,16 +342,16 @@ export const parentstats = async (req, res, next) => {
         .lean(),
     ]);
 
-    let totalCourses = 0;
-    let completedCourses = 0;
-    let activeCourses = 0;
-    let avgCourseProgress = 0;
+    let totalLearningPrograms = 0;
+    let completedLearningPrograms = 0;
+    let activeLearningPrograms = 0;
+    let avgLearningProgramProgress = 0;
     let totalAssessmentsAttempted = 0;
 
     if (progressDocs.length > 0) {
-      totalCourses = progressDocs.length;
+      totalLearningPrograms = progressDocs.length;
 
-      const courseProgressList = [];
+      const learningProgramProgressList = [];
 
       progressDocs.forEach((record) => {
         const modules = record.modules || [];
@@ -363,10 +363,10 @@ export const parentstats = async (req, res, next) => {
             ? Math.round((completedModules / totalModules) * 100)
             : 0;
 
-        courseProgressList.push(progress);
+        learningProgramProgressList.push(progress);
 
         if (record.certification?.certified || progress === 100) {
-          completedCourses += 1;
+          completedLearningPrograms += 1;
         }
 
         modules.forEach((m) => {
@@ -376,13 +376,13 @@ export const parentstats = async (req, res, next) => {
         });
       });
 
-      activeCourses = totalCourses - completedCourses;
+      activeLearningPrograms = totalLearningPrograms - completedLearningPrograms;
 
-      avgCourseProgress =
-        courseProgressList.length > 0
+      avgLearningProgramProgress =
+        learningProgramProgressList.length > 0
           ? Math.round(
-              courseProgressList.reduce((a, b) => a + b, 0) /
-                courseProgressList.length
+              learningProgramProgressList.reduce((a, b) => a + b, 0) /
+                learningProgramProgressList.length
             )
           : 0;
     }
@@ -393,10 +393,10 @@ export const parentstats = async (req, res, next) => {
         totalBookings,
         likedResources,
         likedArticles,
-        totalCourses,
-        completedCourses,
-        activeCourses,
-        avgCourseProgress,
+        totalLearningPrograms,
+        completedLearningPrograms,
+        activeLearningPrograms,
+        avgLearningProgramProgress,
         totalAssessmentsAttempted,  
       },
     });

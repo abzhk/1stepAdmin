@@ -21,6 +21,7 @@ export const VALID_TYPES = [
   "therapyType",
 
   // Programs & Content
+  "learningProgramCategory",
   "programCategory",
   "activityType",
   "contentCategory",

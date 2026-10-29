@@ -75,7 +75,8 @@ const planSchema = new mongoose.Schema(
           "patients",
           "settings",
           "article",
-          "courses",
+          "learning_programs",
+          "learning",
           "plans",
           "master_data"
         ],
@@ -160,5 +161,5 @@ planSchema.index({ plan_key: 1, user_type: 1, version_number: 1 }, { unique: tru
 planSchema.index({ slug: 1 });
 planSchema.index({ is_active: 1 });
 
-const Plan = mongoose.model("Plan", planSchema);
+const Plan = mongoose.models.Plan || mongoose.model("Plan", planSchema);
 export default Plan;

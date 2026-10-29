@@ -147,9 +147,9 @@ if (statsError) {
               <div className="w-14 h-14 rounded-2xl bg-white text-yellow flex items-center justify-center mb-6">
                 <FiBookOpen className="w-8 h-8" />
               </div>
-              <h3 className="text-white font-bold uppercase tracking-wider text-sm">Course Progress</h3>
+              <h3 className="text-white font-bold uppercase tracking-wider text-sm">Learning Program Progress</h3>
               <div className="flex items-baseline gap-2 mt-2 mb-8">
-                <span className="text-6xl font-black text-white">{stats?.avgCourseProgress ?? 0}%</span>
+                <span className="text-6xl font-black text-white">{stats?.avgLearningProgramProgress ?? 0}%</span>
                 <span className="text-lg text-gray-400">average</span>
               </div>
               
@@ -157,12 +157,12 @@ if (statsError) {
                 <div className="h-4 bg-gray-100 rounded-full overflow-hidden">
                   <div
                     className="h-full bg-blue-500 rounded-full transition-all duration-1000"
-                    style={{ width: `${Math.min(100, stats?.avgCourseProgress ?? 0)}%` }}
+                    style={{ width: `${Math.min(100, stats?.avgLearningProgramProgress ?? 0)}%` }}
                   ></div>
                 </div>
                 <div className="flex justify-between text-sm font-bold text-yellow px-1">
-                  <span>{stats?.completedCourses ?? 0} Completed</span>
-                  <span>{stats?.totalCourses ?? 0} Total Courses</span>
+                  <span>{stats?.completedLearningPrograms ?? 0} Completed</span>
+                  <span>{stats?.totalLearningPrograms ?? 0} Total Learning Programs</span>
                 </div>
               </div>
             </div>

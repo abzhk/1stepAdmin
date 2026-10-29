@@ -80,7 +80,8 @@ const validModules = [
   "resource_library",
   "settings",
   "article",
-  "courses",
+  "learning_programs",
+  "learning",
   "plans"
 ];
 
