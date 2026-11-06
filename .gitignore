@@ -5,3 +5,4 @@ Server/.env
 client/node_modules/
 client/.env
 dist/
+GEMINI.md
