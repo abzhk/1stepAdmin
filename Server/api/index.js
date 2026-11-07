@@ -17,6 +17,7 @@ const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:5174",
   "https://admin1step.vercel.app",
+  "https://1step-admin-testing.vercel.app",
 ];
 
 app.use(
