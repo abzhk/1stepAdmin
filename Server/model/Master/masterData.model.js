@@ -1,3 +1,13 @@
+/**
+ * @file masterData.model.js
+ * @author Imran
+ * @created 12/01/2025
+ * @lastModified 10/11/2026 by Imran
+ *
+ * [ChangeLog]:
+ * - 12/01/2025: Master data schema definitions.
+ * - 10/11/2026: Synchronized ourResources type and sorted grouped options with 1stepdev by Imran.
+ */
 import mongoose, { Schema } from "mongoose";
 
 export const VALID_TYPES = [
@@ -27,6 +37,8 @@ export const VALID_TYPES = [
   "contentCategory",
   "articleTag",
   "ourServices",
+  // [Imran - 10/11/2026]: Synced ourResources type for resources dropdown navigation
+  "ourResources",
 
   // Operational
   "ageBand",
@@ -411,8 +423,24 @@ masterDataSchema.statics.formatForDropdown = async function (
 masterDataSchema.statics.getGroupedOptions = async function (type, groupByField) {
   return await this.aggregate([
     { $match: { type, isActive: true } },
-    { $group: { _id: `$${groupByField}`, options: { $push: "$$ROOT" } } },
-    { $sort: { _id: 1 } }
+    { $sort: { order: 1, label: 1 } },
+    /* === BEGIN: Modified by Imran (10/11/2026) - Support categoryOrder and ordered options === */
+    {
+      $group: {
+        _id: `$${groupByField}`,
+        options: { $push: "$$ROOT" },
+        minOrder: { $min: "$order" },
+        categoryOrder: { $min: "$metadata.categoryOrder" },
+      },
+    },
+    /* === END: Modified by Imran (10/11/2026) === */
+    {
+      $sort: {
+        categoryOrder: 1,
+        minOrder: 1,
+        _id: 1,
+      },
+    }
   ]);
 };
 

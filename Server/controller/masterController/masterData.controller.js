@@ -1,3 +1,13 @@
+/**
+ * @file masterData.controller.js
+ * @author Imran
+ * @created 12/01/2025
+ * @lastModified 10/11/2026 by Imran
+ *
+ * [ChangeLog]:
+ * - 12/01/2025: Master data controller endpoints.
+ * - 10/11/2026: Supported ourResources type and metadata configuration by Imran.
+ */
 import MasterData, { VALID_TYPES } from "../../model/Master/masterData.model.js";
 import joi from "joi";
 

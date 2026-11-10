@@ -1,4 +1,14 @@
-import MasterData from "../models/Master/masterData.model.js";
+/**
+ * @file seedMasterData.js
+ * @author Imran
+ * @created 12/01/2025
+ * @lastModified 10/11/2026 by Imran
+ *
+ * [ChangeLog]:
+ * - 12/01/2025: Initial seed master data definition.
+ * - 10/11/2026: Added ourResources seed options synchronized with 1stepdev by Imran.
+ */
+import MasterData from "../model/Master/masterData.model.js";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import path from "path";
@@ -371,6 +381,278 @@ const ourServices = [
 // ============================================
 // ARTICLE TAGS
 // ============================================
+// ============================================
+// OUR RESOURCES (Website Navbar Master Data)
+// ============================================
+// [Imran - 10/11/2026]: Synchronized ourResources default seeds (Articles, Provider Assessments, Learning Programs)
+const ourResources = [
+  // 1. Articles & Categories
+  {
+    code: "articles_all",
+    label: "All Articles",
+    category: "Articles",
+    description: "Explore all developmental guides & clinical reads",
+    order: 1,
+    metadata: {
+      path: "/resources/articles",
+      categoryOrder: 1,
+      isExternal: false,
+      allowedRoles: ["guest", "parent", "provider", "centre"],
+    },
+  },
+  {
+    code: "articles_speech",
+    label: "Speech Therapy",
+    category: "Articles",
+    description: "Articulation, fluency & communication insights",
+    order: 2,
+    metadata: {
+      path: "/resources/articles?category=Speech+Therapy",
+      categoryOrder: 1,
+      isExternal: false,
+      allowedRoles: ["guest", "parent", "provider", "centre"],
+    },
+  },
+  {
+    code: "articles_mental_health",
+    label: "Mental Health",
+    category: "Articles",
+    description: "Child & adolescent emotional well-being",
+    order: 3,
+    metadata: {
+      path: "/resources/articles?category=Mental+Health",
+      categoryOrder: 1,
+      isExternal: false,
+      allowedRoles: ["guest", "parent", "provider", "centre"],
+    },
+  },
+  {
+    code: "articles_techniques",
+    label: "Therapy Techniques",
+    category: "Articles",
+    description: "Evidence-based clinical intervention methods",
+    order: 4,
+    metadata: {
+      path: "/resources/articles?category=Therapy+Techniques",
+      categoryOrder: 1,
+      isExternal: false,
+      allowedRoles: ["guest", "parent", "provider", "centre"],
+    },
+  },
+  {
+    code: "articles_wellness",
+    label: "Wellness & Self Care",
+    category: "Articles",
+    description: "Parenting mindfulness & burnout reduction",
+    order: 5,
+    metadata: {
+      path: "/resources/articles?category=Wellness",
+      categoryOrder: 1,
+      isExternal: false,
+      allowedRoles: ["guest", "parent", "provider", "centre"],
+    },
+  },
+  {
+    code: "articles_stress",
+    label: "Stress Management",
+    category: "Articles",
+    description: "Anxiety coping strategies & regulation tools",
+    order: 6,
+    metadata: {
+      path: "/resources/articles?category=Stress+Management",
+      categoryOrder: 1,
+      isExternal: false,
+      allowedRoles: ["guest", "parent", "provider", "centre"],
+    },
+  },
+
+  // 2. Assessments Created by Providers & Categories (skipping /resources/assessmentselectpage)
+  {
+    code: "assess_all",
+    label: "All Assessments",
+    category: "Clinical Assessments",
+    description: "Standardized clinician-authored screening tools",
+    order: 10,
+    metadata: {
+      path: "/resources/assessements",
+      categoryOrder: 2,
+      isExternal: false,
+      allowedRoles: ["guest", "parent"],
+    },
+  },
+  {
+    code: "assess_adhd",
+    label: "ADHD Screening",
+    category: "Clinical Assessments",
+    description: "Attention & hyperactivity symptom evaluation",
+    order: 11,
+    metadata: {
+      path: "/resources/assessements?category=ADHD",
+      categoryOrder: 2,
+      isExternal: false,
+      allowedRoles: ["guest", "parent"],
+    },
+  },
+  {
+    code: "assess_anxiety",
+    label: "Anxiety Screener (GAD-7)",
+    category: "Clinical Assessments",
+    description: "Evidence-based anxiety severity screener",
+    order: 12,
+    metadata: {
+      path: "/resources/assessements?category=Anxiety",
+      categoryOrder: 2,
+      isExternal: false,
+      allowedRoles: ["guest", "parent"],
+    },
+  },
+  {
+    code: "assess_autism",
+    label: "Autism Screener (AQ-10)",
+    category: "Clinical Assessments",
+    description: "Brief autism spectrum quotient tool",
+    order: 13,
+    metadata: {
+      path: "/resources/assessements?category=Autism+(ASD)",
+      categoryOrder: 2,
+      isExternal: false,
+      allowedRoles: ["guest", "parent"],
+    },
+  },
+  {
+    code: "assess_depression",
+    label: "Depression Screener (PHQ-9)",
+    category: "Clinical Assessments",
+    description: "Standardized clinical mood questionnaire",
+    order: 14,
+    metadata: {
+      path: "/resources/assessements?category=Depression",
+      categoryOrder: 2,
+      isExternal: false,
+      allowedRoles: ["guest", "parent"],
+    },
+  },
+  {
+    code: "assess_occupational",
+    label: "Occupational Therapy",
+    category: "Clinical Assessments",
+    description: "Sensory, fine-motor & daily functioning",
+    order: 15,
+    metadata: {
+      path: "/resources/assessements?category=Occupational+Therapy",
+      categoryOrder: 2,
+      isExternal: false,
+      allowedRoles: ["guest", "parent"],
+    },
+  },
+  {
+    code: "assess_speech",
+    label: "Speech Therapy",
+    category: "Clinical Assessments",
+    description: "Verbal expression & articulation screeners",
+    order: 16,
+    metadata: {
+      path: "/resources/assessements?category=Speech+Therapy",
+      categoryOrder: 2,
+      isExternal: false,
+      allowedRoles: ["guest", "parent"],
+    },
+  },
+
+  // 3. Learning Programs & Categories
+  {
+    code: "lp_all",
+    label: "All Programs",
+    category: "Learning Programs",
+    description: "Complete catalog of guided therapy courses",
+    order: 20,
+    metadata: {
+      path: "/resources/learning-programs",
+      categoryOrder: 3,
+      isExternal: false,
+      allowedRoles: ["guest", "parent"],
+    },
+  },
+  {
+    code: "lp_sensory",
+    label: "Sensory Processing",
+    category: "Learning Programs",
+    description: "Calming strategies & sensory diet routines",
+    order: 21,
+    metadata: {
+      path: "/resources/learning-programs?category=Sensory+Processing",
+      categoryOrder: 3,
+      isExternal: false,
+      allowedRoles: ["guest", "parent"],
+    },
+  },
+  {
+    code: "lp_speech",
+    label: "Speech & Language",
+    category: "Learning Programs",
+    description: "Early verbal communication & vocabulary",
+    order: 22,
+    metadata: {
+      path: "/resources/learning-programs?category=Speech+%26+Language",
+      categoryOrder: 3,
+      isExternal: false,
+      allowedRoles: ["guest", "parent"],
+    },
+  },
+  {
+    code: "lp_adhd",
+    label: "ADHD Support",
+    category: "Learning Programs",
+    description: "Executive functioning & focus routines",
+    order: 23,
+    metadata: {
+      path: "/resources/learning-programs?category=ADHD",
+      categoryOrder: 3,
+      isExternal: false,
+      allowedRoles: ["guest", "parent"],
+    },
+  },
+  {
+    code: "lp_autism",
+    label: "Autism Guidance",
+    category: "Learning Programs",
+    description: "Social communication & behavioral support",
+    order: 24,
+    metadata: {
+      path: "/resources/learning-programs?category=Autism",
+      categoryOrder: 3,
+      isExternal: false,
+      allowedRoles: ["guest", "parent"],
+    },
+  },
+  {
+    code: "lp_parent_training",
+    label: "Parent Training",
+    category: "Learning Programs",
+    description: "Hands-on caregiver intervention techniques",
+    order: 25,
+    metadata: {
+      path: "/resources/learning-programs?category=Parent+Training",
+      categoryOrder: 3,
+      isExternal: false,
+      allowedRoles: ["guest", "parent"],
+    },
+  },
+  {
+    code: "lp_ot",
+    label: "Occupational Therapy",
+    category: "Learning Programs",
+    description: "Motor skills & daily living independence",
+    order: 26,
+    metadata: {
+      path: "/resources/learning-programs?category=Occupational+Therapy",
+      categoryOrder: 3,
+      isExternal: false,
+      allowedRoles: ["guest", "parent"],
+    },
+  },
+];
+
 const articleTags = [
   { code: "trauma", label: "Trauma", order: 1 },
   { code: "cbt", label: "CBT", order: 2 },
@@ -529,6 +811,10 @@ async function seedMasterData() {
 
     await MasterData.bulkInsertOptions("ourServices", ourServices);
     console.log("✅ Our services seeded");
+
+    // [Imran - 10/11/2026]: Seed ourResources
+    await MasterData.bulkInsertOptions("ourResources", ourResources);
+    console.log("✅ Our resources seeded");
 
     await MasterData.bulkInsertOptions("articleTag", articleTags);
     console.log("✅ Article tags seeded");
